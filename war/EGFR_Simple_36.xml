@@ -1,0 +1,2220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Process nextId="249" reactomeId="177929">
+  <Properties>
+    <displayName>Signaling by EGFR</displayName>
+  </Properties>
+  <Nodes>
+    <org.gk.render.RenderableProtein id="2" reactomeId="179888" position="98 109" bounds="40 98 117 22">
+      <Properties>
+        <displayName>pro-EGF precursor</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableChemical id="3" reactomeId="179856" position="1961 167" bounds="1893 145 136 44">
+      <Properties>
+        <displayName>Phosphatidylinositol-4,5-bisphosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="4" reactomeId="179845" position="644 96" bounds="593 85 102 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="5" reactomeId="182939" position="3253 490" bounds="3191 458 124 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:CBL:Phospho-Sprouty ubiquitinated</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="8" reactomeId="180500" position="1639 352" bounds="1619 341 40 22">
+      <Properties>
+        <displayName>PAG1</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="9" reactomeId="180269" position="1687 579" bounds="1620 547 134 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>SHP2-GRB2:Phospho GAB1-EGF-Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="12" reactomeId="109788" position="276 606" bounds="248 595 56 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>RAS:RAF</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="14" reactomeId="74789" position="1070 697" bounds="1038 686 65 22">
+      <Properties>
+        <displayName>PI3K-p85</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="15" reactomeId="182956" position="1901 767" bounds="1859 749 85 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CBL:Cool/Pix:CDC42-GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="16" reactomeId="180522" position="1793 359" bounds="1744 341 99 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Paxillin:CSK:Src complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="19" reactomeId="179837" position="226 147" bounds="207 136 38 22">
+      <Properties>
+        <displayName>EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="20" reactomeId="179847" position="472 96" bounds="440 85 64 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="21" reactomeId="180326" position="1686 417" bounds="1621 385 131 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>SHP2:GRB2:Phospho GAB1-EGF-Phospho-EGFR (-Y992) dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="22" reactomeId="212703" position="1147 340" bounds="1098 315 99 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Activated EGFR:Phospho-PLC-gamma1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="23" reactomeId="182937" position="3020 359" bounds="2994 348 53 22">
+      <Properties>
+        <displayName>Eps15R</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableChemical id="25" reactomeId="29420" position="477 741" bounds="457 726 41 30">
+      <Properties>
+        <displayName>GDP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="26" reactomeId="179864" position="851 757" bounds="789 746 125 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:GAB1:PI3Kreg</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="27" reactomeId="180494" position="1513 315" bounds="1484 301 58 29">
+      <Properties>
+        <displayName>p-PAG1</displayName>
+      </Properties>
+      <NodeAttachments>
+        <org.gk.render.RenderableFeature relativeX="0.41379310344827586" relativeY="0.02857142857142857" label="P" description="Tyr" trackId="0" reactomeId="180498" />
+      </NodeAttachments>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="33" reactomeId="179820" position="601 520" bounds="551 495 101 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:SOS-EGF-Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="34" reactomeId="167679" position="894 260" bounds="841 235 107 50">
+      <Properties>
+        <displayName>Phospho-Phospholipase C gamma 1</displayName>
+      </Properties>
+      <NodeAttachments>
+        <org.gk.render.RenderableFeature relativeX="0.9894736842105263" relativeY="0.26" label="P" description="Tyr" trackId="0" reactomeId="167675" />
+        <org.gk.render.RenderableFeature relativeX="0.43056844507292225" relativeY="1.0" label="P" description="Tyr" trackId="1" reactomeId="191478" />
+        <org.gk.render.RenderableFeature relativeX="0.7240511445116076" relativeY="1.0" label="P" description="Tyr" trackId="2" reactomeId="191469" />
+        <org.gk.render.RenderableFeature relativeX="0.14592423425619094" relativeY="1.0" label="P" description="Tyr" trackId="3" reactomeId="213441" />
+      </NodeAttachments>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="35" reactomeId="182915" position="2474 732" bounds="2430 707 89 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Cool/Pix Ubiquitinated:CDC42-GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="37" reactomeId="74787" position="529 960" bounds="493 930 72 61">
+      <Properties>
+        <displayName>PI3-kinase p110 subunit alpha</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableProtein id="38" reactomeId="74686" position="1053 921" bounds="1033 910 40 22">
+      <Properties>
+        <displayName>GRB2</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="39" reactomeId="182917" position="2410 175" bounds="2356 157 108 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Cool/Pix:CDC42-GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableEntity id="40" reactomeId="182912" position="3567 432" bounds="3542 421 51 22">
+      <Properties>
+        <displayName>Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableEntity>
+    <org.gk.render.RenderableComplex id="41" reactomeId="182911" position="2173 537" bounds="2111 519 124 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableEntity id="42" reactomeId="182909" position="3022 698" bounds="2997 687 51 22">
+      <Properties>
+        <displayName>Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableEntity>
+    <org.gk.render.RenderableComplex id="43" reactomeId="109783" position="388 624" bounds="345 613 86 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>p21 RAS:GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="44" reactomeId="177480" position="3149 222" bounds="3091 204 116 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Adaptor protein 2 complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="46" reactomeId="182914" position="1614 813" bounds="1576 802 76 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CBL:Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="48" reactomeId="112199" position="1422 847" bounds="1408 836 29 22">
+      <Properties>
+        <displayName>CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableProtein id="49" reactomeId="179795" position="1062 830" bounds="1042 819 40 22">
+      <Properties>
+        <displayName>GAB1</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableProtein id="55" reactomeId="162563" position="1497 708" bounds="1456 697 83 22">
+      <Properties>
+        <displayName>SHP2</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="59" reactomeId="182936" position="3549 551" bounds="3485 498 129 106" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL:CIN85 ubiquitinated:Endophilin:Epsin:Eps15R:Eps15 complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="60" reactomeId="179867" position="541 840" bounds="478 822 127 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR-GRB2:GAB1:PI3Kreg</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="61" reactomeId="177482" position="3066 164" bounds="3040 153 52 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Clathrin</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="64" reactomeId="74680" position="1233 707" bounds="1214 696 39 22">
+      <Properties>
+        <displayName>SHC1</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableProtein id="65" reactomeId="167682" position="801 173" bounds="748 155 107 36">
+      <Properties>
+        <displayName>Phospholipase C gamma 1</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="66" reactomeId="182930" position="2899 155" bounds="2837 123 124 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer Ubiquitinated:Phospho-CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="67" reactomeId="197745" position="339 163" bounds="274 124 131 78">
+      <Properties>
+        <displayName>Leucine-rich repeats and immunoglobulin-like domains protein 1 precursor</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="68" reactomeId="182910" position="2167 723" bounds="2135 712 65 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CBL:GRB2</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="69" reactomeId="179849" position="1311 755" bounds="1273 744 76 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:GAB1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="72" reactomeId="179882" position="659 293" bounds="597 261 124 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y992, Y1068, Y1086, Y1148, Y1173) dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="74" reactomeId="180331" position="728 538" bounds="664 513 128 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:SOS-Phospho-SHC:EGF:Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="76" reactomeId="182952" position="3076 358" bounds="3057 347 39 22">
+      <Properties>
+        <displayName>Epsin</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="78" reactomeId="109797" position="954 708" bounds="922 691 65 34" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:SOS1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="80" reactomeId="182941" position="3334 277" bounds="3268 231 133 92" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL:GRB2:CIN85:Endophilin:Epsin:Eps15R:Eps15 complex:Clathrin</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="81" reactomeId="182946" position="2837 458" bounds="2775 426 125 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL:GRB2:CIN85:Endophilin</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="83" reactomeId="182960" position="2456 444" bounds="2394 426 124 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="85" reactomeId="29438" position="758 717" bounds="738 702 40 30">
+      <Properties>
+        <displayName>GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="87" reactomeId="182928" position="2367 625" bounds="2305 600 124 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:CBL:GRB2</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="88" reactomeId="182955" position="2623 178" bounds="2601 167 44 22">
+      <Properties>
+        <displayName>CIN85</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="90" reactomeId="180301" position="1159 439" bounds="1096 421 127 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR-SHC</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="95" reactomeId="182942" position="1705 816" bounds="1665 805 81 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CBL:Cool/Pix</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="96" reactomeId="179791" position="756 909" bounds="692 884 129 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR-GRB2:GAB1:PI3Kreg:PI3Kcat</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="99" reactomeId="109787" position="379 717" bounds="316 692 126 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>p-Raf1(S259,S621):14-3-3 protein beta/alpha</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="100" reactomeId="112192" position="2244 295" bounds="2230 284 29 22">
+      <Properties>
+        <displayName>CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="101" reactomeId="182943" position="2398 306" bounds="2336 281 124 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:CBL:CIN85</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="102" reactomeId="182950" position="1439 770" bounds="1393 752 92 36">
+      <Properties>
+        <displayName>Y55-phospho Sprouty 2</displayName>
+      </Properties>
+      <NodeAttachments>
+        <org.gk.render.RenderableFeature relativeX="0.14001956129461046" relativeY="1.0" label="P" description="Tyr" trackId="0" reactomeId="182951" />
+      </NodeAttachments>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="103" reactomeId="182945" position="2882 623" bounds="2820 591 124 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer Ubiquitinated:Phospho-CBL:GRB2</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="105" reactomeId="64847" position="924 953" bounds="867 935 114 36">
+      <Properties>
+        <displayName>Son of sevenless protein homolog 1</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="106" reactomeId="180348" position="1327 304" bounds="1271 279 112 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GAB1:GRB2-EGF-Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="107" reactomeId="182953" position="2859 314" bounds="2797 289 124 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="108" reactomeId="182947" position="3150 732" bounds="3096 721 109 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Eps15:HGS:STAM</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="109" reactomeId="182932" position="2679 293" bounds="2617 261 124 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:CBL:Cool/Pix:CDC42-GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="112" reactomeId="180337" position="1052 542" bounds="990 524 124 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR:Phospho-SHC</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="114" reactomeId="182938" position="2199 156" bounds="2161 145 76 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CBL:Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="115" reactomeId="109796" position="747 618" bounds="704 607 87 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>p21 RAS:GDP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="117" reactomeId="48888" position="299 769" bounds="248 751 103 36">
+      <Properties>
+        <displayName>14-3-3 protein beta/alpha</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableProtein id="118" reactomeId="65043" position="539 199" bounds="524 188 30 22">
+      <Properties>
+        <displayName>SRC</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="120" reactomeId="182961" position="3398 433" bounds="3334 387 129 92" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL:CIN85:Endophilin:Epsin:Eps15R:Eps15 complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="122" reactomeId="180499" position="1996 446" bounds="1942 428 109 36">
+      <Properties>
+        <displayName>Tyrosine-protein kinase CSK</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableProtein id="124" reactomeId="183070" position="2122 294" bounds="2076 276 92 36">
+      <Properties>
+        <displayName>Y55-phospho Sprouty 2</displayName>
+      </Properties>
+      <NodeAttachments>
+        <org.gk.render.RenderableFeature relativeX="0.11017134681237728" relativeY="1.0" label="P" description="Tyr" trackId="0" reactomeId="182951" />
+      </NodeAttachments>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableChemical id="125" reactomeId="179838" position="1510 165" bounds="1442 143 136 44">
+      <Properties>
+        <displayName>Phosphatidylinositol-3,4,5-trisphosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="127" reactomeId="180286" position="1490 504" bounds="1441 472 98 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:Phospho GAB1-EGF-Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="129" reactomeId="182948" position="2719 629" bounds="2657 604 124 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL:GRB2</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="130" reactomeId="180503" position="1963 578" bounds="1896 546 134 64" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>SHP2-GRB2:Phospho GAB1(dephos)-EGF-Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="131" reactomeId="182931" position="3496 162" bounds="3434 109 124 106" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR (Y1045) dimer:Phospho-CBL:CIN85-Sprouty:Endophilin:Epsin:Eps15R:Eps15 complex</displayName>
+      </Properties>
+      <OldBounds>
+        <Bounds id="500" bounds="3085 236 102 149" />
+        <Bounds id="501" bounds="3188 236 102 149" />
+        <Bounds id="131" bounds="2773 84 621 792" />
+        <Bounds id="502" bounds="3136 386 102 149" />
+        <Bounds id="496" bounds="2775 304 102 149" />
+        <Bounds id="497" bounds="2878 304 102 149" />
+      </OldBounds>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="132" reactomeId="182934" position="2981 744" bounds="2927 733 108 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CIN85:Endophilin</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="133" reactomeId="179863" position="183 32" bounds="168 21 30 22">
+      <Properties>
+        <displayName>EGF</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="134" reactomeId="212717" position="996 214" bounds="933 196 127 36" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Activated EGFR:PLC-gamma1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="136" reactomeId="113595" position="2832 785" bounds="2803 774 58 22">
+      <Properties>
+        <displayName>ubiquitin</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="137" reactomeId="180523" position="1989 299" bounds="1928 288 122 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Paxillin:Src complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="141" reactomeId="179842" position="100 211" bounds="34 186 132 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>ADAM metalloprotease:Zinc cofactor</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="142" reactomeId="182935" position="3239 598" bounds="3176 573 127 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>EGF:Phospho-EGFR dimer:CBL:Phospho-Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="143" reactomeId="180282" position="1309 131" bounds="1246 106 127 50" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>PIP3:GAB1:GRB2-EGF-Phospho-EGFR dimer</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="145" reactomeId="182921" position="1711 706" bounds="1671 695 80 22" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>CDC42-GTP</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableCompartment id="542" reactomeId="876" position="1832 365" bounds="24 64 3617 603" textPosition="32 361" bgColor="255 204 204" fgColor="0 0 0" lineColor="255 153 102">
+      <Properties>
+        <displayName>plasma membrane</displayName>
+      </Properties>
+      <Components>
+        <Component id="10" />
+        <Component id="11" />
+        <Component id="28" />
+        <Component id="29" />
+        <Component id="30" />
+        <Component id="31" />
+        <Component id="45" />
+        <Component id="47" />
+        <Component id="51" />
+        <Component id="54" />
+        <Component id="62" />
+        <Component id="70" />
+        <Component id="79" />
+        <Component id="84" />
+        <Component id="104" />
+        <Component id="110" />
+        <Component id="121" />
+        <Component id="126" />
+        <Component id="135" />
+        <Component id="138" />
+        <Component id="144" />
+        <Component id="2" />
+        <Component id="4" />
+        <Component id="8" />
+        <Component id="9" />
+        <Component id="12" />
+        <Component id="16" />
+        <Component id="19" />
+        <Component id="20" />
+        <Component id="21" />
+        <Component id="22" />
+        <Component id="23" />
+        <Component id="27" />
+        <Component id="33" />
+        <Component id="34" />
+        <Component id="39" />
+        <Component id="40" />
+        <Component id="41" />
+        <Component id="43" />
+        <Component id="44" />
+        <Component id="61" />
+        <Component id="65" />
+        <Component id="67" />
+        <Component id="72" />
+        <Component id="74" />
+        <Component id="76" />
+        <Component id="83" />
+        <Component id="88" />
+        <Component id="90" />
+        <Component id="100" />
+        <Component id="101" />
+        <Component id="103" />
+        <Component id="106" />
+        <Component id="107" />
+        <Component id="112" />
+        <Component id="114" />
+        <Component id="115" />
+        <Component id="118" />
+        <Component id="122" />
+        <Component id="124" />
+        <Component id="127" />
+        <Component id="129" />
+        <Component id="130" />
+        <Component id="131" />
+        <Component id="134" />
+        <Component id="137" />
+        <Component id="141" />
+        <Component id="143" />
+        <Component id="581" />
+        <Component id="3" />
+        <Component id="125" />
+        <Component id="66" />
+        <Component id="80" />
+        <Component id="120" />
+        <Component id="59" />
+        <Component id="142" />
+        <Component id="5" />
+        <Component id="81" />
+        <Component id="109" />
+        <Component id="87" />
+        <Component id="582" />
+        <Component id="583" />
+        <Component id="584" />
+        <Component id="585" />
+        <Component id="586" />
+        <Component id="587" />
+        <Component id="588" />
+        <Component id="589" />
+        <Component id="590" />
+        <Component id="591" />
+        <Component id="592" />
+        <Component id="593" />
+        <Component id="594" />
+        <Component id="595" />
+        <Component id="596" />
+        <Component id="597" />
+        <Component id="598" />
+        <Component id="599" />
+        <Component id="600" />
+        <Component id="601" />
+        <Component id="602" />
+        <Component id="604" />
+        <Component id="605" />
+        <Component id="603" />
+        <Component id="609" />
+        <Component id="619" />
+        <Component id="620" />
+        <Component id="621" />
+        <Component id="623" />
+        <Component id="625" />
+        <Component id="6" />
+        <Component id="24" />
+        <Component id="36" />
+        <Component id="77" />
+        <Component id="89" />
+        <Component id="92" />
+        <Component id="94" />
+        <Component id="98" />
+        <Component id="111" />
+        <Component id="113" />
+        <Component id="116" />
+        <Component id="123" />
+        <Component id="139" />
+        <Component id="140" />
+        <Component id="1055" />
+        <Component id="1082" />
+        <Component id="1083" />
+        <Component id="1084" />
+        <Component id="1132" />
+        <Component id="1133" />
+        <Component id="1129" />
+        <Component id="1134" />
+        <Component id="1250" />
+        <Component id="1248" />
+      </Components>
+    </org.gk.render.RenderableCompartment>
+    <org.gk.render.RenderableCompartment id="543" reactomeId="70101" position="1831 986" bounds="18 663 3627 646" textPosition="30 906" bgColor="250 240 240" lineColor="255 153 102" insets="28 673 3607 626">
+      <Properties>
+        <displayName>cytosol</displayName>
+      </Properties>
+      <Components>
+        <Component id="13" />
+        <Component id="17" />
+        <Component id="18" />
+        <Component id="56" />
+        <Component id="58" />
+        <Component id="75" />
+        <Component id="119" />
+        <Component id="7" />
+        <Component id="32" />
+        <Component id="50" />
+        <Component id="52" />
+        <Component id="63" />
+        <Component id="14" />
+        <Component id="15" />
+        <Component id="25" />
+        <Component id="26" />
+        <Component id="35" />
+        <Component id="37" />
+        <Component id="38" />
+        <Component id="42" />
+        <Component id="46" />
+        <Component id="48" />
+        <Component id="49" />
+        <Component id="55" />
+        <Component id="64" />
+        <Component id="68" />
+        <Component id="85" />
+        <Component id="95" />
+        <Component id="96" />
+        <Component id="99" />
+        <Component id="102" />
+        <Component id="105" />
+        <Component id="108" />
+        <Component id="117" />
+        <Component id="136" />
+        <Component id="145" />
+        <Component id="132" />
+        <Component id="78" />
+        <Component id="60" />
+        <Component id="69" />
+        <Component id="617" />
+        <Component id="618" />
+        <Component id="624" />
+        <Component id="622" />
+        <Component id="724" />
+        <Component id="728" />
+        <Component id="699" />
+        <Component id="730" />
+        <Component id="701" />
+        <Component id="746" />
+        <Component id="616" />
+        <Component id="1091" />
+        <Component id="1095" />
+        <Component id="1096" />
+        <Component id="1103" />
+        <Component id="1104" />
+        <Component id="1108" />
+        <Component id="1109" />
+        <Component id="1118" />
+        <Component id="1119" />
+        <Component id="1125" />
+        <Component id="1126" />
+        <Component id="1127" />
+        <Component id="1128" />
+        <Component id="1123" />
+        <Component id="1131" />
+        <Component id="1159" />
+        <Component id="1161" />
+        <Component id="1162" />
+        <Component id="1156" />
+      </Components>
+    </org.gk.render.RenderableCompartment>
+    <org.gk.render.RenderableChemical id="581" reactomeId="179856" position="2985 232" bounds="2917 210 136 44">
+      <Properties>
+        <displayName>Phosphatidylinositol-4,5-bisphosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="582" reactomeId="113592" position="1098 259" bounds="1079 244 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="583" reactomeId="29370" position="1227 262" bounds="1207 247 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="584" reactomeId="113592" position="1209 501" bounds="1190 486 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="585" reactomeId="29370" position="1133 604" bounds="1113 589 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="586" reactomeId="113592" position="2666 445" bounds="2647 430 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="587" reactomeId="29370" position="2779 244" bounds="2759 229 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="588" reactomeId="29356" position="1730 522" bounds="1709 507 42 30">
+      <Properties>
+        <displayName>H2O</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="589" reactomeId="29372" position="1766 478" bounds="1712 463 109 30">
+      <Properties>
+        <displayName>Orthophosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="590" reactomeId="29356" position="1843 414" bounds="1822 399 42 30">
+      <Properties>
+        <displayName>H2O</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="591" reactomeId="29372" position="1866 276" bounds="1812 261 109 30">
+      <Properties>
+        <displayName>Orthophosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="592" reactomeId="113592" position="715 141" bounds="696 126 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="593" reactomeId="29370" position="731 233" bounds="711 218 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="594" reactomeId="113592" position="2479 562" bounds="2460 547 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="595" reactomeId="29370" position="2589 579" bounds="2569 564 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="596" reactomeId="29356" position="1506 387" bounds="1485 372 42 30">
+      <Properties>
+        <displayName>H2O</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="597" reactomeId="29372" position="1591 284" bounds="1537 269 109 30">
+      <Properties>
+        <displayName>Orthophosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="598" reactomeId="113592" position="1378 419" bounds="1359 404 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="599" reactomeId="29370" position="1421 558" bounds="1401 543 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="600" reactomeId="113592" position="575 153" bounds="556 138 39 30">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="601" reactomeId="29370" position="563 238" bounds="543 223 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="602" reactomeId="29356" position="1771 617" bounds="1750 602 42 30">
+      <Properties>
+        <displayName>H2O</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="603" reactomeId="29372" position="1867 524" bounds="1813 509 109 30">
+      <Properties>
+        <displayName>Orthophosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="604" reactomeId="113592" position="1857 123" bounds="1838 108 39 30" bgColor="204 255 204" fgColor="0 0 0" lineColor="0 0 0">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="605" reactomeId="29370" position="1602 110" bounds="1582 95 40 30">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.ProcessNode id="609" reactomeId="110029" position="785 98" bounds="737 84 97 29">
+      <Properties>
+        <displayName>RAF activation</displayName>
+      </Properties>
+    </org.gk.render.ProcessNode>
+    <org.gk.render.ProcessNode id="616" reactomeId="109869" position="122 884" bounds="35 856 174 56">
+      <Properties>
+        <displayName>MAP kinase cascade</displayName>
+      </Properties>
+    </org.gk.render.ProcessNode>
+    <org.gk.render.RenderableProtein id="618" reactomeId="109786" position="111 826" bounds="57 811 108 31">
+      <Properties>
+        <displayName>p-Raf1(S259,S621)</displayName>
+      </Properties>
+      <NodeAttachments>
+        <org.gk.render.RenderableFeature relativeX="1.0" relativeY="1.0" trackId="0" reactomeId="109784" />
+        <org.gk.render.RenderableFeature relativeX="0.004269076914814374" relativeY="1.0" trackId="0" reactomeId="109785" />
+      </NodeAttachments>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="620" reactomeId="109789" position="163 562" bounds="113 546 101 33" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>RAS:RAF:14-3-3</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="622" reactomeId="113592" position="88 712" bounds="70 698 37 29">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="623" reactomeId="109793" position="93 428" bounds="44 411 98 35" bgColor="204 255 255" hideComponents="true">
+      <Properties>
+        <displayName>Activated RAF1 complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="624" reactomeId="29370" position="61 779" bounds="42 765 39 29">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableEntity id="625" reactomeId="163338" position="190 516" bounds="130 499 121 35">
+      <Properties>
+        <displayName>unidentified protein tyrosine kinase</displayName>
+      </Properties>
+    </org.gk.render.RenderableEntity>
+    <org.gk.render.RenderableChemical id="699" reactomeId="1217511" position="103 1015" bounds="51 990 104 51" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Benzoquinoid ansamycins</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="701" reactomeId="1218829" position="216 1028" bounds="169 1003 94 50" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>HSP90:Benzoquinoid ansamycins</displayName>
+      </Properties>
+      <OldBounds>
+        <Bounds id="701" bounds="23 318 148 56" />
+      </OldBounds>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableProtein id="703" reactomeId="1182966" position="138 1253" bounds="94 1240 88 26" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>EGFRmutKD</displayName>
+      </Properties>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="704" reactomeId="1218825" position="207 1312" bounds="160 1295 95 34" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="709" reactomeId="1220578" position="296 1264" bounds="251 1239 91 51" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>EGF:EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="711" reactomeId="1220582" position="651 1275" bounds="610 1244 83 62" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Activated EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="719" reactomeId="1181062" position="798 1273" bounds="756 1240 84 67" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Phospho-EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="724" reactomeId="1216523" position="519 1035" bounds="470 1015 98 40" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Reversible EGFR TKIs</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="725" reactomeId="1220587" position="556 1322" bounds="507 1289 98 67" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>revTKIs:Activated EGFRmutKD(S):HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="726" reactomeId="1220585" position="467 1259" bounds="416 1234 102 51" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Activated EGFRmutKD(R):HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="728" reactomeId="1216522" position="408 1063" bounds="362 1043 92 40" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Irreversible EGFR TKIs</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="729" reactomeId="1220579" position="394 1322" bounds="344 1290 100 64" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>irrevTKIs:Activated EGFRmutKD(R):HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="730" reactomeId="1221657" position="111 1099" bounds="80 1089 62 21" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>HSP90</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="746" reactomeId="1225828" position="116 1163" bounds="85 1153 62 21" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="869" reactomeId="1225855" position="2208 1288" bounds="2157 1257 103 63" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Phospho-EGFRmutKD:HSP90:CDC37:CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="872" reactomeId="1225857" position="2405 1281" bounds="2353 1250 104 63" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Phospho-EGFRmutKD:HSP90:CDC37:Phospho-CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="875" reactomeId="1225852" position="2643 1276" bounds="2589 1238 108 77" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Ubiquitin- Phospho-EGFRmutKD:HSP90:CDC37:Phospho-CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="880" reactomeId="1225859" position="931 1280" bounds="888 1239 87 83" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:SOS1:Phospho-EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="882" reactomeId="1225854" position="1157 1282" bounds="1117 1237 81 91" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Phospho-SHC1:Phospho-EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="883" reactomeId="1225856" position="1022 1282" bounds="982 1230 81 105" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:SOS1:Phospho-SHC1:Phospho-EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="885" reactomeId="1225858" position="1352 1282" bounds="1312 1243 81 79" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Phospho-EGFRmutKD:HSP90:CDC37:SHC1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="1055" reactomeId="1225979" position="366 241" bounds="311 224 110 35" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>EGF:EGFR Dimer:irrevTKIs</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="1057" reactomeId="1226015" position="1446 1281" bounds="1405 1232 83 99" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:GAB1:PI3Kreg:Phospho-EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="1059" reactomeId="1226013" position="1550 1283" bounds="1506 1231 88 104" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>GRB2:GAB1:PI3Kreg:PI3Kcat:Phospho-EGFRmutKD:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="1082" reactomeId="113592" position="1858 123" bounds="1837 108 43 31" bgColor="204 255 204" fgColor="0 0 0" lineColor="0 0 0">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1083" reactomeId="29370" position="1602 110" bounds="1581 95 42 30" bgColor="204 255 204" fgColor="0 0 0" lineColor="0 0 0">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableCompartment id="1085" reactomeId="876" position="1831 1421" bounds="19 1226 3625 391" textPosition="22 1581" bgColor="250 240 240" lineColor="255 153 102">
+      <Properties>
+        <displayName>plasma membrane</displayName>
+      </Properties>
+      <Components>
+        <Component id="703" />
+        <Component id="704" />
+        <Component id="709" />
+        <Component id="711" />
+        <Component id="719" />
+        <Component id="1057" />
+        <Component id="1059" />
+        <Component id="725" />
+        <Component id="729" />
+        <Component id="880" />
+        <Component id="885" />
+        <Component id="883" />
+        <Component id="882" />
+        <Component id="869" />
+        <Component id="872" />
+        <Component id="875" />
+        <Component id="1102" />
+        <Component id="1117" />
+        <Component id="1120" />
+        <Component id="1110" />
+        <Component id="1122" />
+        <Component id="1121" />
+        <Component id="1124" />
+        <Component id="726" />
+        <Component id="1157" />
+        <Component id="1160" />
+        <Component id="1158" />
+        <Component id="1097" />
+        <Component id="1101" />
+        <Component id="1130" />
+        <Component id="1192" />
+        <Component id="1191" />
+        <Component id="1190" />
+        <Component id="1242" />
+        <Component id="1243" />
+        <Component id="1247" />
+        <Component id="1245" />
+        <Component id="1246" />
+        <Component id="1244" />
+      </Components>
+    </org.gk.render.RenderableCompartment>
+    <org.gk.render.RenderableChemical id="1103" reactomeId="113592" position="682 1186" bounds="661 1175 43 22" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1104" reactomeId="29370" position="737 1197" bounds="716 1188 43 19" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1118" reactomeId="113592" position="2279 1187" bounds="2258 1179 43 17" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1119" reactomeId="29370" position="2340 1189" bounds="2317 1181 46 17" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1125" reactomeId="113592" position="1272 1191" bounds="1251 1181 42 21" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1126" reactomeId="29370" position="1216 1191" bounds="1196 1180 41 22" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1133" reactomeId="113592" position="1858 123" bounds="1836 108 44 31">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1134" reactomeId="29370" position="1602 110" bounds="1582 96 40 29">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="1157" reactomeId="1247845" position="1672 1282" bounds="1624 1259 96 46" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Phospho-EGFRmutKD:PLCgamma1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="1159" reactomeId="113592" position="1707 1198" bounds="1682 1185 51 26" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="1160" reactomeId="1247846" position="1851 1273" bounds="1797 1242 108 62" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Phospho-EGFRmutKD:Phospho-PLC-gamma 1</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="1161" reactomeId="29370" position="1794 1191" bounds="1768 1180 52 22" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableProtein id="1191" reactomeId="1214162" position="98 1342" bounds="56 1328 85 29" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>EGFRvIIImut</displayName>
+      </Properties>
+      <NodeAttachments>
+        <org.gk.render.RenderableFeature relativeX="0.14255980472274932" relativeY="1.0" trackId="0" reactomeId="1246108" />
+      </NodeAttachments>
+    </org.gk.render.RenderableProtein>
+    <org.gk.render.RenderableComplex id="1192" reactomeId="1248004" position="212 1483" bounds="167 1459 90 48" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>EGFRvIIImut:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableComplex id="1243" reactomeId="1248010" position="647 1480" bounds="604 1449 87 62" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Activated EGFRvIIImut:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableChemical id="1245" reactomeId="113592" position="699 1413" bounds="680 1399 39 29" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ATP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableChemical id="1246" reactomeId="29370" position="750 1406" bounds="730 1392 40 29" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>ADP</displayName>
+      </Properties>
+    </org.gk.render.RenderableChemical>
+    <org.gk.render.RenderableComplex id="1247" reactomeId="1248654" position="803 1478" bounds="756 1447 94 62" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>Activated phospho-EGFRvIIImut:HSP90:CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+    <org.gk.render.RenderableEntity id="1249" reactomeId="1248673" position="260 12" bounds="214 4 93 16" bgColor="204 255 204" fgColor="255 51 51" lineColor="255 51 51">
+      <Properties>
+        <displayName>Cetuximab</displayName>
+      </Properties>
+    </org.gk.render.RenderableEntity>
+    <org.gk.render.RenderableComplex id="1250" reactomeId="1248675" position="245 283" bounds="206 263 79 40" bgColor="204 255 255" fgColor="255 51 51" lineColor="255 51 51" hideComponents="true">
+      <Properties>
+        <displayName>EGFR:Cetuximab</displayName>
+      </Properties>
+    </org.gk.render.RenderableComplex>
+  </Nodes>
+  <Edges>
+    <org.gk.render.RenderableReaction id="6" reactomeId="182986" points="3354 549, 3402 549, 3482 550" position="3402 549" lineWidth="1.0">
+      <Inputs>
+        <Input id="120" points="3398 433, 3354 491" />
+        <Input id="136" points="2832 785, 3355 778" />
+      </Inputs>
+      <Outputs>
+        <Output id="59" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="120" points="3398 433" />
+      </Catalysts>
+      <Properties>
+        <displayName>Cbl-mediated ubiquitination of CIN85</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="7" reactomeId="183036" points="2830 695, 2884 695, 2882 658" position="2884 695" lineWidth="1.0">
+      <Inputs>
+        <Input id="129" points="2719 629" />
+        <Input id="136" stoichiometry="2" points="2832 785" />
+      </Inputs>
+      <Outputs>
+        <Output id="103" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="129" points="2719 629" />
+      </Catalysts>
+      <Properties>
+        <displayName>Ubiquitination of stimulated EGFR (Cbl:Grb2)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="10" reactomeId="212713" points="1095 336, 950 326, 799 287" position="950 326" lineWidth="1.0">
+      <Inputs>
+        <Input id="22" />
+      </Inputs>
+      <Outputs>
+        <Output id="72" points="659 293" />
+        <Output id="34" points="894 260" />
+      </Outputs>
+      <Properties>
+        <displayName>Active PLC-gamma1 dissociates from EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="11" reactomeId="212710" points="1097 213, 1146 213, 1146 262" position="1146 213" lineWidth="1.0">
+      <Inputs>
+        <Input id="134" points="996 214" />
+        <Input id="582" stoichiometry="4" points="1098 259" />
+      </Inputs>
+      <Outputs>
+        <Output id="583" stoichiometry="4" points="1227 262" />
+        <Output id="22" points="1147 340" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="134" points="996 214, 995 135, 1146 135" />
+      </Catalysts>
+      <Properties>
+        <displayName>EGFR activates PLC-gamma1 by phosphorylation</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="13" reactomeId="177927" points="575 909, 645 909, 689 909" position="645 909" lineWidth="1.0">
+      <Inputs>
+        <Input id="60" points="541 840" />
+        <Input id="37" points="529 960" />
+      </Inputs>
+      <Outputs>
+        <Output id="96" />
+      </Outputs>
+      <Properties>
+        <displayName>PI3K catalytic subunit binds to Gab1:Grb2:PI3K:EGF:EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="17" reactomeId="183094" points="1741 766, 1796 766, 1856 766" position="1796 766" lineWidth="1.0">
+      <Inputs>
+        <Input id="95" points="1705 816" />
+        <Input id="145" points="1711 706" />
+      </Inputs>
+      <Outputs>
+        <Output id="15" />
+      </Outputs>
+      <Properties>
+        <displayName>Cdc42 lures Cbl away from the receptor</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="18" reactomeId="177920" points="1087 878, 1310 878, 1310 769" position="1310 878" lineWidth="1.0">
+      <Inputs>
+        <Input id="38" points="1053 921" />
+        <Input id="49" points="1062 830" />
+      </Inputs>
+      <Outputs>
+        <Output id="69" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of Grb2 to Gab1</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="24" reactomeId="183067" points="2190 624, 2246 624, 2302 624" position="2246 624" lineWidth="1.0">
+      <Inputs>
+        <Input id="68" stoichiometry="2" points="2167 723" />
+        <Input id="41" points="2173 537" />
+      </Inputs>
+      <Outputs>
+        <Output id="87" />
+      </Outputs>
+      <Properties>
+        <displayName>Localization of Cbl:Grb2 to the membrane</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="28" reactomeId="177933" points="1169 501, 1170 543, 1153 543, 1132 543" position="1153 543" lineWidth="1.0">
+      <Inputs>
+        <Input id="90" points="1159 439" />
+        <Input id="584" stoichiometry="2" points="1209 501" />
+      </Inputs>
+      <Outputs>
+        <Output id="112" points="1052 542" />
+        <Output id="585" stoichiometry="2" points="1133 604" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="90" points="1159 439, 1152 476" />
+      </Catalysts>
+      <Properties>
+        <displayName>Shc phosphorylation by phospho-EGFR:EGF</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="29" reactomeId="177946" points="160 108, 182 108, 182 46" position="182 108" lineWidth="1.0">
+      <Inputs>
+        <Input id="2" />
+      </Inputs>
+      <Outputs>
+        <Output id="133" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="141" points="100 211, 182 211" />
+      </Catalysts>
+      <Properties>
+        <displayName>Pro-EGF is cleaved to form mature EGF</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="30" reactomeId="177942" points="225 95, 336 95, 437 95" position="336 95" lineWidth="1.0">
+      <Inputs>
+        <Input id="133" points="183 32, 225 33" />
+        <Input id="19" points="226 147" />
+      </Inputs>
+      <Outputs>
+        <Output id="20" />
+      </Outputs>
+      <Inhibitors>
+        <Inhibitor id="67" points="339 163" />
+      </Inhibitors>
+      <Properties>
+        <displayName>EGFR binds EGF ligand</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="31" reactomeId="182969" points="2607 444, 2708 444, 2752 444, 2752 313, 2777 313" position="2708 444" lineWidth="1.0">
+      <Inputs>
+        <Input id="83" points="2456 444" />
+        <Input id="586" stoichiometry="2" points="2666 445" />
+      </Inputs>
+      <Outputs>
+        <Output id="107" points="2859 314" />
+        <Output id="587" stoichiometry="2" points="2779 244" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="83" points="2456 444, 2455 380, 2708 380" />
+      </Catalysts>
+      <Properties>
+        <displayName>Phosphorylation of Cbl (EGFR:Cbl)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="32" reactomeId="109803" points="340 671, 311 671, 282 671" position="311 671" lineWidth="1.0">
+      <Inputs>
+        <Input id="43" points="388 624" />
+        <Input id="99" points="379 717" />
+      </Inputs>
+      <Outputs>
+        <Output id="12" points="276 606" />
+        <Output id="117" points="299 769" />
+      </Outputs>
+      <Properties>
+        <displayName>Transient dissociation of 14-3-3 upon Ras binding</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="36" reactomeId="182994" points="2837 569, 2837 525, 2837 493" position="2837 525" lineWidth="1.0">
+      <Inputs>
+        <Input id="129" points="2719 629, 2723 569" />
+        <Input id="132" points="2981 744, 2981 569" />
+      </Inputs>
+      <Outputs>
+        <Output id="81" />
+      </Outputs>
+      <Properties>
+        <displayName>Assembly of EGFR complex in clathrin-coated vesicles</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="45" reactomeId="177935" points="1686 522, 1686 501, 1686 477" position="1686 501" lineWidth="1.0">
+      <Inputs>
+        <Input id="588" points="1730 522" />
+        <Input id="9" points="1687 579" />
+      </Inputs>
+      <Outputs>
+        <Output id="21" points="1686 417" />
+        <Output id="589" points="1766 478" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="9" points="1687 579, 1625 526, 1625 500" />
+      </Catalysts>
+      <Properties>
+        <displayName>SHP2 dephosphorylates Tyr 992 on EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="47" reactomeId="179467" points="1395 240, 1364 203, 1328 159" position="1364 203" lineWidth="1.0">
+      <Inputs>
+        <Input id="125" points="1510 165" />
+        <Input id="106" points="1327 304" />
+      </Inputs>
+      <Outputs>
+        <Output id="143" />
+      </Outputs>
+      <Properties>
+        <displayName>Gab1 binds phosphatidylinositol-3,4,5-trisphosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="50" reactomeId="177945" points="698 664, 596 664, 494 664" position="596 664" lineWidth="1.0">
+      <Inputs>
+        <Input id="85" points="758 717" />
+        <Input id="115" points="747 618" />
+      </Inputs>
+      <Outputs>
+        <Output id="43" points="388 624" />
+        <Output id="25" points="477 741" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="74" points="728 538" />
+      </Catalysts>
+      <Properties>
+        <displayName>Sos-mediated nucleotide exchange of Ras (EGF:EGFR-Sos:Grb2:Shc)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="51" reactomeId="177923" points="1865 359, 1884 359, 1926 359" position="1884 359" lineWidth="1.0">
+      <Inputs>
+        <Input id="590" points="1843 414" />
+        <Input id="16" points="1793 359" />
+      </Inputs>
+      <Outputs>
+        <Output id="137" points="1989 299" />
+        <Output id="591" points="1866 276" />
+        <Output id="122" points="1996 446" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="9" points="1687 579, 1883 476" />
+      </Catalysts>
+      <Properties>
+        <displayName>Sustained activation of SRC kinase by SHP2</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="52" reactomeId="177938" points="698 664, 596 664, 494 664" position="596 664" lineWidth="1.0">
+      <Inputs>
+        <Input id="85" points="758 717" />
+        <Input id="115" points="747 618" />
+      </Inputs>
+      <Outputs>
+        <Output id="43" points="388 624" />
+        <Output id="25" points="477 741" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="33" points="601 520" />
+      </Catalysts>
+      <Properties>
+        <displayName>Sos-mediated nucleotide exchange of Ras (EGF:EGFR-Sos:Grb2)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="54" reactomeId="183002" points="2452 232, 2516 232, 2580 232" position="2516 232" lineWidth="1.0">
+      <Inputs>
+        <Input id="39" stoichiometry="2" points="2410 175" />
+        <Input id="101" points="2398 306" />
+      </Inputs>
+      <Outputs>
+        <Output id="109" points="2679 293" />
+        <Output id="88" points="2623 178" />
+      </Outputs>
+      <Properties>
+        <displayName>betaPIX pushes CIN85 away from Cbl</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="56" reactomeId="182988" points="1467 813, 1525 813, 1573 813" position="1525 813" lineWidth="1.0" reactionType="Omitted Process">
+      <Inputs>
+        <Input id="48" points="1422 847" />
+        <Input id="102" points="1439 770" />
+      </Inputs>
+      <Outputs>
+        <Output id="46" />
+      </Outputs>
+      <Properties>
+        <displayName>Sprouty lures cytosolic Cbl away from EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="58" reactomeId="183052" points="1421 921, 1596 921, 2166 921, 2166 737" position="1596 921" lineWidth="1.0">
+      <Inputs>
+        <Input id="48" points="1422 847" />
+        <Input id="38" points="1053 921" />
+      </Inputs>
+      <Outputs>
+        <Output id="68" />
+      </Outputs>
+      <Properties>
+        <displayName>Cbl binds to Grb2</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="62" reactomeId="183035" points="2199 271, 2199 225, 2199 170" position="2199 225" lineWidth="1.0" reactionType="Omitted Process">
+      <Inputs>
+        <Input id="100" points="2244 295" />
+        <Input id="124" points="2122 294" />
+      </Inputs>
+      <Outputs>
+        <Output id="114" />
+      </Outputs>
+      <Properties>
+        <displayName>Sprouty lures membrane-bound Cbl away from EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="63" reactomeId="177941" points="532 760, 532 782, 538 819" position="532 782" lineWidth="1.0">
+      <Inputs>
+        <Input id="72" points="659 293, 532 299" />
+        <Input id="26" points="851 757" />
+      </Inputs>
+      <Outputs>
+        <Output id="60" />
+      </Outputs>
+      <Properties>
+        <displayName>Gab1:Grb2:PI3K binds to EGF:Phospho-EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="70" reactomeId="182990" points="3496 369, 3496 309, 3496 218" position="3496 309" lineWidth="1.0">
+      <Inputs>
+        <Input id="120" points="3398 433" />
+        <Input id="40" points="3567 432" />
+      </Inputs>
+      <Outputs>
+        <Output id="131" />
+      </Outputs>
+      <Properties>
+        <displayName>Sprouty sequesters Cbl away from active EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="75" reactomeId="109813" points="954 887, 954 812, 954 728" position="954 812" lineWidth="1.0">
+      <Inputs>
+        <Input id="105" points="924 953" />
+        <Input id="38" points="1053 921" />
+      </Inputs>
+      <Outputs>
+        <Output id="78" />
+      </Outputs>
+      <Properties>
+        <displayName>Grb2 binds Sos</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="77" reactomeId="183089" points="3065 602, 3093 571, 3188 521" position="3093 571" lineWidth="1.0">
+      <Inputs>
+        <Input id="136" points="2832 785, 3065 780" />
+        <Input id="107" points="2859 314" />
+        <Input id="42" points="3022 698" />
+      </Inputs>
+      <Outputs>
+        <Output id="5" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="107" points="2859 314" />
+      </Catalysts>
+      <Properties>
+        <displayName>Cbl binds and ubiquitinates Phospho-Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="79" reactomeId="177934" points="661 156, 674 195, 668 223" position="674 195" lineWidth="1.0">
+      <Inputs>
+        <Input id="592" stoichiometry="10" points="715 141" />
+        <Input id="4" points="644 96" />
+      </Inputs>
+      <Outputs>
+        <Output id="72" points="659 293" />
+        <Output id="593" stoichiometry="10" points="731 233" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="4" points="644 96, 738 95, 738 194" />
+      </Catalysts>
+      <Properties>
+        <displayName>EGFR autophosphorylation</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="84" reactomeId="183058" points="2480 627, 2527 628, 2590 628" position="2527 628" lineWidth="1.0">
+      <Inputs>
+        <Input id="87" points="2367 625" />
+        <Input id="594" stoichiometry="2" points="2479 562" />
+      </Inputs>
+      <Outputs>
+        <Output id="129" points="2719 629" />
+        <Output id="595" stoichiometry="2" points="2589 579" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="87" points="2367 625, 2366 586, 2526 586" />
+      </Catalysts>
+      <Properties>
+        <displayName>Phosphorylation of Cbl (EGFR:Cbl:Grb2)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="89" reactomeId="177936" points="954 534, 852 534, 795 535" position="852 534" lineWidth="1.0" reactionType="Association">
+      <Inputs>
+        <Input id="112" points="1052 542" />
+        <Input id="78" points="954 708" />
+      </Inputs>
+      <Outputs>
+        <Output id="74" />
+      </Outputs>
+      <Properties>
+        <displayName>Sos:Grb2 binds to Phospho-Shc:EGF:Phospho-EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="92" reactomeId="177943" points="659 441, 599 440, 600 492" position="599 440" lineWidth="1.0" reactionType="Association">
+      <Inputs>
+        <Input id="72" points="659 293" />
+        <Input id="78" points="954 708, 829 709, 829 441" />
+      </Inputs>
+      <Outputs>
+        <Output id="33" />
+      </Outputs>
+      <Properties>
+        <displayName>Sos:Grb2 complex binds to EGF:EGFR complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="94" reactomeId="183077" points="3065 276, 3175 276, 3265 276" position="3175 276" lineWidth="1.0">
+      <Inputs>
+        <Input id="81" points="2837 458" />
+        <Input id="44" points="3149 222" />
+        <Input id="76" points="3076 358" />
+        <Input id="61" points="3066 164" />
+        <Input id="23" points="3020 359" />
+        <Input id="108" points="3150 732, 3110 298" />
+        <Input id="581" points="2985 232" />
+      </Inputs>
+      <Outputs>
+        <Output id="80" />
+      </Outputs>
+      <Properties>
+        <displayName>Assembly in clathrin-coated vesicles (CCVs)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="98" reactomeId="183084" points="2641 559, 2579 559, 2517 559" position="2579 559" lineWidth="1.0">
+      <Inputs>
+        <Input id="109" points="2679 293" />
+        <Input id="136" stoichiometry="2" points="2832 785, 2641 779" />
+      </Inputs>
+      <Outputs>
+        <Output id="83" points="2456 444" />
+        <Output id="35" stoichiometry="2" points="2474 732" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="109" points="2679 293, 2578 291" />
+      </Catalysts>
+      <Properties>
+        <displayName>Cbl escapes Cdc42-mediated inhibition by down-regulating the adaptor molecule betaPix</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="104" reactomeId="183055" points="2278 444, 2325 444, 2371 444, 2391 444" position="2325 444" lineWidth="1.0">
+      <Inputs>
+        <Input id="100" stoichiometry="2" points="2244 295" />
+        <Input id="41" points="2173 537" />
+      </Inputs>
+      <Outputs>
+        <Output id="83" />
+      </Outputs>
+      <Properties>
+        <displayName>binding of Cbl to EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="110" reactomeId="177926" points="1550 351, 1575 351, 1595 351" position="1575 351" lineWidth="1.0">
+      <Inputs>
+        <Input id="596" points="1506 387" />
+        <Input id="27" points="1513 315" />
+      </Inputs>
+      <Outputs>
+        <Output id="8" points="1639 352" />
+        <Output id="597" points="1591 284" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="9" points="1687 579, 1575 521" />
+      </Catalysts>
+      <Properties>
+        <displayName>Dephosphorylation of PAG by SHP2</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="111" reactomeId="177944" points="1511 567, 1574 567, 1617 571" position="1574 567" lineWidth="1.0">
+      <Inputs>
+        <Input id="127" points="1490 504" />
+        <Input id="55" points="1497 708" />
+      </Inputs>
+      <Outputs>
+        <Output id="9" />
+      </Outputs>
+      <Properties>
+        <displayName>Activation of SHP2 through the binding to phospho-Gab1</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="113" reactomeId="183072" points="3072 430, 3230 430, 3331 431" position="3230 430" lineWidth="1.0">
+      <Inputs>
+        <Input id="132" points="2981 744, 3077 739" />
+        <Input id="76" points="3076 358" />
+        <Input id="23" points="3020 359" />
+        <Input id="107" points="2859 314" />
+        <Input id="108" points="3150 732" />
+      </Inputs>
+      <Outputs>
+        <Output id="120" />
+      </Outputs>
+      <Properties>
+        <displayName>EGFR non-clathrin mediated endocytosis</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="116" reactomeId="182993" points="2966 303, 2898 238, 2898 190" position="2898 238" lineWidth="1.0">
+      <Inputs>
+        <Input id="136" stoichiometry="2" points="2832 785, 2965 698" />
+        <Input id="107" points="2859 314" />
+      </Inputs>
+      <Outputs>
+        <Output id="66" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="107" points="2859 314" />
+      </Catalysts>
+      <Properties>
+        <displayName>Ubiquitination of stimulated EGFR (Cbl)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="119" reactomeId="177931" points="1070 755, 1011 755, 917 756" position="1011 755" lineWidth="1.0">
+      <Inputs>
+        <Input id="14" points="1070 697" />
+        <Input id="69" points="1311 755" />
+      </Inputs>
+      <Outputs>
+        <Output id="26" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of PI3K regulatory alpha subunit to Gab1:Grb2</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="121" reactomeId="177922" points="507 96, 558 96, 590 96" position="558 96" lineWidth="1.0">
+      <Inputs>
+        <Input id="20" stoichiometry="2" />
+      </Inputs>
+      <Outputs>
+        <Output id="4" />
+      </Outputs>
+      <Properties>
+        <displayName>EGFR dimerization</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="123" reactomeId="177925" points="921 358, 921 428, 1093 436" position="921 428" lineWidth="1.0">
+      <Inputs>
+        <Input id="64" points="1233 707, 1230 398" />
+        <Input id="72" points="659 293, 715 358" />
+      </Inputs>
+      <Outputs>
+        <Output id="90" />
+      </Outputs>
+      <Properties>
+        <displayName>Shc binds to the phospho-receptor:ligand complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="126" reactomeId="177930" points="1327 418, 1327 504, 1402 504, 1420 504" position="1402 504" lineWidth="1.0">
+      <Inputs>
+        <Input id="106" points="1327 304" />
+        <Input id="598" stoichiometry="5" points="1378 419" />
+      </Inputs>
+      <Outputs>
+        <Output id="599" stoichiometry="5" points="1421 558" />
+        <Output id="127" points="1490 504" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="106" points="1327 304, 1401 304" />
+      </Catalysts>
+      <Properties>
+        <displayName>Gab1 phosphorylation by EGFR kinase</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="135" reactomeId="177937" points="632 157, 624 197, 633 224" position="624 197" lineWidth="1.0">
+      <Inputs>
+        <Input id="600" stoichiometry="10" points="575 153" />
+        <Input id="4" points="644 96" />
+      </Inputs>
+      <Outputs>
+        <Output id="72" points="659 293" />
+        <Output id="601" stoichiometry="10" points="563 238" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="118" points="539 199" />
+      </Catalysts>
+      <Properties>
+        <displayName>Phosphorylation of EGFR by SRC kinase</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="138" reactomeId="177924" points="1770 578, 1801 578, 1866 578" position="1801 578" lineWidth="1.0">
+      <Inputs>
+        <Input id="602" stoichiometry="3" points="1771 617" />
+        <Input id="9" points="1687 579" />
+      </Inputs>
+      <Outputs>
+        <Output id="130" points="1963 578" />
+        <Output id="603" stoichiometry="3" points="1867 524" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="9" points="1687 579, 1686 631, 1801 631" />
+      </Catalysts>
+      <Properties>
+        <displayName>Dephosphorylation of Gab1 by SHP2</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="139" reactomeId="177939" points="1817 168, 1730 167, 1648 167" position="1730 167" lineWidth="1.0">
+      <Inputs>
+        <Input id="3" points="1961 167" />
+        <Input id="604" points="1857 123" />
+      </Inputs>
+      <Outputs>
+        <Output id="125" points="1510 165" />
+        <Output id="605" points="1602 110" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="96" points="756 909, 756 995, 2060 996, 2060 222, 1730 222" />
+      </Catalysts>
+      <Properties>
+        <displayName>PI3K converts Phosphatidylinositol-4,5-bisphosphate to Phosphatidylinositol-3,4,5-trisphosphate</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="140" reactomeId="177940" points="1310 396, 1317 358, 1322 332" position="1317 358" lineWidth="1.0">
+      <Inputs>
+        <Input id="72" points="659 293" />
+        <Input id="69" points="1311 755" />
+      </Inputs>
+      <Outputs>
+        <Output id="106" />
+      </Outputs>
+      <Properties>
+        <displayName>Gab1:Grb2 binds to EGF:Phospho-EGFR</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="144" reactomeId="212706" points="801 214, 873 214, 930 214" position="873 214" lineWidth="1.0">
+      <Inputs>
+        <Input id="65" points="801 173" />
+        <Input id="72" points="659 293, 801 266" />
+      </Inputs>
+      <Outputs>
+        <Output id="134" />
+      </Outputs>
+      <Properties>
+        <displayName>Phospholipase C-gamma1 binds to the activated EGF receptor</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="617" reactomeId="109804" points="300 826, 388 827, 381 745" position="388 827" lineWidth="1.0" reactionType="Association">
+      <Inputs>
+        <Input id="117" points="299 769" />
+        <Input id="618" points="111 826" />
+      </Inputs>
+      <Outputs>
+        <Output id="99" />
+      </Outputs>
+      <Properties>
+        <displayName>p-RAF binds 14-3-3 beta/alpha</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="619" reactomeId="109802" points="216 644, 195 616, 172 582" position="195 616" lineWidth="1.0" reactionType="Association">
+      <Inputs>
+        <Input id="117" points="299 769" />
+        <Input id="12" points="276 606" />
+      </Inputs>
+      <Outputs>
+        <Output id="620" />
+      </Outputs>
+      <Properties>
+        <displayName>Stabilisation of RAS:RAF by 14-3-3</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="621" reactomeId="109829" points="91 556, 91 515, 90 483" position="91 515" lineWidth="1.0">
+      <Inputs>
+        <Input id="622" stoichiometry="2" points="88 712" />
+        <Input id="620" points="163 562" />
+      </Inputs>
+      <Outputs>
+        <Output id="623" points="93 428" />
+        <Output id="624" stoichiometry="2" points="61 779, 63 469" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="625" points="190 516" />
+      </Catalysts>
+      <Properties>
+        <displayName>Stabilisation of RAF by further phosphorylation</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1084" reactomeId="183051" points="3044 606, 3041 491, 3188 490" position="3041 491" lineWidth="1.0">
+      <Inputs>
+        <Input id="136" points="2832 785" />
+        <Input id="142" points="3239 598" />
+      </Inputs>
+      <Outputs>
+        <Output id="5" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="107" points="2859 314" />
+      </Catalysts>
+      <Properties>
+        <displayName>Cbl ubiquitinates Sprouty</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1091" reactomeId="1218824" points="124 1076, 146 1069, 173 1056" position="146 1069" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="730" points="111 1099" />
+        <Input id="699" stoichiometry="2" points="103 1015" />
+      </Inputs>
+      <Outputs>
+        <Output id="701" />
+      </Outputs>
+      <Properties>
+        <displayName>HSP90 is inactivated by binding to benzaquinoid ansamycins</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1095" reactomeId="1218833" points="191 1165, 194 1194, 205 1292" position="194 1194" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="746" points="116 1163" />
+        <Input id="703" points="138 1253" />
+        <Input id="730" points="111 1099" />
+      </Inputs>
+      <Outputs>
+        <Output id="704" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of EGFR KD mutants to chaperoning proteins HSP90 and CDC37</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1096" reactomeId="1220612" points="288 979, 302 980, 296 1236" position="302 980" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="133" points="183 32, 7 33, 7 978" />
+        <Input id="704" points="207 1312" />
+      </Inputs>
+      <Outputs>
+        <Output id="709" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of EGF to EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1097" reactomeId="1220614" points="207 1332, 209 1423, 666 1424, 654 1309" position="209 1423" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="704" stoichiometry="2" />
+      </Inputs>
+      <Outputs>
+        <Output id="711" />
+      </Outputs>
+      <Properties>
+        <displayName>Spontaneous dimerization of EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1101" reactomeId="1220613" points="296 1293, 299 1407, 646 1406, 649 1309" position="299 1407" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="709" stoichiometry="2" />
+      </Inputs>
+      <Outputs>
+        <Output id="711" />
+      </Outputs>
+      <Properties>
+        <displayName>EGF-induced dimerization of EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1102" reactomeId="1169421" points="716 1274, 729 1274, 742 1272" position="729 1274" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="711" points="651 1275" />
+        <Input id="1103" stoichiometry="12" points="682 1186" />
+      </Inputs>
+      <Outputs>
+        <Output id="1104" stoichiometry="12" points="737 1197" />
+        <Output id="719" points="798 1273" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="711" points="651 1275, 728 1307" />
+      </Catalysts>
+      <Properties>
+        <displayName>Trans-autophosphorylation of activated EGFR KD mutant dimers</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1108" reactomeId="1220610" points="558 1120, 544 1143, 542 1166" position="544 1143" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="724" stoichiometry="2" points="519 1035" />
+        <Input id="711" points="651 1275" />
+      </Inputs>
+      <Outputs>
+        <Output id="725" points="556 1322" />
+        <Output id="726" points="467 1259" />
+      </Outputs>
+      <Properties>
+        <displayName>Reversible TKIs bind and inactivate sensitive EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1109" reactomeId="1220611" points="405 1142, 395 1190, 394 1287" position="395 1190" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="728" stoichiometry="2" points="408 1063" />
+        <Input id="726" points="467 1259" />
+      </Inputs>
+      <Outputs>
+        <Output id="729" />
+      </Outputs>
+      <Properties>
+        <displayName>Irreversible TKIs bind and inactivate EGFR KD mutant dimers resistant to reversible TKIs</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1110" reactomeId="1225949" points="2077 1035, 2191 1254" position="2191 1254" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="719" points="798 1273, 796 1431, 2075 1425" />
+        <Input id="100" stoichiometry="2" points="2244 295, 2076 426, 2077 878" />
+      </Inputs>
+      <Outputs>
+        <Output id="869" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of CBL to phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1117" reactomeId="1225960" points="2287 1283, 2308 1280, 2325 1279" position="2308 1280" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="869" points="2208 1288" />
+        <Input id="1118" stoichiometry="2" points="2279 1187" />
+      </Inputs>
+      <Outputs>
+        <Output id="1119" stoichiometry="2" points="2340 1189" />
+        <Output id="872" points="2405 1281" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="869" points="2208 1288, 2312 1306" />
+      </Catalysts>
+      <Properties>
+        <displayName>Phosphorylation of CBL by phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1120" reactomeId="1225956" points="2486 1276, 2517 1275, 2586 1275" position="2517 1275" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="136" stoichiometry="2" points="2832 785" />
+        <Input id="872" points="2405 1281" />
+      </Inputs>
+      <Outputs>
+        <Output id="875" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="872" points="2405 1281, 2497 1313" />
+      </Catalysts>
+      <Inhibitors>
+        <Inhibitor id="869" points="2208 1288, 2229 1411, 2624 1412" />
+      </Inhibitors>
+      <Properties>
+        <displayName>Ubiquitination of phospho-EGFR KD mutants by phospho-CBL</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1121" reactomeId="1225950" points="854 1272, 866 1272, 885 1274" position="866 1272" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="78" points="954 708, 1004 1035, 865 1150" />
+        <Input id="719" points="798 1273" />
+      </Inputs>
+      <Outputs>
+        <Output id="880" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of GRB2:SOS1 complex to phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1122" reactomeId="1225961" points="1102 1283, 1084 1282, 1066 1282" position="1084 1282" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="882" points="1157 1282" />
+        <Input id="78" points="954 708" />
+      </Inputs>
+      <Outputs>
+        <Output id="883" />
+      </Outputs>
+      <Properties>
+        <displayName>Phospho-SHC1 bound to phospho-EGFR KD mutants recruits GRB2:SOS1 complex</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1123" reactomeId="1225947" points="1294 1125, 1337 1240" position="1294 1125" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="719" points="798 1273, 800 1125" />
+        <Input id="64" points="1233 707" />
+      </Inputs>
+      <Outputs>
+        <Output id="885" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of SHC1 to phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1124" reactomeId="1225952" points="1271 1282, 1245 1282, 1218 1283" position="1245 1282" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="885" points="1352 1282" />
+        <Input id="1125" stoichiometry="2" points="1272 1191" />
+      </Inputs>
+      <Outputs>
+        <Output id="882" points="1157 1282" />
+        <Output id="1126" stoichiometry="2" points="1216 1191" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="885" points="1352 1282, 1246 1314" />
+      </Catalysts>
+      <Properties>
+        <displayName>Phosphorylation of SHC1 by phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1127" reactomeId="1225951" points="702 674, 612 674, 522 674" position="612 674" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="115" points="747 618" />
+        <Input id="85" points="758 717" />
+      </Inputs>
+      <Outputs>
+        <Output id="43" points="388 624" />
+        <Output id="25" points="477 741" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="880" points="931 1280, 815 1072, 612 955" />
+      </Catalysts>
+      <Properties>
+        <displayName>SOS-mediated nucleotide exchange of RAS (mediated by GRB2:SOS1 in complex with phospho-EGFR KD mutants)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1128" reactomeId="1225957" points="702 674, 612 674, 522 674" position="612 674" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="115" points="747 618" />
+        <Input id="85" points="758 717" />
+      </Inputs>
+      <Outputs>
+        <Output id="43" points="388 624" />
+        <Output id="25" points="477 741" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="883" points="1022 1282, 912 1087, 628 945, 650 698" />
+      </Catalysts>
+      <Properties>
+        <displayName>SOS-mediated nucleotide exchange of RAS (mediated by GRB2:SOS1 in complex with phospho-SHC1-associated phospho-EGFR KD mutants)</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1129" reactomeId="1225978" points="492 143, 441 179, 387 221" position="441 179" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="728" stoichiometry="2" points="408 1063, 442 802" />
+        <Input id="4" points="644 96" />
+      </Inputs>
+      <Outputs>
+        <Output id="1055" />
+      </Outputs>
+      <Properties>
+        <displayName>Irreversible TKIs bind and inhibit wild type EGF:EGFR dimers</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1130" reactomeId="1226016" points="845 1409, 1435 1406, 1441 1334" position="1435 1406" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="26" points="851 757, 847 1002" />
+        <Input id="719" points="798 1273" />
+      </Inputs>
+      <Outputs>
+        <Output id="1057" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of GrB2:GAB1:PI3Kreg complex to phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1131" reactomeId="1226012" points="1431 1140, 1522 1143, 1539 1228" position="1522 1143" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="37" points="529 960" />
+        <Input id="1057" points="1446 1281" />
+      </Inputs>
+      <Outputs>
+        <Output id="1059" />
+      </Outputs>
+      <Properties>
+        <displayName>Binding of PI3K p110 subunit alpha to complex of GRB2:GAB1:PI3Kreg and phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1132" reactomeId="1226014" points="1833 196, 1714 193, 1629 183" position="1714 193" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="3" points="1961 167" />
+        <Input id="1133" points="1858 123" />
+      </Inputs>
+      <Outputs>
+        <Output id="1134" points="1602 110" />
+        <Output id="125" points="1510 165" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="1059" points="1550 1283, 1555 401, 1683 364" />
+      </Catalysts>
+      <Properties>
+        <displayName>Conversion of PIP2 to PIP3 by PI3K bound to phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1156" reactomeId="1247841" points="877 467, 1149 710, 1579 1073, 1661 1256" position="1149 710" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="65" points="801 173" />
+        <Input id="719" points="798 1273, 743 1088, 664 901, 855 650" />
+      </Inputs>
+      <Outputs>
+        <Output id="1157" />
+      </Outputs>
+      <Properties>
+        <displayName>PLC-gamma 1 binds to phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1158" reactomeId="1247844" points="1739 1275, 1757 1276, 1776 1275" position="1757 1276" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="1157" points="1672 1282" />
+        <Input id="1159" stoichiometry="4" points="1707 1198" />
+      </Inputs>
+      <Outputs>
+        <Output id="1160" points="1851 1273" />
+        <Output id="1161" stoichiometry="4" points="1794 1191" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="1157" points="1672 1282, 1753 1324" />
+      </Catalysts>
+      <Properties>
+        <displayName>Phosphorylation of PLC-gamma 1 by phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1162" reactomeId="1247842" points="1849 1239, 1844 1091, 1175 851" position="1844 1091" lineWidth="1.0" lineColor="255 51 51" reactionType="Dissociation">
+      <Inputs>
+        <Input id="1160" />
+      </Inputs>
+      <Outputs>
+        <Output id="34" points="894 260, 1042 766" />
+        <Output id="719" points="798 1273" />
+      </Outputs>
+      <Properties>
+        <displayName>Dissociation of phospho-PLC-gamma 1 from phospho-EGFR KD mutants</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1190" reactomeId="1247999" points="37 1162, 37 1363, 177 1456" position="37 1363" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="730" points="111 1099" />
+        <Input id="746" points="116 1163" />
+        <Input id="1191" points="98 1342, 86 1299" />
+      </Inputs>
+      <Outputs>
+        <Output id="1192" />
+      </Outputs>
+      <Properties>
+        <displayName>EGFRvIII mutant binds chaperone proteins HSP90 and CDC37.</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1242" reactomeId="1248002" points="260 1483, 427 1483, 601 1480" position="427 1483" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="1192" stoichiometry="2" />
+      </Inputs>
+      <Outputs>
+        <Output id="1243" />
+      </Outputs>
+      <Properties>
+        <displayName>Ligand-independent dimerization of EGFRvIII mutant</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1244" reactomeId="1248655" points="706 1474, 721 1473, 738 1473" position="721 1473" lineWidth="1.0" lineColor="255 51 51">
+      <Inputs>
+        <Input id="1243" points="647 1480" />
+        <Input id="1245" stoichiometry="10" points="699 1413" />
+      </Inputs>
+      <Outputs>
+        <Output id="1246" stoichiometry="10" points="750 1406" />
+        <Output id="1247" points="803 1478" />
+      </Outputs>
+      <Catalysts>
+        <Catalyst id="1243" points="647 1480, 721 1504" />
+      </Catalysts>
+      <Properties>
+        <displayName>Trans-autophosphorylation of EGFRvIII mutant dimers</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+    <org.gk.render.RenderableReaction id="1248" reactomeId="1248677" points="253 190, 257 222, 248 260" position="257 222" lineWidth="1.0" lineColor="255 51 51" reactionType="Association">
+      <Inputs>
+        <Input id="1249" points="260 12" />
+        <Input id="19" points="226 147" />
+      </Inputs>
+      <Outputs>
+        <Output id="1250" />
+      </Outputs>
+      <Properties>
+        <displayName>Inactivation of over-expressed wild type EGFR by Cetuximab recombinant antibody</displayName>
+      </Properties>
+    </org.gk.render.RenderableReaction>
+  </Edges>
+  <Pathways />
+</Process>
+

@@ -1,0 +1,3 @@
+# Module reactomebrowser
+# RPC service class, partial path of RPC policy file
+com.google.gwt.logging.shared.RemoteLoggingService, A4EDBD3DD435C0674C9E0914875C4EB8.gwt.rpc

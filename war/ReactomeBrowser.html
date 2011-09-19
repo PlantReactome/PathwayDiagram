@@ -1,0 +1,102 @@
+<!doctype html>
+<!--
+/**
+ * Code written by Maulik Kamdar.
+ * Google Summer of Code Project 
+ * Canvas Based Pathway Visualization Tool
+ * 
+ * Parts of Code have been derived from the tutorials and samples provided at Google Web Toolkit Website 
+ * http://code.google.com/webtoolkit/doc/latest/tutorial/
+ * 
+ * Ideas for canvas based initiation functions derived and modified from Google Canvas API Demo
+ * http://code.google.com/p/gwtcanvasdemo/source/browse/
+ * 
+ */
+-->
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-cache" /> 
+	<link type="text/css" rel="stylesheet" href="ReactomeBrowser.css">
+    <title>Reactome Pathway Browser</title>
+    <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="flashcanvas.js"></script><![endif]--> 
+    <script type="text/javascript" language="javascript" src="reactomebrowser/reactomebrowser.nocache.js"></script>
+  </head>
+  <body>
+
+   <!-- <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe> -->
+    <noscript>
+      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+     <table align="center" border="0" width="100%">
+      <tr>
+        <td align="left"><div id="analyzeButton"></div></td>
+        <td align="right">
+        <table>
+        	<tr>
+        		<td><div id="searchField"></div></td>
+        		<td><div id="searchButton"></div></td>
+        	</tr>
+        </table>
+        </td>        
+      </tr>
+      <tr>
+      	<td align="left"><div id="save">
+      		<table>
+      		<tr>
+      			<td align = "center"><div id="overviewbutton"></div></td>
+      			<td align = "center"><div id="listbutton"></div></td>
+      			<td><div id="savepng"></div></td>
+      			<td><div id="savejpeg"></div></td>
+      		</tr>
+      		</table>
+      	</div>
+      	</td>
+	  	<td align="right"><div id="controls">
+	 		<table>
+	 			<tr>
+	 				<td><div id="refresh"></div></td>
+	 				<td><div id="zoomplus"></div></td>
+	 				<td><div id="zoomminus"></div></td>
+	 				<td>
+	 					<table>
+	 						<!--<tr>
+	 							<td></td>
+	 							<td><div id="scroll-top"></div></td>
+	 							<td></td>
+	 						</tr>-->
+	 						<tr>
+	 							<td rowspan="2"><div id="scroll-left"></div></td>
+	 							<td><div id="scroll-top"></div></td>
+	 							<td rowspan="2"><div id="scroll-right"></div></td>
+	 						</tr>
+	 						<tr>
+	 							<td><div id="scroll-bottom"></div></td>
+	 						</tr>
+	 					</table>
+	 				</td>
+	 			</tr>
+	 		</table>
+	  	</div></td>
+      </tr>
+      <tr>
+        <!--<td width="25%" valign="top">Switch Species: <div id="selector"></div><div id="sidepanel"></div></td>-->
+        <td colspan="2">
+        <table>
+        <tr>
+        	<td><div id="sidepanel"></div></td>
+        	<td><div id="maincanvas"></div></td>
+        </tr>
+        </table>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" id="bottompanel"></td>
+      </tr>
+    </table>
+  </body>
+</html>
