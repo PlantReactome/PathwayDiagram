@@ -21,7 +21,7 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.reactome.diagram.client.Parameters;
+import org.reactome.diagram.view.Parameters;
 
 public class Node extends GraphObject {
     private Bounds bounds;

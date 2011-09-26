@@ -18,9 +18,9 @@
 
 package org.reactome.diagram.model;
 
-import org.reactome.diagram.client.Parameters;
 import org.reactome.diagram.client.RenderableNode;
 import org.reactome.diagram.client.Vector;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 

@@ -162,11 +162,23 @@ public class CanvasPathway extends Node {
         for (int i = 0; i < nodeList.getLength(); i++) {
             com.google.gwt.xml.client.Node child = nodeList.item(i);
             String name = child.getNodeName();
+            ConnectRole role = null;
             if (name.equals("Inputs"))
+                role = ConnectRole.INPUT;
+            else if (name.equals("Outputs"))
+                role = ConnectRole.OUTPUT;
+            else if (name.equals("Catalysts"))
+                role = ConnectRole.CATALYST;
+            else if (name.equals("Inhibitors"))
+                role = ConnectRole.INHIBITOR;
+            else if (name.equals("Activators"))
+                role = ConnectRole.ACTIVATOR;
+            if (role != null) {
                 parseEdgeBranch(child,
-                                ConnectWidget.ConnectRole.INPUT,
+                                role,
                                 edge,
                                 idToNode);
+            }
         }
         return edge;
     }
@@ -216,6 +228,9 @@ public class CanvasPathway extends Node {
                 Element elm = elmList.get(i);
                 String pointsText = elm.getAttribute("points");
                 List<Point> points = ModelHelper.makePoints(pointsText);
+                // Add the last point so that no need to be handled during rendering
+                Point lastPoint = getLastPointForBranch(edge, role);
+                points.add(lastPoint);
                 edge.addBranch(points, role);
                 String id = elm.getAttribute("id");
                 if (id == null)
@@ -238,6 +253,17 @@ public class CanvasPathway extends Node {
         }
     }
     
+    private Point getLastPointForBranch(HyperEdge edge,
+                                        ConnectRole role) {
+        List<Point> backbone = edge.getBackbone();
+        if (role == ConnectRole.INPUT)
+            return backbone.get(0);
+        else if (role == ConnectRole.OUTPUT)
+            return backbone.get(backbone.size() - 1);
+        else
+            return edge.getPosition();
+    }
+    
     private Point getConnectWidgetControlPoint(List<Point> points, 
                                                HyperEdge edge,
                                                ConnectRole role) {
@@ -253,7 +279,7 @@ public class CanvasPathway extends Node {
         else
             return edge.getPosition();
     }
-
+    
     private ConnectWidget createConnectWidget(Node node, 
                                               HyperEdge edge, 
                                               Element elm,

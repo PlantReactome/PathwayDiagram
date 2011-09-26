@@ -21,9 +21,9 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.reactome.diagram.client.Parameters;
 import org.reactome.diagram.client.RenderableEdge;
 import org.reactome.diagram.client.Vector;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
