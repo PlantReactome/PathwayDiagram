@@ -41,6 +41,8 @@ public class HyperEdge extends GraphObject {
     private List<List<Point>> inhibitorBranches;
     private List<List<Point>> activatorBranches;
     private List<Point> backbone;
+    // For reaction type if it is a reaction
+    private ReactionType reactionType;
     
     String edgePoints1;
     String edgePoints2;
@@ -460,11 +462,19 @@ public class HyperEdge extends GraphObject {
 	            inhibitorBranches.add(points);
 	            break;
 	        case ACTIVATOR :
-	            if (activatorBranches != null)
+	            if (activatorBranches == null)
 	                activatorBranches = new ArrayList<List<Point>>();
 	            activatorBranches.add(points);
 	            break;
 	    }
+	}
+	
+	public void setReactionType(ReactionType type) {
+	    this.reactionType = type;
+	}
+	
+	public ReactionType getReactionType() {
+	    return this.reactionType;
 	}
 
 }

@@ -41,6 +41,8 @@ public class GraphObjectRendererFactory {
     }
     
     public NodeRenderer getNodeRenderer(Node node) {
+        if (node.getType() == GraphObjectType.RenderablePathway)
+            return null; // This is not supported
         return nodeRenderer;
     }
     

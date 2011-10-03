@@ -21,8 +21,9 @@ public enum GraphObjectType {
     RendearbleRNA,
     SourceOrSink,
     RenderableComplex,
+    RenderablePathway,
     // Edge types
     RenderableReaction,
-    RenderableIntearction,
+    RenderableInteraction,
     FlowLine
 }

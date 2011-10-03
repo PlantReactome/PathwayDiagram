@@ -58,10 +58,15 @@ public class PathwayDiagramPanel extends Composite {
         update();
     }
     
+    public Context2d getContext2d() {
+        return canvas.getContext2d();
+    }
+    
     /**
      * Update drawing.
      */
     public void update() {
+        System.out.println("Doing update in PathwayDigaramPanel!");
         if (pathway == null)
             return;
         List<Node> nodes = pathway.getChildren();
@@ -76,6 +81,14 @@ public class PathwayDiagramPanel extends Composite {
                         renderer.render(c2d, node);
                 }
             }
+            for (Node node : nodes) {
+                if (node.getType() == GraphObjectType.RenderableCompartment)
+                    continue;
+                NodeRenderer renderer = viewFactory.getNodeRenderer(node);
+                if (renderer != null)
+                    renderer.render(c2d,
+                                    node);
+            }
         }
         // Draw edges
         List<HyperEdge> edges = pathway.getEdges();
@@ -86,16 +99,6 @@ public class PathwayDiagramPanel extends Composite {
                     continue;
                 renderer.render(c2d, 
                                 edge);
-            }
-        }
-        if (nodes != null) {
-            for (Node node : nodes) {
-                if (node.getType() == GraphObjectType.RenderableCompartment)
-                    continue;
-                NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                if (renderer != null)
-                    renderer.render(c2d,
-                                    node);
             }
         }
     }

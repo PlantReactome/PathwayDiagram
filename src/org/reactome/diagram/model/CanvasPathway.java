@@ -60,6 +60,8 @@ public class CanvasPathway extends Node {
                                   GraphObject obj) {
         Element element = (Element) node;
         NodeList nodeList = element.getElementsByTagName("displayName");
+        if (nodeList == null || nodeList.getLength() == 0)
+            return;
         Element nameElm = (Element) nodeList.item(0);
         String name = nameElm.getFirstChild().getNodeValue();
         obj.setDisplayName(name);
@@ -152,6 +154,12 @@ public class CanvasPathway extends Node {
         HyperEdge edge = new HyperEdge();
         parseGraphObjectProperties(edgeElm, edge);
         parseDisplayName(edgeElm, edge);
+        // Get the reaction type if any
+        String rxtTypeInfo = edgeElm.getAttribute("reactionType");
+        if (rxtTypeInfo != null) {
+            String type = rxtTypeInfo.toUpperCase().replaceAll(" ", "_");
+            edge.setReactionType(ReactionType.valueOf(type));
+        }
         // Edge specific information
         String pointsText = edgeElm.getAttribute("points");
         List<Point> points = ModelHelper.makePoints(pointsText);
@@ -228,9 +236,6 @@ public class CanvasPathway extends Node {
                 Element elm = elmList.get(i);
                 String pointsText = elm.getAttribute("points");
                 List<Point> points = ModelHelper.makePoints(pointsText);
-                // Add the last point so that no need to be handled during rendering
-                Point lastPoint = getLastPointForBranch(edge, role);
-                points.add(lastPoint);
                 edge.addBranch(points, role);
                 String id = elm.getAttribute("id");
                 if (id == null)
@@ -251,17 +256,6 @@ public class CanvasPathway extends Node {
                                     controlPoint);
             }
         }
-    }
-    
-    private Point getLastPointForBranch(HyperEdge edge,
-                                        ConnectRole role) {
-        List<Point> backbone = edge.getBackbone();
-        if (role == ConnectRole.INPUT)
-            return backbone.get(0);
-        else if (role == ConnectRole.OUTPUT)
-            return backbone.get(backbone.size() - 1);
-        else
-            return edge.getPosition();
     }
     
     private Point getConnectWidgetControlPoint(List<Point> points, 
