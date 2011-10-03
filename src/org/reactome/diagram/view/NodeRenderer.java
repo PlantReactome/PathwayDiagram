@@ -71,7 +71,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                           Node node) {
         if (node.getDisplayName() == null || node.getDisplayName().isEmpty())
             return;
-        String[] Words = node.getDisplayName().split(" ");
+        String[] words = node.getDisplayName().split(" ");
         Vector measures;
         int linebreak = 0;
         int printFlag = 0;
@@ -94,8 +94,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.setFont(font);
         context.setTextAlign("center");
         context.setTextBaseline("top");
-        for (int i = 0; i < Words.length ; i++) {
-            String word = Words[i];
+        for (int i = 0; i < words.length ; i++) {
+            String word = words[i];
             String[] colonWords = word.split(":");
             for (int j = 0; j < colonWords.length ; j++) {
                 String colonword = colonWords[j];
@@ -136,7 +136,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                     dashLastPhrase += separator ;
                 }
             }
-            if (i < (Words.length - 1)){
+            if (i < (words.length - 1)){
                 dashLastPhrase += mainSeparator ;
             }
         }

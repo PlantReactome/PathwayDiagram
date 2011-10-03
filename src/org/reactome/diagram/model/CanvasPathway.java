@@ -209,7 +209,7 @@ public class CanvasPathway extends Node {
             String id = elm.getAttribute("id");
             if (id == null)
                 return;
-            Node node = idToNode.get(id);
+            Node node = idToNode.get(new Integer(id));
             if (node == null)
                 return;
             List<Point> backbone = edge.getBackbone();
@@ -223,13 +223,14 @@ public class CanvasPathway extends Node {
                 point = backbone.get(backbone.size() - 1);
                 controlPoint = backbone.get(backbone.size() - 2);
             }
-            createConnectWidget(node, 
-                                edge, 
-                                elm, 
-                                role,
-                                0,
-                                point,
-                                controlPoint);
+            ConnectWidget widget = createConnectWidget(node, 
+                                                       edge, 
+                                                       elm, 
+                                                       role,
+                                                       0,
+                                                       point,
+                                                       controlPoint);
+            edge.addConnectWidget(widget);
         }
         else {
             for (int i = 0; i < elmList.size(); i++) {
@@ -240,20 +241,21 @@ public class CanvasPathway extends Node {
                 String id = elm.getAttribute("id");
                 if (id == null)
                     continue;
-                Node node = idToNode.get(id);
+                Node node = idToNode.get(new Integer(id));
                 if (node == null)
                     continue;
                 Point point = points.get(0);
                 Point controlPoint = getConnectWidgetControlPoint(points, 
                                                                   edge, 
                                                                   role);
-                createConnectWidget(node, 
-                                    edge, 
-                                    elm, 
-                                    role,
-                                    i, 
-                                    point, 
-                                    controlPoint);
+                ConnectWidget widget = createConnectWidget(node, 
+                                                           edge, 
+                                                           elm, 
+                                                           role,
+                                                           i, 
+                                                           point, 
+                                                           controlPoint);
+                edge.addConnectWidget(widget);
             }
         }
     }
