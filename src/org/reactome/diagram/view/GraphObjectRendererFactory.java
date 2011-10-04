@@ -32,6 +32,10 @@ public class GraphObjectRendererFactory {
         typeToRenderer = new HashMap<GraphObjectType, GraphObjectRenderer<Node>>();
         typeToRenderer.put(GraphObjectType.RenderableProtein, 
                            new NodeRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableComplex, 
+                           new ComplexRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableChemical,
+                           new ChemicalRenderer());
     }
     
     public static GraphObjectRendererFactory getFactory() {
@@ -43,7 +47,10 @@ public class GraphObjectRendererFactory {
     public NodeRenderer getNodeRenderer(Node node) {
         if (node.getType() == GraphObjectType.RenderablePathway)
             return null; // This is not supported
-        return nodeRenderer;
+        GraphObjectRenderer<Node> nodeRenderer = typeToRenderer.get(node.getType());
+        if (nodeRenderer != null)
+            return (NodeRenderer) nodeRenderer;
+        return this.nodeRenderer;
     }
     
     public HyperEdgeRenderer getEdgeRenderere(HyperEdge edge) {

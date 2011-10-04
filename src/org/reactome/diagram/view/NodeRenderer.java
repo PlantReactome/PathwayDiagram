@@ -4,11 +4,13 @@
  */
 package org.reactome.diagram.view;
 
-import org.reactome.diagram.client.Vector;
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
+import org.reactome.diagram.model.Vector;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
+import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 
@@ -17,9 +19,12 @@ import com.google.gwt.canvas.dom.client.FillStrokeStyle;
  * @author Maulik & Guanming
  *
  */
+//TODO: Make sure text names are correctly encapsulated as in the curator tool. Work on display name for compartments.
+//display pathway icons.
 public class NodeRenderer extends AbstractRenderer<Node> {
-    // TODO: to be changed
-    private int zoomFactor = 1;
+    public static final int ROUND_RECT_ARC_WIDTH = 12;
+    public static final int COMPLEX_RECT_ARC_WIDTH = ROUND_RECT_ARC_WIDTH / 2;
+    
     
     /* (non-Javadoc)
      * @see org.reactome.diagram.view.GraphObjectRenderer#render(com.google.gwt.canvas.dom.client.Context2d)
@@ -41,8 +46,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         drawName(c2d, node);
     }
     
-    private void drawRectangle(Bounds bounds,
-                               Context2d context) {
+    protected void drawRectangle(Bounds bounds,
+                                 Context2d context) {
         int coX = bounds.getX();
         int coY = bounds.getY();
         int radius = Parameters.radius;
@@ -80,7 +85,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         String separator = ":";
         Bounds bounds = node.getBounds();
         int x0 = bounds.getX() + bounds.getWidth() / 2;
-        int y0 = bounds.getY() + 4;
+        int y0 = bounds.getY() + 8;
         String fgColor = node.getFgColor();
         if (fgColor == null)
             fgColor = "rgba(0, 0, 0, 1)";
@@ -92,8 +97,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.setFillStyle(fillStyleColor);
         String font = "12px Lucida Sans"; // This should be fixed
         context.setFont(font);
-        context.setTextAlign("center");
-        context.setTextBaseline("top");
+        context.setTextAlign(TextAlign.CENTER);
+        context.setTextBaseline(TextBaseline.TOP);
         for (int i = 0; i < words.length ; i++) {
             String word = words[i];
             String[] colonWords = word.split(":");
@@ -163,8 +168,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                           int x0,
                           int y0) {
         double wordX = x0;
-        double wordY = y0 + (linebreak * 14 / zoomFactor);
-        double measure = context.measureText(dashLastPhrase).getWidth() / zoomFactor; 
+        double wordY = y0 + linebreak * 14;
+        double measure = context.measureText(dashLastPhrase).getWidth(); 
         context.fillText(dashLastPhrase, wordX, wordY, measure);
     }
     
@@ -183,8 +188,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
             testmeasure = measure;
         }
         else {
-            measure = context.measureText(lastPhrase).getWidth()/zoomFactor;
-            testmeasure = context.measureText(lastPhrase + word).getWidth()/zoomFactor;
+            measure = context.measureText(lastPhrase).getWidth();
+            testmeasure = context.measureText(lastPhrase + word).getWidth();
         }
         Vector measures = new Vector(measure,testmeasure);
         return measures;

@@ -19,8 +19,6 @@
 
 package org.reactome.diagram.view;
 
-import org.reactome.diagram.client.Vector;
-
 import com.google.gwt.user.client.Window;
 
 /**
@@ -36,7 +34,6 @@ public class Parameters {
 	public static final int Reactwidth = 12;
     public static final int Reactheight = 12;
     public static final int catRadius = 5;
-    public static final Vector nullvector = new Vector();
 	public static final String defaultbgColor = "rgba(0,0,0,1)";
 	public static final String defaultstrokeColor = "rgba(0,0,0,1)";
 	public static final double height = (int) (0.75 * Window.getClientHeight());
