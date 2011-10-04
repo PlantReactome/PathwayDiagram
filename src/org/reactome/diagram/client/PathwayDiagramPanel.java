@@ -30,6 +30,11 @@ public class PathwayDiagramPanel extends Composite {
     private CanvasPathway pathway;
     // The major canvas that is used to draw pathway
     private PlugInSupportCanvas canvas;
+    // These are used for translate
+    private double translateX;
+    private double translateY;
+    // This is for scale
+    private double scale;
     
     public PathwayDiagramPanel() {
         init();
@@ -39,11 +44,14 @@ public class PathwayDiagramPanel extends Composite {
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
         canvas = new PlugInSupportCanvas();
+        // Keep the original information
         contentPane.add(canvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName("mainCanvas");
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
         initWidget(contentPane);
+        // default should be 1.0d
+        scale = 1.0d;
     }
     
     public void setSize(int width, int height) {
@@ -58,20 +66,37 @@ public class PathwayDiagramPanel extends Composite {
         update();
     }
     
-    public Context2d getContext2d() {
-        return canvas.getContext2d();
+    public void translate(double dx, double dy) {
+        this.translateX += dx;
+        this.translateY += dy;
+    }
+    
+    public void scale(double scale) {
+        this.scale *= scale;
+    }
+    
+    public void reset() {
+        translateX = 0.0d;
+        translateY = 0.0d;
+        scale = 1.0d;
     }
     
     /**
      * Update drawing.
      */
     public void update() {
-        System.out.println("Doing update in PathwayDigaramPanel!");
         if (pathway == null)
             return;
         List<Node> nodes = pathway.getChildren();
         GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
         Context2d c2d = canvas.getContext2d();
+        c2d.save();
+        c2d.clearRect(0.0d, 
+                      0.0d, 
+                      canvas.getOffsetWidth(),
+                      canvas.getOffsetHeight());
+        c2d.translate(translateX, translateY);
+        c2d.scale(scale, scale);
         if (nodes != null) {
             // Always draw compartments first
             for (Node node : nodes) {
@@ -101,5 +126,10 @@ public class PathwayDiagramPanel extends Composite {
                                 edge);
             }
         }
+        c2d.restore();
+//        // Set back to original coordinates
+//        c2d.translate(-translateX, -translateY);
+//        // Rescale back to the original
+//        c2d.scale(1.0d/scale, 1.0d/scale);
     }
 }

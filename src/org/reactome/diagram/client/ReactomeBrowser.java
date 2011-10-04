@@ -28,6 +28,7 @@ import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.HyperEdge;
 import org.reactome.diagram.model.ModelHelper;
 import org.reactome.diagram.model.Node;
+import org.reactome.diagram.model.Vector;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
@@ -192,7 +193,7 @@ public class ReactomeBrowser implements EntryPoint {
 		diagramPane.setSize((int)Parameters.width,
 		                    (int)Parameters.height);
 		RootPanel.get(holderId).add(diagramPane);
-		context = diagramPane.getContext2d();
+//		context = diagramPane.getContext2d();
 //		context = canvas.getContext2d();
 		
 		backBufferContext = backBuffer.getContext2d();
@@ -202,8 +203,8 @@ public class ReactomeBrowser implements EntryPoint {
 		overViewContext = overView.getContext2d();
 		overView.setVisible(false);
 	
-		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, "Mitotic G1-G1_S phases.xml");
-//		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, "EGFR_Simple_37.xml");
+//		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, "Mitotic G1-G1_S phases.xml");
+		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, "EGFR_Simple_37.xml");
 		try {
 			requestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
@@ -240,109 +241,115 @@ public class ReactomeBrowser implements EntryPoint {
 		
 		PushButton refresh = new PushButton(new Image("refresh.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  double factor = 1.0 , leftTranslate = 0.0, topTranslate = 0.0;
-		    	  double scaleFactor = (1 / factor);
-
-		    	  double scaleFactorX = setBoxCoordinates.get(4);
-		    	  double scaleFactorY = setBoxCoordinates.get(5);
-		    	  int totalTracks = trackScaleFactors.size();
-		    	  
-		    	  for(int i = totalTracks-1 ; i >= 0; i--) {
-		    		  leftTranslate = trackLeftTranslates.get(i);
-		    		  topTranslate = trackTopTranslates.get(i);
-		    		  factor = trackScaleFactors.get(i);
-		    		  scaleFactor = (1 / factor);
-			    	  context.translate(-leftTranslate, -topTranslate);
-			    	  context.scale(scaleFactor, scaleFactor);
-		    	  }
-		    
-		    	  trackTopTranslates.clear();
-		    	  trackLeftTranslates.clear();
-		    	  trackScaleFactors.clear();
-		    	  doUpdate(context);
-		    	  trackTransforms(1.0, 0.0, 0.0);
-		    	  doUpdate(overViewContext);
-		    	  setBox();
-		    	  setBoxCoordinates.add(4, scaleFactorX);
-		    	  setBoxCoordinates.add(5, scaleFactorY);
+		          diagramPane.reset();
+		          diagramPane.update();
+//		    	  double factor = 1.0 , leftTranslate = 0.0, topTranslate = 0.0;
+//		    	  double scaleFactor = (1 / factor);
+//
+//		    	  double scaleFactorX = setBoxCoordinates.get(4);
+//		    	  double scaleFactorY = setBoxCoordinates.get(5);
+//		    	  int totalTracks = trackScaleFactors.size();
+//		    	  
+//		    	  for(int i = totalTracks-1 ; i >= 0; i--) {
+//		    		  leftTranslate = trackLeftTranslates.get(i);
+//		    		  topTranslate = trackTopTranslates.get(i);
+//		    		  factor = trackScaleFactors.get(i);
+//		    		  scaleFactor = (1 / factor);
+//			    	  context.translate(-leftTranslate, -topTranslate);
+//			    	  context.scale(scaleFactor, scaleFactor);
+//		    	  }
+//		    
+//		    	  trackTopTranslates.clear();
+//		    	  trackLeftTranslates.clear();
+//		    	  trackScaleFactors.clear();
+//		    	  doUpdate(context);
+//		    	  trackTransforms(1.0, 0.0, 0.0);
+//		    	  doUpdate(overViewContext);
+//		    	  setBox();
+//		    	  setBoxCoordinates.add(4, scaleFactorX);
+//		    	  setBoxCoordinates.add(5, scaleFactorY);
 		      }
 		});
 		
 		PushButton zoomPlus = new PushButton(new Image("zoomplus.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  double i = 1;
-		    	  double scaleFactor = 1.1;
-		    	  double scaleFactorX = setBoxCoordinates.get(4);
-		    	  double scaleFactorY = setBoxCoordinates.get(5);
-		    	  double factor = Math.pow(scaleFactor, i);
-		    	  context.scale(factor, factor);
-		    	  doUpdate(context);
-		    	  trackTransforms(factor, 0.0, 0.0);
-		    	  doUpdate(overViewContext);
-		    	  setBox();
-		    	  setBoxCoordinates.add(4, scaleFactorX);
-		    	  setBoxCoordinates.add(5, scaleFactorY);
+		          diagramPane.scale(1.25d);
+		          diagramPane.update();
+//		    	  double i = 1;
+//		    	  double scaleFactor = 1.1;
+//		    	  double scaleFactorX = setBoxCoordinates.get(4);
+//		    	  double scaleFactorY = setBoxCoordinates.get(5);
+//		    	  double factor = Math.pow(scaleFactor, i);
+//		    	  context.scale(factor, factor);
+//		    	  doUpdate(context);
+//		    	  trackTransforms(factor, 0.0, 0.0);
+//		    	  doUpdate(overViewContext);
+//		    	  setBox();
+//		    	  setBoxCoordinates.add(4, scaleFactorX);
+//		    	  setBoxCoordinates.add(5, scaleFactorY);
 		      }
 		});
 		PushButton zoomMinus = new PushButton(new Image("zoomminus.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  double i = -1;
-		    	  double scaleFactor = 1.1;
-		    	  double scaleFactorX = setBoxCoordinates.get(4);
-		    	  double scaleFactorY = setBoxCoordinates.get(5);
-		    	  double factor = Math.pow(scaleFactor, i);
-		    	  context.scale(factor, factor);
-		    	  doUpdate(context);
-		    	  trackTransforms(factor, 0.0, 0.0);
-		    	  doUpdate(overViewContext);
-		    	  setBox();
-		    	  setBoxCoordinates.add(4, scaleFactorX);
-		    	  setBoxCoordinates.add(5, scaleFactorY);
+		          diagramPane.scale(0.8d);
+		          diagramPane.update();
+//		    	  double i = -1;
+//		    	  double scaleFactor = 1.1;
+//		    	  double scaleFactorX = setBoxCoordinates.get(4);
+//		    	  double scaleFactorY = setBoxCoordinates.get(5);
+//		    	  double factor = Math.pow(scaleFactor, i);
+//		    	  context.scale(factor, factor);
+//		    	  doUpdate(context);
+//		    	  trackTransforms(factor, 0.0, 0.0);
+//		    	  doUpdate(overViewContext);
+//		    	  setBox();
+//		    	  setBoxCoordinates.add(4, scaleFactorX);
+//		    	  setBoxCoordinates.add(5, scaleFactorY);
 		      }
 		});
 		PushButton scrollLeft = new PushButton(new Image("left.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		        context.translate(100, 0);
+		        diagramPane.translate(100, 0);
 		        doUpdateFromTranslate();
 		      }
 		});
 		PushButton scrollTop = new PushButton(new Image("top.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  context.translate(0, 100);
+		          diagramPane.translate(0, 100);
 		    	  doUpdateFromTranslate();
 		      }
 		});
 		PushButton scrollBottom = new PushButton(new Image("bottom.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  context.translate(0, -100);
+		    	  diagramPane.translate(0, -100);
 		    	  doUpdateFromTranslate();
 		      }
 		});
 		PushButton scrollRight = new PushButton(new Image("right.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  context.translate(-100, 0);
+		    	  diagramPane.translate(-100, 0);
 		    	  doUpdateFromTranslate();
 		      }
 		});
 		PushButton listButton = new PushButton(new Image("list.jpg"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
-		    	  if(overView.isVisible()) {
-		    		  overView.setVisible(false);
-		    	  }
-		    	  if(!TabGroup.isVisible()) {
-		    		  TabGroup.setVisible(true);
-		    		  lb.setVisible(true);
-		    		  TabGroup.setWidth("300px");
-		    		  canvas.setWidth((Parameters.width - 300) + "px");
-		    		  canvas.setCoordinateSpaceWidth((int) (Parameters.width - 300));
-		    		  doUpdate(context);
-		    	  } else {
-		    		  lb.setVisible(false);
-		    		  TabGroup.setVisible(false);
-		    		  canvas.setWidth((Parameters.width) + "px");
-		    		  canvas.setCoordinateSpaceWidth((int) Parameters.width);
-		    		  doUpdate(context);
-		    	  }
+//		    	  if(overView.isVisible()) {
+//		    		  overView.setVisible(false);
+//		    	  }
+//		    	  if(!TabGroup.isVisible()) {
+//		    		  TabGroup.setVisible(true);
+//		    		  lb.setVisible(true);
+//		    		  TabGroup.setWidth("300px");
+//		    		  canvas.setWidth((Parameters.width - 300) + "px");
+//		    		  canvas.setCoordinateSpaceWidth((int) (Parameters.width - 300));
+//		    		  doUpdate(context);
+//		    	  } else {
+//		    		  lb.setVisible(false);
+//		    		  TabGroup.setVisible(false);
+//		    		  canvas.setWidth((Parameters.width) + "px");
+//		    		  canvas.setCoordinateSpaceWidth((int) Parameters.width);
+//		    		  doUpdate(context);
+//		    	  }
 		      }
 		});
 		
@@ -468,16 +475,6 @@ public class ReactomeBrowser implements EntryPoint {
 	    }
 	}
 	
-	/**Plots the Canvas Elements on the Canvas, after cleaning it once
-	 * 
-	 * @param context The Context2d object for plotting the nodes and edges
-	 */
-	void doUpdate(Context2d context) {
-		context.clearRect(-5 * Parameters.width, - 5 * Parameters.height, 20 * Parameters.width, 20 * Parameters.height);
-		CanvasElements elements = new CanvasElements();
-		elements.redraw(context);
-	}
-	
 	/**
 	 * 
 	 * @param exception Exception whenever the XML file is not load
@@ -534,39 +531,39 @@ public class ReactomeBrowser implements EntryPoint {
 	 * Draws a box on the overview window indicating the current position of the user on the Main Canvas
 	 */
 	private void setBox () {
-		double factor = 1.0;
-		double leftTranslate = 0.0, topTranslate = 0.0;
-		double scaleFactor = (1 / factor);
-		int totalTracks = trackScaleFactors.size();
-  	  
-		for(int i = totalTracks-1 ; i >= 0; i--) {
-			leftTranslate = leftTranslate + trackLeftTranslates.get(i);
-			topTranslate = topTranslate + trackTopTranslates.get(i);
-			factor = trackScaleFactors.get(i);
-  		  	scaleFactor = scaleFactor * (1 / factor); 		  	
-		}
-		
-		double coX = - leftTranslate;
-		double coY = - topTranslate;
-		double width = canvas.getCoordinateSpaceWidth() * scaleFactor;
-		double height = canvas.getCoordinateSpaceHeight() * scaleFactor;
-		
-		String nodeColor = "rgba(255,255,255,1)";
-		String strokeColor = "rgba(255,0,0,1)";
-		ContextSettings colors = new ContextSettings(nodeColor,strokeColor);
-		colors.makecolor(overViewContext);
-		
-		overViewContext.setLineWidth(20);
-		overViewContext.beginPath();
-		overViewContext.rect(coX, coY, width, height);
-		overViewContext.strokeRect(coX, coY, width, height); 
-		overViewContext.closePath();
-		overViewContext.setLineWidth(2);
-		
-		setBoxCoordinates.add(0, coX);
-		setBoxCoordinates.add(1, coY);
-		setBoxCoordinates.add(2, width);
-		setBoxCoordinates.add(3, height);
+//		double factor = 1.0;
+//		double leftTranslate = 0.0, topTranslate = 0.0;
+//		double scaleFactor = (1 / factor);
+//		int totalTracks = trackScaleFactors.size();
+//  	  
+//		for(int i = totalTracks-1 ; i >= 0; i--) {
+//			leftTranslate = leftTranslate + trackLeftTranslates.get(i);
+//			topTranslate = topTranslate + trackTopTranslates.get(i);
+//			factor = trackScaleFactors.get(i);
+//  		  	scaleFactor = scaleFactor * (1 / factor); 		  	
+//		}
+//		
+//		double coX = - leftTranslate;
+//		double coY = - topTranslate;
+//		double width = canvas.getCoordinateSpaceWidth() * scaleFactor;
+//		double height = canvas.getCoordinateSpaceHeight() * scaleFactor;
+//		
+//		String nodeColor = "rgba(255,255,255,1)";
+//		String strokeColor = "rgba(255,0,0,1)";
+//		ContextSettings colors = new ContextSettings(nodeColor,strokeColor);
+//		colors.makecolor(overViewContext);
+//		
+//		overViewContext.setLineWidth(20);
+//		overViewContext.beginPath();
+//		overViewContext.rect(coX, coY, width, height);
+//		overViewContext.strokeRect(coX, coY, width, height); 
+//		overViewContext.closePath();
+//		overViewContext.setLineWidth(2);
+//		
+//		setBoxCoordinates.add(0, coX);
+//		setBoxCoordinates.add(1, coY);
+//		setBoxCoordinates.add(2, width);
+//		setBoxCoordinates.add(3, height);
 	}
 	
 	/**Checks against the Node HashMaps, whether the point where the user has clicked is a Node, and builds up the node attributes, if a node is selected
@@ -576,110 +573,111 @@ public class ReactomeBrowser implements EntryPoint {
 	 */
 	private boolean isNodeSelected (Vector lastEvent) {
 		
-		boolean isSelected = false;
-		double factor = 1.0;
-		double leftTranslate = 0.0, topTranslate = 0.0;
-		double scaleFactor = (1 / factor);
-		int totalTracks = trackScaleFactors.size();
-  	  
-		for(int i = totalTracks-1 ; i >= 0; i--) {
-			leftTranslate = leftTranslate + trackLeftTranslates.get(i);
-			topTranslate = topTranslate + trackTopTranslates.get(i);
-			factor = trackScaleFactors.get(i);
-  		  	scaleFactor = scaleFactor * (1 / factor); 		  	
-		}
-		
-		double selectX = (lastEvent.x * scaleFactor) - leftTranslate;
-		double selectY = (lastEvent.y * scaleFactor) - topTranslate;
-		Iterator<Double> iterator = NodeGroup.BoundsHashmap.keySet().iterator();
-		while(iterator.hasNext()) {
-			Double key = (Double) iterator.next();
-			String bounds = NodeGroup.BoundsHashmap.get(key);
-			ModelHelper parser = new ModelHelper();
-			
-			String[] boundCo = parser.splitbySpace(bounds);
-			double coX = (Double.parseDouble(boundCo[0]))/zoomFactor;
-			double coY = ((Double.parseDouble(boundCo[1]))/zoomFactor)+upHeight;
-			double nodeWidth = (Double.parseDouble(boundCo[2]))/zoomFactor;
-			double nodeHeight = (Double.parseDouble(boundCo[3]))/zoomFactor;
-			
-			if(coX < selectX && selectX < (coX + nodeWidth)) {
-				if(coY < selectY && selectY < (coY + nodeHeight)) {
-					if(ProteinGroup.proteinValuesHashmap.containsKey(key)) {
-						List<String> attributes = ProteinGroup.proteinValuesHashmap.get(key);
-						nodeSelected.add(0, attributes.get(0));
-						nodeSelected.add(1, attributes.get(1));
-						nodeSelected.add(2, attributes.get(2));
-						nodeSelected.add(3, attributes.get(3));
-						nodeSelected.add(4, attributes.get(4));
-						nodeSelected.add(5, attributes.get(5));
-						nodeSelected.add(6, "1");
-						isSelected = true;
-						break;
-					} else if (ComplexGroup.complexValuesHashmap.containsKey(key)) {
-						List<String> attributes = ComplexGroup.complexValuesHashmap.get(key);
-						nodeSelected.add(0, attributes.get(0));
-						nodeSelected.add(1, attributes.get(1));
-						nodeSelected.add(2, attributes.get(2));
-						nodeSelected.add(3, attributes.get(3));
-						nodeSelected.add(4, attributes.get(4));
-						nodeSelected.add(5, attributes.get(5));
-						nodeSelected.add(6, "2");
-						isSelected = true;
-						break;
-					} else if (EntityGroup.entityValuesHashmap.containsKey(key)) {
-						List<String> attributes = EntityGroup.entityValuesHashmap.get(key);
-						nodeSelected.add(0, attributes.get(0));
-						nodeSelected.add(1, attributes.get(1));
-						nodeSelected.add(2, attributes.get(2));
-						nodeSelected.add(3, attributes.get(3));
-						nodeSelected.add(4, attributes.get(4));
-						nodeSelected.add(5, attributes.get(5));
-						nodeSelected.add(6, "3");
-						isSelected = true;
-						break;
-					} else if (ChemicalGroup.chemicalValuesHashmap.containsKey(key)) {
-						List<String> attributes = ChemicalGroup.chemicalValuesHashmap.get(key);
-						nodeSelected.add(0, attributes.get(0));
-						nodeSelected.add(1, attributes.get(1));
-						nodeSelected.add(2, attributes.get(2));
-						nodeSelected.add(3, attributes.get(3));
-						nodeSelected.add(4, attributes.get(4));
-						nodeSelected.add(5, attributes.get(5));
-						nodeSelected.add(6, "4");
-						isSelected = true;
-						break;
-					}
-				}
-			}
-		}
-		
-		return isSelected;
+////		boolean isSelected = false;
+////		double factor = 1.0;
+////		double leftTranslate = 0.0, topTranslate = 0.0;
+////		double scaleFactor = (1 / factor);
+////		int totalTracks = trackScaleFactors.size();
+////  	  
+////		for(int i = totalTracks-1 ; i >= 0; i--) {
+////			leftTranslate = leftTranslate + trackLeftTranslates.get(i);
+////			topTranslate = topTranslate + trackTopTranslates.get(i);
+////			factor = trackScaleFactors.get(i);
+////  		  	scaleFactor = scaleFactor * (1 / factor); 		  	
+////		}
+////		
+////		double selectX = (lastEvent.x * scaleFactor) - leftTranslate;
+////		double selectY = (lastEvent.y * scaleFactor) - topTranslate;
+////		Iterator<Double> iterator = NodeGroup.BoundsHashmap.keySet().iterator();
+////		while(iterator.hasNext()) {
+////			Double key = (Double) iterator.next();
+////			String bounds = NodeGroup.BoundsHashmap.get(key);
+////			ModelHelper parser = new ModelHelper();
+////			
+////			String[] boundCo = parser.splitbySpace(bounds);
+////			double coX = (Double.parseDouble(boundCo[0]))/zoomFactor;
+////			double coY = ((Double.parseDouble(boundCo[1]))/zoomFactor)+upHeight;
+////			double nodeWidth = (Double.parseDouble(boundCo[2]))/zoomFactor;
+////			double nodeHeight = (Double.parseDouble(boundCo[3]))/zoomFactor;
+////			
+////			if(coX < selectX && selectX < (coX + nodeWidth)) {
+////				if(coY < selectY && selectY < (coY + nodeHeight)) {
+////					if(ProteinGroup.proteinValuesHashmap.containsKey(key)) {
+////						List<String> attributes = ProteinGroup.proteinValuesHashmap.get(key);
+////						nodeSelected.add(0, attributes.get(0));
+////						nodeSelected.add(1, attributes.get(1));
+////						nodeSelected.add(2, attributes.get(2));
+////						nodeSelected.add(3, attributes.get(3));
+////						nodeSelected.add(4, attributes.get(4));
+////						nodeSelected.add(5, attributes.get(5));
+////						nodeSelected.add(6, "1");
+////						isSelected = true;
+////						break;
+////					} else if (ComplexGroup.complexValuesHashmap.containsKey(key)) {
+////						List<String> attributes = ComplexGroup.complexValuesHashmap.get(key);
+////						nodeSelected.add(0, attributes.get(0));
+////						nodeSelected.add(1, attributes.get(1));
+////						nodeSelected.add(2, attributes.get(2));
+////						nodeSelected.add(3, attributes.get(3));
+////						nodeSelected.add(4, attributes.get(4));
+////						nodeSelected.add(5, attributes.get(5));
+////						nodeSelected.add(6, "2");
+////						isSelected = true;
+////						break;
+////					} else if (EntityGroup.entityValuesHashmap.containsKey(key)) {
+////						List<String> attributes = EntityGroup.entityValuesHashmap.get(key);
+////						nodeSelected.add(0, attributes.get(0));
+////						nodeSelected.add(1, attributes.get(1));
+////						nodeSelected.add(2, attributes.get(2));
+////						nodeSelected.add(3, attributes.get(3));
+////						nodeSelected.add(4, attributes.get(4));
+////						nodeSelected.add(5, attributes.get(5));
+////						nodeSelected.add(6, "3");
+////						isSelected = true;
+////						break;
+////					} else if (ChemicalGroup.chemicalValuesHashmap.containsKey(key)) {
+////						List<String> attributes = ChemicalGroup.chemicalValuesHashmap.get(key);
+////						nodeSelected.add(0, attributes.get(0));
+////						nodeSelected.add(1, attributes.get(1));
+////						nodeSelected.add(2, attributes.get(2));
+////						nodeSelected.add(3, attributes.get(3));
+////						nodeSelected.add(4, attributes.get(4));
+////						nodeSelected.add(5, attributes.get(5));
+////						nodeSelected.add(6, "4");
+////						isSelected = true;
+////						break;
+////					}
+////				}
+////			}
+////		}
+//		
+//		return isSelected;
+	    return false;
 	}
 	
 	/**Shows which node is selected by enclosing it with a green rectangle
 	 * 
 	 */
 	private void selectNode() {
-		String bounds = nodeSelected.get(2);
-		ModelHelper parser = new ModelHelper();
-		String[] boundCo = parser.splitbySpace(bounds);
-		double coX = ((Double.parseDouble(boundCo[0]) - 5))/zoomFactor;
-		double coY = (((Double.parseDouble(boundCo[1])) - 5)/zoomFactor)+upHeight;
-		double nodeWidth = ((Double.parseDouble(boundCo[2])) + 10)/zoomFactor;
-		double nodeHeight = ((Double.parseDouble(boundCo[3])) + 10)/zoomFactor;
-		
-		String nodeColor = "rgba(255,255,255,1)";
-		String strokeColor = "rgba(0,255,0,1)";
-		ContextSettings colors = new ContextSettings(nodeColor,strokeColor);
-		colors.makecolor(context);
-		
-		context.setLineWidth(5);
-		context.beginPath();
-		context.rect(coX, coY, nodeWidth, nodeHeight);
-		context.strokeRect(coX, coY, nodeWidth, nodeHeight); 
-		context.closePath();
-		context.setLineWidth(1);
+//		String bounds = nodeSelected.get(2);
+//		ModelHelper parser = new ModelHelper();
+//		String[] boundCo = parser.splitbySpace(bounds);
+//		double coX = ((Double.parseDouble(boundCo[0]) - 5))/zoomFactor;
+//		double coY = (((Double.parseDouble(boundCo[1])) - 5)/zoomFactor)+upHeight;
+//		double nodeWidth = ((Double.parseDouble(boundCo[2])) + 10)/zoomFactor;
+//		double nodeHeight = ((Double.parseDouble(boundCo[3])) + 10)/zoomFactor;
+//		
+//		String nodeColor = "rgba(255,255,255,1)";
+//		String strokeColor = "rgba(0,255,0,1)";
+//		ContextSettings colors = new ContextSettings(nodeColor,strokeColor);
+//		colors.makecolor(context);
+//		
+//		context.setLineWidth(5);
+//		context.beginPath();
+//		context.rect(coX, coY, nodeWidth, nodeHeight);
+//		context.strokeRect(coX, coY, nodeWidth, nodeHeight); 
+//		context.closePath();
+//		context.setLineWidth(1);
 	}
 	
 	/** Updates the Node HashMaps whenever a node is dragged to new bounds and new position
@@ -687,52 +685,52 @@ public class ReactomeBrowser implements EntryPoint {
 	 * @param newPosition The position where the Node is dragged
 	 */
 	private void updateHashmap(Vector newPosition) {
-		String idno = nodeSelected.get(0);
-		String reactomeId = nodeSelected.get(1);
-		String bounds = nodeSelected.get(2);
-		String oldposition = nodeSelected.get(3);
-		String bgColor = nodeSelected.get(4);
-		String displayName = nodeSelected.get(5);
-		String type = nodeSelected.get(6);
-		
-		int typeNo = (int)(Double.parseDouble(type));
-		double id = Double.parseDouble(idno);
-		ModelHelper parser = new ModelHelper();		
-		String[] boundCo = parser.splitbySpace(bounds);
-		double nodeWidth = Double.parseDouble(boundCo[2]);
-		double nodeHeight = Double.parseDouble(boundCo[3]);
-		double coX = newPosition.x - (nodeWidth)/2;
-		double coY = newPosition.y - (nodeHeight)/2;
-		
-		String newbounds = coX + " " + coY + " " + nodeWidth + " " + nodeHeight;
-		String newposition = newPosition.x + " " + newPosition.y;
-		
-		nodeSelected.add(0, idno);
-		nodeSelected.add(1, reactomeId);
-		nodeSelected.add(2, newbounds);
-		nodeSelected.add(3, newposition);
-		nodeSelected.add(4, bgColor);
-		nodeSelected.add(5, displayName);
-		nodeSelected.add(6, type);
-		
-		NodeGroup.BoundsHashmap.remove(id);
-		NodeGroup.BoundsHashmap.put(id, newbounds);
-		
-		switch(typeNo) {
-			case 1: ProteinGroup.proteinValuesHashmap.remove(id);
-					ProteinGroup.proteinValuesHashmap.put(id, nodeSelected);
-					break;
-			case 2: ComplexGroup.complexValuesHashmap.remove(id);
-					ComplexGroup.complexValuesHashmap.put(id, nodeSelected);
-					break;
-			case 3: EntityGroup.entityValuesHashmap.remove(id);
-					EntityGroup.entityValuesHashmap.put(id, nodeSelected);
-					break;
-			case 4: ChemicalGroup.chemicalValuesHashmap.remove(id);
-					ChemicalGroup.chemicalValuesHashmap.put(id, nodeSelected);
-					break; 
-			default: break;
-		}				
+//		String idno = nodeSelected.get(0);
+//		String reactomeId = nodeSelected.get(1);
+//		String bounds = nodeSelected.get(2);
+//		String oldposition = nodeSelected.get(3);
+//		String bgColor = nodeSelected.get(4);
+//		String displayName = nodeSelected.get(5);
+//		String type = nodeSelected.get(6);
+//		
+//		int typeNo = (int)(Double.parseDouble(type));
+//		double id = Double.parseDouble(idno);
+//		ModelHelper parser = new ModelHelper();		
+//		String[] boundCo = parser.splitbySpace(bounds);
+//		double nodeWidth = Double.parseDouble(boundCo[2]);
+//		double nodeHeight = Double.parseDouble(boundCo[3]);
+//		double coX = newPosition.x - (nodeWidth)/2;
+//		double coY = newPosition.y - (nodeHeight)/2;
+//		
+//		String newbounds = coX + " " + coY + " " + nodeWidth + " " + nodeHeight;
+//		String newposition = newPosition.x + " " + newPosition.y;
+//		
+//		nodeSelected.add(0, idno);
+//		nodeSelected.add(1, reactomeId);
+//		nodeSelected.add(2, newbounds);
+//		nodeSelected.add(3, newposition);
+//		nodeSelected.add(4, bgColor);
+//		nodeSelected.add(5, displayName);
+//		nodeSelected.add(6, type);
+//		
+//		NodeGroup.BoundsHashmap.remove(id);
+//		NodeGroup.BoundsHashmap.put(id, newbounds);
+//		
+//		switch(typeNo) {
+//			case 1: ProteinGroup.proteinValuesHashmap.remove(id);
+//					ProteinGroup.proteinValuesHashmap.put(id, nodeSelected);
+//					break;
+//			case 2: ComplexGroup.complexValuesHashmap.remove(id);
+//					ComplexGroup.complexValuesHashmap.put(id, nodeSelected);
+//					break;
+//			case 3: EntityGroup.entityValuesHashmap.remove(id);
+//					EntityGroup.entityValuesHashmap.put(id, nodeSelected);
+//					break;
+//			case 4: ChemicalGroup.chemicalValuesHashmap.remove(id);
+//					ChemicalGroup.chemicalValuesHashmap.put(id, nodeSelected);
+//					break; 
+//			default: break;
+//		}				
 	}
 	
 	/**Initializes the Canvas MouseDown, MouseMove, MouseUp and DoubleClick Handlers
@@ -745,17 +743,17 @@ public class ReactomeBrowser implements EntryPoint {
 		
 		canvas.addMouseDownHandler(new MouseDownHandler() {
 			public void onMouseDown(MouseDownEvent event) {
-				lastX = event.getX();
-				lastY = event.getY();
-				dragged = false;
-				dragStart = new Vector(lastX,lastY);
-				if(isNodeSelected(dragStart)) {
-					doUpdate(context);
-					selectNode();
-					nodeSelected.clear();
-				} else {
-					doUpdate(context);
-				}
+//				lastX = event.getX();
+//				lastY = event.getY();
+//				dragged = false;
+//				dragStart = new Vector(lastX,lastY);
+//				if(isNodeSelected(dragStart)) {
+//					doUpdate(context);
+//					selectNode();
+//					nodeSelected.clear();
+//				} else {
+//					doUpdate(context);
+//				}
 			}
 		});
 
@@ -766,18 +764,18 @@ public class ReactomeBrowser implements EntryPoint {
 				dragged = true;
 				Vector point = new Vector(lastX,lastY);	
 				if(dragStart != null) {
-						double moveX = point.x - dragStart.x;
-						double moveY = point.y - dragStart.y;
-						double scaleFactorX = setBoxCoordinates.get(4);
-						double scaleFactorY = setBoxCoordinates.get(5);
-						context.translate(moveX, moveY);
-						doUpdate(context);
-						trackTransforms(1.0, moveX, moveY);
-						dragStart = point;
-						doUpdate(overViewContext);
-						setBox();
-						setBoxCoordinates.add(4, scaleFactorX);
-						setBoxCoordinates.add(5, scaleFactorY);
+//						double moveX = point.x - dragStart.x;
+//						double moveY = point.y - dragStart.y;
+//						double scaleFactorX = setBoxCoordinates.get(4);
+//						double scaleFactorY = setBoxCoordinates.get(5);
+//						context.translate(moveX, moveY);
+//						doUpdate(context);
+//						trackTransforms(1.0, moveX, moveY);
+//						dragStart = point;
+//						doUpdate(overViewContext);
+//						setBox();
+//						setBoxCoordinates.add(4, scaleFactorX);
+//						setBoxCoordinates.add(5, scaleFactorY);
 				}
 			}
 		});
@@ -788,46 +786,46 @@ public class ReactomeBrowser implements EntryPoint {
 			}
 		});
 
-		canvas.addDoubleClickHandler(new DoubleClickHandler() {
-			public void onDoubleClick(DoubleClickEvent event) {
-				dragStart = null;
-				if (!dragged) {
-					zoom(event.isShiftKeyDown() ? -1 : 1);
-				}
-			}
-			private double scaleFactor = 1.1;
-			private void zoom(int i) {
-				double factor = Math.pow(scaleFactor, i);
-				double scaleFactorX = setBoxCoordinates.get(4);
-				double scaleFactorY = setBoxCoordinates.get(5);
-				context.scale(factor, factor);
-				doUpdate(context);
-				trackTransforms(factor, 0.0, 0.0);
-				doUpdate(overViewContext);
-				setBox();
-				setBoxCoordinates.add(4, scaleFactorX);
-				setBoxCoordinates.add(5, scaleFactorY);
-			}
-		});
+//		canvas.addDoubleClickHandler(new DoubleClickHandler() {
+//			public void onDoubleClick(DoubleClickEvent event) {
+//				dragStart = null;
+//				if (!dragged) {
+//					zoom(event.isShiftKeyDown() ? -1 : 1);
+//				}
+//			}
+//			private double scaleFactor = 1.1;
+//			private void zoom(int i) {
+////				double factor = Math.pow(scaleFactor, i);
+////				double scaleFactorX = setBoxCoordinates.get(4);
+////				double scaleFactorY = setBoxCoordinates.get(5);
+////				context.scale(factor, factor);
+////				doUpdate(context);
+////				trackTransforms(factor, 0.0, 0.0);
+////				doUpdate(overViewContext);
+////				setBox();
+////				setBoxCoordinates.add(4, scaleFactorX);
+////				setBoxCoordinates.add(5, scaleFactorY);
+//			}
+//		});
 
 		if(overView != null) {
 			overView.addMouseDownHandler(new MouseDownHandler() {
 				public void onMouseDown(MouseDownEvent event) {
-					int overViewX = event.getX();
-					int overViewY = event.getY();
-					double scaleFactorX = setBoxCoordinates.get(4);
-					double scaleFactorY = setBoxCoordinates.get(5);
-					double newCoX = (overViewX / setBoxCoordinates.get(4)) - (setBoxCoordinates.get(2)/2);
-					double newCoY = (overViewY / setBoxCoordinates.get(5)) - (setBoxCoordinates.get(3)/2);
-					double moveX = - newCoX + setBoxCoordinates.get(0);
-					double moveY = - newCoY + setBoxCoordinates.get(1);
-					context.translate(moveX, moveY);
-					doUpdate(context);
-					trackTransforms(1.0, moveX, moveY);
-					doUpdate(overViewContext);
-					setBox();
-					setBoxCoordinates.add(4, scaleFactorX);
-					setBoxCoordinates.add(5, scaleFactorY);
+//					int overViewX = event.getX();
+//					int overViewY = event.getY();
+//					double scaleFactorX = setBoxCoordinates.get(4);
+//					double scaleFactorY = setBoxCoordinates.get(5);
+//					double newCoX = (overViewX / setBoxCoordinates.get(4)) - (setBoxCoordinates.get(2)/2);
+//					double newCoY = (overViewY / setBoxCoordinates.get(5)) - (setBoxCoordinates.get(3)/2);
+//					double moveX = - newCoX + setBoxCoordinates.get(0);
+//					double moveY = - newCoY + setBoxCoordinates.get(1);
+//					context.translate(moveX, moveY);
+//					doUpdate(context);
+//					trackTransforms(1.0, moveX, moveY);
+//					doUpdate(overViewContext);
+//					setBox();
+//					setBoxCoordinates.add(4, scaleFactorX);
+//					setBoxCoordinates.add(5, scaleFactorY);
 				}
 			});
 		}
