@@ -16,7 +16,7 @@
  * 
  */
 
-package org.reactome.client;
+package org.reactome.diagram.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.xml.client.Element;
