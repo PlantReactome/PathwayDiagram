@@ -35,6 +35,8 @@ public class PathwayDiagramPanel extends Composite {
     private double translateY;
     // This is for scale
     private double scale;
+    // The following properties are used for panning
+    private CanvasEventInstaller eventInstaller;
     
     public PathwayDiagramPanel() {
         init();
@@ -52,6 +54,9 @@ public class PathwayDiagramPanel extends Composite {
         initWidget(contentPane);
         // default should be 1.0d
         scale = 1.0d;
+        // Add behaviors
+        eventInstaller = new CanvasEventInstaller(this);
+        eventInstaller.installHandlers();
     }
     
     public void setSize(int width, int height) {
@@ -79,6 +84,10 @@ public class PathwayDiagramPanel extends Composite {
         translateX = 0.0d;
         translateY = 0.0d;
         scale = 1.0d;
+    }
+    
+    public PlugInSupportCanvas getCanvas() {
+        return this.canvas;
     }
     
     /**
@@ -127,9 +136,5 @@ public class PathwayDiagramPanel extends Composite {
             }
         }
         c2d.restore();
-//        // Set back to original coordinates
-//        c2d.translate(-translateX, -translateY);
-//        // Rescale back to the original
-//        c2d.scale(1.0d/scale, 1.0d/scale);
     }
 }

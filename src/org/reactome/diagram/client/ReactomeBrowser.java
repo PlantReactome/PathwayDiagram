@@ -211,7 +211,7 @@ public class ReactomeBrowser implements EntryPoint {
 					requestFailed(exception);
 				}
 				public void onResponseReceived(Request request, Response response) {
-					System.out.println("Acquired Document");
+//					System.out.println("Acquired Document");
 					renderXML(response.getText());
 				}
 			});
@@ -417,8 +417,8 @@ public class ReactomeBrowser implements EntryPoint {
         pathway.buildPathway(pathwayElement);
         diagramPane.setPathway(pathway);
         // Check size of diagramPane
-        System.out.println("Size of diagram pane: " + diagramPane.getOffsetWidth() + ", " + 
-                           diagramPane.getOffsetHeight());
+//        System.out.println("Size of diagram pane: " + diagramPane.getOffsetWidth() + ", " + 
+//                           diagramPane.getOffsetHeight());
 //		
 //		CanvasElements elements = new CanvasElements(pathwayElement);
 //		elements.process();
