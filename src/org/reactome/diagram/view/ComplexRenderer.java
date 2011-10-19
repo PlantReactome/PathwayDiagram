@@ -5,6 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 
@@ -13,13 +14,14 @@ import com.google.gwt.canvas.dom.client.Context2d;
  *
  */
 public class ComplexRenderer extends NodeRenderer {
-    private static final double LINE_WIDTH = 2.0d;
     
     public ComplexRenderer() {
     }
 
     @Override
-    protected void drawRectangle(Bounds bounds, Context2d context) {
+    protected void drawRectangle(Bounds bounds,
+                                 Context2d context,
+                                 Node node) {
         int x = bounds.getX();
         int y = bounds.getY();
         int w = bounds.getWidth();
@@ -47,7 +49,7 @@ public class ComplexRenderer extends NodeRenderer {
         context.lineTo(x1, y1);
         context.closePath();
         double oldLineWidth = context.getLineWidth();
-        context.setLineWidth(LINE_WIDTH);
+        context.setLineWidth(THINK_LINE_WIDTH);
         context.fill();
         context.stroke();
         context.setLineWidth(oldLineWidth);

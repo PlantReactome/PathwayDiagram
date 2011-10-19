@@ -6,13 +6,13 @@ package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
-import org.reactome.diagram.model.Vector;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
 import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
+import com.google.gwt.touch.client.Point;
 
 /**
  * This customized Renderer is use to render Protein. 
@@ -22,8 +22,7 @@ import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 //TODO: Make sure text names are correctly encapsulated as in the curator tool. Work on display name for compartments.
 //display pathway icons.
 public class NodeRenderer extends AbstractRenderer<Node> {
-    public static final int ROUND_RECT_ARC_WIDTH = 6;
-    public static final int COMPLEX_RECT_ARC_WIDTH = 6;
+
     protected CssColor defaultLineColor = null;
     
     public NodeRenderer() {
@@ -47,7 +46,9 @@ public class NodeRenderer extends AbstractRenderer<Node> {
             c2d.setStrokeStyle(defaultLineColor);
         else
             c2d.setStrokeStyle(CssColor.make(color));
-        drawRectangle(bounds, c2d);
+        drawRectangle(bounds, 
+                      c2d,
+                      node);
         drawName(c2d, node);
     }
     
@@ -55,8 +56,23 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         return ROUND_RECT_ARC_WIDTH;
     }
     
+    /**
+     * This is a template that should be implemented by a sub-class.
+     * @param bounds
+     * @param context
+     * @param node
+     */
     protected void drawRectangle(Bounds bounds,
-                                 Context2d context) {
+                                 Context2d context,
+                                 Node node) {
+        drawRectangle(bounds, 
+                      context,
+                      true);
+    }
+    
+    protected void drawRectangle(Bounds bounds,
+                                 Context2d context,
+                                 boolean needFilll) {
         int coX = bounds.getX();
         int coY = bounds.getY();
         int radius = getRadius();
@@ -72,9 +88,10 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.quadraticCurveTo(coX, coY+nodeHeight, coX, coY+nodeHeight-radius);
         context.lineTo(coX, coY+radius);
         context.quadraticCurveTo(coX, coY, coX+radius, coY);
-        context.fill();
-        context.stroke();
         context.closePath();
+        if (needFilll)
+            context.fill();
+        context.stroke();
     }
     
     /**
@@ -86,7 +103,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         if (node.getDisplayName() == null || node.getDisplayName().isEmpty())
             return;
         String[] words = node.getDisplayName().split(" ");
-        Vector measures;
+        Point measures;
         int linebreak = 0;
         int printFlag = 0;
         String dashLastPhrase = "";
@@ -118,7 +135,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                 for (int k = 0; k < dashWords.length ; k++) {
                     String dashword = dashWords[k];
                     measures = calculateMeasures(dashLastPhrase,dashword,context);
-                    double testmeasure = measures.y;
+                    double testmeasure = measures.getY();
                     if ((testmeasure) <= bounds.getWidth()) {
                         if(dashLastPhrase == "") {
                             dashLastPhrase = dashword;
@@ -189,7 +206,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * @param context The Context2d object where the phrase is to be rendered 
      * @return Vector containing the measures of the phrase before and after the new word has been added
      */
-    private Vector calculateMeasures(String lastPhrase, String word, Context2d context) {
+    private Point calculateMeasures(String lastPhrase, String word, Context2d context) {
         double measure;
         double testmeasure;
         if (lastPhrase == "") {
@@ -200,7 +217,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
             measure = context.measureText(lastPhrase).getWidth();
             testmeasure = context.measureText(lastPhrase + word).getWidth();
         }
-        Vector measures = new Vector(measure,testmeasure);
+        Point measures = new Point(measure,testmeasure);
         return measures;
     }
     

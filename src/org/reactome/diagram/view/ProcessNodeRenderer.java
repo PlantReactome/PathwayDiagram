@@ -5,6 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
@@ -22,7 +23,9 @@ public class ProcessNodeRenderer extends NodeRenderer {
     }
 
     @Override
-    protected void drawRectangle(Bounds bounds, Context2d context) {
+    protected void drawRectangle(Bounds bounds, 
+                                 Context2d context,
+                                 Node node) {
         int x = bounds.getX();
         int y = bounds.getY();
         int w = bounds.getWidth();

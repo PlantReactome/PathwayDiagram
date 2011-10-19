@@ -5,6 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 
@@ -23,7 +24,9 @@ public class ChemicalRenderer extends NodeRenderer {
      * The method basically uses bezier curve with two vertex as control points.
      */
     @Override
-    protected void drawRectangle(Bounds bounds, Context2d context) {
+    protected void drawRectangle(Bounds bounds, 
+                                 Context2d context,
+                                 Node node) {
         int x = bounds.getX();
         int y = bounds.getY();
         int w = bounds.getWidth();

@@ -5,6 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
@@ -15,7 +16,7 @@ import com.google.gwt.canvas.dom.client.CssColor;
  *
  */
 public class CompartmentRenderer extends NodeRenderer {
-    //TODO: Need to set line weights for compartment
+
     public CompartmentRenderer() {
         defaultLineColor = CssColor.make(255, 153, 102); 
     }
@@ -26,13 +27,31 @@ public class CompartmentRenderer extends NodeRenderer {
     }
 
     @Override
-    protected void drawRectangle(Bounds bounds, Context2d context) {
-        CssColor color = (CssColor) context.getStrokeStyle();
-        System.out.println("Compartment color: " + color.value());
-        super.drawRectangle(bounds, context);
+    protected void drawRectangle(Bounds bounds,
+                                 Context2d context,
+                                 Node node) {
+        double oldWidth = context.getLineWidth();
+        context.setLineWidth(THINK_LINE_WIDTH);
+        super.drawRectangle(bounds, 
+                            context,
+                            true);
+        if (isInsetsNeeded(node)) {
+            Bounds insets = new Bounds(bounds);
+            int x = insets.getX();
+            insets.setX(x + RECTANGLE_DIST);
+            int y = insets.getY();
+            insets.setY(y + RECTANGLE_DIST);
+            int w = insets.getWidth();
+            insets.setWidth(w - 2 * RECTANGLE_DIST);
+            int h = insets.getHeight();
+            insets.setHeight(h - 2 * RECTANGLE_DIST);
+            super.drawRectangle(insets, context, false);
+        }
+        context.setLineWidth(oldWidth);
     }
     
-    
-    
-    
+    private boolean isInsetsNeeded(Node node) {
+        String name = node.getDisplayName();
+        return name != null && !name.endsWith("membrane");
+    }
 }
