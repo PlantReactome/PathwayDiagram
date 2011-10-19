@@ -36,6 +36,10 @@ public class GraphObjectRendererFactory {
                            new ComplexRenderer());
         typeToRenderer.put(GraphObjectType.RenderableChemical,
                            new ChemicalRenderer());
+        typeToRenderer.put(GraphObjectType.ProcessNode,
+                           new ProcessNodeRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableCompartment,
+                           new CompartmentRenderer());
     }
     
     public static GraphObjectRendererFactory getFactory() {

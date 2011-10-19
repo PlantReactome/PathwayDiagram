@@ -22,9 +22,13 @@ import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 //TODO: Make sure text names are correctly encapsulated as in the curator tool. Work on display name for compartments.
 //display pathway icons.
 public class NodeRenderer extends AbstractRenderer<Node> {
-    public static final int ROUND_RECT_ARC_WIDTH = 12;
-    public static final int COMPLEX_RECT_ARC_WIDTH = ROUND_RECT_ARC_WIDTH / 2;
+    public static final int ROUND_RECT_ARC_WIDTH = 6;
+    public static final int COMPLEX_RECT_ARC_WIDTH = 6;
+    protected CssColor defaultLineColor = null;
     
+    public NodeRenderer() {
+        defaultLineColor = CssColor.make(0, 0, 0);
+    }
     
     /* (non-Javadoc)
      * @see org.reactome.diagram.view.GraphObjectRenderer#render(com.google.gwt.canvas.dom.client.Context2d)
@@ -38,19 +42,24 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         if (color == null)
             color = "rgba(204, 255, 204, 1)";
         c2d.setFillStyle(CssColor.make(color));
-        color = node.getFgColor();
+        color = node.getLineColor();
         if (color == null)
-            color = "rgba(0, 0, 0, 1)";
-        c2d.setStrokeStyle(CssColor.make(color));
+            c2d.setStrokeStyle(defaultLineColor);
+        else
+            c2d.setStrokeStyle(CssColor.make(color));
         drawRectangle(bounds, c2d);
         drawName(c2d, node);
+    }
+    
+    protected int getRadius() {
+        return ROUND_RECT_ARC_WIDTH;
     }
     
     protected void drawRectangle(Bounds bounds,
                                  Context2d context) {
         int coX = bounds.getX();
         int coY = bounds.getY();
-        int radius = Parameters.radius;
+        int radius = getRadius();
         int nodeWidth = bounds.getWidth();
         int nodeHeight = bounds.getHeight();
         context.beginPath();
