@@ -21,26 +21,31 @@ package org.reactome.diagram.client;
 // Required Imports
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.HyperEdge;
-import org.reactome.diagram.model.ModelHelper;
 import org.reactome.diagram.model.Node;
-import org.reactome.diagram.model.Vector;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.Window;
@@ -74,7 +79,7 @@ public class ReactomeBrowser implements EntryPoint {
 	
 	boolean draggable, dragged;
 	boolean draggableNode;
-	Vector dragStart = null;
+	Point dragStart = null;
 	float lastX, lastY;
 	
 	static final List<Double> trackScaleFactors = new ArrayList<Double>();
@@ -571,7 +576,7 @@ public class ReactomeBrowser implements EntryPoint {
 	 * @param lastEvent The point where the user has clicked
 	 * @return isSelected Boolean value indicating a Node has been selected.
 	 */
-	private boolean isNodeSelected (Vector lastEvent) {
+	private boolean isNodeSelected (Point lastEvent) {
 		
 ////		boolean isSelected = false;
 ////		double factor = 1.0;
@@ -684,7 +689,7 @@ public class ReactomeBrowser implements EntryPoint {
 	 * 
 	 * @param newPosition The position where the Node is dragged
 	 */
-	private void updateHashmap(Vector newPosition) {
+	private void updateHashmap(Point newPosition) {
 //		String idno = nodeSelected.get(0);
 //		String reactomeId = nodeSelected.get(1);
 //		String bounds = nodeSelected.get(2);
@@ -762,7 +767,7 @@ public class ReactomeBrowser implements EntryPoint {
 				lastX = event.getX();
 				lastY = event.getY();
 				dragged = true;
-				Vector point = new Vector(lastX,lastY);	
+				Point point = new Point(lastX,lastY);	
 				if(dragStart != null) {
 //						double moveX = point.x - dragStart.x;
 //						double moveY = point.y - dragStart.y;

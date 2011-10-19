@@ -61,8 +61,8 @@ public class ModelHelper {
 	 * @param colorAtt Value of the bgColor Attribute
 	 * @return Color String
 	 */
-	public static String makeColor(String[] colorAtt) {
-		int rndAlpha = 1;
+	public static String makeColor(String[] colorAtt,
+	                               double rndAlpha) {
 		String bgColor = "rgba(" + colorAtt[0] + "," + colorAtt[1] + "," + colorAtt[2] + "," + rndAlpha + ")";
 		return bgColor;
 	}

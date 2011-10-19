@@ -21,82 +21,20 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.reactome.diagram.view.Parameters;
-
 public class Node extends GraphObject {
     private Bounds bounds;
     // If this node contains other node
-    protected List<Node> children;
+    private List<Node> children;
     // For link information
     private List<ConnectWidget> connectWidgets;
     // Some colors in the format: rgbr(?, ?, ?, ?)
-    protected String bgColor;
-    protected String fgColor;
-    // TODO: Should be deleted
-    protected String strokeColor;
-
-	double cenX;
-	double cenY;
-	double coX;
-	double coY;
-	double idno;
-	double nodeWidth;
-	double nodeHeight;
-	
-	
-	int zoomFactor;
-	int upHeight;
-	double radius;
-	double relativeX, relativeY;
-	double reactWidth;
-	double reactHeight;
-	String defaultbgColor;
-	String defaultstrokeColor;
-	
+    private String bgColor;
+    private String fgColor;
+		
 	/**
-	 * Default node for subclassing.
+	 * Default constructor.
 	 */
 	public Node() {
-	}
-	
-	/**
-	 * Constructor to initialize attributes for a particular Node based on values from XML text.
-	 * @param id Id Number of the Node
-	 * @param bounds X Coordinate of Start Position, Y Coordinate of Start Position, Node Width and Node Height
-	 * @param position Center Position of the Node
-	 * @param bgColor Fill Color of Node
-	 */
-	public Node(String id, 
-	            String bounds,
-	            String position,
-	            String bgColor) {
-		zoomFactor = Parameters.ZoomFactor;
-		upHeight = Parameters.UpHeight;
-		radius = Parameters.radius/zoomFactor;
-		
-		String[] values = position.split(" ");
-		setPosition(Integer.parseInt(values[0]),
-		            Integer.parseInt(values[1]));
-		
-		values = bounds.split(" ");
-		this.bounds = new Bounds(Integer.parseInt(values[0]),
-		                         Integer.parseInt(values[1]),
-		                         Integer.parseInt(values[2]),
-		                         Integer.parseInt(values[3]));
-		
-		setId(new Integer(id));
-		
-		String bgColorValue;
-		if(bgColor != "") {
-			String[] colorAtt = bgColor.split(" ");
-			bgColorValue = ModelHelper.makeColor(colorAtt);
-		} 
-		else {
-			bgColorValue = "rgba(204,255,204,1)";
-		}
-		this.bgColor = bgColorValue;
-		
-		fgColor = "rgba(0,0,0,1)";
 	}
 	
 	public void setBgColor(String color) {

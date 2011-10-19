@@ -4,8 +4,6 @@
  */
 package org.reactome.diagram.model;
 
-import org.reactome.diagram.model.ConnectWidget.ConnectRole;
-
 import com.google.gwt.touch.client.Point;
 
 /**

@@ -125,12 +125,15 @@ public class CanvasPathway extends Node {
         }
         String bgColor = nodeElm.getAttribute("bgColor");
         if (bgColor != null) {
-            String color = ModelHelper.makeColor(bgColor.split(" "));
+            double alpha = 1.0d;
+            if (node.getType() == GraphObjectType.RenderableCompartment)
+                alpha = 0.75d;
+            String color = ModelHelper.makeColor(bgColor.split(" "), alpha);
             node.setBgColor(color);
         }
         String fgColor = nodeElm.getAttribute("fgColor");
         if (fgColor != null) {
-            String color = ModelHelper.makeColor(fgColor.split(" "));
+            String color = ModelHelper.makeColor(fgColor.split(" "), 1.0d);
             node.setFgColor(color);
         }
         return node;
@@ -314,7 +317,7 @@ public class CanvasPathway extends Node {
         }
         String lineColor = elm.getAttribute("lineColor");
         if (lineColor != null) {
-            String color = ModelHelper.makeColor(lineColor.split(" "));
+            String color = ModelHelper.makeColor(lineColor.split(" "), 1.0d);
             graphObj.setLineColor(color);
         }
         String lineWidth = elm.getAttribute("lineWidth");
