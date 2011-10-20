@@ -6,12 +6,14 @@ package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
+import org.reactome.diagram.model.NodeAttachment;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
 import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
+import com.google.gwt.canvas.dom.client.TextMetrics;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -49,7 +51,52 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         drawRectangle(bounds, 
                       c2d,
                       node);
-        drawName(c2d, node);
+        drawName(c2d, 
+                 node);
+        drawNodeAttachments(c2d,
+                            node);
+    }
+    
+    private void drawNodeAttachments(Context2d context,
+                                     Node node) {
+        if (node.getNodeAttachments() == null || node.getNodeAttachments().size() == 0)
+            return;
+        double x, y, w;
+        // Alway use white background for node attachment
+        CssColor white = CssColor.make(255, 255, 255);
+        // Set for text drawing
+        context.setFont(WIDGET_FONT);
+        context.setTextAlign(TextAlign.CENTER);
+        context.setTextBaseline(TextBaseline.MIDDLE);
+        for (NodeAttachment attachment : node.getNodeAttachments()) {
+            String label = attachment.getLabel();
+            w = 0.0d;
+            if (label != null && label.length() > 0) {
+                TextMetrics size = context.measureText(label);
+                w = size.getWidth();
+            }
+            if (w + 4 < EDGE_TYPE_WIDGET_WIDTH)
+                w = EDGE_TYPE_WIDGET_WIDTH;
+            else
+                w += 4;
+            Bounds bounds = node.getBounds();
+            // Position for attachments
+            x = bounds.getX() + bounds.getWidth() * attachment.getRelativeX();
+            y = bounds.getY() + bounds.getHeight() * attachment.getRelativeY();
+            context.beginPath();
+            context.rect(x - w / 2.0d, 
+                         y - EDGE_TYPE_WIDGET_WIDTH / 2.0d,
+                         w, 
+                         EDGE_TYPE_WIDGET_WIDTH);
+            context.closePath();
+            context.setFillStyle(white);
+            context.fill();
+            context.stroke();
+            if (label != null && label.length() > 0) {
+                context.setFillStyle(context.getStrokeStyle());
+                context.fillText(label, x, y);
+            }
+        }
     }
     
     protected int getRadius() {

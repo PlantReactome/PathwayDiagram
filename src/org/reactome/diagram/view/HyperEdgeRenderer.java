@@ -27,12 +27,6 @@ import com.google.gwt.touch.client.Point;
  *
  */
 public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
-    public static final double ARROW_ANGLE = Math.PI / 6;
-    public static final int ARROW_LENGTH = 8; 
-    public static final int EDGE_TYPE_WIDGET_WIDTH = 12;
-    public static final int EDGE_MODULATION_WIDGET_WIDTH = 8;
-    // Make sure bold should be placed before 10px. Have to check if Monospaced work!
-    public static final String WIDGET_FONT = "bold 10px Monospaced";
     
     public void render(Context2d c2d,
                        HyperEdge edge) {
@@ -98,7 +92,7 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
         else
             width += 4;
         // Draw a box first
-        context.setFillStyle(CssColor.make("rgba(255, 255, 255, 1)"));
+        context.setFillStyle(CssColor.make(255, 255, 255));
         double x0 = (position.getX() + controlPoint.getX()) / 2.0d;
         double y0 = (position.getY() + controlPoint.getY()) / 2.0d;
         context.beginPath();

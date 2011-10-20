@@ -67,6 +67,30 @@ public class CanvasPathway extends Node {
         obj.setDisplayName(name);
     }
     
+    private void parseNodeAttachments(Element elm, Node node) {
+        // The following method can get all descendant elements.
+        NodeList nodeList = elm.getElementsByTagName("org.gk.render.RenderableFeature");
+        if (nodeList == null || nodeList.getLength() == 0)
+            return;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Element attachmentElm = (Element) nodeList.item(i);
+            NodeAttachment attachment = new NodeAttachment();
+            String value = attachmentElm.getAttribute("relativeX");
+            if (value != null)
+                attachment.setRelativeX(new Double(value));
+            value = attachmentElm.getAttribute("relativeY");
+            if (value != null)
+                attachment.setRelativeY(new Double(value));
+            value = attachmentElm.getAttribute("label");
+            if (value != null)
+                attachment.setLabel(value);
+            value = attachmentElm.getAttribute("description");
+            if (value != null)
+                attachment.setDescription(value);
+            node.addNodeAttachment(attachment);
+        }
+    }
+    
     private Map<Integer, Node> parseNodes(Element nodesElm) {
         Map<Integer, Node> idToNode = new HashMap<Integer, Node>();
         // We need to run the whole list twice to get components correct
@@ -79,6 +103,7 @@ public class CanvasPathway extends Node {
             Node node = createNode(elm);
             addChild(node);
             parseDisplayName(elm, node);
+            parseNodeAttachments(elm, node);
             idToNode.put(node.getId(), node);
         }
         // Try to figure out display name and contained nodes

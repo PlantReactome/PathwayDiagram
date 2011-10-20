@@ -20,6 +20,13 @@ public interface GraphObjectRenderer<T extends GraphObject> {
     public static final int THINK_LINE_WIDTH = 2;
     public static final int RECTANGLE_DIST = 10;
     
+    public static final double ARROW_ANGLE = Math.PI / 6;
+    public static final int ARROW_LENGTH = 8; 
+    public static final int EDGE_TYPE_WIDGET_WIDTH = 12;
+    public static final int EDGE_MODULATION_WIDGET_WIDTH = 8;
+    // Make sure bold should be placed before 10px. Have to check if Monospaced work!
+    public static final String WIDGET_FONT = "bold 10px Monospaced";
+    
     /**
      * Draw graphObject in a Canvas context2d.
      * @param g2d

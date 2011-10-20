@@ -11,7 +11,7 @@ package org.reactome.diagram.model;
  * A simple data structure to catch NodeAttachment information from XML.
  * @author wgm
  */
-public class NodeAttachment extends Node{
+public class NodeAttachment {
 
 	private double relativeX;
 	private double relativeY;

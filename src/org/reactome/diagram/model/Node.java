@@ -30,6 +30,8 @@ public class Node extends GraphObject {
     // Some colors in the format: rgbr(?, ?, ?, ?)
     private String bgColor;
     private String fgColor;
+    // For NodeAttachment
+    private List<NodeAttachment> nodeAttachments;
 		
 	/**
 	 * Default constructor.
@@ -88,5 +90,19 @@ public class Node extends GraphObject {
 	
 	public void validateConnectWidget(ConnectWidget widget) {
 	    
+	}
+	
+	public void addNodeAttachment(NodeAttachment attachment) {
+	    if (nodeAttachments == null)
+	        nodeAttachments = new ArrayList<NodeAttachment>();
+	    nodeAttachments.add(attachment);
+	}
+	
+	public List<NodeAttachment> getNodeAttachments() {
+	    return this.nodeAttachments;
+	}
+	
+	public void setNodeAttachments(List<NodeAttachment> list) {
+	    this.nodeAttachments = list;
 	}
 }
