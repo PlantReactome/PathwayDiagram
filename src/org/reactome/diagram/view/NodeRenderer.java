@@ -145,8 +145,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * Divides the Annotation into separate arrays of Strings depending on the width of the enclosing node
      * @param context The Context2d object where the Annotation is to be rendered
      */
-    private void drawName(Context2d context,
-                          Node node) {
+    protected void drawName(Context2d context,
+                            Node node) {
         if (node.getDisplayName() == null || node.getDisplayName().isEmpty())
             return;
         String[] words = node.getDisplayName().split(" ");

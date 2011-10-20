@@ -9,6 +9,10 @@ import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
+import com.google.gwt.canvas.dom.client.FillStrokeStyle;
+import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
+import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
+import com.google.gwt.touch.client.Point;
 
 /**
  * Customized NodeRenderer to draw Compartment.
@@ -54,4 +58,26 @@ public class CompartmentRenderer extends NodeRenderer {
         String name = node.getDisplayName();
         return name != null && !name.endsWith("membrane");
     }
+
+    @Override
+    protected void drawName(Context2d context, Node node) {
+        if (node.getDisplayName() == null)
+            return;
+        String fgColor = node.getFgColor();
+        if (fgColor == null)
+            fgColor = "rgba(0, 0, 0, 1)";
+        CssColor strokeStyleColor = CssColor.make(fgColor);
+        context.setFillStyle(strokeStyleColor);
+        String font = "12px Lucida Sans"; // This should be fixed
+        context.setFont(font);
+        context.setTextAlign(TextAlign.LEFT);
+        context.setTextBaseline(TextBaseline.TOP);
+
+        String name = node.getDisplayName();
+        Point position = node.getTextPosition();
+        context.fillText(name,
+                         position.getX() + 4, // These two numbers should be adjusted more.
+                         position.getY() + 8);
+    }
+    
 }

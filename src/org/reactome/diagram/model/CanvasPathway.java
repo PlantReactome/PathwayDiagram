@@ -161,6 +161,12 @@ public class CanvasPathway extends Node {
             String color = ModelHelper.makeColor(fgColor.split(" "), 1.0d);
             node.setFgColor(color);
         }
+        String textPosition = nodeElm.getAttribute("textPosition");
+        if (textPosition != null) {
+            String[] tokens = textPosition.split(" ");
+            node.setTextPosition(Integer.parseInt(tokens[0]),
+                                 Integer.parseInt(tokens[1]));
+        }
         return node;
     }
     

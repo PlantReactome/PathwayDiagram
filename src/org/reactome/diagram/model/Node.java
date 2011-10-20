@@ -21,8 +21,11 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.touch.client.Point;
+
 public class Node extends GraphObject {
     private Bounds bounds;
+    private Point textPosition;
     // If this node contains other node
     private List<Node> children;
     // For link information
@@ -89,7 +92,6 @@ public class Node extends GraphObject {
 	}
 	
 	public void validateConnectWidget(ConnectWidget widget) {
-	    
 	}
 	
 	public void addNodeAttachment(NodeAttachment attachment) {
@@ -104,5 +106,13 @@ public class Node extends GraphObject {
 	
 	public void setNodeAttachments(List<NodeAttachment> list) {
 	    this.nodeAttachments = list;
+	}
+	
+	public void setTextPosition(int x, int y) {
+	    this.textPosition = new Point(x, y);
+	}
+	
+	public Point getTextPosition() {
+	    return this.textPosition;
 	}
 }
