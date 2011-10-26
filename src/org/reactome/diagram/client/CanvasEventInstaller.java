@@ -37,6 +37,7 @@ public class CanvasEventInstaller {
             @Override
             public void onTouchStart(TouchStartEvent event) {
                 event.stopPropagation();
+                event.preventDefault();
                 int[] position = getPositionInTouch(event);
                 if (position == null)
                     return;
@@ -51,6 +52,7 @@ public class CanvasEventInstaller {
             public void onTouchMove(TouchMoveEvent event) {
                 if (isMouseDown) {
                     event.stopPropagation();
+                    event.preventDefault();
                     int[] position = getPositionInTouch(event);
                     mouseMove(position[0], position[1]);
                 }
@@ -64,6 +66,7 @@ public class CanvasEventInstaller {
             public void onTouchEnd(TouchEndEvent event) {
                 if (isMouseDown) {
                     event.stopPropagation();
+                    event.preventDefault();
                     int[] pos = getPositionInTouch(event);
                     mouseUp(pos[0], pos[1]);
                 }
@@ -144,6 +147,7 @@ public class CanvasEventInstaller {
             isDragging = false;
         }
         else { // Do click selection
+            //TODO: selection cannot work under iPad. Need to check touchEnd event.
             diagramPane.select(x, y);
         }
     }
