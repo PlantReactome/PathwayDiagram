@@ -115,10 +115,21 @@ public class CanvasEventInstaller {
                 }
             }
         };
+        MouseOutHandler mouseOutHandler = new MouseOutHandler() {
+            
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                if (isMouseDown) {
+                    event.stopPropagation();
+                    mouseOut(event.getX(), event.getY());
+                }
+            }
+        };
         PlugInSupportCanvas canvas = diagramPane.getCanvas();
         canvas.addMouseDownHandler(mouseDownHandler);
         canvas.addMouseUpHandler(mouseUpHandler);
         canvas.addMouseMoveHandler(mouseMoveHandler);
+        canvas.addMouseOutHandler(mouseOutHandler);
     }
     
     private void mouseDown(int x, int y) {
@@ -150,6 +161,13 @@ public class CanvasEventInstaller {
             //TODO: selection cannot work under iPad. Need to check touchEnd event.
             diagramPane.select(x, y);
         }
+    }
+    
+    private void mouseOut(int x, int y) {
+        if (isMouseDown)
+            isMouseDown = false;
+        if (isDragging)
+            isDragging = false;
     }
     
 }
