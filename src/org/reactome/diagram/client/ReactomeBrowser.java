@@ -29,9 +29,7 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
@@ -46,12 +44,11 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.cellview.client.CellList;
-import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PushButton;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
@@ -66,15 +63,12 @@ public class ReactomeBrowser implements EntryPoint {
 	static final String holderId = "maincanvas";
 	
 	private PathwayDiagramPanel diagramPane;
-    private PlugInSupportCanvas canvas;
-    private PlugInSupportCanvas backBuffer;
     private PlugInSupportCanvas overView;
 	static final String upgradeMessage = "Your browser does not support the HTML5 Canvas. Please upgrade your browser to view this demo.";
 	private static final List<String> PATHWAYS = Arrays.asList("Pathway 1", "Pathway 2", "Pathway 3", "Pathway 4");
 	// List Array Fetched from Database
 	
 	Context2d context;
-	Context2d backBufferContext;
 	Context2d overViewContext;
 	
 	boolean draggable, dragged;
@@ -100,39 +94,18 @@ public class ReactomeBrowser implements EntryPoint {
 //		backBuffer = Canvas.createIfSupported();
 //		overView = Canvas.createIfSupported();
 		
-		canvas = new PlugInSupportCanvas();
-		backBuffer = new PlugInSupportCanvas();
 		overView = new PlugInSupportCanvas();
-		
-		if (canvas == null) {
-			RootPanel.get(holderId).add(new Label(upgradeMessage));
-			return;
-		}
-		
-		if (backBuffer == null) {
-			Window.alert("Would not be able to render separate PNG images");
-		}
 		
 		if (overView == null) {
 			Window.alert("Would not be able to load overview window");
 		}
 		
-		canvas.setWidth(Parameters.width + "px");
-		canvas.setHeight(Parameters.height + "px");
-		canvas.setFocus(true);
-		canvas.setStyleName("mainCanvas");
-		canvas.setCoordinateSpaceWidth((int) Parameters.width);
-		canvas.setCoordinateSpaceHeight((int) Parameters.height);
-		
-//		RootPanel.get(holderId).add(canvas);
 		diagramPane = new PathwayDiagramPanel();
 		diagramPane.setSize((int)Parameters.width,
 		                    (int)Parameters.height);
 		RootPanel.get(holderId).add(diagramPane);
 //		context = diagramPane.getContext2d();
 //		context = canvas.getContext2d();
-		
-		backBufferContext = backBuffer.getContext2d();
 		
 		overView.setStyleName("overViewCanvas");
 		RootPanel.get(holderId).add(overView);
@@ -156,24 +129,6 @@ public class ReactomeBrowser implements EntryPoint {
 		} 
 
 		initHandlers();
-		
-		PushButton savepng = new PushButton("Save as PNG", new ClickHandler() {
-		      public void onClick(ClickEvent event) {
-		    	  String url = "";
-		    	  if(backBuffer != null)
-		    		  url = backBuffer.toDataUrl("image/png");
-		    	  Window.open(url, "Image/PNG", "status=1");
-		      }
-		});
-		
-		PushButton savejpeg = new PushButton("Save as JPEG", new ClickHandler() {
-		      public void onClick(ClickEvent event) {
-		    	  String url = "";
-		    	  if(backBuffer != null)
-		    		  url = backBuffer.toDataUrl("image/jpeg");
-		    	  Window.open(url, "Image/JPEG", "status=1");
-		      }
-		});
 		
 		PushButton refresh = new PushButton(new Image("refresh.png"), new ClickHandler() {
 		      public void onClick(ClickEvent event) {
@@ -329,14 +284,6 @@ public class ReactomeBrowser implements EntryPoint {
 	
 	private void doUpdateFromTranslate() {
         diagramPane.update();
-//      doUpdate(context);
-//      trackTransforms(1.0, 0.0, -100.0);
-//      doUpdate(overViewContext);
-//      setBox();
-//      double scaleFactorX = setBoxCoordinates.get(4);
-//      double scaleFactorY = setBoxCoordinates.get(5);
-//      setBoxCoordinates.add(4, scaleFactorX);
-//      setBoxCoordinates.add(5, scaleFactorY);
 	}
 	
 	/** Parses the XML Text and Builds a HashMap of the nodes and the edges. Renders the Canvas Visualization.
@@ -430,22 +377,6 @@ public class ReactomeBrowser implements EntryPoint {
 		trackScaleFactors.add(scaleFactor);
 		trackTopTranslates.add(topTranslate);
 		trackLeftTranslates.add(leftTranslate);
-	}
-	
-	/**Initializes the BackBuffer Canvas
-	 * 
-	 * @param width The Maximum Width of the Network
-	 * @param height The Maximum Height of the Network 
-	 */
-	
-	private void setBackBuffer(int width, int height) {
-		if(backBuffer != null) {
-			backBuffer.setWidth( width + "px");
-			backBuffer.setHeight( height + "px");
-			backBuffer.setCoordinateSpaceWidth((int) (width));
-			backBuffer.setCoordinateSpaceHeight((int) (height));
-			backBuffer.setVisible(false);
-		}
 	}
 	
 	/**Initializes the Overview Canvas
@@ -674,54 +605,6 @@ public class ReactomeBrowser implements EntryPoint {
 	 */
 	public void initHandlers() {
 		
-		lastX = canvas.getOffsetWidth()/2;
-		lastY = canvas.getOffsetHeight()/2;
-		
-		canvas.addMouseDownHandler(new MouseDownHandler() {
-			public void onMouseDown(MouseDownEvent event) {
-//				lastX = event.getX();
-//				lastY = event.getY();
-//				dragged = false;
-//				dragStart = new Vector(lastX,lastY);
-//				if(isNodeSelected(dragStart)) {
-//					doUpdate(context);
-//					selectNode();
-//					nodeSelected.clear();
-//				} else {
-//					doUpdate(context);
-//				}
-			}
-		});
-
-		canvas.addMouseMoveHandler(new MouseMoveHandler() {
-			public void onMouseMove(MouseMoveEvent event) {
-				lastX = event.getX();
-				lastY = event.getY();
-				dragged = true;
-				Point point = new Point(lastX,lastY);	
-				if(dragStart != null) {
-//						double moveX = point.x - dragStart.x;
-//						double moveY = point.y - dragStart.y;
-//						double scaleFactorX = setBoxCoordinates.get(4);
-//						double scaleFactorY = setBoxCoordinates.get(5);
-//						context.translate(moveX, moveY);
-//						doUpdate(context);
-//						trackTransforms(1.0, moveX, moveY);
-//						dragStart = point;
-//						doUpdate(overViewContext);
-//						setBox();
-//						setBoxCoordinates.add(4, scaleFactorX);
-//						setBoxCoordinates.add(5, scaleFactorY);
-				}
-			}
-		});
-		
-		canvas.addMouseUpHandler(new MouseUpHandler() {
-			public void onMouseUp(MouseUpEvent event) {
-				dragStart = null;
-			}
-		});
-
 //		canvas.addDoubleClickHandler(new DoubleClickHandler() {
 //			public void onDoubleClick(DoubleClickEvent event) {
 //				dragStart = null;
