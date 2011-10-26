@@ -94,75 +94,6 @@ public class ReactomeBrowser implements EntryPoint {
 	public void onModuleLoad() {
 		
 		
-		//------- Header (Search, Suggest Box, Annotate)
-		final Button searchButton = new Button("Search Map");
-		searchButton.addStyleName("searchButton");
-		RootPanel.get("searchButton").add(searchButton);
-		
-		//---------------------
-		final Button analyzeButton = new Button("Analyze, Annotate and Upload");
-		RootPanel.get("analyzeButton").add(analyzeButton);
-		
-		//----------------------
-		MultiWordSuggestOracle database = new MultiWordSuggestOracle();
-		/* 
-		 * Would be filled by an array from xml file
-		 */
-		   database.add("Signaling");
-		   database.add("Protein transfer");
-		   database.add("Gene Expression"); 
-
-		final SuggestBox searchField = new SuggestBox(database);
-		searchField.setText("Search Map");
-		RootPanel.get("searchField").add(searchField);
-		
-		//-------------------------
-				
-		//Side Panel (Select Box, Tabs)
-		final ListBox lb = new ListBox();
-	    lb.addItem("Homo Sapiens");
-	    lb.addItem("Plamodium");
-	    lb.addItem("Escherichia Coli");
-
-	    lb.setVisibleItemCount(1);
-	    lb.setVisible(false);
-		RootPanel.get("sidepanel").add(lb);
-
-		//-------------------------------
-		// TODO Change to CellTree
-		
-		
-		TextCell textCell = new TextCell(); 
-	    CellList<String> cellList = new CellList<String>(textCell);
-	    cellList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);  
-	    final SingleSelectionModel<String> selectionModel = new SingleSelectionModel<String>();
-	    cellList.setSelectionModel(selectionModel);
-	    selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-	      public void onSelectionChange(SelectionChangeEvent event) {
-	        String selected = selectionModel.getSelectedObject();
-	        if (selected != null) {
-	          Window.alert("You selected: " + selected);
-	        }
-	      }
-	    });
-
-	    cellList.setRowCount(PATHWAYS.size(), true);
-
-	    cellList.setRowData(0, PATHWAYS);
-	    
-	    //-------------------------------------
-		final TabLayoutPanel TabGroup = new TabLayoutPanel(4, Unit.EM);
-		TabGroup.add(new HTML(""), "Search Results");
-		TabGroup.add(cellList, "Pathway");
-		TabGroup.add(new HTML("<iframe src='help.html' scroll='true' height='375' width='280' frameborder='0'></iframe>"), "Help");
-		TabGroup.setHeight("450px");
-		TabGroup.setVisible(false);
-	    RootPanel.get("sidepanel").add(TabGroup);
-	   
-	    //-------------------------------
-	    
-	   
-	    
 	    //-------(Canvas Functions)
 	
 //		canvas = Canvas.createIfSupported();
@@ -358,21 +289,21 @@ public class ReactomeBrowser implements EntryPoint {
 		      }
 		});
 		
-		PushButton overViewButton = new PushButton(new Image("overview.png"), new ClickHandler() {
-		      public void onClick(ClickEvent event) {
-		    	  if(TabGroup.isVisible()) {
-		    		  TabGroup.setVisible(false);
-		    		  lb.setVisible(false);
-		    	  }
-		    	  if(!overView.isVisible()) {
-		    		  overView.setVisible(true);
-		    	  } else {
-		    		  overView.setVisible(false);
-		    	  }
-		      }
-		});
+//		PushButton overViewButton = new PushButton(new Image("overview.png"), new ClickHandler() {
+//		      public void onClick(ClickEvent event) {
+//		    	  if(TabGroup.isVisible()) {
+//		    		  TabGroup.setVisible(false);
+//		    		  lb.setVisible(false);
+//		    	  }
+//		    	  if(!overView.isVisible()) {
+//		    		  overView.setVisible(true);
+//		    	  } else {
+//		    		  overView.setVisible(false);
+//		    	  }
+//		      }
+//		});
 		
-		overViewButton.setSize("19px", "19px");
+//		overViewButton.setSize("19px", "19px");
 		listButton.setSize("19px", "19px");
 		refresh.setSize("19px", "19px");
 		zoomPlus.setSize("19px", "19px");
@@ -383,10 +314,10 @@ public class ReactomeBrowser implements EntryPoint {
 		scrollRight.setSize("19px", "19px");
 		
 		listButton.setVisible(false); //To change to True once Pathway List is filled
-		RootPanel.get("listbutton").add(listButton);
-		RootPanel.get("overviewbutton").add(overViewButton);
-		RootPanel.get("savepng").add(savepng);
-		RootPanel.get("savejpeg").add(savejpeg);
+//		RootPanel.get("listbutton").add(listButton);
+//		RootPanel.get("overviewbutton").add(overViewButton);
+//		RootPanel.get("savepng").add(savepng);
+//		RootPanel.get("savejpeg").add(savejpeg);
 		RootPanel.get("refresh").add(refresh);
 		RootPanel.get("zoomplus").add(zoomPlus);
 		RootPanel.get("zoomminus").add(zoomMinus);
