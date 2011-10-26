@@ -8,10 +8,9 @@ import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.canvas.dom.client.CssColor;
-import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
 import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
+import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -23,6 +22,7 @@ public class CompartmentRenderer extends NodeRenderer {
 
     public CompartmentRenderer() {
         defaultLineColor = CssColor.make(255, 153, 102); 
+        defaultLineWidth = 2.0d;
     }
 
     @Override
@@ -34,8 +34,7 @@ public class CompartmentRenderer extends NodeRenderer {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
-        double oldWidth = context.getLineWidth();
-        context.setLineWidth(THINK_LINE_WIDTH);
+        setStroke(context, node);
         super.drawRectangle(bounds, 
                             context,
                             true);
@@ -51,7 +50,6 @@ public class CompartmentRenderer extends NodeRenderer {
             insets.setHeight(h - 2 * RECTANGLE_DIST);
             super.drawRectangle(insets, context, false);
         }
-        context.setLineWidth(oldWidth);
     }
     
     private boolean isInsetsNeeded(Node node) {

@@ -37,6 +37,8 @@ public class PathwayDiagramPanel extends Composite {
     private double scale;
     // The following properties are used for panning
     private CanvasEventInstaller eventInstaller;
+    // For all selection related stuff.
+    private SelectionHandler selectionHandler;
     
     public PathwayDiagramPanel() {
         init();
@@ -57,6 +59,8 @@ public class PathwayDiagramPanel extends Composite {
         // Add behaviors
         eventInstaller = new CanvasEventInstaller(this);
         eventInstaller.installHandlers();
+        
+        selectionHandler = new SelectionHandler(this);
     }
     
     public void setSize(int width, int height) {
@@ -69,6 +73,10 @@ public class PathwayDiagramPanel extends Composite {
     public void setPathway(CanvasPathway pathway) {
         this.pathway = pathway;
         update();
+    }
+    
+    public CanvasPathway getPathway() {
+        return this.pathway;
     }
     
     public void translate(double dx, double dy) {
@@ -88,6 +96,21 @@ public class PathwayDiagramPanel extends Composite {
     
     public PlugInSupportCanvas getCanvas() {
         return this.canvas;
+    }
+    
+    /**
+     * Do selection based on a mouse click or a touch event.
+     * @param x
+     * @param y
+     */
+    public void select(int x, int y) {
+        // Need to consider both scale and translate
+        double correctedX = x - translateX;
+        correctedX /= scale;
+        double correctedY = y - translateY;
+        correctedY /= scale;
+        selectionHandler.select(correctedX, 
+                                correctedY);
     }
     
     /**

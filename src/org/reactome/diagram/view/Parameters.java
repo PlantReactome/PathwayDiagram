@@ -19,6 +19,7 @@
 
 package org.reactome.diagram.view;
 
+import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.user.client.Window;
 
 /**
@@ -34,8 +35,12 @@ public class Parameters {
 	public static final int Reactwidth = 12;
     public static final int Reactheight = 12;
     public static final int catRadius = 5;
-	public static final String defaultbgColor = "rgba(0,0,0,1)";
-	public static final String defaultstrokeColor = "rgba(0,0,0,1)";
+	public static final CssColor defaultbgColor = CssColor.make(204, 255, 204);
+	public static final CssColor defaultstrokeColor = CssColor.make(0, 0, 0);
+	// Using blue for default selection as in the curator tool
+	public static final CssColor defaultSelectionColor = CssColor.make(0, 0, 255);
+	public static final int defaultNodeSelectionLineWidth = 3;
+	public static final int defaultEdgeSelectionLineWidth = 2;
 	public static final double height = (int) (0.75 * Window.getClientHeight());
 	public static final double width = (int) (0.95 * Window.getClientWidth());
 }

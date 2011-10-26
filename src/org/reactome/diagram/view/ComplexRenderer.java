@@ -16,12 +16,14 @@ import com.google.gwt.canvas.dom.client.Context2d;
 public class ComplexRenderer extends NodeRenderer {
     
     public ComplexRenderer() {
+        defaultLineWidth = 2.0d;
     }
 
     @Override
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
+        setStroke(context, node);
         int x = bounds.getX();
         int y = bounds.getY();
         int w = bounds.getWidth();
@@ -49,7 +51,6 @@ public class ComplexRenderer extends NodeRenderer {
         context.lineTo(x1, y1);
         context.closePath();
         double oldLineWidth = context.getLineWidth();
-        context.setLineWidth(THINK_LINE_WIDTH);
         context.fill();
         context.stroke();
         context.setLineWidth(oldLineWidth);

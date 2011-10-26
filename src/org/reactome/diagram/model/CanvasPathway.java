@@ -56,6 +56,21 @@ public class CanvasPathway extends Node {
         return this.edges;
     }
     
+    /**
+     * Get all contained GraphObjects in this CanvasPathway, which include both 
+     * nodes and edges.
+     * @return
+     */
+    public List<GraphObject> getGraphObjects() {
+        List<GraphObject> objects = new ArrayList<GraphObject>();
+        List<Node> nodes = getChildren();
+        if (nodes != null)
+            objects.addAll(nodes);
+        if (edges != null)
+            objects.addAll(edges);
+        return objects;
+    }
+    
     private void parseDisplayName(com.google.gwt.xml.client.Node node,
                                   GraphObject obj) {
         Element element = (Element) node;

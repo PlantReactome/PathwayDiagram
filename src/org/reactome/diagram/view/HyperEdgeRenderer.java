@@ -13,11 +13,11 @@ import org.reactome.diagram.model.HyperEdge;
 import org.reactome.diagram.model.ReactionType;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
+import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.TextMetrics;
-import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
-import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -37,7 +37,8 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
         CssColor drawColor = CssColor.make(fgColor);
         double width = edge.getLineWidth();
         c2d.setFillStyle(drawColor);
-        c2d.setStrokeStyle(drawColor);
+        setStroke(c2d, edge);
+//        c2d.setStrokeStyle(drawColor);
         // Draw backbone
         List<Point> points = edge.getBackbone();
         drawLines(c2d, points);
@@ -148,14 +149,9 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
         }
         else if (reactionType == ReactionType.UNCERTAIN_PROCESS) {
             // Draw a question mark
-            //TODO: support uncertain process.
-//            context.setFont(WIDGET_FONT);
-//            Font oldFont = g2.getFont();
-//            g2.setFont(WIDGET_FONT);
-//            int x1 = x + 4;
-//            int y1 = y + EDGE_TYPE_WIDGET_WIDTH - 3;
-//            g2.drawString("?", x1, y1);
-//            g2.setFont(oldFont);
+            context.setFont(WIDGET_FONT);
+            context.setFillStyle(CssColor.make(0, 0, 0));
+            context.fillText("?", x, y);
         }
     }
     

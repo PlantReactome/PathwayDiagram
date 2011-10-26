@@ -23,8 +23,18 @@ public abstract class GraphObject {
     private String lineColor;
     private double lineWidth;
     private GraphObjectType type;
+    // A flag to indicate if this is a selected object
+    private boolean isSelected;
     
     protected GraphObject() {
+    }
+    
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+    }
+    
+    public boolean isSelected() {
+        return this.isSelected;
     }
     
     public void setPosition(int x, int y) {
@@ -92,5 +102,12 @@ public abstract class GraphObject {
     public void setLineWidth(double lineWidth) {
         this.lineWidth = lineWidth;
     }
+    
+    /**
+     * Check if a GraphObject can be picked by a position.
+     * @param point
+     * @return
+     */
+    public abstract boolean isPicked(Point point);
     
 }

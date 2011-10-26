@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.model;
 
+import com.google.gwt.touch.client.Point;
+
 /**
  * Used to encode bounds information. This is similar to java.awt.Rectangle.
  * @author gwu
@@ -71,6 +73,17 @@ public class Bounds {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+    
+    /**
+     * Check if this Bounds contain a Point.
+     * @param p
+     * @return
+     */
+    public boolean contains(Point p) {
+        double x1 = p.getX();
+        double y1 = p.getY();
+        return (x1 >= x && x1 <= x + width && y1 >= y && y1 <= y + height);
     }
     
 }

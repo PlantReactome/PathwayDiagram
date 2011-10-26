@@ -115,4 +115,11 @@ public class Node extends GraphObject {
 	public Point getTextPosition() {
 	    return this.textPosition;
 	}
+
+    @Override
+    public boolean isPicked(Point point) {
+        Bounds bounds = getBounds();
+        return bounds.contains(point);
+    }
+	
 }

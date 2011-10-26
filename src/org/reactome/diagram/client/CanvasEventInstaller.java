@@ -18,6 +18,7 @@ public class CanvasEventInstaller {
     private PathwayDiagramPanel diagramPane;
     // The following properties are used for panning
     private boolean isDragging;
+    private boolean isMouseDown;
     private int previousX;
     private int previousY;
     
@@ -35,13 +36,11 @@ public class CanvasEventInstaller {
             
             @Override
             public void onTouchStart(TouchStartEvent event) {
+                event.stopPropagation();
                 int[] position = getPositionInTouch(event);
                 if (position == null)
                     return;
-                previousX = position[0];
-                previousY = position[1];
-                isDragging = true;
-                event.stopPropagation();
+                mouseDown(position[0], position[1]);
             }
         };
         diagramPane.getCanvas().addTouchStartHandler(touchStartHandler);
@@ -50,16 +49,10 @@ public class CanvasEventInstaller {
             
             @Override
             public void onTouchMove(TouchMoveEvent event) {
-                if (isDragging) {
-                    event.preventDefault();
-                    int[] position = getPositionInTouch(event);
-                    int dx = position[0] - previousX;
-                    int dy = position[1] - previousY;
-                    diagramPane.translate(dx, dy);
-                    diagramPane.update();
-                    previousX = position[0];
-                    previousY = position[1];
+                if (isMouseDown) {
                     event.stopPropagation();
+                    int[] position = getPositionInTouch(event);
+                    mouseMove(position[0], position[1]);
                 }
             }
         };
@@ -69,8 +62,11 @@ public class CanvasEventInstaller {
             
             @Override
             public void onTouchEnd(TouchEndEvent event) {
-                isDragging = false;
-                event.stopPropagation();
+                if (isMouseDown) {
+                    event.stopPropagation();
+                    int[] pos = getPositionInTouch(event);
+                    mouseUp(pos[0], pos[1]);
+                }
             }
         };
         diagramPane.getCanvas().addTouchEndHandler(touchEndHandler);
@@ -92,27 +88,17 @@ public class CanvasEventInstaller {
         MouseDownHandler mouseDownHandler = new MouseDownHandler() {
             @Override
             public void onMouseDown(MouseDownEvent event) {
-                previousX = event.getX();
-                previousY = event.getY();
-                isDragging = true;
+                isMouseDown = true;
                 event.stopPropagation();
-//                System.out.println(previousX + ", " + prevuousY);
+                mouseDown(event.getX(), event.getY());
             }
         };
         MouseMoveHandler mouseMoveHandler = new MouseMoveHandler() {
             @Override
             public void onMouseMove(MouseMoveEvent event) {
-                if (isDragging) {
-                    // Do panning
-                    int x = event.getX();
-                    int y = event.getY();
-                    int dx = x - previousX;
-                    int dy = y - previousY;
-                    diagramPane.translate(dx, dy);
-                    diagramPane.update();
-                    previousX = x;
-                    previousY = y;
+                if (isMouseDown) {
                     event.stopPropagation();
+                    mouseMove(event.getX(), event.getY());
                 }
             }
         };
@@ -120,8 +106,10 @@ public class CanvasEventInstaller {
             
             @Override
             public void onMouseUp(MouseUpEvent event) {
-                isDragging = false;
-                event.stopPropagation();
+                if (isMouseDown) {
+                    event.stopPropagation();
+                    mouseUp(event.getX(), event.getY());
+                }
             }
         };
         PlugInSupportCanvas canvas = diagramPane.getCanvas();
@@ -130,5 +118,34 @@ public class CanvasEventInstaller {
         canvas.addMouseMoveHandler(mouseMoveHandler);
     }
     
+    private void mouseDown(int x, int y) {
+        previousX = x;
+        previousY = y;
+        isMouseDown = true;
+    }
+    
+    private void mouseMove(int x, int y) {
+        if (isMouseDown) {
+            // Do panning
+            int dx = x - previousX;
+            int dy = y - previousY;
+            diagramPane.translate(dx, dy);
+            diagramPane.update();
+            previousX = x;
+            previousY = y;
+            isDragging = true;
+        }
+    }
+    
+    private void mouseUp(int x, int y) {
+        if (isMouseDown)
+            isMouseDown = false;
+        if (isDragging) {
+            isDragging = false;
+        }
+        else { // Do click selection
+            diagramPane.select(x, y);
+        }
+    }
     
 }

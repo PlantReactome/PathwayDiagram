@@ -38,6 +38,8 @@ public class HyperEdge extends GraphObject {
     private List<Point> backbone;
     // For reaction type if it is a reaction
     private ReactionType reactionType;
+    // Defined for sensing
+    private final int SENSING_DISTANCE = 10;
     
     /**
      * Default constructor.
@@ -165,5 +167,18 @@ public class HyperEdge extends GraphObject {
 	public ReactionType getReactionType() {
 	    return this.reactionType;
 	}
+
+    @Override
+    public boolean isPicked(Point point) {
+        // Check distance between point and position
+        double x = position.getX();
+        double y = position.getY();
+        double x0 = point.getX();
+        double y0 = point.getY();
+        if (x0 >= x - SENSING_DISTANCE && x0 <= x + SENSING_DISTANCE &&
+            y0 >= y - SENSING_DISTANCE && y0 <= y + SENSING_DISTANCE)
+            return true;
+        return false;
+    }
 
 }

@@ -5,6 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.HyperEdge;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
@@ -15,6 +16,8 @@ import com.google.gwt.canvas.dom.client.CssColor;
  *
  */
 public abstract class AbstractRenderer<T extends GraphObject> implements GraphObjectRenderer<T> {
+    protected double defaultLineWidth = 1.0d;
+    protected CssColor defaultLineColor = Parameters.defaultstrokeColor;
     
     /**
      * Converts the Stroke and Fill Colors to Standard CssColor Objects and sets it on the Canvas
@@ -27,6 +30,28 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
         context.setStrokeStyle(strokeStyleColor);
         CssColor fillStyleColor = CssColor.make(bgColor);
         context.setFillStyle(fillStyleColor);
+    }
+
+    protected void setStroke(Context2d c2d, T obj) {
+        String color;
+        if (obj.isSelected()) {
+            c2d.setStrokeStyle(Parameters.defaultSelectionColor);
+            if (obj instanceof HyperEdge)
+                c2d.setLineWidth(Parameters.defaultEdgeSelectionLineWidth);
+            else
+                c2d.setLineWidth(Parameters.defaultNodeSelectionLineWidth);
+        }
+        else {
+            if (obj.getLineWidth() == 0.0d)
+                c2d.setLineWidth(defaultLineWidth);
+            else
+                c2d.setLineWidth(obj.getLineWidth());
+            color = obj.getLineColor();
+            if (color == null)
+                c2d.setStrokeStyle(defaultLineColor);
+            else
+                c2d.setStrokeStyle(CssColor.make(color));
+        }
     }
     
 }

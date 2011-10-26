@@ -17,7 +17,6 @@ public interface GraphObjectRenderer<T extends GraphObject> {
     
     public static final int ROUND_RECT_ARC_WIDTH = 6;
     public static final int COMPLEX_RECT_ARC_WIDTH = 6;
-    public static final int THINK_LINE_WIDTH = 2;
     public static final int RECTANGLE_DIST = 10;
     
     public static final double ARROW_ANGLE = Math.PI / 6;

@@ -24,11 +24,10 @@ import com.google.gwt.touch.client.Point;
 //TODO: Make sure text names are correctly encapsulated as in the curator tool. Work on display name for compartments.
 //display pathway icons.
 public class NodeRenderer extends AbstractRenderer<Node> {
-
-    protected CssColor defaultLineColor = null;
     
     public NodeRenderer() {
-        defaultLineColor = CssColor.make(0, 0, 0);
+        defaultLineColor = Parameters.defaultstrokeColor;
+        defaultLineWidth = 1.0d;
     }
     
     /* (non-Javadoc)
@@ -40,14 +39,14 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         setColors(c2d, node.getFgColor(), node.getBgColor());
         Bounds bounds = node.getBounds();
         String color = node.getBgColor();
-        if (color == null)
-            color = "rgba(204, 255, 204, 1)";
-        c2d.setFillStyle(CssColor.make(color));
-        color = node.getLineColor();
-        if (color == null)
-            c2d.setStrokeStyle(defaultLineColor);
-        else
-            c2d.setStrokeStyle(CssColor.make(color));
+        if (color == null) {
+            c2d.setFillStyle(Parameters.defaultbgColor);
+        }
+        else {
+            c2d.setFillStyle(CssColor.make(color));
+        }
+        setStroke(c2d,
+                  node);
         drawRectangle(bounds, 
                       c2d,
                       node);
@@ -56,7 +55,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         drawNodeAttachments(c2d,
                             node);
     }
-    
+
     private void drawNodeAttachments(Context2d context,
                                      Node node) {
         if (node.getNodeAttachments() == null || node.getNodeAttachments().size() == 0)
