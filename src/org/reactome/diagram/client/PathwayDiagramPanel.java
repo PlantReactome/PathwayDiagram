@@ -4,17 +4,8 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.List;
-
 import org.reactome.diagram.model.CanvasPathway;
-import org.reactome.diagram.model.GraphObjectType;
-import org.reactome.diagram.model.HyperEdge;
-import org.reactome.diagram.model.Node;
-import org.reactome.diagram.view.GraphObjectRendererFactory;
-import org.reactome.diagram.view.HyperEdgeRenderer;
-import org.reactome.diagram.view.NodeRenderer;
 
-import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -24,17 +15,12 @@ import com.google.gwt.user.client.ui.Composite;
  *
  */
 public class PathwayDiagramPanel extends Composite {
- // Use an AbsolutePanel so that controls can be placed onto on a canvas
-    AbsolutePanel contentPane;
-    // Pathway to be displayed
-    private CanvasPathway pathway;
-    // The major canvas that is used to draw pathway
-    private PlugInSupportCanvas canvas;
-    // These are used for translate
-    private double translateX;
-    private double translateY;
-    // This is for scale
-    private double scale;
+    // Use an AbsolutePanel so that controls can be placed onto on a canvas
+    private AbsolutePanel contentPane;
+    // Pathway diagram should be drawn here
+    private PathwayCanvas canvas;
+    // For overview
+    private OverviewCanvas overview;
     // The following properties are used for panning
     private CanvasEventInstaller eventInstaller;
     // For all selection related stuff.
@@ -47,15 +33,21 @@ public class PathwayDiagramPanel extends Composite {
     private void init() {
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
-        canvas = new PlugInSupportCanvas();
+        canvas = new PathwayCanvas();
         // Keep the original information
         contentPane.add(canvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName("mainCanvas");
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
+        // Set up overview
+        overview = new OverviewCanvas();
+        // the width should be fixed
+        overview.setCoordinateSpaceWidth(200);
+        overview.setCoordinateSpaceHeight(1); // This is temporary
+        overview.setStyleName("overViewCanvas");
+        contentPane.add(overview, 1, 4);
+        overview.setVisible(false); // Don't show it!
         initWidget(contentPane);
-        // default should be 1.0d
-        scale = 1.0d;
         // Add behaviors
         eventInstaller = new CanvasEventInstaller(this);
         eventInstaller.installHandlers();
@@ -63,38 +55,43 @@ public class PathwayDiagramPanel extends Composite {
         selectionHandler = new SelectionHandler(this);
     }
     
-    public void setSize(int width, int height) {
+    public void setSize(int windowWidth, int windowHeight) {
+        int width = windowWidth - 50;
+        int height = windowHeight - 135;
         super.setSize(width + "px", height + "px");
         canvas.setSize(width - 8 + "px", height - 8 + "px");
         canvas.setCoordinateSpaceWidth(width - 8);
         canvas.setCoordinateSpaceHeight(height - 8);
+        // Need to reset the overview position so that it stays at the bottom-left corner
+        if (!overview.isVisible())
+            overview.setVisible(true);
+        overview.updatePosition();
     }
 
     public void setPathway(CanvasPathway pathway) {
-        this.pathway = pathway;
-        update();
+        canvas.setPathway(pathway);
+        overview.setPathway(pathway);
+        canvas.update();
+        overview.update();
     }
     
     public CanvasPathway getPathway() {
-        return this.pathway;
+        return canvas.getPathway();
     }
     
     public void translate(double dx, double dy) {
-        this.translateX += dx;
-        this.translateY += dy;
+        canvas.translate(dx, dy);
     }
     
     public void scale(double scale) {
-        this.scale *= scale;
+        canvas.scale(scale);
     }
     
     public void reset() {
-        translateX = 0.0d;
-        translateY = 0.0d;
-        scale = 1.0d;
+        canvas.reset();
     }
     
-    public PlugInSupportCanvas getCanvas() {
+    public PathwayCanvas getCanvas() {
         return this.canvas;
     }
     
@@ -105,10 +102,10 @@ public class PathwayDiagramPanel extends Composite {
      */
     public void select(int x, int y) {
         // Need to consider both scale and translate
-        double correctedX = x - translateX;
-        correctedX /= scale;
-        double correctedY = y - translateY;
-        correctedY /= scale;
+        double correctedX = x - canvas.getTranslateX();
+        correctedX /= canvas.getScale();
+        double correctedY = y - canvas.getTranslateY();
+        correctedY /= canvas.getScale();
         selectionHandler.select(correctedX, 
                                 correctedY);
     }
@@ -117,47 +114,6 @@ public class PathwayDiagramPanel extends Composite {
      * Update drawing.
      */
     public void update() {
-        if (pathway == null)
-            return;
-        List<Node> nodes = pathway.getChildren();
-        GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
-        Context2d c2d = canvas.getContext2d();
-        c2d.save();
-        c2d.clearRect(0.0d, 
-                      0.0d, 
-                      canvas.getOffsetWidth(),
-                      canvas.getOffsetHeight());
-        c2d.translate(translateX, translateY);
-        c2d.scale(scale, scale);
-        if (nodes != null) {
-            // Always draw compartments first
-            for (Node node : nodes) {
-                if (node.getType() == GraphObjectType.RenderableCompartment) {
-                    NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                    if (renderer != null)
-                        renderer.render(c2d, node);
-                }
-            }
-            for (Node node : nodes) {
-                if (node.getType() == GraphObjectType.RenderableCompartment)
-                    continue;
-                NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                if (renderer != null)
-                    renderer.render(c2d,
-                                    node);
-            }
-        }
-        // Draw edges
-        List<HyperEdge> edges = pathway.getEdges();
-        if (edges != null) {
-            for (HyperEdge edge : edges) {
-                HyperEdgeRenderer renderer = viewFactory.getEdgeRenderere(edge);
-                if (renderer == null)
-                    continue;
-                renderer.render(c2d, 
-                                edge);
-            }
-        }
-        c2d.restore();
+        canvas.update();
     }
 }

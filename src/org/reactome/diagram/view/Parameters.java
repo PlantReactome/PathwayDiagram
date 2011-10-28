@@ -41,6 +41,4 @@ public class Parameters {
 	public static final CssColor defaultSelectionColor = CssColor.make(0, 0, 255);
 	public static final int defaultNodeSelectionLineWidth = 3;
 	public static final int defaultEdgeSelectionLineWidth = 2;
-	public static final double height = (int) (0.75 * Window.getClientHeight());
-	public static final double width = (int) (0.95 * Window.getClientWidth());
 }

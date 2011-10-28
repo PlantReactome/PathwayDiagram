@@ -376,4 +376,65 @@ public class CanvasPathway extends Node {
             edges = new ArrayList<HyperEdge>();
         edges.add(edge);
     }
+    
+    public Bounds getPreferredSize() {
+        Bounds bounds = new Bounds();
+        List<GraphObject> objects = getGraphObjects();
+        if (objects == null || objects.size() == 0) {
+            // Give some space
+            bounds.width = 10;
+            bounds.height =10;
+            return bounds;
+        }
+        for (GraphObject obj : objects) {
+            if (obj instanceof Node) {
+                Node node = (Node) obj;
+                Bounds nodeBounds = node.getBounds();
+                if (nodeBounds != null) {
+                    if (bounds.width < nodeBounds.x + nodeBounds.width)
+                        bounds.width = nodeBounds.x + nodeBounds.width;
+                    if (bounds.height < nodeBounds.y + nodeBounds.height)
+                        bounds.height = nodeBounds.y + nodeBounds.height;
+                }
+                else {
+                    Point pos = node.getPosition();
+                    if (bounds.width < pos.getX())
+                        bounds.width = (int) pos.getX();
+                    if (bounds.height < pos.getY())
+                        bounds.height = (int) pos.getY();
+                }
+            }
+            else if (obj instanceof HyperEdge) {
+                // Check all points
+                HyperEdge edge = (HyperEdge) obj;
+                List<Point> points = edge.getBackbone();
+                getBoundsFromPoints(points, bounds);
+                getBoundsFromBranch(bounds, edge.getInputBranches());
+                getBoundsFromBranch(bounds, edge.getOutputBranches());
+                getBoundsFromBranch(bounds, edge.getCatalystBranches());
+                getBoundsFromBranch(bounds, edge.getActivatorBranches());
+                getBoundsFromBranch(bounds, edge.getInhibitorBranches());
+            }
+        }
+        // Give it some extra
+        bounds.width += 8;
+        bounds.height += 8;
+        return bounds;
+    }
+
+    protected void getBoundsFromBranch(Bounds bounds, 
+                                       List<List<Point>> branch) {
+        if (branch != null)
+            for (List<Point> list : branch)
+                getBoundsFromPoints(list, bounds);
+    }
+    
+    private void getBoundsFromPoints(List<Point> points, Bounds bounds) {
+        for (Point p : points) {
+            if (bounds.width < p.getX())
+                bounds.width = (int) p.getX();
+            if (bounds.height < p.getY())
+                bounds.height = (int) p.getY();
+        }
+    }
 }

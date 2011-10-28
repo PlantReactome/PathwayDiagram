@@ -34,10 +34,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -46,7 +42,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.xml.client.Document;
@@ -101,8 +96,8 @@ public class ReactomeBrowser implements EntryPoint {
 		}
 		
 		diagramPane = new PathwayDiagramPanel();
-		diagramPane.setSize((int)Parameters.width,
-		                    (int)Parameters.height);
+		diagramPane.setSize(Window.getClientWidth(),
+		                    Window.getClientHeight());
 		RootPanel.get(holderId).add(diagramPane);
 //		context = diagramPane.getContext2d();
 //		context = canvas.getContext2d();
@@ -280,6 +275,7 @@ public class ReactomeBrowser implements EntryPoint {
 		RootPanel.get("scroll-top").add(scrollTop);
 		RootPanel.get("scroll-bottom").add(scrollBottom);
 		RootPanel.get("scroll-right").add(scrollRight);
+		
 	}
 	
 	private void doUpdateFromTranslate() {
@@ -299,6 +295,7 @@ public class ReactomeBrowser implements EntryPoint {
         CanvasPathway pathway = new CanvasPathway();
         pathway.buildPathway(pathwayElement);
         diagramPane.setPathway(pathway);
+//        diagramPane.update();
         // Check size of diagramPane
 //        System.out.println("Size of diagram pane: " + diagramPane.getOffsetWidth() + ", " + 
 //                           diagramPane.getOffsetHeight());
@@ -431,173 +428,6 @@ public class ReactomeBrowser implements EntryPoint {
 //		setBoxCoordinates.add(1, coY);
 //		setBoxCoordinates.add(2, width);
 //		setBoxCoordinates.add(3, height);
-	}
-	
-	/**Checks against the Node HashMaps, whether the point where the user has clicked is a Node, and builds up the node attributes, if a node is selected
-	 * 
-	 * @param lastEvent The point where the user has clicked
-	 * @return isSelected Boolean value indicating a Node has been selected.
-	 */
-	private boolean isNodeSelected (Point lastEvent) {
-		
-////		boolean isSelected = false;
-////		double factor = 1.0;
-////		double leftTranslate = 0.0, topTranslate = 0.0;
-////		double scaleFactor = (1 / factor);
-////		int totalTracks = trackScaleFactors.size();
-////  	  
-////		for(int i = totalTracks-1 ; i >= 0; i--) {
-////			leftTranslate = leftTranslate + trackLeftTranslates.get(i);
-////			topTranslate = topTranslate + trackTopTranslates.get(i);
-////			factor = trackScaleFactors.get(i);
-////  		  	scaleFactor = scaleFactor * (1 / factor); 		  	
-////		}
-////		
-////		double selectX = (lastEvent.x * scaleFactor) - leftTranslate;
-////		double selectY = (lastEvent.y * scaleFactor) - topTranslate;
-////		Iterator<Double> iterator = NodeGroup.BoundsHashmap.keySet().iterator();
-////		while(iterator.hasNext()) {
-////			Double key = (Double) iterator.next();
-////			String bounds = NodeGroup.BoundsHashmap.get(key);
-////			ModelHelper parser = new ModelHelper();
-////			
-////			String[] boundCo = parser.splitbySpace(bounds);
-////			double coX = (Double.parseDouble(boundCo[0]))/zoomFactor;
-////			double coY = ((Double.parseDouble(boundCo[1]))/zoomFactor)+upHeight;
-////			double nodeWidth = (Double.parseDouble(boundCo[2]))/zoomFactor;
-////			double nodeHeight = (Double.parseDouble(boundCo[3]))/zoomFactor;
-////			
-////			if(coX < selectX && selectX < (coX + nodeWidth)) {
-////				if(coY < selectY && selectY < (coY + nodeHeight)) {
-////					if(ProteinGroup.proteinValuesHashmap.containsKey(key)) {
-////						List<String> attributes = ProteinGroup.proteinValuesHashmap.get(key);
-////						nodeSelected.add(0, attributes.get(0));
-////						nodeSelected.add(1, attributes.get(1));
-////						nodeSelected.add(2, attributes.get(2));
-////						nodeSelected.add(3, attributes.get(3));
-////						nodeSelected.add(4, attributes.get(4));
-////						nodeSelected.add(5, attributes.get(5));
-////						nodeSelected.add(6, "1");
-////						isSelected = true;
-////						break;
-////					} else if (ComplexGroup.complexValuesHashmap.containsKey(key)) {
-////						List<String> attributes = ComplexGroup.complexValuesHashmap.get(key);
-////						nodeSelected.add(0, attributes.get(0));
-////						nodeSelected.add(1, attributes.get(1));
-////						nodeSelected.add(2, attributes.get(2));
-////						nodeSelected.add(3, attributes.get(3));
-////						nodeSelected.add(4, attributes.get(4));
-////						nodeSelected.add(5, attributes.get(5));
-////						nodeSelected.add(6, "2");
-////						isSelected = true;
-////						break;
-////					} else if (EntityGroup.entityValuesHashmap.containsKey(key)) {
-////						List<String> attributes = EntityGroup.entityValuesHashmap.get(key);
-////						nodeSelected.add(0, attributes.get(0));
-////						nodeSelected.add(1, attributes.get(1));
-////						nodeSelected.add(2, attributes.get(2));
-////						nodeSelected.add(3, attributes.get(3));
-////						nodeSelected.add(4, attributes.get(4));
-////						nodeSelected.add(5, attributes.get(5));
-////						nodeSelected.add(6, "3");
-////						isSelected = true;
-////						break;
-////					} else if (ChemicalGroup.chemicalValuesHashmap.containsKey(key)) {
-////						List<String> attributes = ChemicalGroup.chemicalValuesHashmap.get(key);
-////						nodeSelected.add(0, attributes.get(0));
-////						nodeSelected.add(1, attributes.get(1));
-////						nodeSelected.add(2, attributes.get(2));
-////						nodeSelected.add(3, attributes.get(3));
-////						nodeSelected.add(4, attributes.get(4));
-////						nodeSelected.add(5, attributes.get(5));
-////						nodeSelected.add(6, "4");
-////						isSelected = true;
-////						break;
-////					}
-////				}
-////			}
-////		}
-//		
-//		return isSelected;
-	    return false;
-	}
-	
-	/**Shows which node is selected by enclosing it with a green rectangle
-	 * 
-	 */
-	private void selectNode() {
-//		String bounds = nodeSelected.get(2);
-//		ModelHelper parser = new ModelHelper();
-//		String[] boundCo = parser.splitbySpace(bounds);
-//		double coX = ((Double.parseDouble(boundCo[0]) - 5))/zoomFactor;
-//		double coY = (((Double.parseDouble(boundCo[1])) - 5)/zoomFactor)+upHeight;
-//		double nodeWidth = ((Double.parseDouble(boundCo[2])) + 10)/zoomFactor;
-//		double nodeHeight = ((Double.parseDouble(boundCo[3])) + 10)/zoomFactor;
-//		
-//		String nodeColor = "rgba(255,255,255,1)";
-//		String strokeColor = "rgba(0,255,0,1)";
-//		ContextSettings colors = new ContextSettings(nodeColor,strokeColor);
-//		colors.makecolor(context);
-//		
-//		context.setLineWidth(5);
-//		context.beginPath();
-//		context.rect(coX, coY, nodeWidth, nodeHeight);
-//		context.strokeRect(coX, coY, nodeWidth, nodeHeight); 
-//		context.closePath();
-//		context.setLineWidth(1);
-	}
-	
-	/** Updates the Node HashMaps whenever a node is dragged to new bounds and new position
-	 * 
-	 * @param newPosition The position where the Node is dragged
-	 */
-	private void updateHashmap(Point newPosition) {
-//		String idno = nodeSelected.get(0);
-//		String reactomeId = nodeSelected.get(1);
-//		String bounds = nodeSelected.get(2);
-//		String oldposition = nodeSelected.get(3);
-//		String bgColor = nodeSelected.get(4);
-//		String displayName = nodeSelected.get(5);
-//		String type = nodeSelected.get(6);
-//		
-//		int typeNo = (int)(Double.parseDouble(type));
-//		double id = Double.parseDouble(idno);
-//		ModelHelper parser = new ModelHelper();		
-//		String[] boundCo = parser.splitbySpace(bounds);
-//		double nodeWidth = Double.parseDouble(boundCo[2]);
-//		double nodeHeight = Double.parseDouble(boundCo[3]);
-//		double coX = newPosition.x - (nodeWidth)/2;
-//		double coY = newPosition.y - (nodeHeight)/2;
-//		
-//		String newbounds = coX + " " + coY + " " + nodeWidth + " " + nodeHeight;
-//		String newposition = newPosition.x + " " + newPosition.y;
-//		
-//		nodeSelected.add(0, idno);
-//		nodeSelected.add(1, reactomeId);
-//		nodeSelected.add(2, newbounds);
-//		nodeSelected.add(3, newposition);
-//		nodeSelected.add(4, bgColor);
-//		nodeSelected.add(5, displayName);
-//		nodeSelected.add(6, type);
-//		
-//		NodeGroup.BoundsHashmap.remove(id);
-//		NodeGroup.BoundsHashmap.put(id, newbounds);
-//		
-//		switch(typeNo) {
-//			case 1: ProteinGroup.proteinValuesHashmap.remove(id);
-//					ProteinGroup.proteinValuesHashmap.put(id, nodeSelected);
-//					break;
-//			case 2: ComplexGroup.complexValuesHashmap.remove(id);
-//					ComplexGroup.complexValuesHashmap.put(id, nodeSelected);
-//					break;
-//			case 3: EntityGroup.entityValuesHashmap.remove(id);
-//					EntityGroup.entityValuesHashmap.put(id, nodeSelected);
-//					break;
-//			case 4: ChemicalGroup.chemicalValuesHashmap.remove(id);
-//					ChemicalGroup.chemicalValuesHashmap.put(id, nodeSelected);
-//					break; 
-//			default: break;
-//		}				
 	}
 	
 	/**Initializes the Canvas MouseDown, MouseMove, MouseUp and DoubleClick Handlers

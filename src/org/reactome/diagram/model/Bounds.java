@@ -12,10 +12,10 @@ import com.google.gwt.touch.client.Point;
  *
  */
 public class Bounds {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
+    int x;
+    int y;
+    int width;
+    int height;
     
     public Bounds() {
     }

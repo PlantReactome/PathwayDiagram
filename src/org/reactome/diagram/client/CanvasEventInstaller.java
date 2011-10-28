@@ -7,7 +7,10 @@ package org.reactome.diagram.client;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.user.client.Window;
 
 /**
  * This helper class is used to set up event handler for the canvas used in PathwayDiagramPanel.
@@ -29,6 +32,15 @@ public class CanvasEventInstaller {
     public void installHandlers() {
         addMouseHandlers();
         addTouchHandlers();
+        Window.addResizeHandler(new ResizeHandler() {
+            
+            @Override
+            public void onResize(ResizeEvent event) {
+                diagramPane.setSize(event.getWidth(), 
+                                    event.getHeight());
+                diagramPane.update();
+            }
+        });
     }
     
     private void addTouchHandlers() {
