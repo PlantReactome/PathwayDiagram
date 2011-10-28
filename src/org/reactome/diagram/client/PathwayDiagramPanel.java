@@ -69,10 +69,11 @@ public class PathwayDiagramPanel extends Composite {
     }
 
     public void setPathway(CanvasPathway pathway) {
-        canvas.setPathway(pathway);
+        // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
-        canvas.update();
         overview.update();
+        canvas.setPathway(pathway);
+        canvas.update();
     }
     
     public CanvasPathway getPathway() {
@@ -93,6 +94,10 @@ public class PathwayDiagramPanel extends Composite {
     
     public PathwayCanvas getCanvas() {
         return this.canvas;
+    }
+    
+    public OverviewCanvas getOverview() {
+        return this.overview;
     }
     
     /**

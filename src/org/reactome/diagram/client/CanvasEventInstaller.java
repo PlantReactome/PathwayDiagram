@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.client;
 
+import org.reactome.diagram.event.ViewChangeEvent;
+
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
@@ -41,6 +43,11 @@ public class CanvasEventInstaller {
                 diagramPane.update();
             }
         });
+
+        OverviewCanvas overview = diagramPane.getOverview();
+        PathwayCanvas canvas = diagramPane.getCanvas();
+        canvas.addEventHandler(ViewChangeEvent.TYPE,
+                               overview);
     }
     
     private void addTouchHandlers() {

@@ -4,9 +4,13 @@
  */
 package org.reactome.diagram.client;
 
+import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.CanvasPathway;
 
+import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 /**
@@ -14,9 +18,11 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
  * @author gwu
  *
  */
-public class OverviewCanvas extends PathwayCanvas {
+public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHandler {
+    private Bounds viewRect;
 
     public OverviewCanvas() {
+        viewRect = new Bounds();
     }
 
     @Override
@@ -42,7 +48,41 @@ public class OverviewCanvas extends PathwayCanvas {
         container.setWidgetPosition(this, 
                                     4, 
                                     container.getOffsetHeight() - height - 7);
+    }
 
+    @Override
+    public void update() {
+        super.update();
+        // Draw an rectangle for the view
+        // Need a decent line to show the rectangle
+        Context2d c2d = getContext2d();
+        c2d.setLineWidth(1.0d); // After the super.update call, all states should be reset to the original.
+        // Use blue line
+        CssColor blue = CssColor.make(0, 0, 255);
+        c2d.setStrokeStyle(blue);
+        c2d.beginPath();
+        c2d.rect(viewRect.getX(),
+                 viewRect.getY(),
+                 viewRect.getWidth(),
+                 viewRect.getHeight());
+        c2d.closePath();
+        c2d.stroke();
+    }
+
+    @Override
+    public void onViewChange(ViewChangeEvent event) {
+        double scale = event.getScale();
+        double x = -event.getTranslateX() / scale;
+        double y = -event.getTranslateY() / scale;
+        double width = event.getWidth() / scale;
+        double height = event.getHeight() / scale;
+        double currentScale = getScale();
+        viewRect.setX((int)(x * currentScale));
+        viewRect.setY((int)(y * currentScale));
+        viewRect.setWidth((int)(width * currentScale));
+        viewRect.setHeight((int)(height * currentScale));
+//        System.out.println("ViewRect: " + viewRect.toString());
+        update();
     }
     
     

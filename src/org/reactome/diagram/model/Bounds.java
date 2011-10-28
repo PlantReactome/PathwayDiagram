@@ -86,4 +86,8 @@ public class Bounds {
         return (x1 >= x && x1 <= x + width && y1 >= y && y1 <= y + height);
     }
     
+    public String toString() {
+        return "x, y, width, height: " + x + ", " + y + ", " + width + ", " + height; 
+    }
+    
 }

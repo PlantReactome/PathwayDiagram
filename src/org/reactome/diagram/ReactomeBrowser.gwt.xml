@@ -23,6 +23,7 @@
   <source path='test'/>
   <source path='model' />
   <source path='view' />
+  <source path='event' />
 
     <!-- Control logging -->
     <set-property name="gwt.logging.enabled" value="FALSE"/> 

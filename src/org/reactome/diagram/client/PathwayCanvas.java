@@ -6,6 +6,7 @@ package org.reactome.diagram.client;
 
 import java.util.List;
 
+import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.HyperEdge;
@@ -15,6 +16,9 @@ import org.reactome.diagram.view.HyperEdgeRenderer;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.shared.GwtEvent.Type;
+import com.google.gwt.event.shared.HandlerManager;
 
 /**
  * A specialized PlugInSupportCanvas that is used to draw CanvasPathway only.
@@ -30,13 +34,24 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     private double translateY;
     // This is for scale
     private double scale;
+    // Used to handle events
+    protected HandlerManager handlerManager;
+    // For view change
+    private ViewChangeEvent viewEvent;
     
     public PathwayCanvas() {
         scale = 1.0d;
+        handlerManager = new HandlerManager(this);
+    }
+    
+    public <H extends EventHandler> void addEventHandler(Type<H> type,
+                                                         H handler) {
+        handlerManager.addHandler(type, handler);
     }
     
     public void setPathway(CanvasPathway pathway) {
         this.pathway = pathway;
+        fireViewChangeEvent();
     }
     
     public CanvasPathway getPathway() {
@@ -46,6 +61,18 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     public void translate(double dx, double dy) {
         this.translateX += dx;
         this.translateY += dy;
+        fireViewChangeEvent();
+    }
+    
+    private void fireViewChangeEvent() {
+        if (viewEvent == null)
+            viewEvent = new ViewChangeEvent();
+        viewEvent.setScale(scale);
+        viewEvent.setTranslateX(translateX);
+        viewEvent.setTranslateY(translateY);
+        viewEvent.setWidth(getCoordinateSpaceWidth());
+        viewEvent.setHeight(getCoordinateSpaceHeight());
+        handlerManager.fireEvent(viewEvent);
     }
     
     public double getTranslateX() {
@@ -62,12 +89,14 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     
     public void scale(double scale) {
         this.scale *= scale;
+        fireViewChangeEvent();
     }
     
     public void reset() {
         translateX = 0.0d;
         translateY = 0.0d;
         scale = 1.0d;
+        fireViewChangeEvent();
     }
     
     /**
