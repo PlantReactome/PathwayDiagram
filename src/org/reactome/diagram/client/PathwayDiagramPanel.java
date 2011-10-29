@@ -21,8 +21,6 @@ public class PathwayDiagramPanel extends Composite {
     private PathwayCanvas canvas;
     // For overview
     private OverviewCanvas overview;
-    // The following properties are used for panning
-    private CanvasEventInstaller eventInstaller;
     // For all selection related stuff.
     private SelectionHandler selectionHandler;
     
@@ -47,17 +45,20 @@ public class PathwayDiagramPanel extends Composite {
         overview.setStyleName("overViewCanvas");
         contentPane.add(overview, 1, 4);
         overview.setVisible(false); // Don't show it!
+        // Controls
+        PathwayCanvasControls controls = new PathwayCanvasControls(canvas);
+        contentPane.add(controls, 4, 4);
         initWidget(contentPane);
         // Add behaviors
-        eventInstaller = new CanvasEventInstaller(this);
+        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this);
         eventInstaller.installHandlers();
         
         selectionHandler = new SelectionHandler(this);
     }
     
     public void setSize(int windowWidth, int windowHeight) {
-        int width = windowWidth - 50;
-        int height = windowHeight - 135;
+        int width = windowWidth - 40;
+        int height = windowHeight - 40;
         super.setSize(width + "px", height + "px");
         canvas.setSize(width - 8 + "px", height - 8 + "px");
         canvas.setCoordinateSpaceWidth(width - 8);

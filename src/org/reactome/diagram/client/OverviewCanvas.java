@@ -11,6 +11,14 @@ import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 /**
@@ -20,11 +28,15 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
  */
 public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHandler {
     private Bounds viewRect;
+    // A flag to block an event bouncing back
+    private boolean isFromOverview;
 
     public OverviewCanvas() {
         viewRect = new Bounds();
+        EventHandlers eventHandlers = new EventHandlers();
+        eventHandlers.installHandlers();
     }
-
+    
     @Override
     public void setPathway(CanvasPathway pathway) {
         super.setPathway(pathway);
@@ -71,6 +83,10 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
 
     @Override
     public void onViewChange(ViewChangeEvent event) {
+        if (isFromOverview) {
+            isFromOverview = false;
+            return;
+        }
         double scale = event.getScale();
         double x = -event.getTranslateX() / scale;
         double y = -event.getTranslateY() / scale;
@@ -85,5 +101,95 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         update();
     }
     
+    /**
+     * In the overview, the view can be translated only. It cannot be scaled.
+     * @param translateX
+     * @param transalteY
+     */
+    private void fireViewChangeEvent(double translateX, double translateY) {
+        if (viewEvent == null)
+            viewEvent = new ViewChangeEvent();
+        viewEvent.setTranslateX(translateX);
+        viewEvent.setTranslateY(translateY);
+        viewEvent.setScale(getScale());
+        isFromOverview = true;
+        handlerManager.fireEvent(viewEvent);
+    }
     
+    /**
+     * This inner private class is used to handle dragging events for overview.
+     * @author gwu
+     *
+     */
+    private class EventHandlers {
+        private boolean isDragging;
+        // The position when mouse is down
+        private double x0;
+        private double y0;
+        private double prevX;
+        private double prevY;
+        
+        public EventHandlers() {
+        }
+        
+        void installHandlers() {
+            addMouseEventHandlers();
+            addTouchEventHandlers();
+        }
+        
+        private void addMouseEventHandlers() {
+            OverviewCanvas.this.addMouseDownHandler(new MouseDownHandler() {
+                
+                @Override
+                public void onMouseDown(MouseDownEvent event) {
+                    if(viewRect.contains(event.getX(), event.getY())) {
+                        isDragging = true;
+                        prevX = event.getX();
+                        prevY = event.getY();
+                        x0 = viewRect.getX();
+                        y0 = viewRect.getY();
+                    }
+                }
+            });
+            OverviewCanvas.this.addMouseOutHandler(new MouseOutHandler() {
+                
+                @Override
+                public void onMouseOut(MouseOutEvent event) {
+                    if (isDragging)
+                        isDragging = false;
+                }
+            });
+            OverviewCanvas.this.addMouseMoveHandler(new MouseMoveHandler() {
+                
+                @Override
+                public void onMouseMove(MouseMoveEvent event) {
+                    if (isDragging) {
+                        double dx = event.getX() - prevX;
+                        double dy = event.getY() - prevY;
+                        viewRect.translate(dx, dy);
+                        update();
+                        prevX = event.getX();
+                        prevY = event.getY();
+                    }
+                }
+            });
+            OverviewCanvas.this.addMouseUpHandler(new MouseUpHandler() {
+                
+                @Override
+                public void onMouseUp(MouseUpEvent event) {
+                    if (isDragging) {
+                        isDragging = false;
+                        fireViewChangeEvent(viewRect.getX() - x0,
+                                            viewRect.getY() - y0);
+                    }
+                }
+            });
+        }
+        
+        //TODO: To implement this soon!
+        private void addTouchEventHandlers() {
+            
+        }
+        
+    }
 }

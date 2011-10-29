@@ -75,14 +75,21 @@ public class Bounds {
         this.height = height;
     }
     
+    public void translate(double dx, double dy) {
+        x += dx;
+        y += dy;
+    }
+    
     /**
      * Check if this Bounds contain a Point.
      * @param p
      * @return
      */
     public boolean contains(Point p) {
-        double x1 = p.getX();
-        double y1 = p.getY();
+        return contains(p.getX(), p.getY());
+    }
+    
+    public boolean contains(double x1, double y1) {
         return (x1 >= x && x1 <= x + width && y1 >= y && y1 <= y + height);
     }
     

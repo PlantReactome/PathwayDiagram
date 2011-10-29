@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.event.ViewChangeEventHandler;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
@@ -45,9 +46,24 @@ public class CanvasEventInstaller {
         });
 
         OverviewCanvas overview = diagramPane.getOverview();
-        PathwayCanvas canvas = diagramPane.getCanvas();
+        final PathwayCanvas canvas = diagramPane.getCanvas();
         canvas.addEventHandler(ViewChangeEvent.TYPE,
                                overview);
+        // To catch overview dragging
+        ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
+            @Override
+            public void onViewChange(ViewChangeEvent event) {
+                double dx = event.getTranslateX();
+                double dy = event.getTranslateY();
+                double scale = event.getScale();
+                double canvasScale = canvas.getScale();
+                canvas.translate(-dx / scale * canvasScale, 
+                                 -dy / scale * canvasScale);
+                canvas.update();
+            }
+        };
+        overview.addEventHandler(ViewChangeEvent.TYPE,
+                                 overviewEventHandler);
     }
     
     private void addTouchHandlers() {

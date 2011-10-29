@@ -37,7 +37,7 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     // Used to handle events
     protected HandlerManager handlerManager;
     // For view change
-    private ViewChangeEvent viewEvent;
+    protected ViewChangeEvent viewEvent;
     
     public PathwayCanvas() {
         scale = 1.0d;
