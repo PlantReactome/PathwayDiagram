@@ -47,6 +47,7 @@ public class PathwayDiagramPanel extends Composite {
         overview.setVisible(false); // Don't show it!
         // Controls
         PathwayCanvasControls controls = new PathwayCanvasControls(canvas);
+        controls.setStyleName("controlPane");
         contentPane.add(controls, 4, 4);
         initWidget(contentPane);
         // Add behaviors

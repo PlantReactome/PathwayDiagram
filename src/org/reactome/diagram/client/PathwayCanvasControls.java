@@ -8,11 +8,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.PushButton;
 
 /**
  * This customized FlexTable is used to set up controls for PathwayCanvas: e.g. 
- * zooming, translation. The set up basiclly is copied from Maulik's original code.
+ * zooming, translation. The set up basically is copied from Maulik's original code.
  * @author gwu
  *
  */
@@ -25,56 +24,83 @@ public class PathwayCanvasControls extends FlexTable {
     }
     
     private void init() {
-        PushButton refresh = new PushButton(new Image("refresh.png"), new ClickHandler() {
+        Image refresh = new Image("Reset.png");
+        refresh.setAltText("reset");
+        refresh.setTitle("reset");
+        refresh.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.reset();
                 canvas.update();
             }
         });
         
-        PushButton zoomPlus = new PushButton(new Image("zoomplus.png"), new ClickHandler() {
+        Image zoomPlus = new Image("Plus.png");
+        zoomPlus.setAltText("zoom in");
+        zoomPlus.setTitle("zoom in");
+        zoomPlus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.scale(1.25d);
                 canvas.update();
             }
         });
-        PushButton zoomMinus = new PushButton(new Image("zoomminus.png"), new ClickHandler() {
+        
+        Image zoomMinus = new Image("Minus.png");
+        zoomMinus.setAltText("zoom out");
+        zoomMinus.setTitle("zoom out");
+        zoomMinus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.scale(0.8d);
                 canvas.update();
             }
         });
-        PushButton scrollLeft = new PushButton(new Image("left.png"), new ClickHandler() {
+        
+        Image scrollLeft = new Image("Left.png");
+        scrollLeft.setAltText("move left");
+        scrollLeft.setTitle("move left");
+        scrollLeft.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.translate(100, 0);
                 canvas.update();
             }
         });
-        PushButton scrollTop = new PushButton(new Image("top.png"), new ClickHandler() {
+        
+        Image scrollTop = new Image("Up.png");
+        scrollTop.setAltText("move up");
+        scrollTop.setTitle("move up");
+        scrollTop.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.translate(0, 100);
                 canvas.update();
             }
         });
-        PushButton scrollBottom = new PushButton(new Image("bottom.png"), new ClickHandler() {
+        
+        Image scrollBottom = new Image("Down.png");
+        scrollBottom.setAltText("move down");
+        scrollBottom.setTitle("move down");
+        scrollBottom.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.translate(0, -100);
                 canvas.update();
             }
         });
-        PushButton scrollRight = new PushButton(new Image("right.png"), new ClickHandler() {
+        
+        Image scrollRight = new Image("Right.png");
+        scrollRight.setAltText("move right");
+        scrollRight.setTitle("move right");
+        scrollRight.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 canvas.translate(-100, 0);
                 canvas.update();
             }
         });
-        refresh.setSize("17px", "17px");
-        zoomPlus.setSize("17px", "17px");
-        zoomMinus.setSize("17px", "17px");
-        scrollLeft.setSize("17px", "17px");
-        scrollTop.setSize("17px", "17px");
-        scrollBottom.setSize("17px", "17px");
-        scrollRight.setSize("17px", "17px");
+        
+//        setButtonSize(refresh);
+//        setButtonSize(zoomPlus);
+//        setButtonSize(zoomMinus);
+//        setButtonSize(scrollLeft);
+//        setButtonSize(scrollRight);
+//        setButtonSize(scrollBottom);
+//        setButtonSize(scrollTop);
         
         FlexCellFormatter cellFormatter = getFlexCellFormatter();
         setWidget(0, 0, refresh);
@@ -90,5 +116,9 @@ public class PathwayCanvasControls extends FlexTable {
         setWidget(0, 5, scrollRight);
         cellFormatter.setRowSpan(0, 5, 2);
     }
+    
+//    private void setButtonSize(PushButton btn) {
+//        btn.setSize("10px", "10px");
+//    }
     
 }
