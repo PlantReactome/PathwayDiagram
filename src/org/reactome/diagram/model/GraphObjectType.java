@@ -25,5 +25,6 @@ public enum GraphObjectType {
     // Edge types
     RenderableReaction,
     RenderableInteraction,
+    EntitySetAndMemberLink,
     FlowLine
 }
