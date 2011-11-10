@@ -6,8 +6,11 @@ package org.reactome.diagram.client;
 
 import org.reactome.diagram.model.CanvasPathway;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.PushButton;
 
 /**
  * This customized wiget is used to draw pathway diagram.
@@ -16,13 +19,15 @@ import com.google.gwt.user.client.ui.Composite;
  */
 public class PathwayDiagramPanel extends Composite {
     // Use an AbsolutePanel so that controls can be placed onto on a canvas
-    private AbsolutePanel contentPane;
+    protected AbsolutePanel contentPane;
     // Pathway diagram should be drawn here
     private PathwayCanvas canvas;
     // For overview
     private OverviewCanvas overview;
     // For all selection related stuff.
     private SelectionHandler selectionHandler;
+    // Used with a back-end RESTful API server
+    private PathwayDiagramController controller;
     
     public PathwayDiagramPanel() {
         init();
@@ -55,6 +60,21 @@ public class PathwayDiagramPanel extends Composite {
         eventInstaller.installHandlers();
         
         selectionHandler = new SelectionHandler(this);
+        controller = new PathwayDiagramController(this);
+        
+        addTestCode();
+    }
+    
+    private void addTestCode() {
+        PushButton testBtn = new PushButton("Test");
+        contentPane.add(testBtn, 400, 4);
+        testBtn.addClickHandler(new ClickHandler() {
+            
+            @Override
+            public void onClick(ClickEvent event) {
+                controller.listPathways();
+            }
+        });
     }
     
     public void setSize(int windowWidth, int windowHeight) {
@@ -71,11 +91,20 @@ public class PathwayDiagramPanel extends Composite {
     }
 
     public void setPathway(CanvasPathway pathway) {
+//        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
         overview.update();
         canvas.setPathway(pathway);
         canvas.update();
+    }
+    
+    /**
+     * Set the pathway to be displayed whose DB_ID is the same as the specified dbId parametmer.
+     * @param dbId
+     */
+    public void setPathway(Long dbId) {
+        controller.loadDiagramForDBId(dbId);
     }
     
     public CanvasPathway getPathway() {

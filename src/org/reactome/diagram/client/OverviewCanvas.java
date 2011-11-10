@@ -48,6 +48,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         // resize the height
         double height = (double) size.getHeight() / size.getWidth() * width;
         setCoordinateSpaceHeight((int)height);
+        reset();
         scale(scale);
         updatePosition();
     }
