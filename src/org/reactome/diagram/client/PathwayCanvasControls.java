@@ -4,8 +4,11 @@
  */
 package org.reactome.diagram.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
 
@@ -16,15 +19,41 @@ import com.google.gwt.user.client.ui.Image;
  *
  */
 public class PathwayCanvasControls extends FlexTable {
+    // The following resources is used to load images for controls
+    interface Resources extends ClientBundle {
+        @Source("Reset.png")
+        ImageResource reset();
+        @Source("Plus.png")
+        ImageResource plus();
+        @Source("Minus.png")
+        ImageResource minus();
+        @Source("Left.png")
+        ImageResource left();
+        @Source("Right.png")
+        ImageResource right();
+        @Source("Up.png")
+        ImageResource up();
+        @Source("Down.png")
+        ImageResource down();
+    }
+    
     private PathwayCanvas canvas;
+    private static Resources resources;
     
     public PathwayCanvasControls(PathwayCanvas canvas) {
         this.canvas = canvas;
         init();
     }
     
+    private static Resources getResource() {
+        if (resources == null)
+            resources = GWT.create(Resources.class);
+        return resources;
+    }
+    
     private void init() {
-        Image refresh = new Image("Reset.png");
+        Resources resources = getResource();
+        Image refresh = new Image(resources.reset());
         refresh.setAltText("reset");
         refresh.setTitle("reset");
         refresh.addClickHandler(new ClickHandler() {
@@ -34,7 +63,7 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
-        Image zoomPlus = new Image("Plus.png");
+        Image zoomPlus = new Image(resources.plus());
         zoomPlus.setAltText("zoom in");
         zoomPlus.setTitle("zoom in");
         zoomPlus.addClickHandler(new ClickHandler() {
@@ -44,7 +73,7 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
-        Image zoomMinus = new Image("Minus.png");
+        Image zoomMinus = new Image(resources.minus());
         zoomMinus.setAltText("zoom out");
         zoomMinus.setTitle("zoom out");
         zoomMinus.addClickHandler(new ClickHandler() {
@@ -54,7 +83,7 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
-        Image scrollLeft = new Image("Left.png");
+        Image scrollLeft = new Image(resources.left());
         scrollLeft.setAltText("move left");
         scrollLeft.setTitle("move left");
         scrollLeft.addClickHandler(new ClickHandler() {
@@ -64,7 +93,7 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
-        Image scrollTop = new Image("Up.png");
+        Image scrollTop = new Image(resources.up());
         scrollTop.setAltText("move up");
         scrollTop.setTitle("move up");
         scrollTop.addClickHandler(new ClickHandler() {
@@ -74,7 +103,7 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
-        Image scrollBottom = new Image("Down.png");
+        Image scrollBottom = new Image(resources.down());
         scrollBottom.setAltText("move down");
         scrollBottom.setTitle("move down");
         scrollBottom.addClickHandler(new ClickHandler() {
@@ -84,7 +113,7 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
-        Image scrollRight = new Image("Right.png");
+        Image scrollRight = new Image(resources.right());
         scrollRight.setAltText("move right");
         scrollRight.setTitle("move right");
         scrollRight.addClickHandler(new ClickHandler() {

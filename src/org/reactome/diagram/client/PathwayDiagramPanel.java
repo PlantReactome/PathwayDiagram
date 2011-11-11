@@ -6,8 +6,11 @@ package org.reactome.diagram.client;
 
 import org.reactome.diagram.model.CanvasPathway;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.PushButton;
@@ -34,12 +37,16 @@ public class PathwayDiagramPanel extends Composite {
     }
     
     private void init() {
+        // Set up style
+        Resources resources = GWT.create(Resources.class);
+        Style style = resources.pathwayDiagramStyle();
+        style.ensureInjected();
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
         canvas = new PathwayCanvas();
         // Keep the original information
         contentPane.add(canvas, 4, 4); // Give it some buffer space
-        contentPane.setStyleName("mainCanvas");
+        contentPane.setStyleName(style.mainCanvas());
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
         // Set up overview
@@ -47,12 +54,12 @@ public class PathwayDiagramPanel extends Composite {
         // the width should be fixed
         overview.setCoordinateSpaceWidth(200);
         overview.setCoordinateSpaceHeight(1); // This is temporary
-        overview.setStyleName("overViewCanvas");
+        overview.setStyleName(style.overViewCanvas());
         contentPane.add(overview, 1, 4);
         overview.setVisible(false); // Don't show it!
         // Controls
         PathwayCanvasControls controls = new PathwayCanvasControls(canvas);
-        controls.setStyleName("controlPane");
+        controls.setStyleName(style.controlPane());
         contentPane.add(controls, 4, 4);
         initWidget(contentPane);
         // Add behaviors
@@ -151,5 +158,29 @@ public class PathwayDiagramPanel extends Composite {
      */
     public void update() {
         canvas.update();
+    }
+    
+    /**
+     * Mainly to load Style
+     */
+    interface Resources extends ClientBundle {
+        @Source(Style.DEFAULT_CSS)
+        Style pathwayDiagramStyle();
+    }
+    
+    /**
+     * Used to provide CSS style
+     */
+    interface Style extends CssResource {
+        /**
+         * The path to the default CSS styles used by this resource.
+         */
+        String DEFAULT_CSS = "org/reactome/diagram/client/PathwayDiagram.css";
+        
+        String mainCanvas();
+        
+        String controlPane();
+        
+        String overViewCanvas();
     }
 }

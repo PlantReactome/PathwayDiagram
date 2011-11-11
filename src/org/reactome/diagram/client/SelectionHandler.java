@@ -39,6 +39,9 @@ public class SelectionHandler {
     }
     
     public void select(double x, double y) {
+        if (diagramPanel.getPathway() == null ||
+            diagramPanel.getPathway().getGraphObjects() == null)
+            return;
         Point point = new Point(x, y);
         // Three layers: last for compartment, second to last complexes, and others
         // Only one object should be selected

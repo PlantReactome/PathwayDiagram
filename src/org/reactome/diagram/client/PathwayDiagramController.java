@@ -129,7 +129,7 @@ public class PathwayDiagramController {
      * @param xmlText The XML Text to be parsed
      */
     private void renderXML(String xmlText) {
-        System.out.println(xmlText);
+//        System.out.println(xmlText);
         try {
             Document pathwayDom = XMLParser.parse(xmlText);
             Element pathwayElement = pathwayDom.getDocumentElement();

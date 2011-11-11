@@ -1,0 +1,21 @@
+/**
+ * CSS used by PathwayDiagram related widgets.
+ */
+ 
+.mainCanvas{
+  border: 1px solid #000;
+  position:absolute;
+  z-index:1;
+}
+
+.controlPane {   
+ }
+
+.overViewCanvas{
+  border: 1px solid #CCC;
+  background-color:#FFF;
+  position: absolute; 
+/*   z-index: 2;  */
+/*   box-shadow:rgba(0,0,0,0.5) 0px 0px 24px;  */
+/*   border-radius:12px;  */
+}
