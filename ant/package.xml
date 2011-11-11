@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+     November 11, 2011 10:29:11 AM                                                        
+
+     project        Canvas Diagram Visualization
+     description    Packaging GWT module for re-using
+                   
+     Guanming Wu                                                                
+     ====================================================================== -->
+<project name="package" default="jar" basedir="..">
+	<property name="targetDir" value="${basedir}" />
+	<property name="srcDir" value="src" />
+	<property name="clsDir" value="war/WEB-INF/classes" />
+	
+	<target name="jar">
+		<delete file="${targetDir}/pathwayDiagram.jar"></delete>
+		<jar destfile="${targetDir}/pathwayDiagram.jar">
+			<fileset dir="${srcDir}">
+				<exclude name="org/reactome/diagram/ReactomeBrowser.gwt.xml"/>
+				<exclude name="org/reactome/diagram/test/**" />
+			</fileset>
+			<fileset dir="${clsDir}">
+				<!-- Don't copy them twice. They should be taken care of int the source -->
+				<exclude name="org/reactome/diagram/*.gwt.xml" />
+				<exclude name="org/reactome/diagram/test/**" />
+			</fileset>
+		</jar>
+	</target>
+
+</project>
+
