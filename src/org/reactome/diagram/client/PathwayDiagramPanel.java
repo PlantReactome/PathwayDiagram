@@ -114,6 +114,14 @@ public class PathwayDiagramPanel extends Composite {
         controller.loadDiagramForDBId(dbId);
     }
     
+    /**
+     * Set the pathway to be displayed.
+     * @param xml
+     */
+    public void setPathway(String xml){
+    	controller.loadDiagramForXML(xml);
+    }
+    
     public CanvasPathway getPathway() {
         return canvas.getPathway();
     }

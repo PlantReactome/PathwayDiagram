@@ -117,6 +117,14 @@ public class PathwayDiagramController {
     }
     
     /**
+     * Load a pathway diagram for a specified Pathway XML
+     * @param xml the XML data for a pathway
+     */
+    public void loadDiagramForXML(String xml){
+    	renderXML(xml);
+    }
+    
+    /**
      * 
      * @param exception Exception whenever the XML file is not load
      */
