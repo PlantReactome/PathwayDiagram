@@ -28,6 +28,8 @@ import com.google.gwt.xml.client.XMLParser;
  *
  */
 public class PathwayDiagramController {
+	private String hostUrl = null;
+	
     public static final String RESTFUL_URL = "RESTfulWS/pathwaydiagram/";
 //    public static final String RESTFUL_URL = "http://localhost:8080/ReactomeRESTfulAPI/RESTfulWS/pathwaydiagram/";
     private PathwayDiagramPanel diagramPane;
@@ -96,7 +98,7 @@ public class PathwayDiagramController {
      * @return
      */
     public void loadDiagramForDBId(Long dbId) {
-        String hostUrl = GWT.getHostPageBaseURL();
+        String hostUrl = getHostUrl();
 //        System.out.println("Host url: " + hostUrl);
         // Do some simple parsing
         int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
@@ -149,6 +151,18 @@ public class PathwayDiagramController {
         catch(Exception e) {
             Window.alert("Error in parsing XML: " + e);
         }
+    }
+    
+    public void setHostUrl(String hostUrl){
+    	this.hostUrl = hostUrl;
+    }
+    
+    public String getHostUrl(){
+    	if(hostUrl!=null){
+    		return this.hostUrl;
+    	}else{
+    		return GWT.getHostPageBaseURL();
+    	}
     }
     
 }

@@ -122,6 +122,14 @@ public class PathwayDiagramPanel extends Composite {
     	controller.loadDiagramForXML(xml);
     }
     
+    /**
+     * Set the RESTfulService URL
+     * @param restURL the REST URL
+     */
+    public void setRestServiceURL(String restURL){
+    	controller.setHostUrl(restURL);
+    }
+    
     public CanvasPathway getPathway() {
         return canvas.getPathway();
     }
