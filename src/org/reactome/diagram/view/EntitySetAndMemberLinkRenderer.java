@@ -61,8 +61,8 @@ public class EntitySetAndMemberLinkRenderer extends HyperEdgeRenderer {
         double toX = end.getX();
         double toY = end.getY();
         // Used to check if the drawing is done yet
-        boolean xgreaterThan = fromX > toX;
-        boolean ygreaterThan = fromY > toY;
+        boolean xgreaterThan = fromX < toX;
+        boolean ygreaterThan = fromY < toY;
         
         c2d.moveTo(fromX, fromY);
         
