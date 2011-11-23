@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.reactome.diagram.model.ConnectWidget;
 import org.reactome.diagram.model.ConnectWidget.ConnectRole;
+import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.HyperEdge;
 import org.reactome.diagram.model.ReactionType;
 
@@ -26,17 +27,12 @@ import com.google.gwt.touch.client.Point;
  * @author gwu
  *
  */
+//TODO: Add a renderer for EntitySetAndMemberLink. Currently it uses the default HyperEdgeRenderer.
 public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
     
     public void render(Context2d c2d,
                        HyperEdge edge) {
-        // Set up drawing environment
-        String fgColor = edge.getLineColor();
-        if (fgColor == null)
-            fgColor = "rgba(0, 0 , 0, 1)";
-        CssColor drawColor = CssColor.make(fgColor);
-        double width = edge.getLineWidth();
-        c2d.setFillStyle(drawColor);
+        setLineColor(c2d, edge);
         setStroke(c2d, edge);
 //        c2d.setStrokeStyle(drawColor);
         // Draw backbone
@@ -58,6 +54,17 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
         drawArrows(c2d, edge);
         // Draw stoichiometries
         drawStoichiometries(c2d, edge);
+    }
+
+    protected void setLineColor(Context2d c2d, 
+                                HyperEdge edge) {
+        // Set up drawing environment
+        String fgColor = edge.getLineColor();
+        if (fgColor == null)
+            fgColor = "rgba(0, 0 , 0, 1)";
+        CssColor drawColor = CssColor.make(fgColor);
+        double width = edge.getLineWidth();
+        c2d.setFillStyle(drawColor);
     }
     
     private void drawStoichiometries(Context2d context, HyperEdge edge) {
@@ -270,7 +277,7 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
         return new Point(x, y);
     }
                                    
-    private void drawLines(Context2d c2d, List<Point> points) {
+    protected void drawLines(Context2d c2d, List<Point> points) {
         c2d.beginPath();
         Point point = points.get(0);
         c2d.moveTo(point.getX(), point.getY());
