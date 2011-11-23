@@ -4,11 +4,16 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.List;
+
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.GraphObject;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -20,7 +25,7 @@ import com.google.gwt.user.client.ui.PushButton;
  * @author gwu
  *
  */
-public class PathwayDiagramPanel extends Composite {
+public class PathwayDiagramPanel extends Composite implements ContextMenuHandler {
     // Use an AbsolutePanel so that controls can be placed onto on a canvas
     protected AbsolutePanel contentPane;
     // Pathway diagram should be drawn here
@@ -31,6 +36,8 @@ public class PathwayDiagramPanel extends Composite {
     private SelectionHandler selectionHandler;
     // Used with a back-end RESTful API server
     private PathwayDiagramController controller;
+    // To show popup menu
+    private CanvasPopupMenu popupMenu;
     
     public PathwayDiagramPanel() {
         init();
@@ -69,6 +76,11 @@ public class PathwayDiagramPanel extends Composite {
         selectionHandler = new SelectionHandler(this);
         controller = new PathwayDiagramController(this);
         
+        popupMenu = new CanvasPopupMenu();
+        popupMenu.setPathwayDiagramPanel(this);
+        popupMenu.setStyleName(style.canvasPopup());
+        addDomHandler(this, ContextMenuEvent.getType());
+        
         addTestCode();
     }
     
@@ -82,6 +94,10 @@ public class PathwayDiagramPanel extends Composite {
                 controller.listPathways();
             }
         });
+    }
+    
+    public void onContextMenu(ContextMenuEvent event) {
+        popupMenu.showPopupMenu(event);
     }
     
     public void setSize(int windowWidth, int windowHeight) {
@@ -170,6 +186,14 @@ public class PathwayDiagramPanel extends Composite {
     }
     
     /**
+     * Get a list of selected objects displayed in this PathwayDiagramPanel.
+     * @return
+     */
+    public List<GraphObject> getSelectedObjects() {
+        return selectionHandler.getSelectedObjects();
+    }
+    
+    /**
      * Update drawing.
      */
     public void update() {
@@ -198,5 +222,7 @@ public class PathwayDiagramPanel extends Composite {
         String controlPane();
         
         String overViewCanvas();
+        
+        String canvasPopup();
     }
 }

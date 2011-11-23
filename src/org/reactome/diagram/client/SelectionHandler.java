@@ -27,6 +27,14 @@ public class SelectionHandler {
         selectedObjects = new ArrayList<GraphObject>();
     }
     
+    /**
+     * Get the selected objects.
+     * @return
+     */
+    public List<GraphObject> getSelectedObjects() {
+        return new ArrayList<GraphObject>(selectedObjects);
+    }
+    
     public void addSelection(Long dbId) {
     }
     
