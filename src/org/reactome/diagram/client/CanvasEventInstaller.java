@@ -47,8 +47,8 @@ public class CanvasEventInstaller {
 
         OverviewCanvas overview = diagramPane.getOverview();
         final PathwayCanvas canvas = diagramPane.getCanvas();
-        canvas.addEventHandler(ViewChangeEvent.TYPE,
-                               overview);
+        canvas.addHandler(overview, 
+                          ViewChangeEvent.TYPE);
         // To catch overview dragging
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
             @Override
@@ -62,8 +62,8 @@ public class CanvasEventInstaller {
                 canvas.update();
             }
         };
-        overview.addEventHandler(ViewChangeEvent.TYPE,
-                                 overviewEventHandler);
+        overview.addHandler(overviewEventHandler,
+                            ViewChangeEvent.TYPE);
     }
     
     private void addTouchHandlers() {

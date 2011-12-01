@@ -114,7 +114,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         viewEvent.setTranslateY(translateY);
         viewEvent.setScale(getScale());
         isFromOverview = true;
-        handlerManager.fireEvent(viewEvent);
+        fireEvent(viewEvent);
     }
     
     /**

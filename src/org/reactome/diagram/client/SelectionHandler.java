@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
@@ -43,6 +44,7 @@ public class SelectionHandler {
             selectedObjects.add(obj);
             obj.setIsSelected(true);
             diagramPanel.update();
+            fireSelectionEvent();
         }
     }
     
@@ -81,6 +83,9 @@ public class SelectionHandler {
                 }
             }
         }
+        // Don't do anything if just empty click
+        if (selected == null && (selectedObjects == null || selectedObjects.size() == 0))
+            return;
         // Compartment cannot be selected
         // A special case to gain some performance: this should be common during selection.
         if (selected != null) {
@@ -97,6 +102,7 @@ public class SelectionHandler {
         if (selected != null)
             selectedObjects.add(selected);
         diagramPanel.update();
+        fireSelectionEvent();
     }
     
     public void setSelectionObjects(List<GraphObject> objects) {
@@ -109,6 +115,7 @@ public class SelectionHandler {
             obj.setIsSelected(objects.contains(obj));
         }
         diagramPanel.update();
+        fireSelectionEvent();
     }
     
     /**
@@ -133,6 +140,12 @@ public class SelectionHandler {
                 obj.setIsSelected(false);
         }
         diagramPanel.update();
+        fireSelectionEvent();
     }
     
+    private void fireSelectionEvent() {
+        SelectionEvent event = new SelectionEvent();
+        event.setSelectedObjects(selectedObjects);
+        diagramPanel.fireSelectionEvent(event);
+    }
 }

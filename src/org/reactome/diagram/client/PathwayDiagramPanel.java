@@ -102,16 +102,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onSelectionChanged(SelectionEvent e) {
                 List<Long> selectedIds = e.getSelectedDBIds();
-                System.out.println("Selection 1: " + selectedIds);
-            }
-        };
-        addSelectionEventHandler(selectionHandler);
-        selectionHandler = new SelectionEventHandler() {
-            
-            @Override
-            public void onSelectionChanged(SelectionEvent e) {
-                List<Long> selectedIds = e.getSelectedDBIds();
-                System.out.println("Selection 2: " + selectedIds);
+                System.out.println("Selection: " + selectedIds);
             }
         };
         addSelectionEventHandler(selectionHandler);

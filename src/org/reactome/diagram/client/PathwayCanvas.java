@@ -16,9 +16,6 @@ import org.reactome.diagram.view.HyperEdgeRenderer;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent.Type;
-import com.google.gwt.event.shared.HandlerManager;
 
 /**
  * A specialized PlugInSupportCanvas that is used to draw CanvasPathway only.
@@ -34,19 +31,11 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     private double translateY;
     // This is for scale
     private double scale;
-    // Used to handle events
-    protected HandlerManager handlerManager;
     // For view change
     protected ViewChangeEvent viewEvent;
     
     public PathwayCanvas() {
         scale = 1.0d;
-        handlerManager = new HandlerManager(this);
-    }
-    
-    public <H extends EventHandler> void addEventHandler(Type<H> type,
-                                                         H handler) {
-        handlerManager.addHandler(type, handler);
     }
     
     public void setPathway(CanvasPathway pathway) {
@@ -72,7 +61,7 @@ public class PathwayCanvas extends PlugInSupportCanvas {
         viewEvent.setTranslateY(translateY);
         viewEvent.setWidth(getCoordinateSpaceWidth());
         viewEvent.setHeight(getCoordinateSpaceHeight());
-        handlerManager.fireEvent(viewEvent);
+        super.fireEvent(viewEvent);
     }
     
     public double getTranslateX() {
