@@ -6,6 +6,8 @@ package org.reactome.diagram.client;
 
 import java.util.List;
 
+import org.reactome.diagram.event.SelectionEvent;
+import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 
@@ -94,6 +96,25 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                 controller.listPathways();
             }
         });
+        // Test selections
+        SelectionEventHandler selectionHandler = new SelectionEventHandler() {
+            
+            @Override
+            public void onSelectionChanged(SelectionEvent e) {
+                List<Long> selectedIds = e.getSelectedDBIds();
+                System.out.println("Selection 1: " + selectedIds);
+            }
+        };
+        addSelectionEventHandler(selectionHandler);
+        selectionHandler = new SelectionEventHandler() {
+            
+            @Override
+            public void onSelectionChanged(SelectionEvent e) {
+                List<Long> selectedIds = e.getSelectedDBIds();
+                System.out.println("Selection 2: " + selectedIds);
+            }
+        };
+        addSelectionEventHandler(selectionHandler);
     }
     
     public void onContextMenu(ContextMenuEvent event) {
@@ -183,6 +204,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         correctedY /= canvas.getScale();
         selectionHandler.select(correctedX, 
                                 correctedY);
+    }
+    
+    public void addSelectionEventHandler(SelectionEventHandler handler) {
+        canvas.addHandler(handler, 
+                          SelectionEvent.TYPE);
+    }
+    
+    protected void fireSelectionEvent(SelectionEvent event) {
+        canvas.fireEvent(event);
     }
     
     /**
