@@ -28,9 +28,10 @@ import com.google.gwt.xml.client.XMLParser;
  *
  */
 public class PathwayDiagramController {
+    // The root RESTful URL
 	private String hostUrl = null;
 	
-    public static final String RESTFUL_URL = "RESTfulWS/pathwaydiagram/";
+    private final String RESTFUL_URL = "RESTfulWS/pathwaydiagram/";
 //    public static final String RESTFUL_URL = "http://localhost:8080/ReactomeRESTfulAPI/RESTfulWS/pathwaydiagram/";
     private PathwayDiagramPanel diagramPane;
     
@@ -130,7 +131,7 @@ public class PathwayDiagramController {
      * 
      * @param exception Exception whenever the XML file is not load
      */
-    private void requestFailed(Throwable exception) {
+    protected void requestFailed(Throwable exception) {
         Window.alert("Failed to send the message: " + exception.getMessage());
     }
     
@@ -157,10 +158,11 @@ public class PathwayDiagramController {
     	this.hostUrl = hostUrl;
     }
     
-    public String getHostUrl(){
-    	if(hostUrl!=null){
+    public String getHostUrl() {
+    	if (hostUrl != null) {
     		return this.hostUrl;
-    	}else{
+    	}
+    	else{
     		return GWT.getHostPageBaseURL();
     	}
     }

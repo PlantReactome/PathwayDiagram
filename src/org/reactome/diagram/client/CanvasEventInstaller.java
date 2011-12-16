@@ -35,15 +35,15 @@ public class CanvasEventInstaller {
     public void installHandlers() {
         addMouseHandlers();
         addTouchHandlers();
-        Window.addResizeHandler(new ResizeHandler() {
-            
-            @Override
-            public void onResize(ResizeEvent event) {
-                diagramPane.setSize(event.getWidth(), 
-                                    event.getHeight());
-                diagramPane.update();
-            }
-        });
+//        Window.addResizeHandler(new ResizeHandler() {
+//            
+//            @Override
+//            public void onResize(ResizeEvent event) {
+//                diagramPane.setSize(event.getWidth(), 
+//                                    event.getHeight());
+////                diagramPane.update();
+//            }
+//        });
 
         OverviewCanvas overview = diagramPane.getOverview();
         final PathwayCanvas canvas = diagramPane.getCanvas();

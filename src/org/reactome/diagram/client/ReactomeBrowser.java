@@ -20,6 +20,8 @@ package org.reactome.diagram.client;
 
 // Required Imports
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -33,14 +35,23 @@ public class ReactomeBrowser implements EntryPoint {
 	static final String holderId = "maincanvas";
 	
 	private PathwayDiagramPanel diagramPane;
-	static final String upgradeMessage = "Your browser does not support the HTML5 Canvas. Please upgrade your browser to view this demo.";
 	
 	public void onModuleLoad() {
-		
-		diagramPane = new PathwayDiagramPanel();
-		diagramPane.setSize(Window.getClientWidth(),
-		                    Window.getClientHeight());
-		RootPanel.get(holderId).add(diagramPane);
+	    
+	    diagramPane = new PathwayDiagramPanel();
+	    System.out.println("Size: " + Window.getClientWidth() + ", " + Window.getClientHeight());
+	    diagramPane.setSize(Window.getClientWidth(),
+	                        Window.getClientHeight());
+	    Window.addResizeHandler(new ResizeHandler() {
+	        
+	        @Override
+	        public void onResize(ResizeEvent event) {
+	            diagramPane.setSize(event.getWidth(), 
+	                                event.getHeight());
+	            //          diagramPane.update();
+	        }
+	    });
+	    RootPanel.get(holderId).add(diagramPane);
 	}
 	
 }

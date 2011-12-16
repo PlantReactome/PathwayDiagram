@@ -21,13 +21,14 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.PushButton;
+import com.google.gwt.user.client.ui.RequiresResize;
 
 /**
  * This customized wiget is used to draw pathway diagram.
  * @author gwu
  *
  */
-public class PathwayDiagramPanel extends Composite implements ContextMenuHandler {
+public class PathwayDiagramPanel extends Composite implements ContextMenuHandler, RequiresResize {
     // Use an AbsolutePanel so that controls can be placed onto on a canvas
     protected AbsolutePanel contentPane;
     // Pathway diagram should be drawn here
@@ -83,7 +84,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        addTestCode();
+//        addTestCode();
     }
     
     private void addTestCode() {
@@ -93,7 +94,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onClick(ClickEvent event) {
-                controller.listPathways();
+//                controller.listPathways();
+                PathwayTreeBrowser treeBrowser = new PathwayTreeBrowser(PathwayDiagramPanel.this);
+                treeBrowser.initTree();
             }
         });
         // Test selections
@@ -108,14 +111,35 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         addSelectionEventHandler(selectionHandler);
     }
     
+    public PathwayDiagramController getController() {
+        return this.controller;
+    }
+    
     public void onContextMenu(ContextMenuEvent event) {
         popupMenu.showPopupMenu(event);
     }
     
     public void setSize(int windowWidth, int windowHeight) {
-        int width = windowWidth - 40;
-        int height = windowHeight - 40;
+        int width = (int) (windowWidth - 40);
+        int height = (int) (windowHeight - 40);
         super.setSize(width + "px", height + "px");
+        onResize(width, height);
+//        canvas.setSize(width - 8 + "px", height - 8 + "px");
+//        canvas.setCoordinateSpaceWidth(width - 8);
+//        canvas.setCoordinateSpaceHeight(height - 8);
+//        // Need to reset the overview position so that it stays at the bottom-left corner
+//        if (!overview.isVisible())
+//            overview.setVisible(true);
+//        overview.updatePosition();
+    }
+    
+    public void onResize() {
+        int width = getOffsetWidth();
+        int height = getOffsetHeight();
+        onResize(width, height);
+    }
+    
+    private void onResize(int width, int height) {
         canvas.setSize(width - 8 + "px", height - 8 + "px");
         canvas.setCoordinateSpaceWidth(width - 8);
         canvas.setCoordinateSpaceHeight(height - 8);
@@ -123,8 +147,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         if (!overview.isVisible())
             overview.setVisible(true);
         overview.updatePosition();
+        update();
     }
-
+    
     public void setPathway(CanvasPathway pathway) {
 //        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
