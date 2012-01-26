@@ -31,7 +31,7 @@ public class PathwayDiagramController {
     // The root RESTful URL
 	private String hostUrl = null;
 	
-    private final String RESTFUL_URL = "RESTfulWS/pathwaydiagram/";
+    private final String RESTFUL_URL = "RESTfulWS/pathwayDiagram/";
 //    public static final String RESTFUL_URL = "http://localhost:8080/ReactomeRESTfulAPI/RESTfulWS/pathwaydiagram/";
     private PathwayDiagramPanel diagramPane;
     

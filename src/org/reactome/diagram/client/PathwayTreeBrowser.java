@@ -18,7 +18,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -100,7 +99,7 @@ public class PathwayTreeBrowser {
             return;
         loadedIds.add(pathway.dbId);
         // Need to load subpathway
-        String url = getRESTfulURL() + "querybyid/Pathway/" + pathway.dbId;
+        String url = getRESTfulURL() + "queryById/Pathway/" + pathway.dbId;
 //        System.out.println("Call " + url);
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         request.setHeader("Accept", "application/xml");
@@ -151,7 +150,7 @@ public class PathwayTreeBrowser {
     
     public void initTree() {
         final PathwayDiagramController controller = diagramPane.getController();
-        String url = getRESTfulURL() + "getFrontPageItems";
+        String url = getRESTfulURL() + "frontPageItems";
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
         try {
