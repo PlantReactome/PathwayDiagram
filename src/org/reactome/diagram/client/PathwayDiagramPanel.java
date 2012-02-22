@@ -240,6 +240,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     /**
+     * Set a list of objects using their DB_IDs.
+     * @param dbIds
+     */
+    public void setSelectionIds(List<Long> dbIds) {
+        selectionHandler.setSelectionIds(dbIds);
+    }
+    
+    /**
      * Update drawing.
      */
     public void update() {
