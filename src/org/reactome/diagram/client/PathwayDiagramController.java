@@ -98,7 +98,7 @@ public class PathwayDiagramController {
      * @param dbId db_id for a pathway.
      * @return
      */
-    public void loadDiagramForDBId(Long dbId) {
+    public void loadDiagramForDBId(final Long dbId) {
         String hostUrl = getHostUrl();
 //        System.out.println("Host url: " + hostUrl);
         // Do some simple parsing
@@ -111,20 +111,22 @@ public class PathwayDiagramController {
                     requestFailed(exception);
                 }
                 public void onResponseReceived(Request request, Response response) {
-                    renderXML(response.getText());
+                    renderXML(response.getText(), dbId);
                 }
             });
         } catch (RequestException ex) {
             requestFailed(ex);
         } 
+        
     }
     
     /**
      * Load a pathway diagram for a specified Pathway XML
      * @param xml the XML data for a pathway
+     * @param dbId the pathway dbId associated with this XML.
      */
-    public void loadDiagramForXML(String xml){
-    	renderXML(xml);
+    public void loadDiagramForXML(String xml, Long dbId){
+    	renderXML(xml, dbId);
     }
     
     /**
@@ -139,7 +141,7 @@ public class PathwayDiagramController {
      * Parses the XML Text and Builds a HashMap of the nodes and the edges. Renders the Canvas Visualization.
      * @param xmlText The XML Text to be parsed
      */
-    private void renderXML(String xmlText) {
+    private void renderXML(String xmlText, Long dbId) {
 //        System.out.println(xmlText);
         try {
             Document pathwayDom = XMLParser.parse(xmlText);
@@ -147,6 +149,11 @@ public class PathwayDiagramController {
             XMLParser.removeWhitespace(pathwayElement);
             CanvasPathway pathway = new CanvasPathway();
             pathway.buildPathway(pathwayElement);
+            // A PathwayDiagram can be shared by more than one pathway. 
+            // So reactomeId in the XML text is not reliable at all if it is
+            // there. An external dbId for pathway is needed to set the correct
+            // pathway id.
+            pathway.setReactomeId(dbId); 
             diagramPane.setPathway(pathway);
         }
         catch(Exception e) {

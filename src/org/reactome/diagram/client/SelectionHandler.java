@@ -143,6 +143,13 @@ public class SelectionHandler {
         fireSelectionEvent();
     }
     
+    /**
+     * Clear any selection.
+     */
+    public void clearSelection() {
+        setSelectionIds(new ArrayList<Long>());
+    }
+    
     private void fireSelectionEvent() {
         SelectionEvent event = new SelectionEvent();
         event.setSelectedObjects(selectedObjects);

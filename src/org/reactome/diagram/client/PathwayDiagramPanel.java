@@ -4,8 +4,11 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.event.PathwayChangeEvent;
+import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.model.CanvasPathway;
@@ -24,7 +27,7 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RequiresResize;
 
 /**
- * This customized wiget is used to draw pathway diagram.
+ * This customized widget used to draw pathway diagram.
  * @author gwu
  *
  */
@@ -109,6 +112,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             }
         };
         addSelectionEventHandler(selectionHandler);
+        // Check displayed pathway change
+        PathwayChangeEventHandler pathwayHandler = new PathwayChangeEventHandler() {
+            
+            @Override
+            public void onPathwayChange(PathwayChangeEvent event) {
+                System.out.println("Current displayed pathway: " + event.getCurrentPathwayDBId());
+            }
+        };
+        addPathwayChangeEventHandler(pathwayHandler);
     }
     
     public PathwayDiagramController getController() {
@@ -151,12 +163,20 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void setPathway(CanvasPathway pathway) {
+        // Get the old displayed pathway
+        CanvasPathway old = canvas.getPathway();
 //        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
         overview.update();
         canvas.setPathway(pathway);
         canvas.update();
+        PathwayChangeEvent event = new PathwayChangeEvent();
+        if (old != null)
+            event.setPreviousPathwayDBId(old.getReactomeId());
+        if (pathway != null)
+            event.setCurrentPathwayDBId(pathway.getReactomeId());
+        fireEvent(event);
     }
     
     /**
@@ -171,8 +191,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Set the pathway to be displayed.
      * @param xml
      */
-    public void setPathway(String xml){
-    	controller.loadDiagramForXML(xml);
+    public void setPathway(String xml, Long dbId){
+    	controller.loadDiagramForXML(xml, dbId);
     }
     
     /**
@@ -227,6 +247,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                           SelectionEvent.TYPE);
     }
     
+    public void addPathwayChangeEventHandler(PathwayChangeEventHandler handler) {
+        addHandler(handler,
+                   PathwayChangeEvent.TYPE);
+    }
+    
     protected void fireSelectionEvent(SelectionEvent event) {
         canvas.fireEvent(event);
     }
@@ -245,6 +270,23 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      */
     public void setSelectionIds(List<Long> dbIds) {
         selectionHandler.setSelectionIds(dbIds);
+    }
+    
+    /**
+     * Select a single Object based on its DB_ID
+     * @param dbId
+     */
+    public void setSelectionId(Long dbId) {
+        List<Long> selection = new ArrayList<Long>(1);
+        selection.add(dbId);
+        setSelectionIds(selection);
+    }
+    
+    /**
+     * Reset all selection.
+     */
+    public void clearSelection() {
+        selectionHandler.clearSelection();
     }
     
     /**
