@@ -20,7 +20,6 @@
 package org.reactome.diagram.view;
 
 import com.google.gwt.canvas.dom.client.CssColor;
-import com.google.gwt.user.client.Window;
 
 /**
  * Sets static final parameters to be used across the entire module
@@ -39,6 +38,7 @@ public class Parameters {
 	public static final CssColor defaultstrokeColor = CssColor.make(0, 0, 0);
 	// Using blue for default selection as in the curator tool
 	public static final CssColor defaultSelectionColor = CssColor.make(0, 0, 255);
+	public static final CssColor defaultHighlightColor = CssColor.make(0, 255, 0);
 	public static final int defaultNodeSelectionLineWidth = 3;
 	public static final int defaultEdgeSelectionLineWidth = 2;
 }

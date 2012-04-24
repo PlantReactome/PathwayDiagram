@@ -25,10 +25,20 @@ public abstract class GraphObject {
     private GraphObjectType type;
     // A flag to indicate if this is a selected object
     private boolean isSelected;
+    // A flag to indicate if this object should be highlighted
+    private boolean isHighlighted;
     
     protected GraphObject() {
     }
     
+    public boolean isHighlighted() {
+        return isHighlighted;
+    }
+
+    public void setHighlighted(boolean isHighlighted) {
+        this.isHighlighted = isHighlighted;
+    }
+
     public void setIsSelected(boolean isSelected) {
         this.isSelected = isSelected;
     }

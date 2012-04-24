@@ -170,7 +170,7 @@ public class PathwayTreeBrowser {
     
     private void setUpTree(String text) {
 //        Window.alert(text);
-        // System.out.println(text);
+//         System.out.println(text);
         Document dom = XMLParser.parse(text);
         Element pathwaysElm = dom.getDocumentElement();
         XMLParser.removeWhitespace(pathwaysElm);
@@ -215,4 +215,5 @@ public class PathwayTreeBrowser {
         }
         
     }
+
 }

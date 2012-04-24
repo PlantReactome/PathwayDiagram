@@ -48,6 +48,17 @@ public class HyperEdge extends GraphObject {
         
     }
     
+    public List<Node> getConnectedNodes() {
+        List<Node> nodes = new ArrayList<Node>();
+        if (connectWidgets != null) {
+            for (ConnectWidget widget : connectWidgets) {
+                if (widget.getNode() != null)
+                    nodes.add(widget.getNode());
+            }
+        }
+        return nodes;
+    }
+    
     public List<ConnectWidget> getConnectWidgets() {
         return connectWidgets;
     }

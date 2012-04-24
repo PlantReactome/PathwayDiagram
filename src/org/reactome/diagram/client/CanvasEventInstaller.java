@@ -4,16 +4,20 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.List;
+
+import org.reactome.diagram.event.SelectionEvent;
+import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.event.ViewChangeEventHandler;
+import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.user.client.Window;
 
 /**
  * This helper class is used to set up event handler for the canvas used in PathwayDiagramPanel.
@@ -64,6 +68,42 @@ public class CanvasEventInstaller {
         };
         overview.addHandler(overviewEventHandler,
                             ViewChangeEvent.TYPE);
+        // The following is used to hilight linked objects
+        // Test selections
+        SelectionEventHandler selectionHandler = new SelectionEventHandler() {
+            
+            @Override
+            public void onSelectionChanged(SelectionEvent e) {
+                hiliteObjects(e);
+            }
+        };
+        diagramPane.addSelectionEventHandler(selectionHandler);
+    }
+    
+    private void hiliteObjects(SelectionEvent e) {
+        if (diagramPane.getPathway() == null ||
+            diagramPane.getPathway().getGraphObjects() == null)
+            return;
+        // Un-hilight objects first
+        for (GraphObject obj : diagramPane.getPathway().getGraphObjects()) {
+            obj.setHighlighted(false);
+        }
+        List<GraphObject> selectedObjects = e.getSelectedObjects();
+        for (GraphObject obj : selectedObjects) {
+            if (obj instanceof Node) {
+                Node node = (Node) obj;
+                List<HyperEdge> reactions = node.getConnectedReactions();
+                for (HyperEdge edge : reactions)
+                    edge.setHighlighted(true);
+            }
+            else if (obj instanceof HyperEdge) {
+                HyperEdge edge = (HyperEdge) obj;
+                List<Node> nodes = edge.getConnectedNodes();
+                for (Node node : nodes)
+                    node.setHighlighted(true);
+            }
+        }
+        diagramPane.update();
     }
     
     private void addTouchHandlers() {

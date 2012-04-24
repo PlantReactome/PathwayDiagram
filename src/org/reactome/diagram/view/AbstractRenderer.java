@@ -34,8 +34,11 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
 
     protected void setStroke(Context2d c2d, T obj) {
         String color;
-        if (obj.isSelected()) {
-            c2d.setStrokeStyle(Parameters.defaultSelectionColor);
+        if (obj.isSelected() || obj.isHighlighted()) {
+            if (obj.isSelected())
+                c2d.setStrokeStyle(Parameters.defaultSelectionColor);
+            else
+                c2d.setStrokeStyle(Parameters.defaultHighlightColor);
             if (obj instanceof HyperEdge)
                 c2d.setLineWidth(Parameters.defaultEdgeSelectionLineWidth);
             else

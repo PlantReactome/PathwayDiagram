@@ -13,6 +13,8 @@ import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -87,7 +89,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-//        addTestCode();
+        addTestCode();
     }
     
     private void addTestCode() {
@@ -107,8 +109,20 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onSelectionChanged(SelectionEvent e) {
-                List<Long> selectedIds = e.getSelectedDBIds();
-                System.out.println("Selection: " + selectedIds);
+//                List<Long> selectedIds = e.getSelectedDBIds();
+//                System.out.println("Selection: " + selectedIds);
+                List<GraphObject> selectedObjects = e.getSelectedObjects();
+                System.out.println("Selected objects: " + selectedObjects.size());
+                for (GraphObject obj : selectedObjects) {
+                    if (obj instanceof Node) {
+                        Node node = (Node) obj;
+                        System.out.println("Node: " + node.getDisplayName());
+                        List<HyperEdge> reactions = node.getConnectedReactions();
+                        System.out.println(" connected reactions: " + reactions.size());
+                        for (HyperEdge edge : reactions)
+                            System.out.println(edge.getDisplayName());
+                    }
+                }
             }
         };
         addSelectionEventHandler(selectionHandler);

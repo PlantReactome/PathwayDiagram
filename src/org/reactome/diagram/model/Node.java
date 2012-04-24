@@ -104,6 +104,19 @@ public class Node extends GraphObject {
 	    return this.nodeAttachments;
 	}
 	
+	public List<HyperEdge> getConnectedReactions() {
+	    List<HyperEdge> reactions = new ArrayList<HyperEdge>();
+	    if (connectWidgets != null) {
+	        for (ConnectWidget widget : connectWidgets) {
+	            HyperEdge edge = widget.getEdge();
+	            if (edge.getType() == GraphObjectType.RenderableReaction && 
+	                !reactions.contains(edge))
+	                reactions.add(edge);
+	        }
+	    }
+	    return reactions;
+	}
+	
 	public void setNodeAttachments(List<NodeAttachment> list) {
 	    this.nodeAttachments = list;
 	}
