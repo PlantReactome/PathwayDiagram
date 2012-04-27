@@ -49,7 +49,7 @@ public class CanvasEventInstaller {
 //            }
 //        });
 
-        OverviewCanvas overview = diagramPane.getOverview();
+        final OverviewCanvas overview = diagramPane.getOverview();
         final PathwayCanvas canvas = diagramPane.getCanvas();
         canvas.addHandler(overview, 
                           ViewChangeEvent.TYPE);
@@ -75,6 +75,8 @@ public class CanvasEventInstaller {
             @Override
             public void onSelectionChanged(SelectionEvent e) {
                 hiliteObjects(e);
+                overview.setSelectedObjects(e.getSelectedObjects());
+                overview.update();
             }
         };
         diagramPane.addSelectionEventHandler(selectionHandler);

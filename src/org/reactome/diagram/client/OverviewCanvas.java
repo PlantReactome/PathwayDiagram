@@ -4,10 +4,19 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.Node;
+import org.reactome.diagram.view.GraphObjectRendererFactory;
+import org.reactome.diagram.view.HyperEdgeRenderer;
+import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
@@ -30,6 +39,9 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     private Bounds viewRect;
     // A flag to block an event bouncing back
     private boolean isFromOverview;
+    // To re-draw selected objects so that they can be shown more apparently
+    // Otherwise, it is difficult to see if an object is selected in an overview
+    private List<GraphObject> selectedObjects;
 
     public OverviewCanvas() {
         viewRect = new Bounds();
@@ -40,6 +52,9 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     @Override
     public void setPathway(CanvasPathway pathway) {
         super.setPathway(pathway);
+        // Re-set selected objects
+        if (selectedObjects != null)
+            selectedObjects.clear();
         // Need to set scale automatically so that the whole pathway can be
         // drawn in this canvas.
         Bounds size = pathway.getPreferredSize();
@@ -82,6 +97,30 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         c2d.stroke();
     }
 
+    /**
+     * Update drawing of selected objects so that they can be seen obviously.
+     */
+    @Override
+    protected void updateOthers(Context2d c2d) {
+        if (selectedObjects == null || selectedObjects.size() == 0)
+            return;
+        GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
+        for (GraphObject obj :  selectedObjects) {
+            if (obj instanceof Node) {
+                NodeRenderer nodeRenderer = viewFactory.getNodeRenderer((Node)obj);
+                nodeRenderer.setAbsoluteLineWidth(1.0d / getScale());
+                nodeRenderer.render(c2d, (Node)obj);
+                nodeRenderer.setAbsoluteLineWidth(null);
+            }
+            else if (obj instanceof HyperEdge) {
+                HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere((HyperEdge)obj);
+                edgeRenderer.setAbsoluteLineWidth(1.0d / getScale());
+                edgeRenderer.render(c2d, (HyperEdge)obj);
+                edgeRenderer.setAbsoluteLineWidth(null);
+            }
+        }
+    }
+
     @Override
     public void onViewChange(ViewChangeEvent event) {
         if (isFromOverview) {
@@ -115,6 +154,15 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         viewEvent.setScale(getScale());
         isFromOverview = true;
         fireEvent(viewEvent);
+    }
+    
+    public void setSelectedObjects(List<GraphObject> objects) {
+        if (selectedObjects == null)
+            selectedObjects = new ArrayList<GraphObject>();
+        else
+            selectedObjects.clear();
+        if (objects != null)
+            selectedObjects.addAll(objects);
     }
     
     /**

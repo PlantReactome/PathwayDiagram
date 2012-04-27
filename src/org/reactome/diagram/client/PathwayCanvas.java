@@ -133,7 +133,16 @@ public class PathwayCanvas extends PlugInSupportCanvas {
                                 edge);
             }
         }
+        updateOthers(c2d);
         c2d.restore();
     }    
+    
+    /**
+     * A template method so that other kinds of things can be updated. Nothing
+     * has been done in this class.
+     */
+    protected void updateOthers(Context2d c2d) {
+        
+    }
     
 }
