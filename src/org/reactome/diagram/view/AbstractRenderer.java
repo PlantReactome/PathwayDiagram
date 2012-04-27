@@ -18,6 +18,18 @@ import com.google.gwt.canvas.dom.client.CssColor;
 public abstract class AbstractRenderer<T extends GraphObject> implements GraphObjectRenderer<T> {
     protected double defaultLineWidth = 1.0d;
     protected CssColor defaultLineColor = Parameters.defaultstrokeColor;
+    // This will be used for overview drawing: this linewith should be used without considering
+    // the GraphObject one
+    private Double absoluteLineWidth;
+    
+    
+    public void setAbsoluteLineWidth(Double lineWidth) {
+        this.absoluteLineWidth = lineWidth;
+    }
+    
+    public Double getAbsoluteLineWidth() {
+        return this.absoluteLineWidth;
+    }
     
     /**
      * Converts the Stroke and Fill Colors to Standard CssColor Objects and sets it on the Canvas
@@ -55,6 +67,9 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
             else
                 c2d.setStrokeStyle(CssColor.make(color));
         }
+        // Overwrite any preset linewidth
+        if (absoluteLineWidth != null)
+            c2d.setLineWidth(absoluteLineWidth);
     }
     
 }
