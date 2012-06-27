@@ -18,7 +18,7 @@ public enum GraphObjectType {
     Note,
     ProcessNode,
     RenderableGene,
-    RendearbleRNA,
+    RenderableRNA,
     SourceOrSink,
     RenderableComplex,
     RenderablePathway,
