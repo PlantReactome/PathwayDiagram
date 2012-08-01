@@ -26,5 +26,6 @@ public enum GraphObjectType {
     RenderableReaction,
     RenderableInteraction,
     EntitySetAndMemberLink,
+    EntitySetAndEntitySetLink,
     FlowLine
 }
