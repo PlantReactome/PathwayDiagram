@@ -150,22 +150,42 @@ public class PathwayTreeBrowser {
     
     public void initTree() {
         final PathwayDiagramController controller = diagramPane.getController();
-        String url = getRESTfulURL() + "frontPageItems";
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-        requestBuilder.setHeader("Accept", "application/xml");
-        try {
-            requestBuilder.sendRequest(null, new RequestCallback() {
-                public void onError(Request request, Throwable exception) {
-                    controller.requestFailed(exception);
-                }
-                public void onResponseReceived(Request request, Response response) {
-                    setUpTree(response.getText());
-                }
-            });
-        } 
-        catch (RequestException ex) {
-            controller.requestFailed(ex);
-        } 
+        
+//        String url = getRESTfulURL() + "participatingMolecules/export/109581";
+//        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
+//        requestBuilder.setHeader("Accept", "text/plain");
+////        requestBuilder.setRequestData("Talk back!");
+//        try {
+//            requestBuilder.sendRequest("Talk back!", new RequestCallback() {
+//                public void onError(Request request, Throwable exception) {
+//                    controller.requestFailed(exception);
+//                }
+//                public void onResponseReceived(Request request, Response response) {
+//                    System.out.println("Request: " + request.toString());
+//                    System.out.println("Reponse: " + response.getText());
+//                }
+//            });
+//        } 
+//        catch (RequestException ex) {
+//            controller.requestFailed(ex);
+//        } 
+        
+                String url = getRESTfulURL() + "frontPageItems";
+                RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+                requestBuilder.setHeader("Accept", "application/xml");
+                try {
+                    requestBuilder.sendRequest(null, new RequestCallback() {
+                        public void onError(Request request, Throwable exception) {
+                            controller.requestFailed(exception);
+                        }
+                        public void onResponseReceived(Request request, Response response) {
+                            setUpTree(response.getText());
+                        }
+                    });
+                } 
+                catch (RequestException ex) {
+                    controller.requestFailed(ex);
+                } 
     }
     
     private void setUpTree(String text) {
