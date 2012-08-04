@@ -39,7 +39,7 @@ public class ReactomeBrowser implements EntryPoint {
 	public void onModuleLoad() {
 	    
 	    diagramPane = new PathwayDiagramPanel();
-	    System.out.println("Size: " + Window.getClientWidth() + ", " + Window.getClientHeight());
+//	    System.out.println("Size: " + Window.getClientWidth() + ", " + Window.getClientHeight());
 	    diagramPane.setSize(Window.getClientWidth(),
 	                        Window.getClientHeight());
 	    Window.addResizeHandler(new ResizeHandler() {

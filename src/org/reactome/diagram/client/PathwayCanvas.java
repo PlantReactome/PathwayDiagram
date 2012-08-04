@@ -4,16 +4,8 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.List;
-
 import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.model.CanvasPathway;
-import org.reactome.diagram.model.GraphObjectType;
-import org.reactome.diagram.model.HyperEdge;
-import org.reactome.diagram.model.Node;
-import org.reactome.diagram.view.GraphObjectRendererFactory;
-import org.reactome.diagram.view.HyperEdgeRenderer;
-import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 
@@ -33,9 +25,12 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     private double scale;
     // For view change
     protected ViewChangeEvent viewEvent;
+    // Used to draw pathway
+    private PathwayCanvasDrawer drawer;
     
     public PathwayCanvas() {
         scale = 1.0d;
+        drawer = new PathwayCanvasDrawer();
     }
     
     public void setPathway(CanvasPathway pathway) {
@@ -94,8 +89,6 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     public void update() {
         if (pathway == null)
             return;
-        List<Node> nodes = pathway.getChildren();
-        GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
         Context2d c2d = getContext2d();
         c2d.save();
         c2d.clearRect(0.0d, 
@@ -104,39 +97,13 @@ public class PathwayCanvas extends PlugInSupportCanvas {
                       getOffsetHeight());
         c2d.translate(translateX, translateY);
         c2d.scale(scale, scale);
-        if (nodes != null) {
-            // Always draw compartments first
-            for (Node node : nodes) {
-                if (node.getType() == GraphObjectType.RenderableCompartment) {
-                    NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                    if (renderer != null)
-                        renderer.render(c2d, node);
-                }
-            }
-            for (Node node : nodes) {
-                if (node.getType() == GraphObjectType.RenderableCompartment)
-                    continue;
-                NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                if (renderer != null)
-                    renderer.render(c2d,
-                                    node);
-            }
-        }
-        // Draw edges
-        List<HyperEdge> edges = pathway.getEdges();
-        if (edges != null) {
-            for (HyperEdge edge : edges) {
-                HyperEdgeRenderer renderer = viewFactory.getEdgeRenderere(edge);
-                if (renderer == null)
-                    continue;
-                renderer.render(c2d, 
-                                edge);
-            }
-        }
+        drawer.drawPathway(pathway, 
+                           this,
+                           c2d);
         updateOthers(c2d);
         c2d.restore();
-    }    
-    
+    }
+
     /**
      * A template method so that other kinds of things can be updated. Nothing
      * has been done in this class.

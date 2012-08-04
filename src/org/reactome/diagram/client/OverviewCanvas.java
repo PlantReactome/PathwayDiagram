@@ -98,7 +98,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     }
 
     /**
-     * Update drawing of selected objects so that they can be seen obviously.
+     * Update drawing of selected objects so that they can be seen easily.
      */
     @Override
     protected void updateOthers(Context2d c2d) {

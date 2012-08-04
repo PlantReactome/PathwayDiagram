@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.DiseaseCanvasPathway;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -147,7 +148,7 @@ public class PathwayDiagramController {
             Document pathwayDom = XMLParser.parse(xmlText);
             Element pathwayElement = pathwayDom.getDocumentElement();
             XMLParser.removeWhitespace(pathwayElement);
-            CanvasPathway pathway = new CanvasPathway();
+            CanvasPathway pathway = createPathway(pathwayElement);
             pathway.buildPathway(pathwayElement);
             // A PathwayDiagram can be shared by more than one pathway. 
             // So reactomeId in the XML text is not reliable at all if it is
@@ -158,7 +159,20 @@ public class PathwayDiagramController {
         }
         catch(Exception e) {
             Window.alert("Error in parsing XML: " + e);
+            e.printStackTrace();
         }
+    }
+    
+    /**
+     * Create a CanvasPathway object based on the passed XML element.
+     * @param pathwayElm
+     * @return
+     */
+    private CanvasPathway createPathway(Element pathwayElm) {
+        String isDiseaseRelated = pathwayElm.getAttribute("isDisease");
+        if (isDiseaseRelated != null && isDiseaseRelated.equals("true"))
+            return new DiseaseCanvasPathway();
+        return new CanvasPathway();
     }
     
     public void setHostUrl(String hostUrl){
