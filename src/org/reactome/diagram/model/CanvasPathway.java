@@ -182,6 +182,11 @@ public class CanvasPathway extends Node {
             node.setTextPosition(Integer.parseInt(tokens[0]),
                                  Integer.parseInt(tokens[1]));
         }
+        String needDashedBorder = nodeElm.getAttribute("needDashedBorder");
+        if (needDashedBorder != null) {
+            if (needDashedBorder.equals("true"))
+                node.setNeedDashedBorder(true); // Default should be false
+        }
         return node;
     }
     

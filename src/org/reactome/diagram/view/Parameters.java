@@ -43,4 +43,10 @@ public class Parameters {
 	public static final CssColor defaultHighlightColor = CssColor.make(0, 255, 0);
 	public static final int defaultNodeSelectionLineWidth = 3;
 	public static final int defaultEdgeSelectionLineWidth = 2;
+	// For drawing cross
+	public static final CssColor defaultCrossColor = CssColor.make(255, 0, 0);
+	public static final int defaultCrossWidth = 3;
+	
+	public static final double[] dashedLinePattern = new double[]{5.0d, 5.0d};
+	public static final int dashedLineWidth = 2;
 }

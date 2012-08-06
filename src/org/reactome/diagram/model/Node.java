@@ -35,6 +35,8 @@ public class Node extends GraphObject {
     private String fgColor;
     // For NodeAttachment
     private List<NodeAttachment> nodeAttachments;
+    // A flag to indicate a dashed border should be used
+    private boolean needDashedBorder;
 		
 	/**
 	 * Default constructor.
@@ -42,7 +44,21 @@ public class Node extends GraphObject {
 	public Node() {
 	}
 	
-	public void setBgColor(String color) {
+	
+	
+	public boolean isNeedDashedBorder() {
+        return needDashedBorder;
+    }
+
+
+
+    public void setNeedDashedBorder(boolean needDashedBorder) {
+        this.needDashedBorder = needDashedBorder;
+    }
+
+
+
+    public void setBgColor(String color) {
 	    this.bgColor = color;
 	}
 	

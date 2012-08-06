@@ -9,6 +9,7 @@ import org.reactome.diagram.model.HyperEdge;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
+import com.google.gwt.touch.client.Point;
 
 /**
  * The top-level renderer for rendering GraphObject.
@@ -71,5 +72,63 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
         if (absoluteLineWidth != null)
             c2d.setLineWidth(absoluteLineWidth);
     }
+    
+    // The following three methods are used to draw dashed lines, which is not supported by Context2d.
+    protected void drawDashedLine(Context2d c2d, 
+                                Point from, 
+                                Point end, 
+                                double[] pattern) {
+        c2d.beginPath();
+        
+        double fromX = from.getX();
+        double fromY = from.getY();
+        double toX = end.getX();
+        double toY = end.getY();
+        // Used to check if the drawing is done yet
+        boolean xgreaterThan = fromX < toX;
+        boolean ygreaterThan = fromY < toY;
+        
+        c2d.moveTo(fromX, fromY);
+        
+        double offsetX = fromX;
+        double offsetY = fromY;
+        int idx = 0;
+        boolean dash = true;
+        double ang = Math.atan2(toY - fromY, toX - fromX);
+        double cosAng = Math.cos(ang);
+        double sinAng = Math.sin(ang);
+        
+        while (!(isThereYet(xgreaterThan, offsetX, toX) && isThereYet(ygreaterThan, offsetY, toY))) {
+            double len = pattern[idx];
+            
+            offsetX = cap(xgreaterThan, toX, offsetX + (cosAng * len));
+            offsetY = cap(ygreaterThan, toY, offsetY + (sinAng * len));
+            
+            if (dash)
+                c2d.lineTo(offsetX, offsetY);
+            else
+                c2d.moveTo(offsetX, offsetY);
+            
+            idx = (idx + 1) % pattern.length;
+            dash = !dash;
+        }
+        c2d.closePath();
+        c2d.stroke();
+    }
+    
+    private Boolean isThereYet(Boolean greaterThan, double a, double b) {
+        if (greaterThan)
+            return a >= b;
+        else
+            return a <= b;
+    }
+    
+    private double cap(Boolean greaterThan, double a, double b) {
+        if (greaterThan)
+            return Math.min(a, b);
+        else
+            return Math.max(a, b);
+    }
+    
     
 }

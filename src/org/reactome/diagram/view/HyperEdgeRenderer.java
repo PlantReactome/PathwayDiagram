@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.reactome.diagram.model.ConnectWidget;
 import org.reactome.diagram.model.ConnectWidget.ConnectRole;
-import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.HyperEdge;
 import org.reactome.diagram.model.ReactionType;
 

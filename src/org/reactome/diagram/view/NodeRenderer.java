@@ -111,14 +111,17 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
-        drawRectangle(bounds, 
-                      context,
-                      true);
+        if (node.isNeedDashedBorder())
+            drawDashedRectangle(bounds, context, true);
+        else
+            drawRectangle(bounds, 
+                          context,
+                          true);
     }
     
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
-                                 boolean needFilll) {
+                                 boolean needFill) {
         int coX = bounds.getX();
         int coY = bounds.getY();
         int radius = getRadius();
@@ -135,9 +138,68 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.lineTo(coX, coY+radius);
         context.quadraticCurveTo(coX, coY, coX+radius, coY);
         context.closePath();
-        if (needFilll)
+        if (needFill)
             context.fill();
         context.stroke();
+    }
+    
+    private void drawDashedRectangle(Bounds bounds,
+                                     Context2d context,
+                                     boolean needFill) {
+        int x0 = bounds.getX();
+        int y0 = bounds.getY();
+        int r = getRadius();
+        int w = bounds.getWidth();
+        int h = bounds.getHeight();
+        context.setLineWidth(Parameters.dashedLineWidth);
+        // Draw four dashed lines
+        Point p1 = new Point(x0 + r, y0);
+        Point p2 = new Point(x0 + w - r, y0);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        p1 = new Point(x0 + w, y0 + r);
+        p2 = new Point(x0 + w, y0 + h - r);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        p1 = new Point(x0 + w - r, y0 + h);
+        p2 = new Point(x0 + r, y0 + h);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        p1 = new Point(x0, y0 + h - r);
+        p2 = new Point(x0, y0 + r);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        // Need to draw rounded corners
+        context.beginPath();
+        context.moveTo(x0, y0 + r);
+        context.quadraticCurveTo(x0, y0, x0 + r, y0);
+        context.closePath();
+        context.stroke();
+        context.beginPath();
+        context.moveTo(x0 + w - r, y0);
+        context.quadraticCurveTo(x0 + w, y0, x0 + w, y0 + r);
+        context.closePath();
+        context.stroke();
+        context.beginPath();
+        context.moveTo(x0 + w, y0 + h - r);
+        context.quadraticCurveTo(x0 + w, y0 + h, x0 + w - r, y0 + h);
+        context.closePath();
+        context.stroke();
+        context.beginPath();
+        context.moveTo(x0 + r, y0 + h);
+        context.quadraticCurveTo(x0, y0 + h, x0, y0 + h - r);
+        context.closePath();
+        context.stroke();
+        if (needFill) {
+            context.beginPath();
+            context.moveTo(x0+r, y0);
+            context.lineTo(x0+w-r, y0);
+            context.quadraticCurveTo(x0+w, y0, x0+w, y0+r);
+            context.lineTo(x0+w, y0+h-r);
+            context.quadraticCurveTo(x0+w, y0+h, x0+w-r, y0+h);
+            context.lineTo(x0+r, y0+h);
+            context.quadraticCurveTo(x0, y0+h, x0, y0+h-r);
+            context.lineTo(x0, y0+r);
+            context.quadraticCurveTo(x0, y0, x0+r, y0);
+            context.closePath();
+            context.fill();
+        }
     }
     
     /**

@@ -6,6 +6,7 @@ package org.reactome.diagram.client;
 
 import java.util.List;
 
+import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.GraphObject;
@@ -15,6 +16,7 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.HyperEdgeRenderer;
 import org.reactome.diagram.view.NodeRenderer;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 
@@ -121,6 +123,47 @@ public class PathwayCanvasDrawer {
             c2d.translate(canvas.getTranslateX(), canvas.getTranslateY());
             c2d.scale(canvas.getScale(), canvas.getScale());
             drawDiseaseObjects(c2d, diseasePathway);
+            drawOverlaidObjects(c2d, diseasePathway);
+            drawCrossedObjects(c2d, diseasePathway);
+            // Don't need to handle LOF objects here. It should be handled already after setting needDashedLines.
+        }
+        
+        private void drawCrossedObjects(Context2d c2d, 
+                                        DiseaseCanvasPathway diseasePathway) {
+            List<GraphObject> crossedObjects = diseasePathway.getCrossedObjects();
+            if (crossedObjects == null || crossedObjects.size() == 0)
+                return;
+            c2d.setLineWidth(Parameters.defaultCrossWidth);
+            c2d.setStrokeStyle(Parameters.defaultCrossColor);
+            for (GraphObject obj : crossedObjects)
+                drawCross(obj, c2d);
+        }
+        
+        private void drawCross(GraphObject obj, Context2d c2d) {
+            if (!(obj instanceof Node))
+                return;
+            Node node = (Node) obj;
+            Bounds bounds = node.getBounds();
+            // Draw the first line
+            c2d.beginPath();
+            c2d.moveTo(bounds.getX(), bounds.getY());
+            c2d.lineTo(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight());
+            c2d.closePath();
+            c2d.stroke();
+            // Draw the second line
+            c2d.beginPath();
+            c2d.moveTo(bounds.getX() + bounds.getWidth(), bounds.getY());
+            c2d.lineTo(bounds.getX(),  bounds.getHeight() + bounds.getY());
+            c2d.closePath();
+            c2d.stroke();
+        }
+        
+        private void drawOverlaidObjects(Context2d c2d,
+                                         DiseaseCanvasPathway diseasePathway) {
+            List<GraphObject> overlaidObjects = diseasePathway.getOverlaidObjects();
+            if (overlaidObjects == null || overlaidObjects.size() == 0)
+                return;
+            drawComponents(c2d, overlaidObjects);
         }
         
         private void drawDiseaseObjects(Context2d c2d,
@@ -128,7 +171,23 @@ public class PathwayCanvasDrawer {
             List<GraphObject> diseaseObjects = diseasePathway.getDiseaseObjects();
             if (diseaseObjects == null || diseaseObjects.size() == 0)
                 return;
+            drawComponents(c2d, 
+                           diseaseObjects);
+        }
+
+        public void drawComponents(Context2d c2d,
+                                   List<GraphObject> diseaseObjects) {
             GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
+            // Want to draw edges first to avoid any edge crossover onto nodes.
+            for (GraphObject obj : diseaseObjects) {
+                // Draw nodes first
+                if (obj instanceof HyperEdge) {
+                    HyperEdgeRenderer renderer = viewFactory.getEdgeRenderere((HyperEdge)obj);
+                    if (renderer == null)
+                        continue;
+                    renderer.render(c2d, (HyperEdge)obj);
+                }
+            }
             for (GraphObject obj : diseaseObjects) {
                 // Draw nodes first
                 if (obj instanceof Node) {
@@ -139,15 +198,6 @@ public class PathwayCanvasDrawer {
                     if (renderer == null)
                         continue;
                     renderer.render(c2d, (Node)obj);
-                }
-            }
-            for (GraphObject obj : diseaseObjects) {
-                // Draw nodes first
-                if (obj instanceof HyperEdge) {
-                    HyperEdgeRenderer renderer = viewFactory.getEdgeRenderere((HyperEdge)obj);
-                    if (renderer == null)
-                        continue;
-                    renderer.render(c2d, (HyperEdge)obj);
                 }
             }
         }
