@@ -44,7 +44,14 @@ public class Node extends GraphObject {
 	public Node() {
 	}
 	
-	
+	public int getBounsBuffer() {
+	    switch (getType()) {
+	        case ProcessNode :
+	            return 8;
+	        default :
+	            return 4;
+	    }
+	}
 	
 	public boolean isNeedDashedBorder() {
         return needDashedBorder;

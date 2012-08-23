@@ -4,6 +4,9 @@
  */
 package org.reactome.diagram.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
 import org.reactome.diagram.model.NodeAttachment;
@@ -203,6 +206,42 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     }
     
     /**
+     * Use this method to split a display name into multiple lines.
+     * @param name
+     * @return
+     */
+    private List<String> splitName(String name,
+                                   Context2d c2d,
+                                   int width) {
+        List<String> rtn = new ArrayList<String>();
+        String[] tokens = name.split(" "); // Use these delimits
+        StringBuilder line = new StringBuilder();
+        int lineStart = 0;
+        for (String token : tokens) {
+            lineStart = line.length();
+            line.append(token);
+            double lineWidth = c2d.measureText(line.toString()).getWidth();
+            if (lineWidth < width) {
+                line.append(" ");
+            }
+            else if (lineWidth == width) {
+                rtn.add(line.toString());
+                line.setLength(0);
+            }
+            else {
+                line.delete(lineStart, line.length());
+                System.out.println("Line: " + line.toString());
+                rtn.add(line.toString());
+                line.setLength(0);
+                line.append(token);
+            }
+        }
+        if (line.length() > 0)
+            rtn.add(line.toString());
+        return rtn;
+    }
+    
+    /**
      * Divides the Annotation into separate arrays of Strings depending on the width of the enclosing node
      * @param context The Context2d object where the Annotation is to be rendered
      */
@@ -211,15 +250,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         if (node.getDisplayName() == null || node.getDisplayName().isEmpty())
             return;
         String[] words = node.getDisplayName().split(" ");
-        Point measures;
-        int linebreak = 0;
-        int printFlag = 0;
-        String dashLastPhrase = "";
-        String mainSeparator = " ";
-        String separator = ":";
         Bounds bounds = node.getBounds();
-        int x0 = bounds.getX() + bounds.getWidth() / 2;
-        int y0 = bounds.getY() + 8;
         String fgColor = node.getFgColor();
         if (fgColor == null)
             fgColor = "rgba(0, 0, 0, 1)";
@@ -233,59 +264,22 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.setFont(font);
         context.setTextAlign(TextAlign.CENTER);
         context.setTextBaseline(TextBaseline.TOP);
-        for (int i = 0; i < words.length ; i++) {
-            String word = words[i];
-            String[] colonWords = word.split(":");
-            for (int j = 0; j < colonWords.length ; j++) {
-                String colonword = colonWords[j];
-                String[] dashWords = colonword.split("-");
-                int flag = 0;
-                for (int k = 0; k < dashWords.length ; k++) {
-                    String dashword = dashWords[k];
-                    measures = calculateMeasures(dashLastPhrase,dashword,context);
-                    double testmeasure = measures.getY();
-                    if ((testmeasure) <= bounds.getWidth()) {
-                        if(dashLastPhrase == "") {
-                            dashLastPhrase = dashword;
-                        } else {
-                            if (flag != 0) {
-                                dashLastPhrase += "-" + dashword;   
-                            } else {
-                                dashLastPhrase += dashword;
-                            }
-                        }
-                        flag = 1;
-                        printFlag = 0;
-                    } else {
-                        drawLine(linebreak, context, dashLastPhrase, x0, y0);
-                        if(flag != 0) {
-                            dashLastPhrase = "-" + dashword;
-                        } else {
-                            dashLastPhrase = dashword;
-                        }
-                        printFlag = 1;
-                        linebreak++;
-                    }
-                    if (k == (dashWords.length - 1)){
-                        printFlag = 0;
-                        break;
-                    }
-                }
-                if (j < (colonWords.length - 1)){
-                    dashLastPhrase += separator ;
-                }
-            }
-            if (i < (words.length - 1)){
-                dashLastPhrase += mainSeparator ;
-            }
-        }
-        if(printFlag == 0){
-            drawLine(linebreak, 
+        int width = bounds.getWidth() - 2 * node.getBounsBuffer();
+        List<String> lines = splitName(node.getDisplayName(), 
+                                       context, 
+                                       width);
+        int totalHeight = lines.size() * Parameters.LINE_HEIGHT;
+        int x0 = bounds.getX() + bounds.getWidth() / 2;
+        int y0 = (bounds.getHeight() - totalHeight) / 2 + bounds.getY();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            System.out.println(i + ": " + line);
+            drawLine(i, 
                      context, 
-                     dashLastPhrase,
-                     x0,
+                     line,
+                     x0, 
                      y0);
-        }   
+        }
         context.setStrokeStyle(oldStroke);
         context.setFillStyle(oldFillStyle);
     }
@@ -302,31 +296,9 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                           int x0,
                           int y0) {
         double wordX = x0;
-        double wordY = y0 + linebreak * 14;
+        double wordY = y0 + linebreak * Parameters.LINE_HEIGHT;
         double measure = context.measureText(dashLastPhrase).getWidth(); 
         context.fillText(dashLastPhrase, wordX, wordY, measure);
-    }
-    
-    /**
-     * Calculates the width of a given phrase after adding a new word to it
-     * @param lastPhrase The phrase after the line break
-     * @param word The new word to be added to the phrase
-     * @param context The Context2d object where the phrase is to be rendered 
-     * @return Vector containing the measures of the phrase before and after the new word has been added
-     */
-    private Point calculateMeasures(String lastPhrase, String word, Context2d context) {
-        double measure;
-        double testmeasure;
-        if (lastPhrase == "") {
-            measure = 0;
-            testmeasure = measure;
-        }
-        else {
-            measure = context.measureText(lastPhrase).getWidth();
-            testmeasure = context.measureText(lastPhrase + word).getWidth();
-        }
-        Point measures = new Point(measure,testmeasure);
-        return measures;
     }
     
 }

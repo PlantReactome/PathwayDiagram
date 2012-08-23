@@ -36,6 +36,8 @@ public class Parameters {
     public static final int catRadius = 5;
 	public static final CssColor defaultbgColor = CssColor.make(204, 255, 204);
 	public static final CssColor defaultstrokeColor = CssColor.make(0, 0, 0);
+	// Used to set the height of each line in name drawing
+	public static final int LINE_HEIGHT = 14;
 	// A grey shade used in disease pathway drawing
 	public static final CssColor defaultShadeColor = CssColor.make("rgba(204, 204, 204, 0.65)"); // Alpha value has to be double
 	// Using blue for default selection as in the curator tool
