@@ -219,26 +219,67 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         int lineStart = 0;
         for (String token : tokens) {
             lineStart = line.length();
+            if (lineStart > 0)
+                line.append(" ");
             line.append(token);
             double lineWidth = c2d.measureText(line.toString()).getWidth();
-            if (lineWidth < width) {
-                line.append(" ");
-            }
-            else if (lineWidth == width) {
+            if (lineWidth == width) {
                 rtn.add(line.toString());
                 line.setLength(0);
             }
-            else {
-                line.delete(lineStart, line.length());
-                System.out.println("Line: " + line.toString());
-                rtn.add(line.toString());
-                line.setLength(0);
-                line.append(token);
+            else if (lineWidth > width) {
+                splitWord(line, lineStart, width, c2d, rtn);
             }
         }
         if (line.length() > 0)
             rtn.add(line.toString());
         return rtn;
+    }
+    
+    private void splitWord(StringBuilder line,
+                           int start,
+                           int width,
+                           Context2d c2d,
+                           List<String> lines) {
+        boolean isSplit = false;
+        for (int i = line.length() - 1; i >= start; i--) {
+            char letter = line.charAt(i);
+            // Check if this letter can be used to break this work
+            if (letter == ':' || letter == '.' || letter == '-' || letter == ',' || letter == '(') {
+                double currentWidth = c2d.measureText(line.substring(0, i)).getWidth();
+                if (currentWidth <= width) {
+                    // Split this word into two parts
+                    if (letter == '(') // Make sure '(' should be in the next line
+                        _splitWord(line, i, lines, width, c2d);
+                    else
+                        _splitWord(line, i + 1, lines, width, c2d);
+                    isSplit = true;
+                    break;
+                }
+            }
+        }
+        if (!isSplit) {
+            // Have to remove the whole word
+            _splitWord(line, start, lines, width, c2d);
+        }
+    }
+
+    private void _splitWord(StringBuilder line, 
+                            int start, 
+                            List<String> lines,
+                            int width,
+                            Context2d c2d) {
+        if (start == 0)
+            return; // This should be listed as a whole word, cannot split any more (e.g. a very long word)
+        String word = line.substring(start);
+        line.delete(start, line.length());
+        lines.add(line.toString());
+        line.setLength(0);
+        line.append(word);
+        if (c2d.measureText(line.toString()).getWidth() > width) {
+            // Sometimes a single word may be too long. Need to run this recursively
+            splitWord(line, 0, width, c2d, lines);
+        }
     }
     
     /**
@@ -249,7 +290,6 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                             Node node) {
         if (node.getDisplayName() == null || node.getDisplayName().isEmpty())
             return;
-        String[] words = node.getDisplayName().split(" ");
         Bounds bounds = node.getBounds();
         String fgColor = node.getFgColor();
         if (fgColor == null)
@@ -260,7 +300,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         CssColor fillStyleColor = CssColor.make(fgColor);
         FillStrokeStyle oldFillStyle = context.getFillStyle();
         context.setFillStyle(fillStyleColor);
-        String font = "12px Lucida Sans"; // This should be fixed
+        String font = "12px Lucida Sans"; // This should be pre-set as this font used in the curator tool
         context.setFont(font);
         context.setTextAlign(TextAlign.CENTER);
         context.setTextBaseline(TextBaseline.TOP);
@@ -273,7 +313,6 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         int y0 = (bounds.getHeight() - totalHeight) / 2 + bounds.getY();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            System.out.println(i + ": " + line);
             drawLine(i, 
                      context, 
                      line,
