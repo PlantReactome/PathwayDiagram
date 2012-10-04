@@ -77,10 +77,14 @@ public class PathwayCanvas extends PlugInSupportCanvas {
     }
     
     public void reset() {
-        translateX = 0.0d;
-        translateY = 0.0d;
+        resetTranslate();
         scale = 1.0d;
         fireViewChangeEvent();
+    }
+
+    public void resetTranslate() {
+    	translateX = 0.0d;
+    	translateY = 0.0d;
     }
     
     /**
