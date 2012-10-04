@@ -23,8 +23,11 @@ import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RequiresResize;
 
@@ -46,6 +49,16 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private PathwayDiagramController controller;
     // To show popup menu
     private CanvasPopupMenu popupMenu;
+    // Loading icon
+    private Image loadingIcon;
+
+    interface ImageResources extends ClientBundle {
+    	@Source("ajax-loader.gif")
+    	ImageResource loading();
+
+    }
+    
+    public static final ImageResources IMAGES = GWT.create(ImageResources.class);
     
     public PathwayDiagramPanel() {
         init();
@@ -59,11 +72,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
         canvas = new PathwayCanvas();
+        
         // Keep the original information
         contentPane.add(canvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName(style.mainCanvas());
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
+        
         // Set up overview
         overview = new OverviewCanvas();
         // the width should be fixed
@@ -72,10 +87,17 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.setStyleName(style.overViewCanvas());
         contentPane.add(overview, 1, 4);
         overview.setVisible(false); // Don't show it!
+        
         // Controls
         PathwayCanvasControls controls = new PathwayCanvasControls(canvas);
         controls.setStyleName(style.controlPane());
         contentPane.add(controls, 4, 4);
+        
+        // Loading Icon
+        loadingIcon = new Image(IMAGES.loading());
+        loadingIcon.setVisible(false);
+        contentPane.add(loadingIcon, 725, 340);
+        
         initWidget(contentPane);
         // Add behaviors
         CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this);
@@ -116,6 +138,17 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                 for (GraphObject obj : selectedObjects) {
                     if (obj instanceof Node) {
                         Node node = (Node) obj;
+
+                        // Centres node in the middle of the canvas                        
+                        PathwayCanvas c = getCanvas();
+                        c.resetTranslate();
+                        Point position = node.getPosition();
+                        double scale = c.getScale(); 
+                        double x = (position.getX() * -1.0 * scale) + (c.getCoordinateSpaceWidth() / 2);
+                        double y = (position.getY() * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
+                        translate(x,y);
+                        update();
+                        
                         System.out.println("Node: " + node.getDisplayName());
                         List<HyperEdge> reactions = node.getConnectedReactions();
                         System.out.println(" connected reactions: " + reactions.size());
@@ -178,7 +211,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void setPathway(CanvasPathway pathway) {
         // Get the old displayed pathway
-        CanvasPathway old = canvas.getPathway();
+    	CanvasPathway old = canvas.getPathway();
 //        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
@@ -198,7 +231,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @param dbId
      */
     public void setPathway(Long dbId) {
-        controller.loadDiagramForDBId(dbId);
+    	loadingIcon.setVisible(true);
+    	controller.loadDiagramForDBId(dbId);
+    	loadingIcon.setVisible(false);
     }
     
     /**
