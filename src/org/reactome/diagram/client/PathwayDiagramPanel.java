@@ -7,6 +7,8 @@ package org.reactome.diagram.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.event.HoverEvent;
+import org.reactome.diagram.event.HoverEventHandler;
 import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
@@ -25,6 +27,7 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
@@ -45,6 +48,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private OverviewCanvas overview;
     // For all selection related stuff.
     private SelectionHandler selectionHandler;
+    // For all hovering related stuff.
+    private HoverHandler hoverHandler;
     // Used with a back-end RESTful API server
     private PathwayDiagramController controller;
     // To show popup menu
@@ -104,6 +109,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         eventInstaller.installHandlers();
         
         selectionHandler = new SelectionHandler(this);
+        hoverHandler = new HoverHandler(this);
         controller = new PathwayDiagramController(this);
         
         popupMenu = new CanvasPopupMenu();
@@ -139,16 +145,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                     if (obj instanceof Node) {
                         Node node = (Node) obj;
 
-                        // Centres node in the middle of the canvas                        
-                        PathwayCanvas c = getCanvas();
-                        c.resetTranslate();
-                        Point position = node.getPosition();
-                        double scale = c.getScale(); 
-                        double x = (position.getX() * -1.0 * scale) + (c.getCoordinateSpaceWidth() / 2);
-                        double y = (position.getY() * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
-                        translate(x,y);
-                        update();
-                        
                         System.out.println("Node: " + node.getDisplayName());
                         List<HyperEdge> reactions = node.getConnectedReactions();
                         System.out.println(" connected reactions: " + reactions.size());
@@ -159,6 +155,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             }
         };
         addSelectionEventHandler(selectionHandler);
+
+        // Check hovered object change
+        HoverEventHandler hoverHandler = new HoverEventHandler() {
+
+			@Override
+			public void onHover(HoverEvent e) {
+				System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
+				
+			}
+        };	
+        addHoverEventHandler(hoverHandler);
+        
+        
         // Check displayed pathway change
         PathwayChangeEventHandler pathwayHandler = new PathwayChangeEventHandler() {
             
@@ -276,6 +285,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         return this.overview;
     }
     
+    public void hover(int x, int y) {
+       	Point hoveredPoint = getCorrectedCoordinates(x, y);
+    
+       	hoverHandler.hover(hoveredPoint);
+    }
+    
+    
     /**
      * Do selection based on a mouse click or a touch event.
      * @param x
@@ -283,17 +299,32 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      */
     public void select(int x, int y) {
         // Need to consider both scale and translate
-        double correctedX = x - canvas.getTranslateX();
-        correctedX /= canvas.getScale();
-        double correctedY = y - canvas.getTranslateY();
-        correctedY /= canvas.getScale();
-        selectionHandler.select(correctedX, 
-                                correctedY);
+        Point correctedPoint = getCorrectedCoordinates(x, y);
+    	
+        selectionHandler.select(correctedPoint.getX(), 
+                                correctedPoint.getY());
+    }
+    
+    private Point getCorrectedCoordinates(int x, int y) {
+    	double scale = canvas.getScale();
+    	
+    	double correctedX = x - canvas.getTranslateX();
+    	correctedX /= scale;
+    	
+    	double correctedY = y - canvas.getTranslateY();
+    	correctedY /= scale;
+    	
+    	return new Point(correctedX, correctedY);
     }
     
     public void addSelectionEventHandler(SelectionEventHandler handler) {
         canvas.addHandler(handler, 
                           SelectionEvent.TYPE);
+    }
+    
+    public void addHoverEventHandler(HoverEventHandler handler) {
+    	canvas.addHandler(handler, 
+    					  HoverEvent.TYPE);
     }
     
     public void addPathwayChangeEventHandler(PathwayChangeEventHandler handler) {

@@ -25,6 +25,8 @@ public abstract class GraphObject {
     private GraphObjectType type;
     // A flag to indicate if this is a selected object
     private boolean isSelected;
+    // A flag to indicate if this is a hovered over object
+    private boolean isHovered;
     // A flag to indicate if this object should be highlighted
     private boolean isHighlighted;
     
@@ -45,6 +47,10 @@ public abstract class GraphObject {
     
     public boolean isSelected() {
         return this.isSelected;
+    }
+    
+    public void setIsHovered(boolean isHovered) {
+    	this.isHovered = isHovered;
     }
     
     public void setPosition(int x, int y) {
@@ -119,5 +125,9 @@ public abstract class GraphObject {
      * @return
      */
     public abstract boolean isPicked(Point point);
+
+	public boolean isHovered() {
+		return isHovered;
+	}
     
 }

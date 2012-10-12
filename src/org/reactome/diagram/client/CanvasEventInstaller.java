@@ -18,6 +18,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.touch.client.Point;
 
 /**
  * This helper class is used to set up event handler for the canvas used in PathwayDiagramPanel.
@@ -74,7 +75,7 @@ public class CanvasEventInstaller {
             
             @Override
             public void onSelectionChanged(SelectionEvent e) {
-                hiliteObjects(e);
+                hiliteAndCentreObjects(e);
                 overview.setSelectedObjects(e.getSelectedObjects());
                 overview.update();
             }
@@ -82,7 +83,7 @@ public class CanvasEventInstaller {
         diagramPane.addSelectionEventHandler(selectionHandler);
     }
     
-    private void hiliteObjects(SelectionEvent e) {
+    private void hiliteAndCentreObjects(SelectionEvent e) {
         if (diagramPane.getPathway() == null ||
             diagramPane.getPathway().getGraphObjects() == null)
             return;
@@ -90,6 +91,8 @@ public class CanvasEventInstaller {
         for (GraphObject obj : diagramPane.getPathway().getGraphObjects()) {
             obj.setHighlighted(false);
         }
+        
+        // Highlight the selected object and connected objects
         List<GraphObject> selectedObjects = e.getSelectedObjects();
         for (GraphObject obj : selectedObjects) {
             if (obj instanceof Node) {
@@ -104,8 +107,23 @@ public class CanvasEventInstaller {
                 for (Node node : nodes)
                     node.setHighlighted(true);
             }
-        }
-        diagramPane.update();
+                
+            // Centre selected object
+            PathwayCanvas c = diagramPane.getCanvas();
+            c.resetTranslate();
+            
+            double scale = c.getScale();
+            
+            Point objPos = obj.getPosition();
+            double objX = objPos.getX();
+            double objY = objPos.getY();
+            
+            double x = (objX * -1.0 * scale) + (c.getCoordinateSpaceWidth() / 2);
+            double y = (objY * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
+            
+            c.translate(x,y);                        
+        }    
+    	diagramPane.update();
     }
     
     private void addTouchHandlers() {
@@ -176,10 +194,8 @@ public class CanvasEventInstaller {
         MouseMoveHandler mouseMoveHandler = new MouseMoveHandler() {
             @Override
             public void onMouseMove(MouseMoveEvent event) {
-                if (isMouseDown) {
-                    event.stopPropagation();
-                    mouseMove(event.getX(), event.getY());
-                }
+                event.stopPropagation();
+                mouseMove(event.getX(), event.getY());
             }
         };
         MouseUpHandler mouseUpHandler = new MouseUpHandler() {
@@ -225,6 +241,8 @@ public class CanvasEventInstaller {
             previousX = x;
             previousY = y;
             isDragging = true;
+        } else {
+        	diagramPane.hover(x, y);
         }
     }
     
