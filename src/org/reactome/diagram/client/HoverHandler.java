@@ -11,6 +11,7 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * This class is used to handle hovering over objects for PathwayDiagramPanel.
@@ -29,7 +30,7 @@ public class HoverHandler {
      * Get the hovered object.
      * @return
      */
-    public GraphObject getHoveredObjects() {
+    public GraphObject getHoveredObject() {
         return hoveredObject;
     }
         
@@ -52,25 +53,54 @@ public class HoverHandler {
             }
         }
 
-        // Don't do anything if just hovering over empty space
-        if (hovered == null)
-            return;
+        // Remove displayed label if just hovering over empty space
+        if (hovered == null) {
+        	if (hoveredObject != null) {
+        		hoveredObject.getLabel().hide();
+        	   	hoveredObject = null;
+        	}
+        	return;
+        } else {
+        	// If there is a previously hovered object
+        	if (hoveredObject != null) {
+        		// Do nothing if the new object is the same as the old        		
+        		if (hovered == hoveredObject) {
+        			return;
+        		}
+        		hoveredObject.setIsHovered(false);
+        		hoveredObject.getLabel().hide();
+        	} 
+        	
+        	// Set new hovered object
+        	hoveredObject = hovered;
+        	showLabel();
         
-        // A special case to gain some performance: moving to a new point on the previously hovered object.
-        if (hovered == hoveredObject) {
-            return; // Don't redraw
-        } 
-        
-        // Set the previously hovered object's flag to false
-        if (hoveredObject != null)
-        	hoveredObject.setIsHovered(false);
-        
-        hoveredObject = hovered;
-                
-        diagramPanel.update();
-        fireHoverEvent();
+        	diagramPanel.update();
+        	fireHoverEvent();
+        }	
     }
         
+    private void showLabel() {
+    	Point objPos = hoveredObject.getPosition();
+    	PopupPanel label = hoveredObject.getLabel();
+    	double scale = diagramPanel.getCanvas().getScale();
+    	int canvasZIndex;
+    	    	
+    	try {
+    		canvasZIndex = Integer.parseInt(diagramPanel.getElement().getStyle().getZIndex()); 
+    	} catch (NumberFormatException nfe) {
+    		canvasZIndex = 0;
+    	}
+    	// Position label 
+    	label.setPopupPosition( (int) (objPos.getX() * scale), (int) (objPos.getY() * scale));
+    	
+    	// Label must appear above the canvas
+    	label.getElement().getStyle().setZIndex(canvasZIndex + 1); 
+    	
+    	// Show the label
+    	label.show();
+    }
+    
     private void fireHoverEvent() {
         HoverEvent event = new HoverEvent();
         event.setHoveredObject(hoveredObject);

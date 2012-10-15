@@ -162,6 +162,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			@Override
 			public void onHover(HoverEvent e) {
 				System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
+				e.getHoveredObject().getLabel().show();
 				
 			}
         };	

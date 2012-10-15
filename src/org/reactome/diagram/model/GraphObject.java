@@ -5,6 +5,8 @@
 package org.reactome.diagram.model;
 
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * The highest level of objects that can be displayed in canvas. This is an abstract class, and should
@@ -27,6 +29,8 @@ public abstract class GraphObject {
     private boolean isSelected;
     // A flag to indicate if this is a hovered over object
     private boolean isHovered;
+    // A pop-up label on hovering over an object
+    private PopupPanel label;
     // A flag to indicate if this object should be highlighted
     private boolean isHighlighted;
     
@@ -52,6 +56,8 @@ public abstract class GraphObject {
     public void setIsHovered(boolean isHovered) {
     	this.isHovered = isHovered;
     }
+    
+    
     
     public void setPosition(int x, int y) {
         position = new Point(x, y);
@@ -81,6 +87,12 @@ public abstract class GraphObject {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+        this.label = new PopupPanel();
+        this.label.setWidget(new Label(displayName));
+    }
+    
+    public PopupPanel getLabel() {
+    	return label;
     }
 
     public Long getReactomeId() {
