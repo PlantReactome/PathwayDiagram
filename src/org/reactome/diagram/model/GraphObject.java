@@ -29,8 +29,6 @@ public abstract class GraphObject {
     private boolean isSelected;
     // A flag to indicate if this is a hovered over object
     private boolean isHovered;
-    // A pop-up label on hovering over an object
-    private PopupPanel label;
     // A flag to indicate if this object should be highlighted
     private boolean isHighlighted;
     
@@ -87,12 +85,6 @@ public abstract class GraphObject {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-        this.label = new PopupPanel();
-        this.label.setWidget(new Label(displayName));
-    }
-    
-    public PopupPanel getLabel() {
-    	return label;
     }
 
     public Long getReactomeId() {
