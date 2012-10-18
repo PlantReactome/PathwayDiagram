@@ -17,6 +17,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -144,6 +145,8 @@ public class PathwayDiagramController {
      */
     private void renderXML(String xmlText, Long dbId) {
 //        System.out.println(xmlText);
+        Image loadingIcon = diagramPane.getLoadingIcon();
+    	loadingIcon.setVisible(true);
         try {
             Document pathwayDom = XMLParser.parse(xmlText);
             Element pathwayElement = pathwayDom.getDocumentElement();
@@ -161,6 +164,7 @@ public class PathwayDiagramController {
             Window.alert("Error in parsing XML: " + e);
             e.printStackTrace();
         }
+    	loadingIcon.setVisible(false);
     }
     
     /**

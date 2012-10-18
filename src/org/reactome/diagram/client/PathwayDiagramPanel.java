@@ -162,8 +162,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			@Override
 			public void onHover(HoverEvent e) {
 				System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
-				e.getHoveredObject().getLabel().show();
-				
 			}
         };	
         addHoverEventHandler(hoverHandler);
@@ -241,9 +239,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @param dbId
      */
     public void setPathway(Long dbId) {
-    	loadingIcon.setVisible(true);
     	controller.loadDiagramForDBId(dbId);
-    	loadingIcon.setVisible(false);
     }
     
     /**
@@ -265,6 +261,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public CanvasPathway getPathway() {
         return canvas.getPathway();
     }
+    
+    public Image getLoadingIcon() {
+    	return this.loadingIcon;
+    }
+    
     
     public void translate(double dx, double dy) {
         canvas.translate(dx, dy);
@@ -376,7 +377,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void update() {
         canvas.update();
     }
-    
+        
     /**
      * Mainly to load Style
      */

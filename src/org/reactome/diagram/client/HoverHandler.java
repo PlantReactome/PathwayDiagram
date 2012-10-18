@@ -11,6 +11,7 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -21,9 +22,11 @@ import com.google.gwt.user.client.ui.PopupPanel;
 public class HoverHandler {
     private PathwayDiagramPanel diagramPanel;
     private GraphObject hoveredObject;
+    private PopupPanel tooltip;
     
     public HoverHandler(PathwayDiagramPanel diagramPanel) {
         this.diagramPanel = diagramPanel;
+        this.tooltip = new PopupPanel();
     }
     
     /**
@@ -56,7 +59,7 @@ public class HoverHandler {
         // Remove displayed label if just hovering over empty space
         if (hovered == null) {
         	if (hoveredObject != null) {
-        		hoveredObject.getLabel().hide();
+        		tooltip.hide();
         	   	hoveredObject = null;
         	}
         	return;
@@ -68,22 +71,30 @@ public class HoverHandler {
         			return;
         		}
         		hoveredObject.setIsHovered(false);
-        		hoveredObject.getLabel().hide();
+        		tooltip.hide();
         	} 
         	
         	// Set new hovered object
         	hoveredObject = hovered;
-        	showLabel();
+        	showTooltip();
         
         	diagramPanel.update();
         	fireHoverEvent();
         }	
     }
         
-    private void showLabel() {
+    private void showTooltip() {
+    	String displayName = hoveredObject.getDisplayName();
     	Point objPos = hoveredObject.getPosition();
-    	PopupPanel label = hoveredObject.getLabel();
+    	
     	double scale = diagramPanel.getCanvas().getScale();
+    	double translateX = diagramPanel.getCanvas().getTranslateX();
+    	double translateY = diagramPanel.getCanvas().getTranslateY();
+    	
+    	// Compensate for canvas translation and scale
+    	double x = (objPos.getX() * scale) + translateX;
+    	double y = (objPos.getY() * scale) + translateY;
+    	
     	int canvasZIndex;
     	    	
     	try {
@@ -91,14 +102,17 @@ public class HoverHandler {
     	} catch (NumberFormatException nfe) {
     		canvasZIndex = 0;
     	}
+    	// Set tooltip text
+    	tooltip.setWidget(new Label(displayName));
+    	
     	// Position label 
-    	label.setPopupPosition( (int) (objPos.getX() * scale), (int) (objPos.getY() * scale));
+    	tooltip.setPopupPosition( (int) x, (int) y);
     	
     	// Label must appear above the canvas
-    	label.getElement().getStyle().setZIndex(canvasZIndex + 1); 
+    	tooltip.getElement().getStyle().setZIndex(canvasZIndex + 1); 
     	
     	// Show the label
-    	label.show();
+    	tooltip.show();
     }
     
     private void fireHoverEvent() {
