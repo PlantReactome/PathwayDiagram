@@ -172,6 +172,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
      */
     private class EventHandlers {
         private boolean isDragging;
+        private boolean isMouseDown; 
         // The position when mouse is down
         private double x0;
         private double y0;
@@ -191,29 +192,33 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
                 
                 @Override
                 public void onMouseDown(MouseDownEvent event) {
-                    if(viewRect.contains(event.getX(), event.getY())) {
-                        isDragging = true;
+                    isMouseDown = true;
+                    //if(viewRect.contains(event.getX(), event.getY())) {
                         prevX = event.getX();
                         prevY = event.getY();
                         x0 = viewRect.getX();
                         y0 = viewRect.getY();
-                    }
+                    //}
                 }
             });
             OverviewCanvas.this.addMouseOutHandler(new MouseOutHandler() {
                 
                 @Override
                 public void onMouseOut(MouseOutEvent event) {
-                    if (isDragging)
-                        isDragging = false;
+                    isMouseDown = false;
+                	if (isDragging) {
+                		stopDragging();
+                    }	
                 }
             });
             OverviewCanvas.this.addMouseMoveHandler(new MouseMoveHandler() {
                 
                 @Override
                 public void onMouseMove(MouseMoveEvent event) {
-                    if (isDragging) {
-                        double dx = event.getX() - prevX;
+                    if (isMouseDown) {
+                    	// Do dragging
+                        isDragging = true;
+                    	double dx = event.getX() - prevX;
                         double dy = event.getY() - prevY;
                         viewRect.translate(dx, dy);
                         update();
@@ -226,13 +231,27 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
                 
                 @Override
                 public void onMouseUp(MouseUpEvent event) {
-                    if (isDragging) {
-                        isDragging = false;
-                        fireViewChangeEvent(viewRect.getX() - x0,
-                                            viewRect.getY() - y0);
+                    isMouseDown = false;
+                	if (isDragging) {
+                      	stopDragging();
+                    } else {
+                    	double dx = event.getX() - x0;
+                    	double dy = event.getY() - y0;
+                    	viewRect.translate(dx, dy);
+                    	viewRect.translate(-viewRect.getWidth() / 2.0, -viewRect.getHeight() / 2.0);
+                    	update();
+                    	fireViewChangeEvent(viewRect.getX() - x0,
+                    						viewRect.getY() - y0);
                     }
                 }
             });
+        }
+        
+        private void stopDragging() {
+        	isDragging = false;
+        	fireViewChangeEvent(viewRect.getX() - x0,
+        					viewRect.getY() - y0); 
+        	
         }
         
         //TODO: To implement this soon!
