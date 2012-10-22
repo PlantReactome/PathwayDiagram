@@ -25,6 +25,7 @@ import com.google.gwt.touch.client.Point;
 
 public class Node extends GraphObject {
     private Bounds bounds;
+    private Bounds insets;
     private Point textPosition;
     // If this node contains other node
     private List<Node> children;
@@ -88,6 +89,8 @@ public class Node extends GraphObject {
 	public void setBounds(Bounds bounds) {
 	    this.bounds = new Bounds(bounds);
 	}
+	
+	
 	
 	public void addChild(Node node) {
 	    if (children == null)
@@ -157,5 +160,13 @@ public class Node extends GraphObject {
         Bounds bounds = getBounds();
         return bounds.contains(point);
     }
+
+	public Bounds getInsets() {
+		return insets;
+	}
+
+	public void setInsets(Bounds insets) {
+		this.insets = insets;
+	}
 	
 }

@@ -5,8 +5,6 @@
 package org.reactome.diagram.model;
 
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * The highest level of objects that can be displayed in canvas. This is an abstract class, and should

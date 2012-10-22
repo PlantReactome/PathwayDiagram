@@ -163,6 +163,14 @@ public class CanvasPathway extends Node {
             Bounds b = new Bounds(bounds);
             node.setBounds(b);
         }
+        
+        String insets = nodeElm.getAttribute("insets");
+        if (insets != null) {
+        	Bounds i = new Bounds(insets);
+        	node.setInsets(i);
+        }	
+        
+        
         String bgColor = nodeElm.getAttribute("bgColor");
         if (bgColor != null) {
             double alpha = 1.0d;

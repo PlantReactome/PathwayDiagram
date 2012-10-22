@@ -186,7 +186,6 @@ public class CanvasEventInstaller {
         MouseDownHandler mouseDownHandler = new MouseDownHandler() {
             @Override
             public void onMouseDown(MouseDownEvent event) {
-                isMouseDown = true;
                 event.stopPropagation();
                 mouseDown(event.getX(), event.getY());
             }
@@ -228,7 +227,7 @@ public class CanvasEventInstaller {
     private void mouseDown(int x, int y) {
         previousX = x;
         previousY = y;
-        isMouseDown = true;
+        isMouseDown = true;        
     }
     
     private void mouseMove(int x, int y) {
@@ -249,13 +248,13 @@ public class CanvasEventInstaller {
     private void mouseUp(int x, int y) {
         if (isMouseDown)
             isMouseDown = false;
-        if (isDragging) {
-            isDragging = false;
-        }
-        else { // Do click selection
-            //TODO: selection cannot work under iPad. Need to check touchEnd event.
-            diagramPane.select(x, y);
-        }
+        
+       	if (isDragging) {
+       		isDragging = false;
+       	} else { // Do click selection
+       		//TODO: selection cannot work under iPad. Need to check touchEnd event.
+       		diagramPane.select(x, y);
+       	}
     }
     
     private void mouseOut(int x, int y) {

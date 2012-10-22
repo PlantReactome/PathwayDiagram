@@ -39,15 +39,7 @@ public class CompartmentRenderer extends NodeRenderer {
                             context,
                             true);
         if (isInsetsNeeded(node)) {
-            Bounds insets = new Bounds(bounds);
-            int x = insets.getX();
-            insets.setX(x + RECTANGLE_DIST);
-            int y = insets.getY();
-            insets.setY(y + RECTANGLE_DIST);
-            int w = insets.getWidth();
-            insets.setWidth(w - 2 * RECTANGLE_DIST);
-            int h = insets.getHeight();
-            insets.setHeight(h - 2 * RECTANGLE_DIST);
+            Bounds insets = node.getInsets();
             super.drawRectangle(insets, context, false);
         }
     }

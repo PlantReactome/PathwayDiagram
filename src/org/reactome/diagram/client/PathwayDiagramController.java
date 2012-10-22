@@ -144,7 +144,7 @@ public class PathwayDiagramController {
      * @param xmlText The XML Text to be parsed
      */
     private void renderXML(String xmlText, Long dbId) {
-//        System.out.println(xmlText);
+        System.out.println(xmlText);
         Image loadingIcon = diagramPane.getLoadingIcon();
     	loadingIcon.setVisible(true);
         try {

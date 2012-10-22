@@ -185,7 +185,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void onContextMenu(ContextMenuEvent event) {
         popupMenu.showPopupMenu(event);
     }
-    
+        
     public void setSize(int windowWidth, int windowHeight) {
         int width = (int) (windowWidth - 40);
         int height = (int) (windowHeight - 40);

@@ -84,11 +84,19 @@ public class CanvasPopupMenu extends PopupPanel {
         if (selectedObjects == null || selectedObjects.size() != 1)
             return;
         GraphObject selected = selectedObjects.get(0);
+        
+        
         // For showing sub pathway diagram
         if (selected.getType() == GraphObjectType.ProcessNode) {
             Button btn = createGoToPathwayButton(selected);
-            contentPane.add(btn);
+            // Add the button if it is not already there
+            if (contentPane.getWidgetCount() == 0)
+            	contentPane.add(btn);
         }
+
+        
+        
+        
         if (contentPane.getWidgetCount() == 0)
             return;
         setPopupPosition(event.getNativeEvent().getClientX() + 2, 
