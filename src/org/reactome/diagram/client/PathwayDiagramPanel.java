@@ -23,11 +23,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
+import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
@@ -110,6 +111,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         selectionHandler = new SelectionHandler(this);
         hoverHandler = new HoverHandler(this);
+        hoverHandler.getTooltip().setStyleName(style.tooltip());
         controller = new PathwayDiagramController(this);
         
         popupMenu = new CanvasPopupMenu();
@@ -299,11 +301,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @param x
      * @param y
      */
-    public void select(int x, int y) {
+    public void select(GwtEvent<? extends EventHandler> event, int x, int y) {
         // Need to consider both scale and translate
         Point correctedPoint = getCorrectedCoordinates(x, y);
     	
-        selectionHandler.select(correctedPoint.getX(), 
+        selectionHandler.select(event,
+        						correctedPoint.getX(), 
                                 correctedPoint.getY());
     }
     
@@ -402,5 +405,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         String overViewCanvas();
         
         String canvasPopup();
+        
+        String tooltip();
     }
 }

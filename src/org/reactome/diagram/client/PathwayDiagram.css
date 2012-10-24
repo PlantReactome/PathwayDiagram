@@ -26,3 +26,7 @@
 	position: absolute;
 	z-index: 2;
 }
+
+.tooltip {
+	background-color:rgba(220,220,220,0.5);
+}

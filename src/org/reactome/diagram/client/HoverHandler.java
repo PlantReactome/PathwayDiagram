@@ -36,7 +36,11 @@ public class HoverHandler {
     public GraphObject getHoveredObject() {
         return hoveredObject;
     }
-        
+ 
+    public PopupPanel getTooltip() {
+    	return tooltip;
+    }
+    
     public void hover(Point hoverPoint) {
         if (diagramPanel.getPathway() == null || diagramPanel.getPathway().getGraphObjects() == null)
             return;

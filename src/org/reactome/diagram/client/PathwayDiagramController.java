@@ -172,7 +172,7 @@ public class PathwayDiagramController {
             Window.alert("Error in parsing XML: " + e);
             e.printStackTrace();
         }
-    	loadingIcon.setVisible(false);
+//    	loadingIcon.setVisible(false);
     }
     
     /**

@@ -18,6 +18,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -32,6 +33,7 @@ public class CanvasEventInstaller {
     private boolean isMouseDown;
     private int previousX;
     private int previousY;
+    
     
     public CanvasEventInstaller(PathwayDiagramPanel diagramPanel) {
         this.diagramPane = diagramPanel;
@@ -107,7 +109,15 @@ public class CanvasEventInstaller {
                 for (Node node : nodes)
                     node.setHighlighted(true);
             }
-                
+            
+            if (e.isDoCentring()) {
+            	centreObject(obj);
+            }	
+        }
+        diagramPane.update();
+    }
+    
+    private void centreObject(GraphObject obj) {
             // Centre selected object
             PathwayCanvas c = diagramPane.getCanvas();
             c.resetTranslate();
@@ -122,9 +132,9 @@ public class CanvasEventInstaller {
             double y = (objY * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
             
             c.translate(x,y);                        
-        }    
-    	diagramPane.update();
-    }
+    }    
+    	
+    
     
     private void addTouchHandlers() {
         TouchStartHandler touchStartHandler = new TouchStartHandler() {
@@ -133,10 +143,7 @@ public class CanvasEventInstaller {
             public void onTouchStart(TouchStartEvent event) {
                 event.stopPropagation();
                 event.preventDefault();
-                int[] position = getPositionInTouch(event);
-                if (position == null)
-                    return;
-                mouseDown(position[0], position[1]);
+                mouseDown(event);
             }
         };
         diagramPane.getCanvas().addTouchStartHandler(touchStartHandler);
@@ -148,8 +155,7 @@ public class CanvasEventInstaller {
                 if (isMouseDown) {
                     event.stopPropagation();
                     event.preventDefault();
-                    int[] position = getPositionInTouch(event);
-                    mouseMove(position[0], position[1]);
+                    mouseMove(event);
                 }
             }
         };
@@ -162,12 +168,21 @@ public class CanvasEventInstaller {
                 if (isMouseDown) {
                     event.stopPropagation();
                     event.preventDefault();
-                    int[] pos = getPositionInTouch(event);
-                    mouseUp(pos[0], pos[1]);
+                    mouseUp(event);
                 }
             }
         };
         diagramPane.getCanvas().addTouchEndHandler(touchEndHandler);
+    }
+    
+    private int[] getCoordinates(GwtEvent<? extends EventHandler> event) {
+    	if (event instanceof TouchEvent) {
+    		return getPositionInTouch((TouchEvent<? extends EventHandler>) event);
+    	} else if (event instanceof MouseEvent) {
+    		MouseEvent<? extends EventHandler> me = (MouseEvent<? extends EventHandler>) event;
+    		return new int[] { me.getX(), me.getY()};
+    	}
+    	return null;
     }
     
     private int[] getPositionInTouch(TouchEvent<? extends EventHandler> event) {
@@ -187,14 +202,14 @@ public class CanvasEventInstaller {
             @Override
             public void onMouseDown(MouseDownEvent event) {
                 event.stopPropagation();
-                mouseDown(event.getX(), event.getY());
+                mouseDown(event);
             }
         };
         MouseMoveHandler mouseMoveHandler = new MouseMoveHandler() {
             @Override
             public void onMouseMove(MouseMoveEvent event) {
                 event.stopPropagation();
-                mouseMove(event.getX(), event.getY());
+                mouseMove(event);
             }
         };
         MouseUpHandler mouseUpHandler = new MouseUpHandler() {
@@ -203,7 +218,7 @@ public class CanvasEventInstaller {
             public void onMouseUp(MouseUpEvent event) {
                 if (isMouseDown) {
                     event.stopPropagation();
-                    mouseUp(event.getX(), event.getY());
+                    mouseUp(event);
                 }
             }
         };
@@ -213,7 +228,7 @@ public class CanvasEventInstaller {
             public void onMouseOut(MouseOutEvent event) {
                 if (isMouseDown) {
                     event.stopPropagation();
-                    mouseOut(event.getX(), event.getY());
+                    mouseOut(event);
                 }
             }
         };
@@ -224,14 +239,19 @@ public class CanvasEventInstaller {
         canvas.addMouseOutHandler(mouseOutHandler);
     }
     
-    private void mouseDown(int x, int y) {
-        previousX = x;
-        previousY = y;
-        isMouseDown = true;        
+    private void mouseDown(GwtEvent<? extends EventHandler> event) {
+    	int [] coord = getCoordinates(event);
+    	previousX = coord[0];
+        previousY = coord[1];
+        isMouseDown = true;         
     }
     
-    private void mouseMove(int x, int y) {
-        if (isMouseDown) {
+    private void mouseMove(GwtEvent<? extends EventHandler> event) {
+        int [] coord = getCoordinates(event);
+        int x = coord[0];
+        int y = coord[1];
+        
+    	if (isMouseDown) {
             // Do panning
             int dx = x - previousX;
             int dy = y - previousY;
@@ -245,23 +265,28 @@ public class CanvasEventInstaller {
         }
     }
     
-    private void mouseUp(int x, int y) {
-        if (isMouseDown)
+    private void mouseUp(GwtEvent<? extends EventHandler> event) {
+        int [] coord = getCoordinates(event);
+    	int x = coord[0];
+    	int y = coord[1];
+        
+    	if (isMouseDown)
             isMouseDown = false;
         
        	if (isDragging) {
        		isDragging = false;
        	} else { // Do click selection
        		//TODO: selection cannot work under iPad. Need to check touchEnd event.
-       		diagramPane.select(x, y);
+       		diagramPane.select(event, x, y);
        	}
     }
     
-    private void mouseOut(int x, int y) {
+    private void mouseOut(GwtEvent<? extends EventHandler> event) {
         if (isMouseDown)
             isMouseDown = false;
         if (isDragging)
             isDragging = false;
     }
+    
     
 }

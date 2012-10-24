@@ -19,6 +19,7 @@ public class SelectionEvent extends GwtEvent<SelectionEventHandler> {
     public static Type<SelectionEventHandler> TYPE = new Type<SelectionEventHandler>();
     // A list of selected objects
     private List<GraphObject> selectedObjects;
+    private boolean doCentring; 
     
     public SelectionEvent() {
     }
@@ -77,5 +78,13 @@ public class SelectionEvent extends GwtEvent<SelectionEventHandler> {
     protected void dispatch(SelectionEventHandler handler) {
         handler.onSelectionChanged(this);
     }
+
+	public boolean isDoCentring() {
+		return doCentring;
+	}
+
+	public void setDoCentring(boolean doCentring) {
+		this.doCentring = doCentring;
+	}
     
 }
