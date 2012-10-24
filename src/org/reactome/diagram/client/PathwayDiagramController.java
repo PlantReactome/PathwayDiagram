@@ -139,6 +139,14 @@ public class PathwayDiagramController {
         Window.alert("Failed to send the message: " + exception.getMessage());
     }
     
+    /**
+     * 
+     * @param message An error message to alert the user of problems
+     */
+    protected void requestFailed(String message) {
+        Window.alert("WARNING: " + message);
+    }
+    
     /** 
      * Parses the XML Text and Builds a HashMap of the nodes and the edges. Renders the Canvas Visualization.
      * @param xmlText The XML Text to be parsed

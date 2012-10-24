@@ -191,6 +191,11 @@ public class PathwayTreeBrowser {
     private void setUpTree(String text) {
 //        Window.alert(text);
 //         System.out.println(text);
+    	if (text == null || text.isEmpty()) {
+            PathwayDiagramController controller = diagramPane.getController();
+            controller.requestFailed("Null or empty hierarchy description string, this may be due to connection problems with the web services");
+    		return;
+    	}
         Document dom = XMLParser.parse(text);
         Element pathwaysElm = dom.getDocumentElement();
         XMLParser.removeWhitespace(pathwaysElm);
