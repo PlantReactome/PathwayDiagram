@@ -42,6 +42,8 @@ public class CanvasEventInstaller {
     public void installHandlers() {
         addMouseHandlers();
         addTouchHandlers();
+        addKeyHandlers();
+        
 //        Window.addResizeHandler(new ResizeHandler() {
 //            
 //            @Override
@@ -111,7 +113,7 @@ public class CanvasEventInstaller {
             }
             
             if (e.isDoCentring()) {
-            	centreObject(obj);
+            	//centreObject(obj);
             }	
         }
         diagramPane.update();
@@ -131,7 +133,8 @@ public class CanvasEventInstaller {
             double x = (objX * -1.0 * scale) + (c.getCoordinateSpaceWidth() / 2);
             double y = (objY * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
             
-            c.translate(x,y);                        
+            c.translate(x,y);
+            diagramPane.hover((int) x, (int) y);
     }    
     	
     
@@ -232,18 +235,49 @@ public class CanvasEventInstaller {
                 }
             }
         };
+        
+        MouseWheelHandler mouseWheelHandler = new MouseWheelHandler() {
+        	
+        	@Override
+        	public void onMouseWheel(MouseWheelEvent event) {
+        		event.stopPropagation();
+        		mouseWheel(event);
+        	}
+
+        };
+        
         PlugInSupportCanvas canvas = diagramPane.getCanvas();
         canvas.addMouseDownHandler(mouseDownHandler);
         canvas.addMouseUpHandler(mouseUpHandler);
         canvas.addMouseMoveHandler(mouseMoveHandler);
         canvas.addMouseOutHandler(mouseOutHandler);
+        canvas.addMouseWheelHandler(mouseWheelHandler);
     }
+    
+    private void addKeyHandlers() {
+    	KeyUpHandler keyUpHandler = new KeyUpHandler() {
+
+			@Override
+			public void onKeyUp(KeyUpEvent event) {
+				event.stopPropagation();
+				
+				if (KeyCodeEvent.isArrow(event.getNativeKeyCode())) {
+					arrowKeyUp(event);
+				}
+			}
+    		
+    	};
+    	
+    	diagramPane.getCanvas().addKeyUpHandler(keyUpHandler);
+    }
+    
     
     private void mouseDown(GwtEvent<? extends EventHandler> event) {
     	int [] coord = getCoordinates(event);
     	previousX = coord[0];
         previousY = coord[1];
-        isMouseDown = true;         
+        isMouseDown = true;
+        diagramPane.hideTooltip();
     }
     
     private void mouseMove(GwtEvent<? extends EventHandler> event) {
@@ -288,5 +322,36 @@ public class CanvasEventInstaller {
             isDragging = false;
     }
     
+    private void mouseWheel(MouseWheelEvent event) {
+    	PathwayCanvas canvas = diagramPane.getCanvas();
+    	if (event.isNorth()) {
+    		canvas.scale(canvas.ZOOMIN);
+    	} else {
+    		canvas.scale(canvas.ZOOMOUT);
+    	}
+    	
+    	canvas.update();
+   	}
+    
+    private void arrowKeyUp(KeyUpEvent event) {
+    	PathwayCanvas canvas = diagramPane.getCanvas();
+    	int x = 0;
+    	int y = 0; 
+    	
+    	if (event.isLeftArrow()) {
+    		x = canvas.MOVEX;
+    	} else if (event.isRightArrow()) {
+    		x = -canvas.MOVEX;
+    	} else if (event.isUpArrow()) {
+    		y = canvas.MOVEY;
+    	} else if (event.isDownArrow()) {
+    		y = -canvas.MOVEY;
+    	}
+    	
+    	canvas.translate(x, y);
+    	canvas.update();
+    }
     
 }
+
+

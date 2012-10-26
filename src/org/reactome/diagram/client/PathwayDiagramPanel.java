@@ -294,6 +294,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
        	hoverHandler.hover(hoveredPoint);
     }
+
+    public void hideTooltip() {
+    	hoverHandler.getTooltip().hide();
+    }
     
     
     /**

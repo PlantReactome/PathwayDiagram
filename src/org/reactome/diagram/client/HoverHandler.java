@@ -11,6 +11,7 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -23,10 +24,19 @@ public class HoverHandler {
     private PathwayDiagramPanel diagramPanel;
     private GraphObject hoveredObject;
     private PopupPanel tooltip;
+    private Timer timer;
     
     public HoverHandler(PathwayDiagramPanel diagramPanel) {
         this.diagramPanel = diagramPanel;
         this.tooltip = new PopupPanel();
+        this.timer = new Timer() {
+
+			@Override
+			public void run() {
+				tooltip.hide();				
+			}
+        	
+        };
     }
     
     /**
@@ -64,7 +74,8 @@ public class HoverHandler {
         if (hovered == null) {
         	if (hoveredObject != null) {
         		tooltip.hide();
-        	   	hoveredObject = null;
+        	   	timer.cancel();
+        		hoveredObject = null;
         	}
         	return;
         } else {
@@ -76,6 +87,7 @@ public class HoverHandler {
         		}
         		hoveredObject.setIsHovered(false);
         		tooltip.hide();
+        		timer.cancel();
         	} 
         	
         	// Set new hovered object
@@ -89,6 +101,7 @@ public class HoverHandler {
         
     private void showTooltip() {
     	String displayName = hoveredObject.getDisplayName();
+    	String objType = getObjType();
     	Point objPos = hoveredObject.getPosition();
     	
     	double scale = diagramPanel.getCanvas().getScale();
@@ -107,7 +120,7 @@ public class HoverHandler {
     		canvasZIndex = 0;
     	}
     	// Set tooltip text
-    	tooltip.setWidget(new Label(displayName));
+    	tooltip.setWidget(new Label(objType + ": " + displayName));
     	
     	// Position label 
     	tooltip.setPopupPosition( (int) x, (int) y);
@@ -117,6 +130,17 @@ public class HoverHandler {
     	
     	// Show the label
     	tooltip.show();
+    	
+    	// Hide after 2 seconds
+    	timer.schedule(2000);
+    }
+    
+    private String getObjType() {
+    	String type = hoveredObject.getType().toString();
+    	if (type.startsWith("Renderable")) {
+    		return type.substring("Renderable".length());
+    	}
+    	return type;
     }
     
     private void fireHoverEvent() {
