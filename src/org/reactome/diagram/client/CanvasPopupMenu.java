@@ -4,17 +4,14 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.List;
-
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * This customized PopupPanel is used to hold a list of popup menu.
@@ -23,8 +20,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class CanvasPopupMenu extends PopupPanel {
     private PathwayDiagramPanel diagramPane;
-    // Used to hold any buttons
-    private VerticalPanel contentPane;
+    private MenuBar menuBar;
+    private GraphObject selected;
     
     public CanvasPopupMenu() {
         super(true);
@@ -32,8 +29,8 @@ public class CanvasPopupMenu extends PopupPanel {
     }
     
     private void init() {
-        contentPane = new VerticalPanel();
-        setWidget(contentPane);
+        menuBar = new MenuBar(true);
+        setWidget(menuBar);
     }
     
     public void setPathwayDiagramPanel(PathwayDiagramPanel pane) {
@@ -43,32 +40,69 @@ public class CanvasPopupMenu extends PopupPanel {
     public PathwayDiagramPanel getPathwayDiagramPanel() {
         return this.diagramPane;
     }
-    
-    private Button createGoToPathwayButton(final GraphObject subPathway) {
-        Button goToPathwayBtn = new Button("Go to Pathway");
-        goToPathwayBtn.addClickHandler(new ClickHandler() {
-            
+
+    // Pathway Node Menu
+    private void createProcessNodeMenu() {
+        menuBar.addItem(new MenuItem("Go to Pathway", new Command() {
             @Override
-            public void onClick(ClickEvent event) {
-                goToPathway(subPathway);
+            public void execute() {
+                diagramPane.setPathway(selected.getReactomeId());
                 hide();
             }
-        });
-        return goToPathwayBtn;
+        }));
+        
+    }   
+    
+    // Complex Entity Menu
+    private void createComplexMenu() {
+    	createPhysicalEntityMenu();
+    	menuBar.addItem(new MenuItem("Participating Molecules", new Command() {
+    		@Override
+    		public void execute() {
+    			
+    		}
+    	})); 
     }
     
-    private void goToPathway(GraphObject pathway) {
-        // Get the pathway DB_ID
-        Long dbId = pathway.getReactomeId();
-        diagramPane.setPathway(dbId);
+    // Protein Entity Menu    
+    private void createProteinMenu() {
+    	createPhysicalEntityMenu();
+    	menuBar.addItem(new MenuItem("Display Interactors", new Command() {
+    		@Override
+    		public void execute() {
+    			
+    		}	
+   		}));
+    	
+    	menuBar.addItem(new MenuItem("Export Interactors", new Command() { 
+    		@Override
+    		public void execute() {
+    			
+    		}
+    	}));
     }
+
+    // Small Molecule Menu	
+    private void createSmallMoleculeMenu() {
+    	createPhysicalEntityMenu();
+    }	
     
+    // Menu items common to all physical entities
+    private void createPhysicalEntityMenu() {
+    	menuBar.addItem(new MenuItem("Other Pathways", new Command() {
+    		@Override
+    		public void execute() {
+    			
+    		}
+    	})); 
+    }
+        
     /**
      * Override to remove any popup menu.
      */
     @Override
     public void hide() {
-        contentPane.clear();
+        menuBar.clearItems();
         super.hide();
     }
     
@@ -77,31 +111,39 @@ public class CanvasPopupMenu extends PopupPanel {
      * @param panel
      */
     public void showPopupMenu(ContextMenuEvent event) {
-        event.preventDefault();
+        GraphObjectType type;
+    	
+    	event.preventDefault();
         event.stopPropagation();
-        List<GraphObject> selectedObjects = diagramPane.getSelectedObjects();
+        
+        hide();
+        
+        //List<GraphObject> selectedObjects = diagramPane.getSelectedObjects();
         // Support single selection only currently
-        if (selectedObjects == null || selectedObjects.size() != 1)
-            return;
-        GraphObject selected = selectedObjects.get(0);
+        //if (selectedObjects == null || selectedObjects.size() != 1)
+        //    return;
         
+        selected = getSelectedObject();
+        type = selected.getType();
         
-        // For showing sub pathway diagram
-        if (selected.getType() == GraphObjectType.ProcessNode) {
-            Button btn = createGoToPathwayButton(selected);
-            // Add the button if it is not already there
-            if (contentPane.getWidgetCount() == 0)
-            	contentPane.add(btn);
+        if (type == GraphObjectType.ProcessNode) {
+            createProcessNodeMenu();            
+        } else if (type == GraphObjectType.RenderableComplex) {
+        	createComplexMenu();
+        } else if (type == GraphObjectType.RenderableProtein) {
+        	createProteinMenu();
+        } else if (type == GraphObjectType.RenderableChemical) {
+        	createSmallMoleculeMenu();
         }
-
-        
-        
-        
-        if (contentPane.getWidgetCount() == 0)
-            return;
+         
         setPopupPosition(event.getNativeEvent().getClientX() + 2, 
                          event.getNativeEvent().getClientY() + 2); // A little shift if actually better
+        
         show();
+    }
+    
+    private GraphObject getSelectedObject() {
+    	return diagramPane.getSelectedObjects().get(0);
     }
     
 }
