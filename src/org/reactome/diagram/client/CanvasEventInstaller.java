@@ -113,7 +113,7 @@ public class CanvasEventInstaller {
             }
             
             if (e.isDoCentring()) {
-            	//centreObject(obj);
+            	centreObject(obj);
             }	
         }
         diagramPane.update();
@@ -134,7 +134,7 @@ public class CanvasEventInstaller {
             double y = (objY * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
             
             c.translate(x,y);
-            diagramPane.hover((int) x, (int) y);
+            diagramPane.hideTooltip();
     }    
     	
     
@@ -183,7 +183,10 @@ public class CanvasEventInstaller {
     		return getPositionInTouch((TouchEvent<? extends EventHandler>) event);
     	} else if (event instanceof MouseEvent) {
     		MouseEvent<? extends EventHandler> me = (MouseEvent<? extends EventHandler>) event;
-    		return new int[] { me.getX(), me.getY()};
+    		return new int[] { 
+    				me.getRelativeX(diagramPane.getCanvas().getElement()), 
+    				me.getRelativeY(diagramPane.getCanvas().getElement())
+    		};
     	}
     	return null;
     }
