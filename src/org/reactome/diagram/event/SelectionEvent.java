@@ -22,6 +22,7 @@ public class SelectionEvent extends GwtEvent<SelectionEventHandler> {
     private boolean doCentring; 
     
     public SelectionEvent() {
+    	doCentring = true;
     }
     
     /**
