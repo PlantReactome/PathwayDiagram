@@ -12,8 +12,6 @@ import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
@@ -27,8 +25,7 @@ public class SelectionHandler {
     private PathwayDiagramPanel diagramPanel;
     private List<GraphObject> selectedObjects;
     private SelectionEvent selectionEvent;
-    private boolean doCentring;
-    
+        
     public SelectionHandler(PathwayDiagramPanel diagramPanel) {
         this.diagramPanel = diagramPanel;
         selectedObjects = new ArrayList<GraphObject>();
@@ -108,15 +105,7 @@ public class SelectionHandler {
         if (selected != null)
             selectedObjects.add(selected);
         diagramPanel.update();
-        
-        if (event instanceof MouseEvent) {
-        	MouseEvent<? extends EventHandler> me = (MouseEvent<? extends EventHandler>) event;
-        	if (me.getNativeButton() == NativeEvent.BUTTON_RIGHT) {
-        		doCentring = false;
-        	} else {
-        		doCentring = true;
-        	}
-        }
+               
         fireSelectionEvent();
     }
     
@@ -169,9 +158,8 @@ public class SelectionHandler {
     
     private void fireSelectionEvent() {
         selectionEvent = new SelectionEvent();
-        selectionEvent.setDoCentring(doCentring);
+        selectionEvent.setDoCentring(false);
         selectionEvent.setSelectedObjects(selectedObjects);
-        diagramPanel.fireSelectionEvent(selectionEvent);
-        doCentring = true;
+        diagramPanel.fireSelectionEvent(selectionEvent);        
     }
 }
