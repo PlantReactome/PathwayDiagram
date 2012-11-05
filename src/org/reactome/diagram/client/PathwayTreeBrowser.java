@@ -74,9 +74,14 @@ public class PathwayTreeBrowser {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
                 TreeItem treeItem = event.getSelectedItem();
-                Pathway pathway = (Pathway) treeItem.getUserObject();
-                Long dbId = pathway.dbId;
-                diagramPane.setPathway(dbId);
+                ReactomeEvent re = (ReactomeEvent) treeItem.getUserObject();
+                Long dbId = re.dbId;
+                String type = re.type;
+                if (type.equals("pathway")) {
+                	diagramPane.setPathway(dbId);
+                } else if (type.equals("reaction")) {
+                	// Open diagram and centre reaction
+                }
             }
         });
         pathwayTree.addOpenHandler(new OpenHandler<TreeItem>() {
@@ -84,22 +89,22 @@ public class PathwayTreeBrowser {
             @Override
             public void onOpen(OpenEvent<TreeItem> event) {
                 TreeItem treeItem = event.getTarget();
-                Pathway pathway = (Pathway) treeItem.getUserObject();
-                showSubPathways(treeItem, pathway);
+                ReactomeEvent re = (ReactomeEvent) treeItem.getUserObject();
+                showSubPathways(treeItem, re);
                 treeItem.setState(true, false);
             }
         });
     }
     
     private void showSubPathways(final TreeItem item,
-                                 Pathway pathway) {
+                                 ReactomeEvent re) {
         if (loadedIds == null)
             loadedIds = new HashSet<Long>();
-        if (loadedIds.contains(pathway.dbId))
+        if (loadedIds.contains(re.dbId))
             return;
-        loadedIds.add(pathway.dbId);
+        loadedIds.add(re.dbId);
         // Need to load subpathway
-        String url = getRESTfulURL() + "queryById/Pathway/" + pathway.dbId;
+        String url = getRESTfulURL() + "queryById/Pathway/" + re.dbId;
 //        System.out.println("Call " + url);
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         request.setHeader("Accept", "application/xml");
@@ -131,7 +136,8 @@ public class PathwayTreeBrowser {
             Node child = list.item(i);
             if (child.getNodeName().equals("hasEvent")) {
                 Element elm = (Element) child;
-                TreeItem pathwayItem = createPathwayItem(elm);
+                String type = elm.getAttribute("xsi:type");
+                TreeItem pathwayItem = createPathwayItem(elm, type);
                 parentItem.addItem(pathwayItem);
             }
         }
@@ -204,39 +210,42 @@ public class PathwayTreeBrowser {
             Node child = nodeList.item(i);
             if (child.getNodeName().equals("pathway")) {
                 Element elm = (Element) nodeList.item(i);
-                TreeItem pathwayItem = createPathwayItem(elm);
+                TreeItem pathwayItem = createPathwayItem(elm, "pathway");
                 pathwayTree.addItem(pathwayItem);
             }
         }
-        int width = diagramPane.getOffsetWidth();
-        int height = diagramPane.getOffsetHeight();
+//        int width = diagramPane.getOffsetWidth();
+//        int height = diagramPane.getOffsetHeight();
         diagramPane.contentPane.add(contentPane, 
                                     20, 
                                     50);
     }
     
-    private TreeItem createPathwayItem(Element pathwayElm) {
-        Pathway pathway = new Pathway();
+    private TreeItem createPathwayItem(Element pathwayElm, String type) {
+        ReactomeEvent re = new ReactomeEvent();
+        re.type = type;
+        
         NodeList nodeList = pathwayElm.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             String name = node.getNodeName();
             if (name.equals("dbId"))
-                pathway.dbId = new Long(node.getFirstChild().getNodeValue());
+                re.dbId = new Long(node.getFirstChild().getNodeValue());
             else if (name.equals("displayName"))
-                pathway.name = node.getFirstChild().getNodeValue();
+                re.name = node.getFirstChild().getNodeValue();
         }
-        TreeItem treeItem = new TreeItem(pathway.name);
+        TreeItem treeItem = new TreeItem(re.name);
         treeItem.addItem(""); // Add a place holder so that this item can be opened.
-        treeItem.setUserObject(pathway);
+        treeItem.setUserObject(re);
         return treeItem;
     }
     
-    private class Pathway {
+    private class ReactomeEvent {
         Long dbId;
         String name;
+        String type;
         
-        public Pathway() {
+        public ReactomeEvent() {
         }
         
     }

@@ -119,21 +119,21 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        addTestCode();
+//        addTestCode();
     }
     
     private void addTestCode() {
-        PushButton testBtn = new PushButton("Test");
-        contentPane.add(testBtn, 400, 4);
-        testBtn.addClickHandler(new ClickHandler() {
+        //PushButton testBtn = new PushButton("Test");
+       // contentPane.add(testBtn, 400, 4);
+      //  testBtn.addClickHandler(new ClickHandler() {
             
-            @Override
-            public void onClick(ClickEvent event) {
+          //  @Override
+    //        public void onClick(ClickEvent event) {
 //                controller.listPathways();
                 PathwayTreeBrowser treeBrowser = new PathwayTreeBrowser(PathwayDiagramPanel.this);
                 treeBrowser.initTree();
-            }
-        });
+  //          }
+//        });
         // Test selections
         SelectionEventHandler selectionHandler = new SelectionEventHandler() {
             
@@ -343,6 +343,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     protected void fireSelectionEvent(SelectionEvent event) {
         canvas.fireEvent(event);
+        canvas.update();
     }
     
     /**

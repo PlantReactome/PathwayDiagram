@@ -248,13 +248,24 @@ public class CanvasEventInstaller {
         	}
 
         };
+
+        DoubleClickHandler doubleClickHandler = new DoubleClickHandler() {
+
+			@Override
+			public void onDoubleClick(DoubleClickEvent event) {
+				event.stopPropagation();
+				doubleClick(event);
+			}
         
+        };	
+        	
         PlugInSupportCanvas canvas = diagramPane.getCanvas();
         canvas.addMouseDownHandler(mouseDownHandler);
         canvas.addMouseUpHandler(mouseUpHandler);
         canvas.addMouseMoveHandler(mouseMoveHandler);
         canvas.addMouseOutHandler(mouseOutHandler);
         canvas.addMouseWheelHandler(mouseWheelHandler);
+        canvas.addDoubleClickHandler(doubleClickHandler);
     }
     
     private void addKeyHandlers() {
@@ -335,6 +346,10 @@ public class CanvasEventInstaller {
     	
     	canvas.update();
    	}
+
+    private void doubleClick(DoubleClickEvent event) {
+    	mouseUp(event);
+    }
     
     private void arrowKeyUp(KeyUpEvent event) {
     	PathwayCanvas canvas = diagramPane.getCanvas();
