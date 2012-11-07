@@ -15,12 +15,6 @@ import com.google.gwt.canvas.dom.client.Context2d;
  *
  */
 public class PathwayCanvas extends PlugInSupportCanvas {
-	public final int MOVEX = 100;
-	public final int MOVEY = 100;
-	public final double ZOOMOUT = 0.8d;
-	public final double ZOOMIN = 1.25d;
-	
-	
     // Pathway to be displayed
     private CanvasPathway pathway;
     // These are used for translate

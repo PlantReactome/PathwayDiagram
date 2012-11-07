@@ -4,8 +4,11 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.List;
+
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
+import org.reactome.diagram.model.ReactomeObject;
 
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.user.client.Command;
@@ -56,16 +59,32 @@ public class CanvasPopupMenu extends PopupPanel {
     // Complex Entity Menu
     private void createComplexMenu() {
     	createPhysicalEntityMenu();
-    	menuBar.addItem(new MenuItem("Participating Molecules", new Command() {
-    		@Override
-    		public void execute() {
-    			
-    		}
-    	})); 
+    	menuBar.addItem(new MenuItem("Participating Molecules", getPMMenu())); 
+    }
+
+    // Participating molecules menu	
+    private MenuBar getPMMenu() {
+    	MenuBar pmMenu = new MenuBar(true);
+    	List<ReactomeObject> participatingMolecules = getPMs(); 
+    	
+    	for (ReactomeObject pm : participatingMolecules) { 
+    		pmMenu.addItem(pm.getDisplayName(), new Command() {
+				@Override
+				public void execute() {
+						
+				}    			
+    		});
+    	}	
+    	
+    	return pmMenu;
     }
     
-    // Protein Entity Menu    
-    private void createProteinMenu() {
+    private List<ReactomeObject> getPMs() {
+    	return null;
+    }
+    
+    // Protein/RNA/DNA Entity Menu    
+    private void createGEEMenu() {
     	createPhysicalEntityMenu();
     	menuBar.addItem(new MenuItem("Display Interactors", new Command() {
     		@Override
@@ -85,18 +104,27 @@ public class CanvasPopupMenu extends PopupPanel {
     // Small Molecule Menu	
     private void createSmallMoleculeMenu() {
     	createPhysicalEntityMenu();
-    }	
+    }
     
     // Menu items common to all physical entities
     private void createPhysicalEntityMenu() {
-    	menuBar.addItem(new MenuItem("Other Pathways", new Command() {
-    		@Override
-    		public void execute() {
-    			
-    		}
-    	})); 
+    	menuBar.addItem(new MenuItem("Other Pathways", getPathwayMenu())); 
     }
         
+    private MenuBar getPathwayMenu() {
+    	MenuBar pathwayMenu = new MenuBar(true);
+    	List<ReactomeObject> pathways = getOtherPathways();
+    	
+    	
+    	
+    	
+    	return pathwayMenu;
+    }
+    
+    private List<ReactomeObject> getOtherPathways() {
+    	return null;
+    }
+    
     /**
      * Override to remove any popup menu.
      */
@@ -111,27 +139,24 @@ public class CanvasPopupMenu extends PopupPanel {
      * @param panel
      */
     public void showPopupMenu(ContextMenuEvent event) {
-        GraphObjectType type;
-    	
-    	event.preventDefault();
+       	event.preventDefault();
         event.stopPropagation();
         
         hide();
-        
-        //List<GraphObject> selectedObjects = diagramPane.getSelectedObjects();
-        // Support single selection only currently
-        //if (selectedObjects == null || selectedObjects.size() != 1)
-        //    return;
-        
         selected = getSelectedObject();
-        type = selected.getType();
+        createMenu(event);
+        
+    }
+    
+    private void createMenu(ContextMenuEvent event) {
+        GraphObjectType type = selected.getType();
         
         if (type == GraphObjectType.ProcessNode) {
             createProcessNodeMenu();            
         } else if (type == GraphObjectType.RenderableComplex) {
         	createComplexMenu();
         } else if (type == GraphObjectType.RenderableProtein) {
-        	createProteinMenu();
+        	createGEEMenu();
         } else if (type == GraphObjectType.RenderableChemical) {
         	createSmallMoleculeMenu();
         }

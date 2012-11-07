@@ -13,6 +13,7 @@ import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
 import org.reactome.diagram.model.Node;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Touch;
@@ -339,9 +340,9 @@ public class CanvasEventInstaller {
     private void mouseWheel(MouseWheelEvent event) {
     	PathwayCanvas canvas = diagramPane.getCanvas();
     	if (event.isNorth()) {
-    		canvas.scale(canvas.ZOOMIN);
+    		canvas.scale(Parameters.ZOOMIN);
     	} else {
-    		canvas.scale(canvas.ZOOMOUT);
+    		canvas.scale(Parameters.ZOOMOUT);
     	}
     	
     	canvas.update();
@@ -357,13 +358,13 @@ public class CanvasEventInstaller {
     	int y = 0; 
     	
     	if (event.isLeftArrow()) {
-    		x = canvas.MOVEX;
+    		x = Parameters.MOVEX;
     	} else if (event.isRightArrow()) {
-    		x = -canvas.MOVEX;
+    		x = -Parameters.MOVEX;
     	} else if (event.isUpArrow()) {
-    		y = canvas.MOVEY;
+    		y = Parameters.MOVEY;
     	} else if (event.isDownArrow()) {
-    		y = -canvas.MOVEY;
+    		y = -Parameters.MOVEY;
     	}
     	
     	canvas.translate(x, y);

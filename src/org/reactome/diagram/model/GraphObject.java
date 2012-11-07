@@ -12,11 +12,7 @@ import com.google.gwt.touch.client.Point;
  * @author gwu
  *
  */
-public abstract class GraphObject {
-    
-    private String displayName;
-    private Long reactomeId;
-    private Integer id;
+public abstract class GraphObject extends ReactomeObject {
     // Position 
     protected Point position;
     // Color for lines
@@ -67,30 +63,6 @@ public abstract class GraphObject {
     
     public Point getPosition() {
         return position;
-    }
-    
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public Long getReactomeId() {
-        return reactomeId;
-    }
-
-    public void setReactomeId(Long reactomeId) {
-        this.reactomeId = reactomeId;
     }
 
     public String getLineColor() {

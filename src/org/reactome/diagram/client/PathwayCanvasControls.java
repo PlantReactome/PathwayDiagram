@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.client;
 
+import org.reactome.diagram.view.Parameters;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -68,7 +70,7 @@ public class PathwayCanvasControls extends FlexTable {
         zoomPlus.setTitle("zoom in");
         zoomPlus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.scale(canvas.ZOOMIN);
+                canvas.scale(Parameters.ZOOMIN);
                 canvas.update();
             }
         });
@@ -78,7 +80,7 @@ public class PathwayCanvasControls extends FlexTable {
         zoomMinus.setTitle("zoom out");
         zoomMinus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.scale(canvas.ZOOMOUT);
+                canvas.scale(Parameters.ZOOMOUT);
                 canvas.update();
             }
         });
@@ -88,7 +90,7 @@ public class PathwayCanvasControls extends FlexTable {
         scrollLeft.setTitle("move left");
         scrollLeft.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(canvas.MOVEX, 0);
+                canvas.translate(Parameters.MOVEX, 0);
                 canvas.update();
             }
         });
@@ -98,7 +100,7 @@ public class PathwayCanvasControls extends FlexTable {
         scrollTop.setTitle("move up");
         scrollTop.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(0, canvas.MOVEY);
+                canvas.translate(0, Parameters.MOVEY);
                 canvas.update();
             }
         });
@@ -108,7 +110,7 @@ public class PathwayCanvasControls extends FlexTable {
         scrollBottom.setTitle("move down");
         scrollBottom.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(0, -canvas.MOVEY);
+                canvas.translate(0, -Parameters.MOVEY);
                 canvas.update();
             }
         });
@@ -118,7 +120,7 @@ public class PathwayCanvasControls extends FlexTable {
         scrollRight.setTitle("move right");
         scrollRight.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(-canvas.MOVEX, 0);
+                canvas.translate(-Parameters.MOVEX, 0);
                 canvas.update();
             }
         });
