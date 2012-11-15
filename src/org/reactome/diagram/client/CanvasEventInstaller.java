@@ -223,8 +223,8 @@ public class CanvasEventInstaller {
             
             @Override
             public void onMouseUp(MouseUpEvent event) {
-                if (isMouseDown) {
-                    event.stopPropagation();
+                if (isMouseDown) {      
+                	event.stopPropagation();
                     mouseUp(event);
                 }
             }
@@ -259,14 +259,14 @@ public class CanvasEventInstaller {
 			}
         
         };	
-        	
+        
         PlugInSupportCanvas canvas = diagramPane.getCanvas();
         canvas.addMouseDownHandler(mouseDownHandler);
         canvas.addMouseUpHandler(mouseUpHandler);
         canvas.addMouseMoveHandler(mouseMoveHandler);
         canvas.addMouseOutHandler(mouseOutHandler);
         canvas.addMouseWheelHandler(mouseWheelHandler);
-        canvas.addDoubleClickHandler(doubleClickHandler);
+        canvas.addDoubleClickHandler(doubleClickHandler);        
     }
     
     private void addKeyHandlers() {
@@ -291,7 +291,7 @@ public class CanvasEventInstaller {
     	int [] coord = getCoordinates(event);
     	previousX = coord[0];
         previousY = coord[1];
-        isMouseDown = true;
+        isMouseDown = true;        	
         diagramPane.hideTooltip();
     }
     
@@ -319,34 +319,40 @@ public class CanvasEventInstaller {
     	int x = coord[0];
     	int y = coord[1];
         
-    	if (isMouseDown)
-            isMouseDown = false;
-        
+    	if (isMouseDown) {
+            isMouseDown = false;            
+    	}
+            
        	if (isDragging) {
        		isDragging = false;
        	} else { // Do click selection
        		//TODO: selection cannot work under iPad. Need to check touchEnd event.
        		diagramPane.select(event, x, y);
        	}
+       	
+       	
     }
     
     private void mouseOut(GwtEvent<? extends EventHandler> event) {
-        if (isMouseDown)
+        if (isMouseDown) {
             isMouseDown = false;
+        }
         if (isDragging)
             isDragging = false;
     }
     
     private void mouseWheel(MouseWheelEvent event) {
-    	PathwayCanvas canvas = diagramPane.getCanvas();
-    	if (event.isNorth()) {
-    		canvas.scale(Parameters.ZOOMIN);
-    	} else {
-    		canvas.scale(Parameters.ZOOMOUT);
-    	}
+    	if (!diagramPane.getPopupMenu().isShowing()) {
+    		PathwayCanvas canvas = diagramPane.getCanvas();
+    		if (event.isNorth()) {
+    			canvas.scale(Parameters.ZOOMIN);
+    		} else {
+    			canvas.scale(Parameters.ZOOMOUT);
+    		}
     	
-    	canvas.update();
-   	}
+    		canvas.update();
+    	}	
+    }
 
     private void doubleClick(DoubleClickEvent event) {
     	mouseUp(event);

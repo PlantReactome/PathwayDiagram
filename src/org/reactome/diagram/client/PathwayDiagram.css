@@ -27,6 +27,15 @@
 	z-index: 2;
 }
 
+.subMenu {
+	border: 1px solid #000;
+	position: absolute; 
+	background-color: #FFF;
+	z-index: 2;
+	left: -1px;
+	top: -1px;
+}
+
 .tooltip {
 	background-color:rgba(220,220,220,1);
 }

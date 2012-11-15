@@ -12,11 +12,12 @@ import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 
 /**
  * This class is used to handle selection related stuff for PathwayDiagramPanel.
@@ -54,9 +55,9 @@ public class SelectionHandler {
     }
     
     public void select(GwtEvent<? extends EventHandler> event, double x, double y) {
-        if (diagramPanel.getPathway() == null ||
-            diagramPanel.getPathway().getGraphObjects() == null)
+        if (diagramPanel.getPathway() == null || diagramPanel.getPathway().getGraphObjects() == null)
             return;
+                
         Point point = new Point(x, y);
         // Three layers: last for compartment, second to last complexes, and others
         // Only one object should be selected
@@ -90,37 +91,37 @@ public class SelectionHandler {
         }
         
         // Don't do anything if just empty click
-        if (selected == null && (selectedObjects == null || selectedObjects.size() == 0))
-            return;
-        
-        boolean pathwayDoubleClicked = isPathwayDoubleClicked(selected, event);
-        
-        // Compartment cannot be selected
-        // A special case to gain some performance: this should be common during selection.
-        if (selected != null) {
-            if (selectedObjects.size() == 1 &&
-                selected == selectedObjects.get(0) && !pathwayDoubleClicked) {
-                return; // Don't redraw
-            }
-        }
-        for (GraphObject obj : selectedObjects) {
-            if (obj != selected)
-                obj.setIsSelected(false);
-        }
-        selectedObjects.clear();
-                
-        if (pathwayDoubleClicked) {
-        	diagramPanel.setPathway(selected.getReactomeId());
+        if (selected == null) {
+        	deSelectAllExcept(selected);
         	return;
-        }
+        } else {        
+        	boolean pathwayDoubleClicked = isPathwayDoubleClicked(selected, event);
+                    	
+        	// If previous object was reselected
+        	// A special case to gain some performance: this should be common during selection.
+            if (selectedObjects.size() == 1 && selected == selectedObjects.get(0) && !pathwayDoubleClicked) {
+            	showPopupIfRightClick(event);
+            	return; // Don't redraw
+            }        
+
+            // De-select previous object
+            deSelectAllExcept(selected);
         
-        if (selected != null) {
-        	selectedObjects.add(selected);
-        }
+            // Go to selected pathway if process node double clicked
+            if (pathwayDoubleClicked) {
+            	diagramPanel.setPathway(selected.getReactomeId());
+            	return;
+            }
         
-        fireSelectionEvent();
+            // Add selected object to class variable            
+            selectedObjects.add(selected);          
+                        
+            showPopupIfRightClick(event);
+            
+            fireSelectionEvent();
+            
+        }
     }
-    
     public void setSelectionObjects(List<GraphObject> objects) {
         CanvasPathway pathway = diagramPanel.getPathway();
         if (pathway == null)
@@ -163,9 +164,7 @@ public class SelectionHandler {
     public void clearSelection() {
         setSelectionIds(new ArrayList<Long>());
     }
-    
-    
-    
+        
     private void fireSelectionEvent() {
         selectionEvent = new SelectionEvent();
         selectionEvent.setDoCentring(false);
@@ -173,7 +172,22 @@ public class SelectionHandler {
         diagramPanel.fireSelectionEvent(selectionEvent);        
     }
     
+    private void deSelectAllExcept(GraphObject selected) {
+    	for (GraphObject obj : selectedObjects) {
+    		if (obj != selected) {
+    			obj.setIsSelected(false);
+    		}
+    	}
+    	selectedObjects.clear();
+    }
+        
     private boolean isPathwayDoubleClicked(GraphObject selected, GwtEvent<? extends EventHandler> event) {
     	return (event instanceof DoubleClickEvent && selected.getType() == GraphObjectType.ProcessNode);
+    }
+    
+    private void showPopupIfRightClick(GwtEvent<? extends EventHandler> event) {
+    	if (event instanceof MouseEvent && ((MouseEvent <? extends EventHandler>) event).getNativeButton() == NativeEvent.BUTTON_RIGHT) {
+    		diagramPanel.getPopupMenu().showPopupMenu((MouseEvent <? extends EventHandler>) event);
+    	}
     }
 }

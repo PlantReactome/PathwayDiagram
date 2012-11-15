@@ -10,8 +10,10 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ReactomeObject;
 
-import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.event.dom.client.MouseEvent;
+import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -44,6 +46,10 @@ public class CanvasPopupMenu extends PopupPanel {
         return this.diagramPane;
     }
 
+    public MenuBar getMenuBar() {
+    	return this.menuBar;
+    }
+    
     // Pathway Node Menu
     private void createProcessNodeMenu() {
         menuBar.addItem(new MenuItem("Go to Pathway", new Command() {
@@ -59,30 +65,14 @@ public class CanvasPopupMenu extends PopupPanel {
     // Complex Entity Menu
     private void createComplexMenu() {
     	createPhysicalEntityMenu();
-    	menuBar.addItem(new MenuItem("Participating Molecules", getPMMenu())); 
+    	setPMMenu(); 
     }
 
     // Participating molecules menu	
-    private MenuBar getPMMenu() {
-    	MenuBar pmMenu = new MenuBar(true);
-    	List<ReactomeObject> participatingMolecules = getPMs(); 
-    	
-    	for (ReactomeObject pm : participatingMolecules) { 
-    		pmMenu.addItem(pm.getDisplayName(), new Command() {
-				@Override
-				public void execute() {
-						
-				}    			
-    		});
-    	}	
-    	
-    	return pmMenu;
+    private void setPMMenu() {
+    	diagramPane.getController().getParticipatingMolecules(selected.getReactomeId());    	
     }
-    
-    private List<ReactomeObject> getPMs() {
-    	return null;
-    }
-    
+        
     // Protein/RNA/DNA Entity Menu    
     private void createGEEMenu() {
     	createPhysicalEntityMenu();
@@ -113,9 +103,10 @@ public class CanvasPopupMenu extends PopupPanel {
         
     private MenuBar getPathwayMenu() {
     	MenuBar pathwayMenu = new MenuBar(true);
+    	pathwayMenu.setAutoOpen(true);    	
+    	pathwayMenu.setStyleName(this.getStyleName());
+    	
     	List<ReactomeObject> pathways = getOtherPathways();
-    	
-    	
     	
     	
     	return pathwayMenu;
@@ -138,18 +129,18 @@ public class CanvasPopupMenu extends PopupPanel {
      * Show popup menu
      * @param panel
      */
-    public void showPopupMenu(ContextMenuEvent event) {
+    public void showPopupMenu(MouseEvent<? extends EventHandler> event) {
        	event.preventDefault();
         event.stopPropagation();
         
         hide();
-        selected = getSelectedObject();
         createMenu(event);
-        
+        show();
     }
     
-    private void createMenu(ContextMenuEvent event) {
-        GraphObjectType type = selected.getType();
+    private void createMenu(MouseEvent<? extends EventHandler> event) {
+        selected = getSelectedObject();    	
+    	GraphObjectType type = selected.getType();
         
         if (type == GraphObjectType.ProcessNode) {
             createProcessNodeMenu();            
@@ -162,9 +153,7 @@ public class CanvasPopupMenu extends PopupPanel {
         }
          
         setPopupPosition(event.getNativeEvent().getClientX() + 2, 
-                         event.getNativeEvent().getClientY() + 2); // A little shift if actually better
-        
-        show();
+                         event.getNativeEvent().getClientY() + 2); // A little shift if actually better                
     }
     
     private GraphObject getSelectedObject() {
