@@ -40,11 +40,12 @@ import com.google.gwt.user.client.ui.RequiresResize;
  * @author gwu
  *
  */
-public class PathwayDiagramPanel extends Composite implements ContextMenuHandler, RequiresResize {
-    // Use an AbsolutePanel so that controls can be placed onto on a canvas
+public class PathwayDiagramPanel extends Composite implements ContextMenuHandler, RequiresResize {    // Use an AbsolutePanel so that controls can be placed onto on a canvas
     protected AbsolutePanel contentPane;
     // Pathway diagram should be drawn here
     private PathwayCanvas canvas;
+    // Interactors shown here
+    private InteractorCanvas interactorCanvas;
     // For overview
     private OverviewCanvas overview;
     // For all selection related stuff.
@@ -58,6 +59,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     // Loading icon
     private Image loadingIcon;
 
+    private Style style; 
+    
     interface ImageResources extends ClientBundle {
     	@Source("ajax-loader.gif")
     	ImageResource loading();
@@ -73,7 +76,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private void init() {
         // Set up style
         Resources resources = GWT.create(Resources.class);
-        Style style = resources.pathwayDiagramStyle();
+        style = resources.pathwayDiagramStyle();
         style.ensureInjected();
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
@@ -119,20 +122,20 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-//        addTestCode();
+        addTestCode();
     }
     
     private void addTestCode() {
-        //PushButton testBtn = new PushButton("Test");
-       // contentPane.add(testBtn, 400, 4);
-      //  testBtn.addClickHandler(new ClickHandler() {
+//        PushButton testBtn = new PushButton("Test");
+ //       contentPane.add(testBtn, 400, 4);
+//    	testBtn.addClickHandler(new ClickHandler() {
             
           //  @Override
-    //        public void onClick(ClickEvent event) {
+//        public void onClick(ClickEvent event) {
 //                controller.listPathways();
                 PathwayTreeBrowser treeBrowser = new PathwayTreeBrowser(PathwayDiagramPanel.this);
                 treeBrowser.initTree();
-  //          }
+//            }
 //        });
         // Test selections
         SelectionEventHandler selectionHandler = new SelectionEventHandler() {
@@ -184,8 +187,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         return this.controller;
     }
     
-    public void onContextMenu(ContextMenuEvent event) {
-        popupMenu.showPopupMenu(event);
+    public CanvasPopupMenu getPopupMenu() {
+        return popupMenu;
     }
         
     public void setSize(int windowWidth, int windowHeight) {
@@ -385,7 +388,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void update() {
         canvas.update();
     }
-        
+    
+    public Style getStyle() {
+    	return this.style;
+    }
+    
     /**
      * Mainly to load Style
      */
@@ -411,6 +418,23 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         String canvasPopup();
         
+        String subMenu();
+        
         String tooltip();
     }
+
+	@Override
+	public void onContextMenu(ContextMenuEvent event) {
+		// Suppress browser context menu so canvas pop-up menu can be seen
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	public InteractorCanvas getInteractorCanvas() {
+		return interactorCanvas;
+	}
+
+	public void setInteractorCanvas(InteractorCanvas interactorCanvas) {
+		this.interactorCanvas = interactorCanvas;
+	}
 }

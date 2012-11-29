@@ -14,8 +14,8 @@ public class ReactomeObject {
     private String displayName;
     private Long reactomeId;
     private Integer id;
-        
-    protected ReactomeObject() {
+    
+    public ReactomeObject() {
     }
         
     public void setId(Integer id) {

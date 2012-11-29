@@ -167,6 +167,5 @@ public class Node extends GraphObject {
 
 	public void setInsets(Bounds insets) {
 		this.insets = insets;
-	}
-	
+	}	
 }

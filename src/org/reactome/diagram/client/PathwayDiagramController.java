@@ -4,15 +4,12 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
-import org.reactome.diagram.model.ReactomeObject;
+import org.reactome.diagram.model.Node;
+import org.reactome.diagram.model.ProteinNode;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
@@ -20,16 +17,13 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
 
 /**
@@ -46,7 +40,6 @@ public class PathwayDiagramController {
     
     //    public static final String RESTFUL_URL = "http://localhost:8080/ReactomeRESTfulAPI/RESTfulWS/pathwaydiagram/";
     private PathwayDiagramPanel diagramPane;
-    private List<ReactomeObject> molecules;
     
     public PathwayDiagramController(PathwayDiagramPanel pane) {
         this.diagramPane = pane;
@@ -106,11 +99,45 @@ public class PathwayDiagramController {
                                     (height - spHeight) / 2);
     }
     
+
+    public void getInteractors(final ProteinNode selected) {
+    	Long dbId = selected.getReactomeId(); 
+    	String hostUrl = getHostUrl();
+    	
+    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "psiquicInteractions/" + dbId + "/MINT";
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	
+    	try {
+    		requestBuilder.sendRequest(null, new RequestCallback() {
+				public void onResponseReceived(Request request,	Response response) {
+					if (response.getStatusCode() == 200) {
+						selected.setInteractors(response.getText());
+						
+						InteractorCanvas ic = diagramPane.getInteractorCanvas();
+						if (ic == null) { 
+							ic = new InteractorCanvas();
+							diagramPane.setInteractorCanvas(ic);
+						}
+						ic.addProtein(selected);
+					} else {
+						requestFailed("Failed to get interactors");
+					}
+				}
+
+				public void onError(Request request, Throwable exception) {
+					requestFailed(exception);
+				}
+    			
+    		});
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
     
     public void getParticipatingMolecules(final Long dbId) {
     	String hostUrl = getHostUrl();
-    	
-    	this.molecules = new ArrayList<ReactomeObject>();
+    	    	
     	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
     	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "complexSubunits/" + dbId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
@@ -123,7 +150,7 @@ public class PathwayDiagramController {
     			
     			public void onResponseReceived(Request request, Response response) {
     				if (response.getStatusCode() == 200) {
-    					setPMList(response.getText());
+    					diagramPane.getPopupMenu().setPMMenu(response.getText());
     				} else {
     					requestFailed("response failed");
     				}
@@ -131,52 +158,6 @@ public class PathwayDiagramController {
     		});    		    		
     	} catch (RequestException ex) {
     		requestFailed(ex);    		
-    	}
-    }
-    
-    private void setPMList(String xml) {
-    	MenuBar pmMenu = new MenuBar(true);
-    	pmMenu.setAutoOpen(true);    	
-    	try {
-    		Document pmDom = XMLParser.parse(xml);
-    		Element pmElement = pmDom.getDocumentElement();
-    		XMLParser.removeWhitespace(pmElement);
-    		
-    		NodeList nodeList = pmElement.getChildNodes();
-    		
-    		for (int i = 0; i < nodeList.getLength(); i++) {
-    			Node node = nodeList.item(i);
-    			String name = node.getNodeName();
-   			
-    			if (name.equals("physicalEntity")) {
-    				Element peElement = (Element) node;
-   				    					
-    				Node idNode = peElement.getElementsByTagName("dbId").item(0);
-    				Long molId = Long.parseLong(idNode.getChildNodes().item(0).getNodeValue());
-    					
-    				Node nameNode = peElement.getElementsByTagName("displayName").item(0);
-    				String molName = nameNode.getChildNodes().item(0).getNodeValue();
-    					
-    				ReactomeObject pm = new ReactomeObject();
-    				pm.setDisplayName(molName);
-    				pm.setReactomeId(molId);   				
-    		
-    				pmMenu.addItem(molName, new Command() {
-
-						@Override
-						public void execute() {
-														
-						}    					
-    				});
-    			}	
-    		}
-    		CanvasPopupMenu popup = diagramPane.getPopupMenu();    		
-    		pmMenu.setStyleName(diagramPane.getStyle().subMenu());
-    		pmMenu.addSeparator();
-    		popup.getMenuBar().addItem("Participating Molecules", pmMenu);
-    		popup.show();
-    	} catch (Exception e) {
-    		e.printStackTrace();
     	}
     }
     

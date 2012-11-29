@@ -15,10 +15,10 @@ import com.google.gwt.canvas.dom.client.Context2d;
  */
 public abstract class DiagramCanvas extends PlugInSupportCanvas {
     // These are used for translate
-    private double translateX;
-    private double translateY;
+    protected double translateX;
+    protected double translateY;
     // This is for scale
-    private double scale;
+    protected double scale;
     // For view change
     protected ViewChangeEvent viewEvent;
         
@@ -32,7 +32,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         fireViewChangeEvent();
     }
     
-    private void fireViewChangeEvent() {
+    protected void fireViewChangeEvent() {
         if (viewEvent == null)
             viewEvent = new ViewChangeEvent();
         viewEvent.setScale(scale);
