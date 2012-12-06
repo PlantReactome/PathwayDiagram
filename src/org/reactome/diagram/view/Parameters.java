@@ -30,6 +30,11 @@ public class Parameters {
 	public static final int MOVEY = 100;
 	public static final double ZOOMIN = 1.25d;
 	public static final double ZOOMOUT = 0.8d;
+
+	public static final int TOTAL_INTERACTOR_NUM = 10;
+	public static final int INTERACTOR_EDGE_LENGTH = 10;
+	public static final int INTERACTOR_WIDTH = 20;
+	public static final int INTERACTOR_HEIGHT = 10;
 	
 	public static final int ZoomFactor = 1;
 	public static final int UpHeight = 0;

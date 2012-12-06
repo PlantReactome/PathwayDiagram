@@ -157,6 +157,12 @@ public class CanvasPathway extends Node {
     private Node createNode(Element nodeElm) {
         Node node = new Node();
         parseGraphObjectProperties(nodeElm, node);
+        
+        if (node.getType() == GraphObjectType.RenderableProtein) {
+        	node = new ProteinNode();
+        	parseGraphObjectProperties(nodeElm, node);
+        }
+        
         // Some node specific properties
         String bounds = nodeElm.getAttribute("bounds");
         if (bounds != null) {

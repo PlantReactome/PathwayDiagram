@@ -59,6 +59,13 @@ public class Bounds {
         this.y = y;
     }
 
+    public Point getCentre() {
+    	int x = this.x + (this.width / 2);
+    	int y = this.y + (this.height / 2);
+    	
+    	return new Point(x, y);
+    }
+    
     public int getWidth() {
         return width;
     }

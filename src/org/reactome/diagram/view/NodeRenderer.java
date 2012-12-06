@@ -48,6 +48,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         else {
             c2d.setFillStyle(CssColor.make(color));
         }
+        
         setStroke(c2d,
                   node);
         drawRectangle(bounds, 

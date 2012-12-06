@@ -436,5 +436,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public void setInteractorCanvas(InteractorCanvas interactorCanvas) {
 		this.interactorCanvas = interactorCanvas;
+		this.contentPane.add(interactorCanvas, 4, 4);
+		this.contentPane.setStyleName(this.style.mainCanvas());
 	}
 }
