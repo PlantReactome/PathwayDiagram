@@ -118,6 +118,11 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
     
     private void drawReactionNode(Context2d context, HyperEdge edge) {
         ReactionType reactionType = edge.getReactionType();
+        
+        if (reactionType == null) {
+        	return;
+        }
+        
         if (reactionType == ReactionType.ASSOCIATION ||
             reactionType == ReactionType.DISSOCIATION) {
             drawAssociationType(context, edge, reactionType);

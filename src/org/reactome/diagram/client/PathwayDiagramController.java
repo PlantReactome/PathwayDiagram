@@ -115,13 +115,7 @@ public class PathwayDiagramController {
 						selected.setInteractors(response.getText());
 						
 						InteractorCanvas ic = diagramPane.getInteractorCanvas();
-						
-						if (ic == null) { 							
-							ic = new InteractorCanvas();
-							diagramPane.setInteractorCanvas(ic);
-						}
-						//ProteinNode pn = new ProteinNode();
-						//ic.addProtein(pn);
+						ic.setVisible(true);
 						ic.addProtein(selected);
 					} else {
 						requestFailed("Failed to get interactors");

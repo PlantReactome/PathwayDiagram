@@ -88,6 +88,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
         
+        interactorCanvas = new InteractorCanvas();
+        contentPane.add(interactorCanvas, 4, 4);
+        interactorCanvas.setVisible(false);
+        
         // Set up overview
         overview = new OverviewCanvas();
         // the width should be fixed
@@ -122,7 +126,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        addTestCode();
+        //addTestCode();
     }
     
     private void addTestCode() {
@@ -196,9 +200,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         int height = (int) (windowHeight - 40);
         super.setSize(width + "px", height + "px");
         onResize(width, height);
-//        canvas.setSize(width - 8 + "px", height - 8 + "px");
-//        canvas.setCoordinateSpaceWidth(width - 8);
-//        canvas.setCoordinateSpaceHeight(height - 8);
+        
+        if (interactorCanvas != null) {
+        	interactorCanvas.setSize(width - 8 + "px", height - 8 + "px");
+        	interactorCanvas.setCoordinateSpaceWidth(width - 8);
+        	interactorCanvas.setCoordinateSpaceHeight(height - 8);
+        }	
+        
 //        // Need to reset the overview position so that it stays at the bottom-left corner
 //        if (!overview.isVisible())
 //            overview.setVisible(true);
@@ -215,6 +223,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         canvas.setSize(width - 8 + "px", height - 8 + "px");
         canvas.setCoordinateSpaceWidth(width - 8);
         canvas.setCoordinateSpaceHeight(height - 8);
+
+        
+        
         // Need to reset the overview position so that it stays at the bottom-left corner
         if (!overview.isVisible())
             overview.setVisible(true);
@@ -435,8 +446,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	}
 
 	public void setInteractorCanvas(InteractorCanvas interactorCanvas) {
-		this.interactorCanvas = interactorCanvas;
-		this.contentPane.add(interactorCanvas, 4, 4);
-		this.contentPane.setStyleName(this.style.mainCanvas());
+				
 	}
 }
