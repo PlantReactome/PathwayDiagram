@@ -23,7 +23,13 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected ViewChangeEvent viewEvent;
         
     public DiagramCanvas() {
+    	scale = 1.0d;
+    }
+    
+    public DiagramCanvas(PathwayDiagramPanel diagramPane) {
         scale = 1.0d;
+        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(diagramPane, this);
+        eventInstaller.installHandlers();
     }
         
     public void translate(double dx, double dy) {

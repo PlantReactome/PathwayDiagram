@@ -20,7 +20,11 @@ public class PathwayCanvas extends DiagramCanvas {
     private PathwayCanvasDrawer drawer;
     
     public PathwayCanvas() {
-    	super();
+    	drawer = new PathwayCanvasDrawer();
+    }
+    
+    public PathwayCanvas(PathwayDiagramPanel diagramPane) {
+    	super(diagramPane);
         drawer = new PathwayCanvasDrawer();
     }
     

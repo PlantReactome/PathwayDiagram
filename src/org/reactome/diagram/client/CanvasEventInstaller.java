@@ -29,6 +29,7 @@ import com.google.gwt.touch.client.Point;
  */
 public class CanvasEventInstaller {
     private PathwayDiagramPanel diagramPane;
+    private DiagramCanvas canvas;
     // The following properties are used for panning
     private boolean isDragging;
     private boolean isMouseDown;
@@ -36,8 +37,9 @@ public class CanvasEventInstaller {
     private int previousY;
     
     
-    public CanvasEventInstaller(PathwayDiagramPanel diagramPanel) {
+    public CanvasEventInstaller(PathwayDiagramPanel diagramPanel, DiagramCanvas canvas) {
         this.diagramPane = diagramPanel;
+        this.canvas = canvas;
     }
     
     public void installHandlers() {
@@ -56,7 +58,6 @@ public class CanvasEventInstaller {
 //        });
 
         final OverviewCanvas overview = diagramPane.getOverview();
-        final PathwayCanvas canvas = diagramPane.getCanvas();
         canvas.addHandler(overview, 
                           ViewChangeEvent.TYPE);
         // To catch overview dragging
@@ -67,9 +68,9 @@ public class CanvasEventInstaller {
                 double dy = event.getTranslateY();
                 double scale = event.getScale();
                 double canvasScale = canvas.getScale();
-                canvas.translate(-dx / scale * canvasScale, 
+                diagramPane.translate(-dx / scale * canvasScale, 
                                  -dy / scale * canvasScale);
-                canvas.update();
+                diagramPane.update();
             }
         };
         overview.addHandler(overviewEventHandler,
@@ -123,8 +124,7 @@ public class CanvasEventInstaller {
     private void centreObject(GraphObject obj) {
             // Centre selected object
             PathwayCanvas c = diagramPane.getCanvas();
-            c.resetTranslate();
-            
+                    
             double scale = c.getScale();
             
             Point objPos = obj.getPosition();
@@ -134,7 +134,7 @@ public class CanvasEventInstaller {
             double x = (objX * -1.0 * scale) + (c.getCoordinateSpaceWidth() / 2);
             double y = (objY * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
             
-            c.translate(x,y);
+            diagramPane.translate(-objX + x, -objY + y);
             diagramPane.hideTooltip();
     }    
     	
@@ -150,7 +150,7 @@ public class CanvasEventInstaller {
                 mouseDown(event);
             }
         };
-        diagramPane.getCanvas().addTouchStartHandler(touchStartHandler);
+        canvas.addTouchStartHandler(touchStartHandler);
         
         TouchMoveHandler touchMoveHandler = new TouchMoveHandler() {
             
@@ -163,7 +163,7 @@ public class CanvasEventInstaller {
                 }
             }
         };
-        diagramPane.getCanvas().addTouchMoveHandler(touchMoveHandler);
+        canvas.addTouchMoveHandler(touchMoveHandler);
         
         TouchEndHandler touchEndHandler = new TouchEndHandler() {
             
@@ -176,7 +176,7 @@ public class CanvasEventInstaller {
                 }
             }
         };
-        diagramPane.getCanvas().addTouchEndHandler(touchEndHandler);
+        canvas.addTouchEndHandler(touchEndHandler);
     }
     
     private int[] getCoordinates(GwtEvent<? extends EventHandler> event) {
@@ -185,8 +185,8 @@ public class CanvasEventInstaller {
     	} else if (event instanceof MouseEvent) {
     		MouseEvent<? extends EventHandler> me = (MouseEvent<? extends EventHandler>) event;
     		return new int[] { 
-    				me.getRelativeX(diagramPane.getCanvas().getElement()), 
-    				me.getRelativeY(diagramPane.getCanvas().getElement())
+    				me.getRelativeX(canvas.getElement()), 
+    				me.getRelativeY(canvas.getElement())
     		};
     	}
     	return null;
@@ -198,8 +198,8 @@ public class CanvasEventInstaller {
             return null;
         // Get the first touch
         Touch touch = touches.get(0);
-        int x = touch.getRelativeX(diagramPane.getCanvas().getElement());
-        int y = touch.getRelativeY(diagramPane.getCanvas().getElement());
+        int x = touch.getRelativeX(canvas.getElement());
+        int y = touch.getRelativeY(canvas.getElement());
         return new int[]{x, y};
     }
 
@@ -259,8 +259,7 @@ public class CanvasEventInstaller {
 			}
         
         };	
-        
-        PlugInSupportCanvas canvas = diagramPane.getCanvas();
+                
         canvas.addMouseDownHandler(mouseDownHandler);
         canvas.addMouseUpHandler(mouseUpHandler);
         canvas.addMouseMoveHandler(mouseMoveHandler);
@@ -283,7 +282,7 @@ public class CanvasEventInstaller {
     		
     	};
     	
-    	diagramPane.getCanvas().addKeyUpHandler(keyUpHandler);
+    	canvas.addKeyUpHandler(keyUpHandler);
     }
     
     
@@ -343,14 +342,13 @@ public class CanvasEventInstaller {
     
     private void mouseWheel(MouseWheelEvent event) {
     	if (!diagramPane.getPopupMenu().isShowing()) {
-    		PathwayCanvas canvas = diagramPane.getCanvas();
     		if (event.isNorth()) {
-    			canvas.scale(Parameters.ZOOMIN);
+    			diagramPane.scale(Parameters.ZOOMIN);
     		} else {
-    			canvas.scale(Parameters.ZOOMOUT);
+    			diagramPane.scale(Parameters.ZOOMOUT);
     		}
     	
-    		canvas.update();
+    		diagramPane.update();
     	}	
     }
 
@@ -359,7 +357,6 @@ public class CanvasEventInstaller {
     }
     
     private void arrowKeyUp(KeyUpEvent event) {
-    	PathwayCanvas canvas = diagramPane.getCanvas();
     	int x = 0;
     	int y = 0; 
     	
@@ -373,8 +370,8 @@ public class CanvasEventInstaller {
     		y = -Parameters.MOVEY;
     	}
     	
-    	canvas.translate(x, y);
-    	canvas.update();
+    	diagramPane.translate(x, y);
+    	diagramPane.update();
     }
     
 }

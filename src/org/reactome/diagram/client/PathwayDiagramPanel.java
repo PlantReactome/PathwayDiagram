@@ -42,8 +42,10 @@ import com.google.gwt.user.client.ui.RequiresResize;
  */
 public class PathwayDiagramPanel extends Composite implements ContextMenuHandler, RequiresResize {    // Use an AbsolutePanel so that controls can be placed onto on a canvas
     protected AbsolutePanel contentPane;
+    
+    private List<DiagramCanvas> canvasList;
     // Pathway diagram should be drawn here
-    private PathwayCanvas canvas;
+    private PathwayCanvas pathwayCanvas;
     // Interactors shown here
     private InteractorCanvas interactorCanvas;
     // For overview
@@ -78,22 +80,28 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         Resources resources = GWT.create(Resources.class);
         style = resources.pathwayDiagramStyle();
         style.ensureInjected();
+                
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
-        canvas = new PathwayCanvas();
+        canvasList = new ArrayList<DiagramCanvas>();
         
+        overview = new OverviewCanvas();
+        
+        pathwayCanvas = new PathwayCanvas(this);
         // Keep the original information
-        contentPane.add(canvas, 4, 4); // Give it some buffer space
+        contentPane.add(pathwayCanvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName(style.mainCanvas());
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
+        canvasList.add(pathwayCanvas);        
         
-        interactorCanvas = new InteractorCanvas();
+        interactorCanvas = new InteractorCanvas(this);
         contentPane.add(interactorCanvas, 4, 4);
         interactorCanvas.setVisible(false);
+        canvasList.add(interactorCanvas);
         
         // Set up overview
-        overview = new OverviewCanvas();
+        //overview = new OverviewCanvas();
         // the width should be fixed
         overview.setCoordinateSpaceWidth(200);
         overview.setCoordinateSpaceHeight(1); // This is temporary
@@ -102,7 +110,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.setVisible(false); // Don't show it!
         
         // Controls
-        PathwayCanvasControls controls = new PathwayCanvasControls(canvas);
+        PathwayCanvasControls controls = new PathwayCanvasControls(pathwayCanvas);
         controls.setStyleName(style.controlPane());
         contentPane.add(controls, 4, 4);
         
@@ -113,8 +121,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         initWidget(contentPane);
         // Add behaviors
-        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this);
-        eventInstaller.installHandlers();
+//        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this);
+//        eventInstaller.installHandlers();
         
         selectionHandler = new SelectionHandler(this);
         hoverHandler = new HoverHandler(this);
@@ -220,10 +228,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     private void onResize(int width, int height) {
-        canvas.setSize(width - 8 + "px", height - 8 + "px");
-        canvas.setCoordinateSpaceWidth(width - 8);
-        canvas.setCoordinateSpaceHeight(height - 8);
-
+        for (DiagramCanvas canvas : canvasList) {
+    	   	canvas.setSize(width - 8 + "px", height - 8 + "px");
+        	canvas.setCoordinateSpaceWidth(width - 8);
+        	canvas.setCoordinateSpaceHeight(height - 8);
+        }	
         
         
         // Need to reset the overview position so that it stays at the bottom-left corner
@@ -235,13 +244,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void setPathway(CanvasPathway pathway) {
         // Get the old displayed pathway
-    	CanvasPathway old = canvas.getPathway();
-//        System.out.println("Set pathway: " + pathway.getReactomeId());
+    	CanvasPathway old = pathwayCanvas.getPathway();
+    	//        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
         overview.update();
-        canvas.setPathway(pathway);
-        canvas.update();
+        pathwayCanvas.setPathway(pathway);
+        pathwayCanvas.update();
         PathwayChangeEvent event = new PathwayChangeEvent();
         if (old != null)
             event.setPreviousPathwayDBId(old.getReactomeId());
@@ -275,7 +284,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public CanvasPathway getPathway() {
-        return canvas.getPathway();
+        return pathwayCanvas.getPathway();
     }
     
     public Image getLoadingIcon() {
@@ -284,19 +293,22 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     
     public void translate(double dx, double dy) {
-        canvas.translate(dx, dy);
+        for (DiagramCanvas canvas : canvasList) 	
+        	canvas.translate(dx, dy);
     }
     
     public void scale(double scale) {
-        canvas.scale(scale);
+        for (DiagramCanvas canvas : canvasList)	
+    		canvas.scale(scale);
     }
     
     public void reset() {
-        canvas.reset();
+    	for (DiagramCanvas canvas : canvasList)
+        	canvas.reset();
     }
     
     public PathwayCanvas getCanvas() {
-        return this.canvas;
+        return this.pathwayCanvas;
     }
     
     public OverviewCanvas getOverview() {
@@ -329,24 +341,24 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     private Point getCorrectedCoordinates(int x, int y) {
-    	double scale = canvas.getScale();
+    	double scale = pathwayCanvas.getScale();
     	
-    	double correctedX = x - canvas.getTranslateX();
+    	double correctedX = x - pathwayCanvas.getTranslateX();
     	correctedX /= scale;
     	
-    	double correctedY = y - canvas.getTranslateY();
+    	double correctedY = y - pathwayCanvas.getTranslateY();
     	correctedY /= scale;
     	
     	return new Point(correctedX, correctedY);
     }
     
     public void addSelectionEventHandler(SelectionEventHandler handler) {
-        canvas.addHandler(handler, 
+        addHandler(handler, 
                           SelectionEvent.TYPE);
     }
     
     public void addHoverEventHandler(HoverEventHandler handler) {
-    	canvas.addHandler(handler, 
+    	addHandler(handler, 
     					  HoverEvent.TYPE);
     }
     
@@ -356,8 +368,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     protected void fireSelectionEvent(SelectionEvent event) {
-        canvas.fireEvent(event);
-        canvas.update();
+        pathwayCanvas.fireEvent(event);
+        pathwayCanvas.update();
     }
     
     /**
@@ -397,7 +409,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Update drawing.
      */
     public void update() {
-        canvas.update();
+        for (DiagramCanvas canvas : canvasList)
+    		canvas.update();
     }
     
     public Style getStyle() {
@@ -443,9 +456,5 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public InteractorCanvas getInteractorCanvas() {
 		return interactorCanvas;
-	}
-
-	public void setInteractorCanvas(InteractorCanvas interactorCanvas) {
-				
 	}
 }

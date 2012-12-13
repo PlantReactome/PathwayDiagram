@@ -21,6 +21,7 @@ import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Window;
 
 /**
  * This class is used to draw interactors.
@@ -33,9 +34,10 @@ public class InteractorCanvas extends DiagramCanvas {
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
     // Interactor objects mapped to their accession ids 
 	private Map<String, InteractorNode> uniqueInteractors; 
-	
+	private List<InteractorNode> drawnInteractors;
     
-    public InteractorCanvas() {
+    public InteractorCanvas(PathwayDiagramPanel dPane) {
+    	super(dPane);
     	c2d = getContext2d();
     	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
     	uniqueInteractors = new HashMap<String, InteractorNode>();
@@ -94,8 +96,15 @@ public class InteractorCanvas extends DiagramCanvas {
      * This method is used to draw the interactors.     
      */
     public void update() {
-        GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
-        if (!proteinsToInteractors.isEmpty()) {
+        c2d.save();
+        
+        c2d.clearRect(0.0d, 0.0d, getOffsetWidth(), getOffsetHeight());
+    	c2d.translate(translateX, translateY);
+    	c2d.scale(scale, scale);    	
+        
+    	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
+        drawnInteractors = new ArrayList<InteractorNode>();
+    	if (!proteinsToInteractors.isEmpty()) {
         	for (ProteinNode prot : proteinsToInteractors.keySet()) {
         		List<InteractorNode> interactors = proteinsToInteractors.get(prot);
         		for (int i = 0; i < interactors.size(); i++) {
@@ -108,14 +117,15 @@ public class InteractorCanvas extends DiagramCanvas {
         			// Draw interactor
         			InteractorNode interactor = interactors.get(i);
            			NodeRenderer renderer = viewFactory.getNodeRenderer(interactor);
-                	if (renderer != null && !interactor.isShowing()) {
+                	if (renderer != null && !drawnInteractors.contains(interactor)) {
                 		interactor.setBounds(getInteractorBounds(prot.getBounds(), angle));
                 		renderer.render(c2d, interactor);
+                		drawnInteractors.add(interactor);
                 	}	
                 	
                     // Draw connector between the protein and the interactor
-                	HyperEdge edge = createHyperEdge(prot, interactor, angle);
-                	if (edge != null) {
+                	HyperEdge edge = createHyperEdge(prot, interactor);
+                	if (edge != null) {               		
                 		HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
                 	    if (edgeRenderer == null)
                 	      	continue;
@@ -124,6 +134,7 @@ public class InteractorCanvas extends DiagramCanvas {
         		}
         	}
         }
+        c2d.restore();
     }    
     
     // Gets interactor boundaries based on protein boundaries and how many
@@ -142,12 +153,20 @@ public class InteractorCanvas extends DiagramCanvas {
     	return new Bounds(interactorX, interactorY, Parameters.INTERACTOR_WIDTH, Parameters.INTERACTOR_HEIGHT); 
     }
 
-    private HyperEdge createHyperEdge(ProteinNode prot, InteractorNode interactor, double angle) {
+    private HyperEdge createHyperEdge(ProteinNode prot, InteractorNode interactor) {
     	Bounds p = prot.getBounds();
     	Bounds i = interactor.getBounds();		
-        	
-    	Point start = getBoundaryIntersection(p, angle, "start");
-    	Point end = getBoundaryIntersection(i, angle, "end");
+        
+    	double rise = p.getCentre().getY() - i.getCentre().getY();
+    	double run = p.getCentre().getX() - i.getCentre().getX(); 
+    	
+    	double angle = Math.atan2(-rise, run) + Math.PI;
+    	
+    	if (angle == 2 * Math.PI) 
+    		angle = 0;
+    	
+    	Point start = getBoundaryIntersection(p, "start", angle);
+    	Point end = getBoundaryIntersection(i, "end", angle);
     	    	
     	List<Point> backbone = new ArrayList<Point>(); 
     	backbone.add(start);
@@ -155,13 +174,14 @@ public class InteractorCanvas extends DiagramCanvas {
     	
     	HyperEdge edge = new HyperEdge();
     	edge.setBackbone(backbone);
+    	//edge.setLineColor();
     	return edge;
     }
     	
-    private Point getBoundaryIntersection(Bounds rect, double angle, String node) {
+    private Point getBoundaryIntersection(Bounds rect, String node, double angle) {
     	double rCentreX = rect.getCentre().getX();
     	double rCentreY = rect.getCentre().getY();
-    	
+    	    	
     	double slope = -Math.tan(angle);
     	double intercept = rCentreY - (slope * rCentreX);
     	
