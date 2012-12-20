@@ -11,6 +11,8 @@ import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
+import org.reactome.diagram.model.InteractorEdge;
+import org.reactome.diagram.model.InteractorNode;
 
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -18,6 +20,7 @@ import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Window;
 
 /**
  * This class is used to handle selection related stuff for PathwayDiagramPanel.
@@ -62,7 +65,9 @@ public class SelectionHandler {
         // Three layers: last for compartment, second to last complexes, and others
         // Only one object should be selected
         GraphObject selected = null;
-        List<GraphObject> objects = diagramPanel.getPathway().getGraphObjects();
+        List<GraphObject> objects = diagramPanel.getInteractorCanvas().getGraphObjects();
+        objects.addAll(diagramPanel.getPathway().getGraphObjects());
+
         for (GraphObject obj : objects) {
             if (selected != null) 
                 break;
@@ -110,6 +115,12 @@ public class SelectionHandler {
             // Go to selected pathway if process node double clicked
             if (pathwayDoubleClicked) {
             	diagramPanel.setPathway(selected.getReactomeId());
+            	return;
+            } else if (selected instanceof InteractorNode) {
+            	Window.open(((InteractorNode) selected).getUrl(), "_blank", "");
+            	return;
+            } else if (selected instanceof InteractorEdge) {
+            	Window.open(((InteractorEdge) selected).getUrl(), null, null);
             	return;
             }
         

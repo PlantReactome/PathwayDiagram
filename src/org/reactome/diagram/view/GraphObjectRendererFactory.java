@@ -33,6 +33,8 @@ public class GraphObjectRendererFactory {
         typeToRenderer = new HashMap<GraphObjectType, GraphObjectRenderer<? extends GraphObject>>();
         typeToRenderer.put(GraphObjectType.RenderableProtein, 
                            new NodeRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableInteractor,
+        				   new InteractorRenderer());
         typeToRenderer.put(GraphObjectType.RenderableComplex, 
                            new ComplexRenderer());
         typeToRenderer.put(GraphObjectType.RenderableChemical,

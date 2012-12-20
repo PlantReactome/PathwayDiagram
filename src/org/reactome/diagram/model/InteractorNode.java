@@ -7,19 +7,23 @@
 
 package org.reactome.diagram.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InteractorNode extends Node {
     // 
     private int count; 
-	private boolean showing;
+	private List<InteractorEdge> edges;
 	private String refId;
-    
+	private boolean isDragging;
+	
 	/**
 	 * Default constructor.
 	 */
 	public InteractorNode() {
 		count = 1;
-		showing = false;
-		setType(GraphObjectType.RenderableProtein); 
+		edges = new ArrayList<InteractorEdge>();
+		setType(GraphObjectType.RenderableInteractor); 
 	}
 
 	public int getCount() {
@@ -38,12 +42,27 @@ public class InteractorNode extends Node {
 		this.refId = refId;
 	}
 
-	public boolean isShowing() {
-		return showing;
+	public List<InteractorEdge> getEdges() {
+		return this.edges;
 	}
 
-	public void setShowing(boolean showing) {
-		this.showing = showing;
+	public void addEdge(InteractorEdge edge) {
+		this.edges.add(edge);
 	}
-		
+	
+	public void removeEdge(InteractorEdge edge) {
+		this.edges.remove(edge);
+	}
+	
+	public String getUrl() {
+		return "http://www.uniprot.org/uniprot/" + this.refId;
+	}
+
+	public boolean isDragging() {
+		return isDragging;
+	}
+
+	public void setDragging(boolean isDragging) {
+		this.isDragging = isDragging;
+	}
 }

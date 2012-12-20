@@ -109,7 +109,7 @@ public class CanvasPopupMenu extends PopupPanel {
 						@Override
 						public void execute() {
 							// TODO Auto-generated method stub
-							
+							hide();
 						}    					
     				});    				
     			}
@@ -149,6 +149,7 @@ public class CanvasPopupMenu extends PopupPanel {
     				diagramPane.getController().getInteractors(pSelected);
     				pSelected.setDisplayingInteractors(true);
     			}
+    			hide();
     		}	
    		}));
     	
@@ -157,7 +158,7 @@ public class CanvasPopupMenu extends PopupPanel {
     	menuBar.addItem(new MenuItem("Export Interactors", new Command() { 
     		@Override
     		public void execute() {
-    			
+    			hide();
     		}
     	}));
     }

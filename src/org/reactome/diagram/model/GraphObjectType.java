@@ -12,6 +12,7 @@ package org.reactome.diagram.model;
 public enum GraphObjectType {
     // Node types
     RenderableProtein,
+    RenderableInteractor,	
     RenderableChemical,
     RenderableEntity,
     RenderableCompartment,

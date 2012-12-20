@@ -11,17 +11,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.reactome.diagram.model.Bounds;
-import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
+import org.reactome.diagram.model.Node;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.HyperEdgeRenderer;
-import org.reactome.diagram.view.NodeRenderer;
+import org.reactome.diagram.view.InteractorRenderer;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 
 /**
  * This class is used to draw interactors.
@@ -35,7 +36,7 @@ public class InteractorCanvas extends DiagramCanvas {
     // Interactor objects mapped to their accession ids 
 	private Map<String, InteractorNode> uniqueInteractors; 
 	private List<InteractorNode> drawnInteractors;
-    
+	    
     public InteractorCanvas(PathwayDiagramPanel dPane) {
     	super(dPane);
     	c2d = getContext2d();
@@ -63,21 +64,33 @@ public class InteractorCanvas extends DiagramCanvas {
     private void addOrRemoveInteractors(ProteinNode protein, String action) {    	    	
     	List<InteractorNode> iList = proteinsToInteractors.get(protein); 
     	
+    	int interactorsAdded = 0;
     	// Process each interactor for the protein
     	for (InteractorNode i : protein.getInteractors()) {
     		String id = i.getRefId();
-    		
-    		// If the interactor is already known by the canvas
+
+			// If the interactor is already known by the canvas
     		// increase/decrease count for that interactor
     		if (uniqueInteractors.containsKey(id)) {
     			InteractorNode ui = uniqueInteractors.get(id); 
     			    			     			
     			if (action.equals("add")) {
-    				ui.setCount(ui.getCount() + 1);
-    				iList.add(ui); // Add interactor to protein's list
+    				if (interactorsAdded < Parameters.TOTAL_INTERACTOR_NUM) {	
+    					ui.setCount(ui.getCount() + 1);
+    					iList.add(ui); // Add interactor to protein's list
+    					interactorsAdded++;
+    				} else {	
+    					break;
+    				}	
     			} else if (action.equals("remove")) {
     				if (ui.getCount() > 1) {
     					ui.setCount(ui.getCount() - 1);
+    					
+    					for (InteractorEdge edge : ui.getEdges()) {
+    						if (edge.getProtein() == protein) {
+    							ui.removeEdge(edge);
+    						}	
+    					}
     				} else {
     					uniqueInteractors.remove(id); // Removed if count is zero
     				}
@@ -85,8 +98,11 @@ public class InteractorCanvas extends DiagramCanvas {
     		} else {
     			// Add interactor to protein and canvas lists 
     			if (action.equals("add")) {
-    				iList.add(i);
-    				uniqueInteractors.put(id, i);
+    				if (interactorsAdded < Parameters.TOTAL_INTERACTOR_NUM) {
+    					iList.add(i);
+    					interactorsAdded++;
+    					uniqueInteractors.put(id, i);
+    				}	
     			}	
     		}
     	}
@@ -107,36 +123,45 @@ public class InteractorCanvas extends DiagramCanvas {
     	if (!proteinsToInteractors.isEmpty()) {
         	for (ProteinNode prot : proteinsToInteractors.keySet()) {
         		List<InteractorNode> interactors = proteinsToInteractors.get(prot);
-        		for (int i = 0; i < interactors.size(); i++) {
-        			if (i >= Parameters.TOTAL_INTERACTOR_NUM) {
-        				break;
-        			}
-        			
-        			double angle = 2 * Math.PI / Parameters.TOTAL_INTERACTOR_NUM * i;
+        		double interactorNum = Math.min(interactors.size(), Parameters.TOTAL_INTERACTOR_NUM);
+
+        		for (int i = 0; i < interactorNum; i++) {
+        			double angle = 2 * Math.PI / interactorNum * i;
         			
         			// Draw interactor
         			InteractorNode interactor = interactors.get(i);
-           			NodeRenderer renderer = viewFactory.getNodeRenderer(interactor);
-                	if (renderer != null && !drawnInteractors.contains(interactor)) {
-                		interactor.setBounds(getInteractorBounds(prot.getBounds(), angle));
+           			InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);                	
+           			if (!interactor.isDragging()) {
+           				if (renderer != null && !drawnInteractors.contains(interactor)) {
+           					interactor.setBounds(getInteractorBounds(prot.getBounds(), angle));
+           					interactor.setPosition(interactor.getBounds().getX(), interactor.getBounds().getY());
+           					renderer.render(c2d, interactor);
+           					drawnInteractors.add(interactor);                		
+           				}
+           				
+           				// Draw connector between the protein and the interactor
+           				InteractorEdge edge = createInteractorEdge(prot, interactor);
+           				interactor.addEdge(edge);	
+           				if (edge != null) {               		
+           					HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
+                			if (edgeRenderer == null)
+                				continue;
+                			edgeRenderer.render(c2d, edge);
+           				}           					
+                	} else {
                 		renderer.render(c2d, interactor);
-                		drawnInteractors.add(interactor);
+                		for (InteractorEdge edge : interactor.getEdges()) {
+                			HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
+                			edgeRenderer.render(c2d, edge);
+                		}
+                		interactor.setDragging(false);
                 	}	
-                	
-                    // Draw connector between the protein and the interactor
-                	HyperEdge edge = createHyperEdge(prot, interactor);
-                	if (edge != null) {               		
-                		HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
-                	    if (edgeRenderer == null)
-                	      	continue;
-                	    edgeRenderer.render(c2d, edge);
-                	}
-        		}
+                }
         	}
-        }
+    	}	
         c2d.restore();
     }    
-    
+        
     // Gets interactor boundaries based on protein boundaries and how many
     // interactors have already been rendered for this protein
     // (interactors drawn in a circle around the protein)
@@ -153,7 +178,7 @@ public class InteractorCanvas extends DiagramCanvas {
     	return new Bounds(interactorX, interactorY, Parameters.INTERACTOR_WIDTH, Parameters.INTERACTOR_HEIGHT); 
     }
 
-    private HyperEdge createHyperEdge(ProteinNode prot, InteractorNode interactor) {
+    private InteractorEdge createInteractorEdge(ProteinNode prot, InteractorNode interactor) {
     	Bounds p = prot.getBounds();
     	Bounds i = interactor.getBounds();		
         
@@ -172,9 +197,10 @@ public class InteractorCanvas extends DiagramCanvas {
     	backbone.add(start);
     	backbone.add(end);
     	
-    	HyperEdge edge = new HyperEdge();
+    	InteractorEdge edge = new InteractorEdge();
     	edge.setBackbone(backbone);
-    	//edge.setLineColor();
+    	edge.setProtein(prot);
+    	edge.setInteractor(interactor);
     	return edge;
     }
     	
@@ -257,6 +283,38 @@ public class InteractorCanvas extends DiagramCanvas {
     	}	
     	
     	return null;
+    }
+    
+    public void drag(InteractorNode interactor, int dx, int dy) {
+    	interactor.setDragging(true);
+    	interactor.getBounds().translate(dx, dy);
+    	for (InteractorEdge edge : interactor.getEdges()) {
+    		interactor.removeEdge(edge);
+    		interactor.addEdge(createInteractorEdge(edge.getProtein(), interactor));
+    		//Point end = edge.getBackbone().get(1);    		
+    		//edge.getBackbone().set(1, end.plus(new Point(dx, dy)));    		 
+    	}
+    	update();
+    }
+    
+    public List<InteractorNode> getUniqueInteractors() {
+    	List<InteractorNode> interactorList = new ArrayList<InteractorNode>(); 
+    	interactorList.addAll(uniqueInteractors.values());
+    	return interactorList;
+    }
+    
+    public List<GraphObject> getGraphObjects() {
+    	List<GraphObject> edges = new ArrayList<GraphObject>();
+    	for (InteractorNode i : getUniqueInteractors()) {
+    		for (InteractorEdge edge : i.getEdges()) 
+    			edges.add(edge);
+    	}
+    	
+    	List<GraphObject> objects = new ArrayList<GraphObject>();
+    	objects.addAll(edges);
+    	objects.addAll(getUniqueInteractors());
+    	
+    	return objects;
     }
     
 	@Override

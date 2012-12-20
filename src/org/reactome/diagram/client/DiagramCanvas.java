@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 import org.reactome.diagram.event.ViewChangeEvent;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.user.client.Window;
 
 /**
  * A specialized PlugInSupportCanvas that is used to draw CanvasPathway only.
@@ -40,7 +41,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     
     protected void fireViewChangeEvent() {
         if (viewEvent == null)
-            viewEvent = new ViewChangeEvent();
+            viewEvent = new ViewChangeEvent();        
         viewEvent.setScale(scale);
         viewEvent.setTranslateX(translateX);
         viewEvent.setTranslateY(translateY);

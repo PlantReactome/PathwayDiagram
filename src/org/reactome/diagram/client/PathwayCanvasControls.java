@@ -39,11 +39,11 @@ public class PathwayCanvasControls extends FlexTable {
         ImageResource down();
     }
     
-    private PathwayCanvas canvas;
+    private PathwayDiagramPanel diagramPane;
     private static Resources resources;
     
-    public PathwayCanvasControls(PathwayCanvas canvas) {
-        this.canvas = canvas;
+    public PathwayCanvasControls(PathwayDiagramPanel diagramPane) {
+        this.diagramPane = diagramPane;
         init();
     }
     
@@ -60,8 +60,8 @@ public class PathwayCanvasControls extends FlexTable {
         refresh.setTitle("reset");
         refresh.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.reset();
-                canvas.update();
+                diagramPane.reset();
+                diagramPane.update();
             }
         });
         
@@ -70,8 +70,8 @@ public class PathwayCanvasControls extends FlexTable {
         zoomPlus.setTitle("zoom in");
         zoomPlus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.scale(Parameters.ZOOMIN);
-                canvas.update();
+                diagramPane.scale(Parameters.ZOOMIN);
+                diagramPane.update();
             }
         });
         
@@ -80,8 +80,8 @@ public class PathwayCanvasControls extends FlexTable {
         zoomMinus.setTitle("zoom out");
         zoomMinus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.scale(Parameters.ZOOMOUT);
-                canvas.update();
+                diagramPane.scale(Parameters.ZOOMOUT);
+                diagramPane.update();
             }
         });
         
@@ -90,8 +90,8 @@ public class PathwayCanvasControls extends FlexTable {
         scrollLeft.setTitle("move left");
         scrollLeft.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(Parameters.MOVEX, 0);
-                canvas.update();
+                diagramPane.translate(Parameters.MOVEX, 0);
+                diagramPane.update();
             }
         });
         
@@ -100,8 +100,8 @@ public class PathwayCanvasControls extends FlexTable {
         scrollTop.setTitle("move up");
         scrollTop.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(0, Parameters.MOVEY);
-                canvas.update();
+                diagramPane.translate(0, Parameters.MOVEY);
+                diagramPane.update();
             }
         });
         
@@ -110,8 +110,8 @@ public class PathwayCanvasControls extends FlexTable {
         scrollBottom.setTitle("move down");
         scrollBottom.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(0, -Parameters.MOVEY);
-                canvas.update();
+                diagramPane.translate(0, -Parameters.MOVEY);
+                diagramPane.update();
             }
         });
         
@@ -120,8 +120,8 @@ public class PathwayCanvasControls extends FlexTable {
         scrollRight.setTitle("move right");
         scrollRight.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                canvas.translate(-Parameters.MOVEX, 0);
-                canvas.update();
+                diagramPane.translate(-Parameters.MOVEX, 0);
+                diagramPane.update();
             }
         });
         

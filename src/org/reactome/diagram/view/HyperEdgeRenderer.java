@@ -63,6 +63,7 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
             fgColor = "rgba(0, 0 , 0, 1)";
         CssColor drawColor = CssColor.make(fgColor);
         double width = edge.getLineWidth();
+        c2d.setLineWidth(width);
         c2d.setFillStyle(drawColor);
     }
     

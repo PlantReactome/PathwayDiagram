@@ -9,9 +9,11 @@ import java.util.List;
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
+import org.reactome.diagram.model.InteractorNode;
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -57,13 +59,15 @@ public class HoverHandler {
         
         // Only one object should be hovered over
         GraphObject hovered = null;
-        List<GraphObject> objects = diagramPanel.getPathway().getGraphObjects();
+
+        List<GraphObject> objects = diagramPanel.getInteractorCanvas().getGraphObjects();
+        objects.addAll(diagramPanel.getPathway().getGraphObjects());
         for (GraphObject obj : objects) {
             if (hovered != null) 
                 break;
             GraphObjectType type = obj.getType();
             if (type == GraphObjectType.RenderableCompartment) 
-                continue;
+                continue;                        
             if (obj.isPicked(hoverPoint)) {
                 obj.setIsHovered(true);
                 hovered = obj;
@@ -120,7 +124,11 @@ public class HoverHandler {
     		canvasZIndex = 0;
     	}
     	// Set tooltip text
-    	tooltip.setWidget(new Label(objType + ": " + displayName));
+    	String label = objType + ": " + displayName;    	
+    	if (hoveredObject instanceof InteractorNode) 
+    		label = label + "\nUniprot Accession:" + ((InteractorNode) hoveredObject).getRefId();
+    	
+    	tooltip.setWidget(new Label(label));
     	
     	// Position label 
     	tooltip.setPopupPosition( (int) x, (int) y);

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Window;
 
 public class Node extends GraphObject {
     private Bounds bounds;
@@ -58,13 +59,9 @@ public class Node extends GraphObject {
         return needDashedBorder;
     }
 
-
-
     public void setNeedDashedBorder(boolean needDashedBorder) {
         this.needDashedBorder = needDashedBorder;
     }
-
-
 
     public void setBgColor(String color) {
 	    this.bgColor = color;
@@ -89,8 +86,6 @@ public class Node extends GraphObject {
 	public void setBounds(Bounds bounds) {
 	    this.bounds = new Bounds(bounds);
 	}
-	
-	
 	
 	public void addChild(Node node) {
 	    if (children == null)

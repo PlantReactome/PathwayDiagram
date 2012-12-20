@@ -12,6 +12,7 @@ import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
@@ -28,14 +29,14 @@ import com.google.gwt.touch.client.Point;
  *
  */
 public class CanvasEventInstaller {
-    private PathwayDiagramPanel diagramPane;
-    private DiagramCanvas canvas;
+    protected PathwayDiagramPanel diagramPane;
+    protected DiagramCanvas canvas;
     // The following properties are used for panning
-    private boolean isDragging;
-    private boolean isMouseDown;
-    private int previousX;
-    private int previousY;
-    
+    protected boolean isDragging;
+    protected boolean isMouseDown;
+    protected int previousX;
+    protected int previousY;
+    protected Node draggableNode;
     
     public CanvasEventInstaller(PathwayDiagramPanel diagramPanel, DiagramCanvas canvas) {
         this.diagramPane = diagramPanel;
@@ -58,8 +59,10 @@ public class CanvasEventInstaller {
 //        });
 
         final OverviewCanvas overview = diagramPane.getOverview();
-        canvas.addHandler(overview, 
+        
+       	canvas.addHandler(overview, 
                           ViewChangeEvent.TYPE);
+
         // To catch overview dragging
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
             @Override
@@ -140,7 +143,7 @@ public class CanvasEventInstaller {
     	
     
     
-    private void addTouchHandlers() {
+    protected void addTouchHandlers() {
         TouchStartHandler touchStartHandler = new TouchStartHandler() {
             
             @Override
@@ -179,7 +182,7 @@ public class CanvasEventInstaller {
         canvas.addTouchEndHandler(touchEndHandler);
     }
     
-    private int[] getCoordinates(GwtEvent<? extends EventHandler> event) {
+    protected int[] getCoordinates(GwtEvent<? extends EventHandler> event) {
     	if (event instanceof TouchEvent) {
     		return getPositionInTouch((TouchEvent<? extends EventHandler>) event);
     	} else if (event instanceof MouseEvent) {
@@ -203,7 +206,7 @@ public class CanvasEventInstaller {
         return new int[]{x, y};
     }
 
-    private void addMouseHandlers() {
+    protected void addMouseHandlers() {
         // To record the original position
         MouseDownHandler mouseDownHandler = new MouseDownHandler() {
             @Override
@@ -268,7 +271,7 @@ public class CanvasEventInstaller {
         canvas.addDoubleClickHandler(doubleClickHandler);        
     }
     
-    private void addKeyHandlers() {
+    protected void addKeyHandlers() {
     	KeyUpHandler keyUpHandler = new KeyUpHandler() {
 
 			@Override
@@ -286,12 +289,21 @@ public class CanvasEventInstaller {
     }
     
     
-    private void mouseDown(GwtEvent<? extends EventHandler> event) {
+    private void mouseDown(GwtEvent<? extends EventHandler> event) {    	
     	int [] coord = getCoordinates(event);
     	previousX = coord[0];
         previousY = coord[1];
         isMouseDown = true;        	
         diagramPane.hideTooltip();
+        if (canvas instanceof InteractorCanvas) {
+        	Point point = new Point(previousX, previousY);
+        	for (InteractorNode interactor : ((InteractorCanvas) canvas).getUniqueInteractors()) {        		
+        		if (interactor.isPicked(point)) {        			
+        			//interactor.setDragging(true);
+        			draggableNode = interactor;        			
+        		}        			
+        	}
+        }
     }
     
     private void mouseMove(GwtEvent<? extends EventHandler> event) {
@@ -303,8 +315,14 @@ public class CanvasEventInstaller {
             // Do panning
             int dx = x - previousX;
             int dy = y - previousY;
-            diagramPane.translate(dx, dy);
-            diagramPane.update();
+            
+            if (draggableNode != null) {            	
+            	diagramPane.drag(draggableNode, dx, dy);
+            } else {
+            	diagramPane.translate(dx, dy);
+            	diagramPane.update();
+            }
+            
             previousX = x;
             previousY = y;
             isDragging = true;
@@ -324,6 +342,7 @@ public class CanvasEventInstaller {
             
        	if (isDragging) {
        		isDragging = false;
+       		draggableNode = null;
        	} else { // Do click selection
        		//TODO: selection cannot work under iPad. Need to check touchEnd event.
        		diagramPane.select(event, x, y);

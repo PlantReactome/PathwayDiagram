@@ -16,6 +16,7 @@ import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.GWT;
@@ -110,7 +111,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.setVisible(false); // Don't show it!
         
         // Controls
-        PathwayCanvasControls controls = new PathwayCanvasControls(pathwayCanvas);
+        PathwayCanvasControls controls = new PathwayCanvasControls(this);
         controls.setStyleName(style.controlPane());
         contentPane.add(controls, 4, 4);
         
@@ -134,7 +135,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        //addTestCode();
+        addTestCode();
     }
     
     private void addTestCode() {
@@ -208,17 +209,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         int height = (int) (windowHeight - 40);
         super.setSize(width + "px", height + "px");
         onResize(width, height);
-        
-        if (interactorCanvas != null) {
-        	interactorCanvas.setSize(width - 8 + "px", height - 8 + "px");
-        	interactorCanvas.setCoordinateSpaceWidth(width - 8);
-        	interactorCanvas.setCoordinateSpaceHeight(height - 8);
-        }	
-        
-//        // Need to reset the overview position so that it stays at the bottom-left corner
-//        if (!overview.isVisible())
-//            overview.setVisible(true);
-//        overview.updatePosition();
     }
     
     public void onResize() {
@@ -291,6 +281,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return this.loadingIcon;
     }
     
+    public void translate(double dx, double dy, boolean fromOverview) {
+    	if (!fromOverview)
+    		translate(dx, dy);
+    }
     
     public void translate(double dx, double dy) {
         for (DiagramCanvas canvas : canvasList) 	
@@ -313,6 +307,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public OverviewCanvas getOverview() {
         return this.overview;
+    }
+
+    public void drag(Node node, int dx, int dy) {
+    	this.interactorCanvas.drag((InteractorNode) node, dx, dy);
     }
     
     public void hover(int x, int y) {

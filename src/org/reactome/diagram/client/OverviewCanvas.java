@@ -28,6 +28,7 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 /**
@@ -124,9 +125,11 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     @Override
     public void onViewChange(ViewChangeEvent event) {
         if (isFromOverview) {
-            isFromOverview = false;
+        	Window.alert("true");
+        	isFromOverview = false;
             return;
         }
+        Window.alert("false");
         double scale = event.getScale();
         double x = -event.getTranslateX() / scale;
         double y = -event.getTranslateY() / scale;
@@ -240,8 +243,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
                     	viewRect.translate(dx, dy);
                     	viewRect.translate(-viewRect.getWidth() / 2.0, -viewRect.getHeight() / 2.0);
                     	update();
-                    	fireViewChangeEvent(viewRect.getX() - x0,
-                    						viewRect.getY() - y0);
+                    	fireViewChangeEvent(viewRect.getX() - x0, viewRect.getY() - y0);
                     }
                 }
             });
