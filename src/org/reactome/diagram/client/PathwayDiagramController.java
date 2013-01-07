@@ -6,7 +6,7 @@ package org.reactome.diagram.client;
 
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
-import org.reactome.diagram.model.Node;
+import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ProteinNode;
 
 import com.google.gwt.core.client.GWT;
@@ -99,7 +99,40 @@ public class PathwayDiagramController {
                                     (height - spHeight) / 2);
     }
     
+    public void openInteractionPage(final InteractorEdge selected) {
+    	final ProteinNode protein = selected.getProtein();
 
+    	String hostUrl = getHostUrl();
+    	
+    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "referenceEntity/" + protein.getReactomeId();
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	
+    	try {
+    		requestBuilder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					if (response.getStatusCode() == 200) {
+						protein.setRefId(response.getText());
+						Window.open(selected.getUrl(), null, null);
+					} else {
+						requestFailed("Failed to get protein's uniprot id");
+					}
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					requestFailed(exception);
+				}
+    			
+    			
+    		}); 
+    	} catch (RequestException ex) 	{    
+    		requestFailed(ex);
+    	}
+   	}
+    
     public void getInteractors(final ProteinNode selected) {
     	Long dbId = selected.getReactomeId(); 
     	String hostUrl = getHostUrl();
@@ -119,6 +152,7 @@ public class PathwayDiagramController {
 						ic.addProtein(selected);
 					} else {
 						requestFailed("Failed to get interactors");
+						selected.setDisplayingInteractors(false);
 					}
 				}
 

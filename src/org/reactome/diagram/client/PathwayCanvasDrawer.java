@@ -73,6 +73,7 @@ public class PathwayCanvasDrawer {
                     }
                 }
                 for (Node node : nodes) {
+                	System.out.println(node.getDisplayName() + " - " + node.getBounds().toString());
                     if (node.getType() == GraphObjectType.RenderableCompartment)
                         continue;
                     NodeRenderer renderer = viewFactory.getNodeRenderer(node);

@@ -7,7 +7,7 @@ package org.reactome.diagram.client;
 import org.reactome.diagram.event.ViewChangeEvent;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.touch.client.Point;
 
 /**
  * A specialized PlugInSupportCanvas that is used to draw CanvasPathway only.
@@ -76,6 +76,31 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     public void resetTranslate() {
     	translateX = 0.0d;
     	translateY = 0.0d;
+    }
+
+    public Point getCorrectedCoordinates(Point point) {
+    	return getCorrectedCoordinates(point.getX(), point.getY());
+    }
+    
+    public Point getCorrectedCoordinates(double x, double y) {
+    	double scale = getScale();
+    	
+    	double correctedX = x - getTranslateX();
+    	correctedX /= scale;
+    	
+    	double correctedY = y - getTranslateY();
+    	correctedY /= scale;
+    	
+    	return new Point(correctedX, correctedY); 
+    	
+    }	
+    
+    protected void clean() {
+    	Context2d c2d = getContext2d();
+    	
+    	c2d.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
+    	c2d.translate(translateX, translateY);
+    	c2d.scale(scale, scale);
     }
     
     /**

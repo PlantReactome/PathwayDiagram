@@ -24,7 +24,7 @@ public class PathwayCanvas extends DiagramCanvas {
     }
     
     public PathwayCanvas(PathwayDiagramPanel diagramPane) {
-    	super(diagramPane);
+    	super();
         drawer = new PathwayCanvasDrawer();
     }
     
@@ -45,16 +45,12 @@ public class PathwayCanvas extends DiagramCanvas {
             return;
         Context2d c2d = getContext2d();
         c2d.save();
-        c2d.clearRect(0.0d, 
-                      0.0d, 
-                      getOffsetWidth(),
-                      getOffsetHeight());
-        c2d.translate(translateX, translateY);
-        c2d.scale(scale, scale);
-        drawer.drawPathway(pathway, 
-                           this,
-                           c2d);
+
+        clean();
+        
+        drawer.drawPathway(pathway, this, c2d);
         updateOthers(c2d);
+        
         c2d.restore();
     }
 

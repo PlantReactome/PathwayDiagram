@@ -16,7 +16,9 @@ import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
 public class ProteinNode extends Node {
-    // If this node has interactors
+	// Uniprot id
+	private String refId;
+	// If this node has interactors
     private List<InteractorNode> interactors; 
     // A flag to indicate if interactors are being displayed 
     private boolean displayingInteractors;
@@ -76,5 +78,38 @@ public class ProteinNode extends Node {
 
 	public void setDisplayingInteractors(boolean displayingInteractors) {
 		this.displayingInteractors = displayingInteractors;
+	}
+
+	public String getRefId() {
+		return refId;
+	}
+
+	public void setRefId(String xml) {
+		try {
+			Document refDom = XMLParser.parse(xml);
+			Element refElement = refDom.getDocumentElement();
+			XMLParser.removeWhitespace(refElement);
+			
+			NodeList nodeList = refElement.getChildNodes();
+			
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				com.google.gwt.xml.client.Node node = nodeList.item(i);
+				String name = node.getNodeName();
+									
+				if (name.equals("referenceEntity")) {
+					Element reElement = (Element) node;
+					
+					com.google.gwt.xml.client.Node nameNode = reElement.getElementsByTagName("displayName").item(0);
+					String displayName = nameNode.getChildNodes().item(0).getNodeValue();
+															
+					int start = "UniProt:".length();
+					int idLength = 6;
+								
+					this.refId = displayName.substring(start, start + idLength);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}	
 }

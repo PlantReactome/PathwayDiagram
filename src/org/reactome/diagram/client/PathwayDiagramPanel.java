@@ -98,7 +98,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         interactorCanvas = new InteractorCanvas(this);
         contentPane.add(interactorCanvas, 4, 4);
-        interactorCanvas.setVisible(false);
+        //interactorCanvas.setVisible(false);
         canvasList.add(interactorCanvas);
         
         // Set up overview
@@ -121,9 +121,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         contentPane.add(loadingIcon, 725, 340);
         
         initWidget(contentPane);
+
         // Add behaviors
-//        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this);
-//        eventInstaller.installHandlers();
+        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this, canvasList.get(canvasList.size() - 1));
+        eventInstaller.installHandlers();
         
         selectionHandler = new SelectionHandler(this);
         hoverHandler = new HoverHandler(this);
@@ -314,7 +315,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void hover(int x, int y) {
-       	Point hoveredPoint = getCorrectedCoordinates(x, y);
+       	Point hoveredPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
     
        	hoverHandler.hover(hoveredPoint);
     }
@@ -331,25 +332,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      */
     public void select(GwtEvent<? extends EventHandler> event, int x, int y) {
         // Need to consider both scale and translate
-        Point correctedPoint = getCorrectedCoordinates(x, y);
+        Point correctedPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
     	
         selectionHandler.select(event,
         						correctedPoint.getX(), 
                                 correctedPoint.getY());
     }
-    
-    private Point getCorrectedCoordinates(int x, int y) {
-    	double scale = pathwayCanvas.getScale();
-    	
-    	double correctedX = x - pathwayCanvas.getTranslateX();
-    	correctedX /= scale;
-    	
-    	double correctedY = y - pathwayCanvas.getTranslateY();
-    	correctedY /= scale;
-    	
-    	return new Point(correctedX, correctedY);
-    }
-    
+        
     public void addSelectionEventHandler(SelectionEventHandler handler) {
         addHandler(handler, 
                           SelectionEvent.TYPE);

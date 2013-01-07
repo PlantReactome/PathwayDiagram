@@ -23,6 +23,7 @@ public class InteractorEdge extends HyperEdge {
     public InteractorEdge() {
         this.setLineColor("rgba(0, 0, 255, 1)");
         this.setLineWidth(3);
+        setType(GraphObjectType.RenderableInteraction);
     }    
     
     public ProteinNode getProtein() {
@@ -43,21 +44,25 @@ public class InteractorEdge extends HyperEdge {
 	
 	public String getUrl() {
 		return "http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?query=" +
-		protein + " AND " + interactor.getRefId(); 
-				
+		protein.getRefId() + "%20AND%20" + interactor.getRefId(); 				
 	}
 	
 	public boolean isPicked(Point point) {
 		Point start = this.getBackbone().get(0);
 		Point end = this.getBackbone().get(1);
 		
-		double rise = end.getY() - start.getY();
+		double rise = -end.getY() - -start.getY();
 		double run = end.getX() - start.getX();
 	
-		double slope = -rise/run;
-		double intercept = start.getY() - (slope * start.getX());
-		
-		if (point.getY() == (slope * point.getX()) - intercept) {
+		double slope = rise/run;
+		double intercept = -start.getY() - (slope * start.getX());
+				
+		// If mouse y-coordinate within 5 pixels of line's corresponding y-coordinate at a certain
+		// x-coordinate and mouse x-coordinate is within line segment domain   
+		if (Math.abs(-point.getY() - intercept - (slope * point.getX())) < 5 && 
+			(point.getX() >= start.getX() && point.getX() <= end.getX() ||
+			point.getX() <= start.getX() && point.getX() >= end.getX() )) {
+			
 			return true;
 		}
 		

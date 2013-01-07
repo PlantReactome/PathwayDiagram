@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 
 public class Node extends GraphObject {
     private Bounds bounds;

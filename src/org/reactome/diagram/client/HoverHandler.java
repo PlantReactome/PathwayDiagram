@@ -9,11 +9,12 @@ import java.util.List;
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
+import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -98,7 +99,7 @@ public class HoverHandler {
         	hoveredObject = hovered;
         	showTooltip();
         
-        	diagramPanel.update();
+        	//diagramPanel.update();
         	fireHoverEvent();
         }	
     }
@@ -124,9 +125,16 @@ public class HoverHandler {
     		canvasZIndex = 0;
     	}
     	// Set tooltip text
-    	String label = objType + ": " + displayName;    	
-    	if (hoveredObject instanceof InteractorNode) 
-    		label = label + "\nUniprot Accession:" + ((InteractorNode) hoveredObject).getRefId();
+    	String label = "";    	
+    	if (hoveredObject instanceof Node) {
+    		label = objType + ": " + displayName;
+    		if (hoveredObject instanceof InteractorNode)
+    			label = label + "\nUniprot Accession:" + ((InteractorNode) hoveredObject).getRefId();
+    	} else {
+    		if (hoveredObject instanceof InteractorEdge)
+    			label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
+    					((InteractorEdge) hoveredObject).getInteractor().getDisplayName(); 
+    	}
     	
     	tooltip.setWidget(new Label(label));
     	
@@ -143,7 +151,7 @@ public class HoverHandler {
     	timer.schedule(2000);
     }
     
-    private String getObjType() {
+    private String getObjType() {    	
     	String type = hoveredObject.getType().toString();
     	if (type.startsWith("Renderable")) {
     		return type.substring("Renderable".length());

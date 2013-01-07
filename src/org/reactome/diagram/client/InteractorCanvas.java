@@ -14,7 +14,6 @@ import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
-import org.reactome.diagram.model.Node;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.HyperEdgeRenderer;
@@ -38,7 +37,7 @@ public class InteractorCanvas extends DiagramCanvas {
 	private List<InteractorNode> drawnInteractors;
 	    
     public InteractorCanvas(PathwayDiagramPanel dPane) {
-    	super(dPane);
+    	super();
     	c2d = getContext2d();
     	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
     	uniqueInteractors = new HashMap<String, InteractorNode>();
@@ -114,9 +113,8 @@ public class InteractorCanvas extends DiagramCanvas {
     public void update() {
         c2d.save();
         
-        c2d.clearRect(0.0d, 0.0d, getOffsetWidth(), getOffsetHeight());
-    	c2d.translate(translateX, translateY);
-    	c2d.scale(scale, scale);    	
+        clean();
+    	    	
         
     	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
         drawnInteractors = new ArrayList<InteractorNode>();
@@ -150,6 +148,7 @@ public class InteractorCanvas extends DiagramCanvas {
            				}           					
                 	} else {
                 		renderer.render(c2d, interactor);
+                		//Window.alert("Edges: " + interactor.getEdges().size());
                 		for (InteractorEdge edge : interactor.getEdges()) {
                 			HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
                 			edgeRenderer.render(c2d, edge);
@@ -197,8 +196,11 @@ public class InteractorCanvas extends DiagramCanvas {
     	backbone.add(start);
     	backbone.add(end);
     	
+    	Point midPoint = new Point((start.getX() + end.getX()) / 2, (start.getY() + end.getY()) / 2);
+    	
     	InteractorEdge edge = new InteractorEdge();
     	edge.setBackbone(backbone);
+    	edge.setPosition(midPoint);
     	edge.setProtein(prot);
     	edge.setInteractor(interactor);
     	return edge;
@@ -287,7 +289,8 @@ public class InteractorCanvas extends DiagramCanvas {
     
     public void drag(InteractorNode interactor, int dx, int dy) {
     	interactor.setDragging(true);
-    	interactor.getBounds().translate(dx, dy);
+       	interactor.getBounds().translate(dx, dy);
+    
     	for (InteractorEdge edge : interactor.getEdges()) {
     		interactor.removeEdge(edge);
     		interactor.addEdge(createInteractorEdge(edge.getProtein(), interactor));
@@ -295,6 +298,16 @@ public class InteractorCanvas extends DiagramCanvas {
     		//edge.getBackbone().set(1, end.plus(new Point(dx, dy)));    		 
     	}
     	update();
+    }
+
+    public InteractorNode getDraggableNode(Point point) {
+    	point = getCorrectedCoordinates(point);
+    	
+    	for (InteractorNode interactor : getUniqueInteractors()) {
+    		if (interactor.isPicked(point))
+    			return interactor;
+    	}
+    	return null;    		
     }
     
     public List<InteractorNode> getUniqueInteractors() {

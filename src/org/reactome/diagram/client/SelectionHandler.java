@@ -120,7 +120,7 @@ public class SelectionHandler {
             	Window.open(((InteractorNode) selected).getUrl(), "_blank", "");
             	return;
             } else if (selected instanceof InteractorEdge) {
-            	Window.open(((InteractorEdge) selected).getUrl(), null, null);
+            	diagramPanel.getController().openInteractionPage((InteractorEdge) selected);
             	return;
             }
         

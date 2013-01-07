@@ -12,7 +12,6 @@ import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
-import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
@@ -58,11 +57,6 @@ public class CanvasEventInstaller {
 //            }
 //        });
 
-        final OverviewCanvas overview = diagramPane.getOverview();
-        
-       	canvas.addHandler(overview, 
-                          ViewChangeEvent.TYPE);
-
         // To catch overview dragging
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
             @Override
@@ -73,23 +67,28 @@ public class CanvasEventInstaller {
                 double canvasScale = canvas.getScale();
                 diagramPane.translate(-dx / scale * canvasScale, 
                                  -dy / scale * canvasScale);
-                diagramPane.update();
+                diagramPane.update();                
             }
         };
-        overview.addHandler(overviewEventHandler,
-                            ViewChangeEvent.TYPE);
-        // The following is used to hilight linked objects
-        // Test selections
-        SelectionEventHandler selectionHandler = new SelectionEventHandler() {
+
+        if (canvas instanceof InteractorCanvas) {
+        	final OverviewCanvas overview = diagramPane.getOverview();
+        	overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);
+        	canvas.addHandler(overview, ViewChangeEvent.TYPE);
+        
+        	// The following is used to hilight linked objects
+        	// Test selections
+        	SelectionEventHandler selectionHandler = new SelectionEventHandler() {
             
-            @Override
-            public void onSelectionChanged(SelectionEvent e) {
-                hiliteAndCentreObjects(e);
-                overview.setSelectedObjects(e.getSelectedObjects());
-                overview.update();
-            }
-        };
-        diagramPane.addSelectionEventHandler(selectionHandler);
+        		@Override
+        		public void onSelectionChanged(SelectionEvent e) {
+        			hiliteAndCentreObjects(e);
+        			overview.setSelectedObjects(e.getSelectedObjects());
+        			overview.update();
+        		}
+        	};
+        	diagramPane.addSelectionEventHandler(selectionHandler);
+        }	
     }
     
     private void hiliteAndCentreObjects(SelectionEvent e) {
@@ -294,16 +293,7 @@ public class CanvasEventInstaller {
     	previousX = coord[0];
         previousY = coord[1];
         isMouseDown = true;        	
-        diagramPane.hideTooltip();
-        if (canvas instanceof InteractorCanvas) {
-        	Point point = new Point(previousX, previousY);
-        	for (InteractorNode interactor : ((InteractorCanvas) canvas).getUniqueInteractors()) {        		
-        		if (interactor.isPicked(point)) {        			
-        			//interactor.setDragging(true);
-        			draggableNode = interactor;        			
-        		}        			
-        	}
-        }
+        diagramPane.hideTooltip();             
     }
     
     private void mouseMove(GwtEvent<? extends EventHandler> event) {
@@ -316,8 +306,12 @@ public class CanvasEventInstaller {
             int dx = x - previousX;
             int dy = y - previousY;
             
+            if (canvas instanceof InteractorCanvas)
+            	draggableNode = ((InteractorCanvas) canvas).getDraggableNode(new Point(previousX, previousY));
+            
+            
             if (draggableNode != null) {            	
-            	diagramPane.drag(draggableNode, dx, dy);
+            	diagramPane.drag(draggableNode, dx, dy);            	
             } else {
             	diagramPane.translate(dx, dy);
             	diagramPane.update();
