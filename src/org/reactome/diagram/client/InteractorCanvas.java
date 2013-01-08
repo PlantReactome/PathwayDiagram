@@ -129,7 +129,7 @@ public class InteractorCanvas extends DiagramCanvas {
         			// Draw interactor
         			InteractorNode interactor = interactors.get(i);
            			InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);                	
-           			if (!interactor.isDragging()) {
+           			if (!interactor.isDragging() && interactor.getBounds() == null) {
            				if (renderer != null && !drawnInteractors.contains(interactor)) {
            					interactor.setBounds(getInteractorBounds(prot.getBounds(), angle));
            					interactor.setPosition(interactor.getBounds().getX(), interactor.getBounds().getY());

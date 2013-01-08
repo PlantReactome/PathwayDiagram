@@ -11,8 +11,8 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
-import org.reactome.diagram.model.Node;
 
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Label;
@@ -80,6 +80,7 @@ public class HoverHandler {
         	if (hoveredObject != null) {
         		tooltip.hide();
         	   	timer.cancel();
+        	   	diagramPanel.getElement().getStyle().setCursor(Cursor.DEFAULT);
         		hoveredObject = null;
         	}
         	return;
@@ -125,15 +126,17 @@ public class HoverHandler {
     		canvasZIndex = 0;
     	}
     	// Set tooltip text
-    	String label = "";    	
-    	if (hoveredObject instanceof Node) {
-    		label = objType + ": " + displayName;
-    		if (hoveredObject instanceof InteractorNode)
-    			label = label + "\nUniprot Accession:" + ((InteractorNode) hoveredObject).getRefId();
+    	String label = objType + ": " + displayName;
+    	
+    	if (hoveredObject instanceof InteractorNode) {
+    		label = label + "\nUniprot Accession:" + ((InteractorNode) hoveredObject).getRefId();
+    		diagramPanel.getElement().getStyle().setCursor(Cursor.POINTER);
+    	} else if (hoveredObject instanceof InteractorEdge) {
+    		label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
+    				((InteractorEdge) hoveredObject).getInteractor().getDisplayName(); 
+    		diagramPanel.getElement().getStyle().setCursor(Cursor.POINTER);
     	} else {
-    		if (hoveredObject instanceof InteractorEdge)
-    			label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
-    					((InteractorEdge) hoveredObject).getInteractor().getDisplayName(); 
+    		diagramPanel.getElement().getStyle().setCursor(Cursor.DEFAULT);
     	}
     	
     	tooltip.setWidget(new Label(label));
