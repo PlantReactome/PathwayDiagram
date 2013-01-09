@@ -4,8 +4,11 @@
  */
 package org.reactome.diagram.client;
 
+import java.security.Policy.Parameters;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.text.html.HTMLDocument.HTMLReader.ParagraphAction;
 
 import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.event.ViewChangeEventHandler;
@@ -58,11 +61,19 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         // Need to set scale automatically so that the whole pathway can be
         // drawn in this canvas.
         Bounds size = pathway.getPreferredSize();
-        int width = getCoordinateSpaceWidth();
-        double scale = (double) width / size.getWidth();
-        // resize the height
-        double height = (double) size.getHeight() / size.getWidth() * width;
-        setCoordinateSpaceHeight((int)height);
+        // The following statements are based on the original JavaScript implementation
+        // based on images
+        int larger = Math.max(size.getWidth(), size.getHeight());
+        double scale = org.reactome.diagram.view.Parameters.OVERVIEW_SIZE / (double) larger;
+        setCoordinateSpaceWidth((int)(size.getWidth() * scale));
+        setCoordinateSpaceHeight((int)(size.getHeight() * scale));
+        
+//        int width = getCoordinateSpaceWidth();
+//        double scale = (double) width / size.getWidth();
+//        // resize the height
+//        double height = (double) size.getHeight() / size.getWidth() * width;
+//        setCoordinateSpaceHeight((int)height);
+        
         reset();
         scale(scale);
         updatePosition();

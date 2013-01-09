@@ -61,4 +61,6 @@ public class Parameters {
 	
 	public static final double[] dashedLinePattern = new double[]{5.0d, 5.0d};
 	public static final int dashedLineWidth = 2;
+	
+	public static final int OVERVIEW_SIZE = 100;
 }
