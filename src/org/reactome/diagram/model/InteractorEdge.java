@@ -12,11 +12,10 @@ import com.google.gwt.touch.client.Point;
  * Sets and initializes all the Edge Elements for Render on the Canvas
  */
 public class InteractorEdge extends HyperEdge {
-    // 
     private ProteinNode protein;
-    // 
     private InteractorNode interactor;
-   
+    private static String url;
+    
     /**
      * Default constructor.
      */
@@ -41,12 +40,27 @@ public class InteractorEdge extends HyperEdge {
 	public void setInteractor(InteractorNode interactor) {
 		this.interactor = interactor;
 	}    
-	
+		
 	public String getUrl() {
-		return "http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?query=" +
-		protein.getRefId() + "%20AND%20" + interactor.getRefId(); 				
+		String url = InteractorEdge.url;
+		
+		return url.replace("##ACC##", protein.getRefId()).replace("##INT##", interactor.getRefId());
 	}
-	
+
+	public static void setUrl(String urllist, String interactionDatabase) {
+		String [] lines = urllist.split("\n");
+		
+		for (String line : lines) {
+			String [] columns = line.split("\t");
+			
+			String database = columns[0];
+			String url = columns[1];
+			
+			if (database.equals(interactionDatabase))
+				InteractorEdge.url = url;
+		}	
+	}
+
 	public boolean isPicked(Point point) {
 		Point start = this.getBackbone().get(0);
 		Point end = this.getBackbone().get(1);

@@ -34,6 +34,8 @@ public class Node extends GraphObject {
     // Some colors in the format: rgbr(?, ?, ?, ?)
     private String bgColor;
     private String fgColor;
+    // Text font
+    private String font;
     // For NodeAttachment
     private List<NodeAttachment> nodeAttachments;
     // A flag to indicate a dashed border should be used
@@ -76,6 +78,14 @@ public class Node extends GraphObject {
 	
 	public String getFgColor() {
 	    return this.fgColor;
+	}
+	
+	public void setFont(String font) {
+		this.font = font;
+	}
+			
+	public String getFont() {
+		 return this.font;
 	}
 	
 	public Bounds getBounds() {

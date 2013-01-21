@@ -98,6 +98,7 @@ public class SelectionHandler {
         // Don't do anything if just empty click
         if (selected == null) {
         	deSelectAllExcept(selected);
+        	fireSelectionEvent();
         	return;
         } else {        
         	boolean pathwayDoubleClicked = isPathwayDoubleClicked(selected, event);

@@ -10,6 +10,7 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -63,6 +64,11 @@ public class ProteinNode extends Node {
 				
 				iNode = new InteractorNode();
 				iNode.setRefId(acc);
+				if (acc.matches("^(ChE(BI:|MBL))?\\d+")) {
+					iNode.setRefType(InteractorType.Chemical);
+				} else {
+					iNode.setRefType(InteractorType.Protein);
+				}
 				iNode.setDisplayName(geneName);
 				
 				interactors.add(iNode);
@@ -102,14 +108,14 @@ public class ProteinNode extends Node {
 					com.google.gwt.xml.client.Node nameNode = reElement.getElementsByTagName("displayName").item(0);
 					String displayName = nameNode.getChildNodes().item(0).getNodeValue();
 															
-					int start = "UniProt:".length();
-					int idLength = 6;
+					int start = displayName.indexOf(":") + 1;
+					int end = displayName.indexOf(" ");
 								
-					this.refId = displayName.substring(start, start + idLength);
+					this.refId = displayName.substring(start, end);
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			GWT.log("Could not set reference id", e);			
 		}
 	}	
 }

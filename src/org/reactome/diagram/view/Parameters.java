@@ -33,9 +33,8 @@ public class Parameters {
 
 	public static final int TOTAL_INTERACTOR_NUM = 10;
 	public static final int INTERACTOR_EDGE_LENGTH = 170;
-	public static final int INTERACTOR_WIDTH = 80;
-	public static final int INTERACTOR_HEIGHT = 55;
-	
+	public static final int INTERACTOR_CHAR_WIDTH = 8;
+		
 	public static final int ZoomFactor = 1;
 	public static final int UpHeight = 0;
 	public static final int refreshRate = 1500;
@@ -46,8 +45,9 @@ public class Parameters {
     public static final int catRadius = 5;
 	public static final CssColor defaultbgColor = CssColor.make(204, 255, 204);
 	public static final CssColor defaultstrokeColor = CssColor.make(0, 0, 0);
+	
 	// Used to set the height of each line in name drawing
-	public static final int LINE_HEIGHT = 14;
+	public static final int LINE_HEIGHT = 14;	
 	// A grey shade used in disease pathway drawing
 	public static final CssColor defaultShadeColor = CssColor.make("rgba(204, 204, 204, 0.65)"); // Alpha value has to be double
 	// Using blue for default selection as in the curator tool

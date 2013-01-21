@@ -11,10 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InteractorNode extends Node {
-    // 
+    // 	
     private int count; 
 	private List<InteractorEdge> edges;
-	private String refId;
+	private InteractorType refType;
+	private String refId;	
 	private boolean isDragging;
 	
 	/**
@@ -24,6 +25,7 @@ public class InteractorNode extends Node {
 		count = 1;
 		edges = new ArrayList<InteractorEdge>();
 		setType(GraphObjectType.RenderableInteractor); 
+		setFont("12px Lucida Console");
 	}
 
 	public int getCount() {
@@ -34,6 +36,14 @@ public class InteractorNode extends Node {
 		this.count = count;
 	}
 
+	public InteractorType getRefType() {
+		return refType;
+	}
+	
+	public void setRefType(InteractorType refType) {
+		this.refType = refType;
+	}
+	
 	public String getRefId() {
 		return refId;
 	}
@@ -41,12 +51,18 @@ public class InteractorNode extends Node {
 	public void setRefId(String refId) {
 		this.refId = refId;
 	}
-
+	
+	
 	public List<InteractorEdge> getEdges() {
 		return this.edges;
 	}
 
-	public void addEdge(InteractorEdge edge) {
+	public void setEdges(List<InteractorEdge> edges) {
+		this.edges.clear();
+		this.edges.addAll(edges);
+	}
+
+	public void addEdge(InteractorEdge edge) { 
 		this.edges.add(edge);
 	}
 	
@@ -55,7 +71,17 @@ public class InteractorNode extends Node {
 	}
 	
 	public String getUrl() {
-		return "http://www.uniprot.org/uniprot/" + this.refId;
+		String url;
+		
+		if (this.refType == InteractorType.Chemical) {
+			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/CHEMBL";
+		} else if (this.refType == InteractorType.Protein) { 
+			url = "http://www.uniprot.org/uniprot/"; 
+		} else {
+			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/";
+		}
+		
+		return url + this.refId;
 	}
 
 	public boolean isDragging() {

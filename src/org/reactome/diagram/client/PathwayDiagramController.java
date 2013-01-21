@@ -98,6 +98,35 @@ public class PathwayDiagramController {
                                     (width - spWidth) / 2, 
                                     (height - spHeight) / 2);
     }
+
+    
+    public void setInteractorEdgeUrl(final String interactionDatabase) {
+    	String url = GWT.getHostPageBaseURL() + "InteractorEdgeUrls.txt";
+    	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    	
+    	try {
+    		builder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					if (response.getStatusCode() == 200) {
+						InteractorEdge.setUrl(response.getText(), interactionDatabase);
+					} else {
+						requestFailed("Could not retrieve InteractorEdgeUrls.txt");
+					}
+					
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					requestFailed(exception);					
+				}
+    		});
+    	} catch (RequestException e) {
+    		requestFailed(e);
+    	}
+    }
+    
     
     public void openInteractionPage(final InteractorEdge selected) {
     	final ProteinNode protein = selected.getProtein();
@@ -136,9 +165,11 @@ public class PathwayDiagramController {
     public void getInteractors(final ProteinNode selected) {
     	Long dbId = selected.getReactomeId(); 
     	String hostUrl = getHostUrl();
+
+    	final InteractorCanvas ic = diagramPane.getInteractorCanvas();
     	
     	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "psiquicInteractions/" + dbId + "/MINT";
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "psiquicInteractions/" + dbId + "/" + ic.getInteractorDatabase();
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	
     	try {
@@ -146,9 +177,7 @@ public class PathwayDiagramController {
 				public void onResponseReceived(Request request,	Response response) {
 					if (response.getStatusCode() == 200) {
 						selected.setInteractors(response.getText());
-						
-						InteractorCanvas ic = diagramPane.getInteractorCanvas();
-						ic.setVisible(true);
+												
 						ic.addProtein(selected);
 					} else {
 						requestFailed("Failed to get interactors");

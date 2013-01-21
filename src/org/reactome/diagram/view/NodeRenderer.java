@@ -211,7 +211,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * @param name
      * @return
      */
-    private List<String> splitName(String name,
+    public List<String> splitName(String name,
                                    Context2d c2d,
                                    int width) {
         List<String> rtn = new ArrayList<String>();
@@ -301,8 +301,11 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         CssColor fillStyleColor = CssColor.make(fgColor);
         FillStrokeStyle oldFillStyle = context.getFillStyle();
         context.setFillStyle(fillStyleColor);
-        String font = "12px Lucida Sans"; // This should be pre-set as this font used in the curator tool
-        context.setFont(font);
+        
+        String font = node.getFont();
+        if (font == null)		
+        	font = "12px Lucida Sans"; // This should be pre-set as this font used in the curator tool
+       	context.setFont(font);
         context.setTextAlign(TextAlign.CENTER);
         context.setTextBaseline(TextBaseline.TOP);
         int width = bounds.getWidth() - 2 * node.getBounsBuffer();

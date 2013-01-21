@@ -85,6 +85,7 @@ public class CanvasEventInstaller {
         			hiliteAndCentreObjects(e);
         			overview.setSelectedObjects(e.getSelectedObjects());
         			overview.update();
+        			overview.updateOthers(overview.getContext2d());
         		}
         	};
         	diagramPane.addSelectionEventHandler(selectionHandler);
@@ -306,7 +307,7 @@ public class CanvasEventInstaller {
             int dx = x - previousX;
             int dy = y - previousY;
             
-            if (canvas instanceof InteractorCanvas)
+            if (canvas instanceof InteractorCanvas && draggableNode == null)
             	draggableNode = ((InteractorCanvas) canvas).getDraggableNode(new Point(previousX, previousY));
             
             

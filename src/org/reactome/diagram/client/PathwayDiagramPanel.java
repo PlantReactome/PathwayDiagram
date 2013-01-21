@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.reactome.diagram.event.HoverEvent;
@@ -50,8 +51,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private OverviewCanvas overview;
     // For all selection related stuff.
     private SelectionHandler selectionHandler;
-    // For all hovering related stuff.
-    private HoverHandler hoverHandler;
     // Used with a back-end RESTful API server
     private PathwayDiagramController controller;
     // To show popup menu
@@ -79,13 +78,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         style = resources.pathwayDiagramStyle();
         style.ensureInjected();
                 
+        controller = new PathwayDiagramController(this);
+        
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
         canvasList = new ArrayList<DiagramCanvas>();
         
-        overview = new OverviewCanvas();
+        overview = new OverviewCanvas(this);
         
-        pathwayCanvas = new PathwayCanvas(this);
+        pathwayCanvas = new PathwayCanvas(this);         
         // Keep the original information
         contentPane.add(pathwayCanvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName(style.mainCanvas());
@@ -124,10 +125,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         eventInstaller.installHandlers();
         
         selectionHandler = new SelectionHandler(this);
-        hoverHandler = new HoverHandler(this);
-        hoverHandler.getTooltip().setStyleName(style.tooltip());
-        controller = new PathwayDiagramController(this);
-        
+            
         popupMenu = new CanvasPopupMenu();
         popupMenu.setPathwayDiagramPanel(this);
         popupMenu.setStyleName(style.canvasPopup());
@@ -173,14 +171,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         addSelectionEventHandler(selectionHandler);
 
         // Check hovered object change
-        HoverEventHandler hoverHandler = new HoverEventHandler() {
+    //    HoverEventHandler hoverHandler = new HoverEventHandler() {
 
-			@Override
-			public void onHover(HoverEvent e) {
-				System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
-			}
-        };	
-        addHoverEventHandler(hoverHandler);
+		//	@Override
+		//	public void onHover(HoverEvent e) {
+		//		System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
+		//	}
+        //};	
+        //addHoverEventHandler(hoverHandler);
         
         
         // Check displayed pathway change
@@ -314,11 +312,22 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void hover(int x, int y) {
        	Point hoveredPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
     
-       	hoverHandler.hover(hoveredPoint);
+       	Collections.reverse(canvasList);       	
+       	
+       	for (DiagramCanvas canvas : canvasList) {
+       		if (canvas.getHoverHandler().hover(hoveredPoint) != null) {
+       			canvas.getHoverHandler().fireHoverEvent();
+       			break;
+       		}	
+       	}
+       	
+       	Collections.reverse(canvasList);
+       	
     }
 
     public void hideTooltip() {
-    	hoverHandler.getTooltip().hide();
+    	for (DiagramCanvas canvas : canvasList)
+    		canvas.getHoverHandler().getTooltip().hide();
     }
     
     
@@ -419,6 +428,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         String DEFAULT_CSS = "org/reactome/diagram/client/PathwayDiagram.css";
         
         String mainCanvas();
+
+        String interactorCanvas();
         
         String controlPane();
         

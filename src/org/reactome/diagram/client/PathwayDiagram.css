@@ -8,6 +8,10 @@
   z-index:1;
 }
 
+.interactorCanvas {
+  opacity: 0.5;	
+}
+
 .controlPane {   
  }
 
@@ -34,6 +38,7 @@
 	z-index: 2;
 	left: -1px;
 	top: -1px;
+	white-space: nowrap;	
 }
 
 .tooltip {

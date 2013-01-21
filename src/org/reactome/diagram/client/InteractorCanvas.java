@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,19 +31,25 @@ import com.google.gwt.touch.client.Point;
  */
 public class InteractorCanvas extends DiagramCanvas {
     private Context2d c2d;
+    private PathwayDiagramPanel diagramPanel;
+    
+    private String interactorDatabase;
     // Proteins mapped to their list of interactors
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
     // Interactor objects mapped to their accession ids 
 	private Map<String, InteractorNode> uniqueInteractors; 
-	private List<InteractorNode> drawnInteractors;
-	    
+		    
     public InteractorCanvas(PathwayDiagramPanel dPane) {
     	super();
-    	c2d = getContext2d();
+       	c2d = getContext2d();
+       	diagramPanel = dPane;
+       	hoverHandler = new InteractorCanvasHoverHandler(diagramPanel, this);
+       	
+       	setInteractorDatabase("IntAct"); 
     	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
     	uniqueInteractors = new HashMap<String, InteractorNode>();
     }
-    
+        
     public Set<ProteinNode> getProteins() {
     	return this.proteinsToInteractors.keySet();
     }	
@@ -85,9 +92,12 @@ public class InteractorCanvas extends DiagramCanvas {
     				if (ui.getCount() > 1) {
     					ui.setCount(ui.getCount() - 1);
     					
-    					for (InteractorEdge edge : ui.getEdges()) {
+    					ListIterator<InteractorEdge> edges = ui.getEdges().listIterator();
+    					while (edges.hasNext()) {
+    						InteractorEdge edge = edges.next();
+    						
     						if (edge.getProtein() == protein) {
-    							ui.removeEdge(edge);
+    							edges.remove();
     						}	
     					}
     				} else {
@@ -107,80 +117,124 @@ public class InteractorCanvas extends DiagramCanvas {
     	}
     }
     
-    /**
-     * This method is used to draw the interactors.     
-     */
     public void update() {
-        c2d.save();
+    	c2d.save();
         
-        clean();
+        clean(); // Clear canvas
     	    	
         
     	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
-        drawnInteractors = new ArrayList<InteractorNode>();
-    	if (!proteinsToInteractors.isEmpty()) {
-        	for (ProteinNode prot : proteinsToInteractors.keySet()) {
+        InteractorNode draggingNode = null;
+    	List<InteractorNode> interactorsToDraw = new ArrayList<InteractorNode>();
+    	List<InteractorEdge> edgesToDraw = new ArrayList<InteractorEdge>();
+        
+        if (!proteinsToInteractors.isEmpty()) {
+    		for (ProteinNode prot : proteinsToInteractors.keySet()) {
         		List<InteractorNode> interactors = proteinsToInteractors.get(prot);
+        		  
         		double interactorNum = Math.min(interactors.size(), Parameters.TOTAL_INTERACTOR_NUM);
-
+        		
         		for (int i = 0; i < interactorNum; i++) {
         			double angle = 2 * Math.PI / interactorNum * i;
         			
-        			// Draw interactor
+        			
         			InteractorNode interactor = interactors.get(i);
-           			InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);                	
-           			if (!interactor.isDragging() && interactor.getBounds() == null) {
-           				if (renderer != null && !drawnInteractors.contains(interactor)) {
-           					interactor.setBounds(getInteractorBounds(prot.getBounds(), angle));
-           					interactor.setPosition(interactor.getBounds().getX(), interactor.getBounds().getY());
-           					renderer.render(c2d, interactor);
-           					drawnInteractors.add(interactor);                		
+           			                	
+           			if (!interactor.isDragging()) {
+           				
+           				// Add interactor to the 'to be drawn' list if not already added
+           				if (!interactorsToDraw.contains(interactor)) {
+           					if (interactor.getBounds() == null) {
+           						interactor.setBounds(getInteractorBounds(interactor, prot.getBounds(), angle));
+           						interactor.setPosition(interactor.getBounds().getX(), interactor.getBounds().getY());
+           					}
+           					interactorsToDraw.add(interactor);                		
            				}
            				
-           				// Draw connector between the protein and the interactor
+           				// Add connector between the protein and the interactor to edge drawing list 
            				InteractorEdge edge = createInteractorEdge(prot, interactor);
            				interactor.addEdge(edge);	
-           				if (edge != null) {               		
-           					HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
-                			if (edgeRenderer == null)
-                				continue;
-                			edgeRenderer.render(c2d, edge);
-           				}           					
+           				edgesToDraw.add(edge);           				           					
                 	} else {
-                		renderer.render(c2d, interactor);
-                		//Window.alert("Edges: " + interactor.getEdges().size());
-                		for (InteractorEdge edge : interactor.getEdges()) {
-                			HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
-                			edgeRenderer.render(c2d, edge);
-                		}
+                		draggingNode = interactor;                		
                 		interactor.setDragging(false);
                 	}	
                 }
         	}
+    		
+    		// Add dragging node and edges here to be drawn last and above every other
+    		// node and edge
+    		if (draggingNode != null) {
+    			interactorsToDraw.add(draggingNode);
+    			
+    			for (InteractorEdge edge : draggingNode.getEdges()) {
+    				edgesToDraw.add(edge);
+    			}
+    		}
     	}	
+        
+        // Draw edges
+        for (int i = 0; i < edgesToDraw.size(); i++) {
+        	InteractorEdge edge = edgesToDraw.get(i);
+        	
+        	HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
+        	if (edgeRenderer != null) {
+        		edgeRenderer.render(c2d, edge);
+        	}
+        }
+        
+        // Draw interactors after edges (i.e. above them)        
+        for (int i = 0; i < interactorsToDraw.size(); i++) {
+        	InteractorNode interactor = interactorsToDraw.get(i);
+        	
+        	InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
+        	if (renderer != null) {
+        		renderer.render(c2d, interactor);
+        	}
+        }
+                
         c2d.restore();
     }    
         
     // Gets interactor boundaries based on protein boundaries and how many
     // interactors have already been rendered for this protein
     // (interactors drawn in a circle around the protein)
-    private Bounds getInteractorBounds(Bounds protBounds, double angle) {
+    private Bounds getInteractorBounds(InteractorNode interactor, Bounds protBounds, double angle) {
     	double protCentreX = protBounds.getCentre().getX();
     	double protCentreY = protBounds.getCentre().getY();
     	
     	double interactorCentreX = protCentreX + Math.cos(angle) * Parameters.INTERACTOR_EDGE_LENGTH;
     	double interactorCentreY = protCentreY - Math.sin(angle) * Parameters.INTERACTOR_EDGE_LENGTH;
     
-    	int interactorX = (int) ((int) interactorCentreX - (Parameters.INTERACTOR_WIDTH / 2));
-    	int interactorY = (int) ((int) interactorCentreY - (Parameters.INTERACTOR_HEIGHT / 2));
+    	String name = interactor.getDisplayName();
+    	String [] lines = name.split(" ");
+    	
+    	// Establish width of interactor bounds
+    	int maxLineWidth = 5; // Default minimum 
+    	for (String line : lines) {
+    		maxLineWidth = Math.max(line.length(), maxLineWidth);
+    	}    	
+    	int width = maxLineWidth * Parameters.INTERACTOR_CHAR_WIDTH;
+    	
+    	
+    	// Establish height of interactor bounds
+    	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
+    	InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
+
+    	int height = (renderer.splitName(name, c2d, width).size() + 1) * Parameters.LINE_HEIGHT;
+    	
+    	
+    	
+    	int interactorX = (int) ((int) interactorCentreX - (width / 2));
+    	int interactorY = (int) ((int) interactorCentreY - (height / 2));
     
-    	return new Bounds(interactorX, interactorY, Parameters.INTERACTOR_WIDTH, Parameters.INTERACTOR_HEIGHT); 
+    	return new Bounds(interactorX, interactorY, width, height); 
     }
 
     private InteractorEdge createInteractorEdge(ProteinNode prot, InteractorNode interactor) {
     	Bounds p = prot.getBounds();
     	Bounds i = interactor.getBounds();		
-        
+            	
     	double rise = p.getCentre().getY() - i.getCentre().getY();
     	double run = p.getCentre().getX() - i.getCentre().getX(); 
     	
@@ -191,7 +245,11 @@ public class InteractorCanvas extends DiagramCanvas {
     	
     	Point start = getBoundaryIntersection(p, "start", angle);
     	Point end = getBoundaryIntersection(i, "end", angle);
-    	    	
+    	
+    	if (i.isColliding(p)) {
+    		start = end;
+    	}
+    	
     	List<Point> backbone = new ArrayList<Point>(); 
     	backbone.add(start);
     	backbone.add(end);
@@ -290,13 +348,14 @@ public class InteractorCanvas extends DiagramCanvas {
     public void drag(InteractorNode interactor, int dx, int dy) {
     	interactor.setDragging(true);
        	interactor.getBounds().translate(dx, dy);
-    
+       	interactor.setPosition(interactor.getPosition().plus(new Point(dx, dy)));
+       	
+       	List<InteractorEdge> modifiedEdges = new ArrayList<InteractorEdge>(); 
     	for (InteractorEdge edge : interactor.getEdges()) {
-    		interactor.removeEdge(edge);
-    		interactor.addEdge(createInteractorEdge(edge.getProtein(), interactor));
-    		//Point end = edge.getBackbone().get(1);    		
-    		//edge.getBackbone().set(1, end.plus(new Point(dx, dy)));    		 
+    		modifiedEdges.add(createInteractorEdge(edge.getProtein(), interactor));    		    		 
     	}
+    	
+    	interactor.setEdges(modifiedEdges);
     	update();
     }
 
@@ -334,5 +393,14 @@ public class InteractorCanvas extends DiagramCanvas {
 	protected void updateOthers(Context2d c2d) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public String getInteractorDatabase() {
+		return interactorDatabase;
+	}
+
+	public void setInteractorDatabase(String interactorDatabase) {
+		this.interactorDatabase = interactorDatabase;
+		this.diagramPanel.getController().setInteractorEdgeUrl(interactorDatabase);
 	}
 }

@@ -99,6 +99,22 @@ public class Bounds {
     public boolean contains(double x1, double y1) {
         return (x1 >= x && x1 <= x + width && y1 >= y && y1 <= y + height);
     }
+
+    public boolean isColliding(Bounds object) {
+    	int box1_x1 = this.x;
+    	int box1_x2 = this.x + this.width;
+    	int box1_y1 = this.y;
+    	int box1_y2 = this.y + this.height;
+    	
+    	int box2_x1 = object.x;
+    	int box2_x2 = object.x + object.width;
+    	int box2_y1 = object.y;
+    	int box2_y2 = object.y + object.height; 
+    	
+    	if (box1_x2 >= box2_x1 && box1_x1 <= box2_x2 && box1_y2 >= box2_y1 && box1_y1 <= box2_y2)
+    		return true;
+    	return false;	    	
+    }
     
     public String toString() {
         return "x, y, width, height: " + x + ", " + y + ", " + width + ", " + height; 

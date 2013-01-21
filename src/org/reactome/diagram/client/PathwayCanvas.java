@@ -25,6 +25,7 @@ public class PathwayCanvas extends DiagramCanvas {
     
     public PathwayCanvas(PathwayDiagramPanel diagramPane) {
     	super();
+    	hoverHandler = new PathwayCanvasHoverHandler(diagramPane, this);
         drawer = new PathwayCanvasDrawer();
     }
     

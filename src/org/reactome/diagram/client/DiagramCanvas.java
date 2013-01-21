@@ -22,7 +22,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected double scale;
     // For view change
     protected ViewChangeEvent viewEvent;
-        
+    
+    protected HoverHandler hoverHandler;
+    protected SelectionHandler selectionHandler;
+    
     public DiagramCanvas() {
     	scale = 1.0d;
     }
@@ -65,6 +68,14 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     public void scale(double scale) {
         this.scale *= scale;
         fireViewChangeEvent();
+    }
+    
+    public HoverHandler getHoverHandler() {
+		return hoverHandler;    	
+    }
+    
+    public SelectionHandler getSelectionHandler() {
+		return selectionHandler;    	
     }
     
     public void reset() {

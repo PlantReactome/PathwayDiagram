@@ -9,13 +9,10 @@ import java.util.List;
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
-import org.reactome.diagram.model.InteractorEdge;
-import org.reactome.diagram.model.InteractorNode;
 
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -23,15 +20,16 @@ import com.google.gwt.user.client.ui.PopupPanel;
  * @author jweiser
  *
  */
-public class HoverHandler {
-    private PathwayDiagramPanel diagramPanel;
-    private GraphObject hoveredObject;
-    private PopupPanel tooltip;
-    private Timer timer;
+public abstract class HoverHandler {
+    protected PathwayDiagramPanel diagramPanel;
+    protected GraphObject hoveredObject;
+    protected PopupPanel tooltip;
+    protected Timer timer;
     
     public HoverHandler(PathwayDiagramPanel diagramPanel) {
         this.diagramPanel = diagramPanel;
         this.tooltip = new PopupPanel();
+        tooltip.setStyleName(diagramPanel.getStyle().tooltip());
         this.timer = new Timer() {
 
 			@Override
@@ -54,15 +52,10 @@ public class HoverHandler {
     	return tooltip;
     }
     
-    public void hover(Point hoverPoint) {
-        if (diagramPanel.getPathway() == null || diagramPanel.getPathway().getGraphObjects() == null)
-            return;
-        
+    public void hover(Point hoverPoint, List<GraphObject> objects) {
         // Only one object should be hovered over
         GraphObject hovered = null;
 
-        List<GraphObject> objects = diagramPanel.getInteractorCanvas().getGraphObjects();
-        objects.addAll(diagramPanel.getPathway().getGraphObjects());
         for (GraphObject obj : objects) {
             if (hovered != null) 
                 break;
@@ -100,14 +93,14 @@ public class HoverHandler {
         	hoveredObject = hovered;
         	showTooltip();
         
-        	//diagramPanel.update();
-        	fireHoverEvent();
+        	//fireHoverEvent();
         }	
     }
         
-    private void showTooltip() {
-    	String displayName = hoveredObject.getDisplayName();
-    	String objType = getObjType();
+    protected void showTooltip() {
+       	if (hoveredObject.getType() == GraphObjectType.FlowLine)
+    		return;
+    	
     	Point objPos = hoveredObject.getPosition();
     	
     	double scale = diagramPanel.getCanvas().getScale();
@@ -125,21 +118,6 @@ public class HoverHandler {
     	} catch (NumberFormatException nfe) {
     		canvasZIndex = 0;
     	}
-    	// Set tooltip text
-    	String label = objType + ": " + displayName;
-    	
-    	if (hoveredObject instanceof InteractorNode) {
-    		label = label + "\nUniprot Accession:" + ((InteractorNode) hoveredObject).getRefId();
-    		diagramPanel.getElement().getStyle().setCursor(Cursor.POINTER);
-    	} else if (hoveredObject instanceof InteractorEdge) {
-    		label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
-    				((InteractorEdge) hoveredObject).getInteractor().getDisplayName(); 
-    		diagramPanel.getElement().getStyle().setCursor(Cursor.POINTER);
-    	} else {
-    		diagramPanel.getElement().getStyle().setCursor(Cursor.DEFAULT);
-    	}
-    	
-    	tooltip.setWidget(new Label(label));
     	
     	// Position label 
     	tooltip.setPopupPosition( (int) x, (int) y);
@@ -154,6 +132,10 @@ public class HoverHandler {
     	timer.schedule(2000);
     }
     
+    protected String getLabel() {
+    	return getObjType() + ": " + hoveredObject.getDisplayName();  
+    }	
+    	
     private String getObjType() {    	
     	String type = hoveredObject.getType().toString();
     	if (type.startsWith("Renderable")) {
@@ -162,9 +144,13 @@ public class HoverHandler {
     	return type;
     }
     
-    private void fireHoverEvent() {
+    protected void fireHoverEvent() {
         HoverEvent event = new HoverEvent();
         event.setHoveredObject(hoveredObject);
         diagramPanel.getCanvas().fireEvent(event);
     }
+
+    
+	public abstract GraphObject hover(Point hoveredPoint);
+	
 }
