@@ -21,6 +21,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Window;
 
 /**
  * This helper class is used to set up event handler for the canvas used in PathwayDiagramPanel.
@@ -42,7 +43,7 @@ public class CanvasEventInstaller {
         this.canvas = canvas;
     }
     
-    public void installHandlers() {
+    public void installUserInputHandlers() {
         addMouseHandlers();
         addTouchHandlers();
         addKeyHandlers();
@@ -57,6 +58,10 @@ public class CanvasEventInstaller {
 //            }
 //        });
 
+    }    
+        
+    public void installDiagramEventHandlers() {
+    
         // To catch overview dragging
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
             @Override
@@ -70,34 +75,34 @@ public class CanvasEventInstaller {
                 diagramPane.update();                
             }
         };
-
-        if (canvas instanceof InteractorCanvas) {
-        	final OverviewCanvas overview = diagramPane.getOverview();
-        	overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);
-        	canvas.addHandler(overview, ViewChangeEvent.TYPE);
         
-        	// The following is used to hilight linked objects
-        	// Test selections
-        	SelectionEventHandler selectionHandler = new SelectionEventHandler() {
-            
-        		@Override
-        		public void onSelectionChanged(SelectionEvent e) {
-        			hiliteAndCentreObjects(e);
-        			overview.setSelectedObjects(e.getSelectedObjects());
-        			overview.update();
-        			overview.updateOthers(overview.getContext2d());
-        		}
-        	};
-        	diagramPane.addSelectionEventHandler(selectionHandler);
-        }	
+        final OverviewCanvas overview = diagramPane.getOverview();
+        overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);
+        canvas.addHandler(overview, ViewChangeEvent.TYPE);
+        
+        
+        
+        
+        // The following is used to hilight linked objects
+        // Test selections
+        SelectionEventHandler selectionHandler = new SelectionEventHandler() {
+           
+        	@Override
+        	public void onSelectionChanged(SelectionEvent e) {
+        		hiliteAndCentreObjects(e);
+        		overview.setSelectedObjects(e.getSelectedObjects());
+        		overview.update();
+           	}
+        };
+        diagramPane.addSelectionEventHandler(selectionHandler);
+        	
     }
     
     private void hiliteAndCentreObjects(SelectionEvent e) {
-        if (diagramPane.getPathway() == null ||
-            diagramPane.getPathway().getGraphObjects() == null)
+        if (canvas.getGraphObjects() == null)
             return;
         // Un-hilight objects first
-        for (GraphObject obj : diagramPane.getPathway().getGraphObjects()) {
+        for (GraphObject obj : canvas.getGraphObjects()) {
             obj.setHighlighted(false);
         }
         
@@ -126,16 +131,16 @@ public class CanvasEventInstaller {
     
     private void centreObject(GraphObject obj) {
             // Centre selected object
-            PathwayCanvas c = diagramPane.getCanvas();
+           // PathwayCanvas c = diagramPane.getCanvas();
                     
-            double scale = c.getScale();
+            double scale = canvas.getScale();
             
             Point objPos = obj.getPosition();
             double objX = objPos.getX();
             double objY = objPos.getY();
             
-            double x = (objX * -1.0 * scale) + (c.getCoordinateSpaceWidth() / 2);
-            double y = (objY * -1.0 * scale) + (c.getCoordinateSpaceHeight() / 2);
+            double x = (objX * -1.0 * scale) + (canvas.getCoordinateSpaceWidth() / 2);
+            double y = (objY * -1.0 * scale) + (canvas.getCoordinateSpaceHeight() / 2);
             
             diagramPane.translate(-objX + x, -objY + y);
             diagramPane.hideTooltip();

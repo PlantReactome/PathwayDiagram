@@ -22,14 +22,18 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public abstract class HoverHandler {
     protected PathwayDiagramPanel diagramPanel;
+    protected DiagramCanvas canvas;
     protected GraphObject hoveredObject;
     protected PopupPanel tooltip;
     protected Timer timer;
     
-    public HoverHandler(PathwayDiagramPanel diagramPanel) {
+    public HoverHandler(PathwayDiagramPanel diagramPanel, DiagramCanvas canvas) {
         this.diagramPanel = diagramPanel;
+        this.canvas = canvas;
+        
         this.tooltip = new PopupPanel();
         tooltip.setStyleName(diagramPanel.getStyle().tooltip());
+
         this.timer = new Timer() {
 
 			@Override
@@ -103,9 +107,9 @@ public abstract class HoverHandler {
     	
     	Point objPos = hoveredObject.getPosition();
     	
-    	double scale = diagramPanel.getCanvas().getScale();
-    	double translateX = diagramPanel.getCanvas().getTranslateX();
-    	double translateY = diagramPanel.getCanvas().getTranslateY();
+    	double scale = canvas.getScale();
+    	double translateX = canvas.getTranslateX();
+    	double translateY = canvas.getTranslateY();
     	
     	// Compensate for canvas translation and scale
     	double x = (objPos.getX() * scale) + translateX;
@@ -147,7 +151,7 @@ public abstract class HoverHandler {
     protected void fireHoverEvent() {
         HoverEvent event = new HoverEvent();
         event.setHoveredObject(hoveredObject);
-        diagramPanel.getCanvas().fireEvent(event);
+        canvas.fireEvent(event);
     }
 
     

@@ -15,6 +15,7 @@ import org.reactome.diagram.model.ReactomeObject;
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.MenuItemSeparator;
@@ -212,7 +213,9 @@ public class CanvasPopupMenu extends PopupPanel {
     
     private void createMenu(MouseEvent<? extends EventHandler> event) {
         selected = (org.reactome.diagram.model.Node) getSelectedObject();    	
-    	GraphObjectType type = selected.getType();
+        //Window.alert(selected.getDisplayName());
+        
+        GraphObjectType type = selected.getType();
         
         if (type == GraphObjectType.ProcessNode) {
             createProcessNodeMenu();            

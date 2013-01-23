@@ -10,12 +10,13 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InteractorNode extends Node {
+public class InteractorNode extends Node implements Comparable<InteractorNode> {
     // 	
     private int count; 
 	private List<InteractorEdge> edges;
 	private InteractorType refType;
 	private String refId;	
+	private double score;
 	private boolean isDragging;
 	
 	/**
@@ -53,6 +54,14 @@ public class InteractorNode extends Node {
 	}
 	
 	
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
+	}
+
 	public List<InteractorEdge> getEdges() {
 		return this.edges;
 	}
@@ -90,5 +99,16 @@ public class InteractorNode extends Node {
 
 	public void setDragging(boolean isDragging) {
 		this.isDragging = isDragging;
+	}
+
+	@Override
+	public int compareTo(InteractorNode interactor) {
+		if (interactor.getScore() < this.getScore()) {
+			return -1;
+		} else if (interactor.getScore() > this.getScore()) {
+			return 1;
+		}
+			
+		return 0;
 	}
 }

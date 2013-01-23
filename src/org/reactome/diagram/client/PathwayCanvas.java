@@ -4,7 +4,10 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.List;
+
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.GraphObject;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 
@@ -24,9 +27,10 @@ public class PathwayCanvas extends DiagramCanvas {
     }
     
     public PathwayCanvas(PathwayDiagramPanel diagramPane) {
-    	super();
+    	super(diagramPane);
     	hoverHandler = new PathwayCanvasHoverHandler(diagramPane, this);
-        drawer = new PathwayCanvasDrawer();
+    	selectionHandler = new PathwayCanvasSelectionHandler(diagramPane, this);
+    	drawer = new PathwayCanvasDrawer();
     }
     
     public void setPathway(CanvasPathway pathway) {
@@ -37,7 +41,14 @@ public class PathwayCanvas extends DiagramCanvas {
     public CanvasPathway getPathway() {
         return this.pathway;
     }
-            
+
+    public List<GraphObject> getGraphObjects() {
+    	if (getPathway() == null)
+    		return null;
+    	
+    	return getPathway().getGraphObjects();
+    }	
+    
     /**
      * Update drawing.
      */
@@ -47,7 +58,7 @@ public class PathwayCanvas extends DiagramCanvas {
         Context2d c2d = getContext2d();
         c2d.save();
 
-        clean();
+        clean(c2d);
         
         drawer.drawPathway(pathway, this, c2d);
         updateOthers(c2d);

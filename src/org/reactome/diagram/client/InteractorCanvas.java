@@ -40,10 +40,11 @@ public class InteractorCanvas extends DiagramCanvas {
 	private Map<String, InteractorNode> uniqueInteractors; 
 		    
     public InteractorCanvas(PathwayDiagramPanel dPane) {
-    	super();
+    	super(dPane);
        	c2d = getContext2d();
        	diagramPanel = dPane;
        	hoverHandler = new InteractorCanvasHoverHandler(diagramPanel, this);
+       	selectionHandler = new InteractorCanvasSelectionHandler(diagramPanel, this);
        	
        	setInteractorDatabase("IntAct"); 
     	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
@@ -64,6 +65,12 @@ public class InteractorCanvas extends DiagramCanvas {
     public void removeProtein(ProteinNode protein) {
     	proteinsToInteractors.remove(protein);
     	addOrRemoveInteractors(protein, "remove");
+    	update();
+    }
+    
+    public void removeAllProteins() {
+    	proteinsToInteractors.clear();
+    	uniqueInteractors.clear();
     	update();
     }
     
@@ -120,7 +127,7 @@ public class InteractorCanvas extends DiagramCanvas {
     public void update() {
     	c2d.save();
         
-        clean(); // Clear canvas
+        clean(c2d); // Clear canvas
     	    	
         
     	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
@@ -138,8 +145,7 @@ public class InteractorCanvas extends DiagramCanvas {
         			double angle = 2 * Math.PI / interactorNum * i;
         			
         			
-        			InteractorNode interactor = interactors.get(i);
-           			                	
+        			InteractorNode interactor = interactors.get(i);        			
            			if (!interactor.isDragging()) {
            				
            				// Add interactor to the 'to be drawn' list if not already added

@@ -24,7 +24,7 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     private InteractorCanvas ic;
 	
     public InteractorCanvasHoverHandler(PathwayDiagramPanel diagramPanel, InteractorCanvas interactorCanvas) {
-        super(diagramPanel);
+        super(diagramPanel, interactorCanvas);
         ic = interactorCanvas; 
     }
 

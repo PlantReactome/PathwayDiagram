@@ -8,30 +8,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.event.SelectionEvent;
-import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
-import org.reactome.diagram.model.InteractorEdge;
-import org.reactome.diagram.model.InteractorNode;
 
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 
 /**
  * This class is used to handle selection related stuff for PathwayDiagramPanel.
  * @author gwu
  *
  */
-public class SelectionHandler {
-    private PathwayDiagramPanel diagramPanel;
-    private List<GraphObject> selectedObjects;
-    private SelectionEvent selectionEvent;
-        
+public abstract class SelectionHandler {
+    protected PathwayDiagramPanel diagramPanel;
+    protected List<GraphObject> selectedObjects;
+    protected List<GraphObject> canvasObjects;
+    protected SelectionEvent selectionEvent;
+    protected GwtEvent<? extends EventHandler> gwtEvent;
+    protected boolean objectReselected;
+    
     public SelectionHandler(PathwayDiagramPanel diagramPanel) {
         this.diagramPanel = diagramPanel;
         selectedObjects = new ArrayList<GraphObject>();
@@ -42,7 +40,7 @@ public class SelectionHandler {
      * @return
      */
     public List<GraphObject> getSelectedObjects() {
-        return new ArrayList<GraphObject>(selectedObjects);
+        return selectedObjects;//new ArrayList<GraphObject>(selectedObjects);
     }
     
     public void addSelection(Long dbId) {
@@ -57,18 +55,13 @@ public class SelectionHandler {
         }
     }
     
-    public void select(GwtEvent<? extends EventHandler> event, double x, double y) {
-        if (diagramPanel.getPathway() == null || diagramPanel.getPathway().getGraphObjects() == null)
-            return;
-                
-        Point point = new Point(x, y);
+    public GraphObject select(GwtEvent<? extends EventHandler> event, Point point) {
+              
         // Three layers: last for compartment, second to last complexes, and others
         // Only one object should be selected
         GraphObject selected = null;
-        List<GraphObject> objects = diagramPanel.getInteractorCanvas().getGraphObjects();
-        objects.addAll(diagramPanel.getPathway().getGraphObjects());
 
-        for (GraphObject obj : objects) {
+        for (GraphObject obj : canvasObjects) {
             if (selected != null) 
                 break;
             GraphObjectType type = obj.getType();
@@ -80,9 +73,10 @@ public class SelectionHandler {
                 selected = obj;
             }
         }
+
         if (selected == null) {
             // Check complex
-            for (GraphObject obj : objects) {
+            for (GraphObject obj : canvasObjects) {
                 if (selected != null)
                     break;
                 GraphObjectType type = obj.getType();
@@ -97,50 +91,35 @@ public class SelectionHandler {
         
         // Don't do anything if just empty click
         if (selected == null) {
-        	deSelectAllExcept(selected);
-        	fireSelectionEvent();
-        	return;
+        	deSelectAllExcept(selected);        	
         } else {        
-        	boolean pathwayDoubleClicked = isPathwayDoubleClicked(selected, event);
-                    	
         	// If previous object was reselected
         	// A special case to gain some performance: this should be common during selection.
-            if (selectedObjects.size() == 1 && selected == selectedObjects.get(0) && !pathwayDoubleClicked) {
-            	showPopupIfRightClick(event);
-            	return; // Don't redraw
+            if (selectedObjects.size() == 1 && selected == selectedObjects.get(0)) {
+            	//objectReselected = true;
             }        
+       
+            doAdditionalActions(selected);	
 
-            // De-select previous object
             deSelectAllExcept(selected);
-        
-            // Go to selected pathway if process node double clicked
-            if (pathwayDoubleClicked) {
-            	diagramPanel.setPathway(selected.getReactomeId());
-            	return;
-            } else if (selected instanceof InteractorNode) {
-            	Window.open(((InteractorNode) selected).getUrl(), "_blank", "");
-            	return;
-            } else if (selected instanceof InteractorEdge) {
-            	diagramPanel.getController().openInteractionPage((InteractorEdge) selected);
-            	return;
-            }
-        
-            // Add selected object to class variable            
-            selectedObjects.add(selected);          
-                        
+            
+            selectedObjects.add(selected);
+            
             showPopupIfRightClick(event);
-            
-            fireSelectionEvent();
-            
+
+            //if (objectReselected) { 
+            //	objectReselected = false;
+            	//return selected;            
+            //}	                                             
         }
+        
+        return selected;
     }
-    public void setSelectionObjects(List<GraphObject> objects) {
-        CanvasPathway pathway = diagramPanel.getPathway();
-        if (pathway == null)
-            return;
+
+    public void setSelectionObjects(List<GraphObject> objects) {        
         selectedObjects.clear();
         selectedObjects.addAll(objects);
-        for (GraphObject obj : pathway.getGraphObjects()) {
+        for (GraphObject obj : canvasObjects) {
             obj.setIsSelected(objects.contains(obj));
         }
         fireSelectionEvent();
@@ -151,12 +130,8 @@ public class SelectionHandler {
      * @param dbIds
      */
     public void setSelectionIds(List<Long> dbIds) {
-        CanvasPathway pathway = diagramPanel.getPathway();
-        if (pathway == null)
-            return;
         selectedObjects.clear();
-        List<GraphObject> objects = pathway.getGraphObjects();
-        for (GraphObject obj : objects) {
+        for (GraphObject obj : canvasObjects) {
             Long dbId = obj.getReactomeId();
             if (dbId == null)
                 continue;
@@ -176,8 +151,10 @@ public class SelectionHandler {
     public void clearSelection() {
         setSelectionIds(new ArrayList<Long>());
     }
-        
-    private void fireSelectionEvent() {
+    
+    protected abstract void doAdditionalActions(GraphObject selected); 
+    
+    protected void fireSelectionEvent() {
         selectionEvent = new SelectionEvent();
         selectionEvent.setDoCentring(false);
         selectionEvent.setSelectedObjects(selectedObjects);
@@ -192,11 +169,7 @@ public class SelectionHandler {
     	}
     	selectedObjects.clear();
     }
-        
-    private boolean isPathwayDoubleClicked(GraphObject selected, GwtEvent<? extends EventHandler> event) {
-    	return (event instanceof DoubleClickEvent && selected.getType() == GraphObjectType.ProcessNode);
-    }
-    
+      
     private void showPopupIfRightClick(GwtEvent<? extends EventHandler> event) {
     	if (event instanceof MouseEvent && ((MouseEvent <? extends EventHandler>) event).getNativeButton() == NativeEvent.BUTTON_RIGHT) {
     		diagramPanel.getPopupMenu().showPopupMenu((MouseEvent <? extends EventHandler>) event);

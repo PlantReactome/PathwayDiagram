@@ -4,7 +4,10 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.List;
+
 import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.model.GraphObject;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
@@ -25,15 +28,16 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     
     protected HoverHandler hoverHandler;
     protected SelectionHandler selectionHandler;
-    
+	protected CanvasEventInstaller eventInstaller;
+        
     public DiagramCanvas() {
     	scale = 1.0d;
     }
     
     public DiagramCanvas(PathwayDiagramPanel diagramPane) {
         scale = 1.0d;
-        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(diagramPane, this);
-        eventInstaller.installHandlers();
+        eventInstaller = new CanvasEventInstaller(diagramPane, this);
+        //eventInstaller.installDiagramEventHandlers();
     }
         
     public void translate(double dx, double dy) {
@@ -78,6 +82,11 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		return selectionHandler;    	
     }
     
+    public CanvasEventInstaller getEventInstaller() {
+		return eventInstaller;
+    	
+    }
+    
     public void reset() {
         resetTranslate();
         scale = 1.0d;
@@ -106,8 +115,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	
     }	
     
-    protected void clean() {
-    	Context2d c2d = getContext2d();
+    protected void clean(Context2d c2d) {
+    	//Context2d c2d = getContext2d();
     	
     	c2d.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
     	c2d.translate(translateX, translateY);
@@ -124,5 +133,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
      * has been done in this class.
      */
     protected abstract void updateOthers(Context2d c2d);
+
+	public abstract List<GraphObject> getGraphObjects();	
     
 }

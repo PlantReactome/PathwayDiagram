@@ -47,6 +47,5 @@ public class InteractorRenderer extends NodeRenderer {
         context.fill();
         context.stroke();
         context.setLineWidth(oldLineWidth);
-    }
-    
+    }    
 }

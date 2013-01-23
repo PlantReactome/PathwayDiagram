@@ -31,6 +31,7 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 /**
@@ -93,6 +94,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
 
     @Override
     public void update() {
+        System.out.println("a");
         super.update();
         // Draw an rectangle for the view
         // Need a decent line to show the rectangle

@@ -20,7 +20,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
     private PathwayCanvas pc;
 	
     public PathwayCanvasHoverHandler(PathwayDiagramPanel diagramPanel, PathwayCanvas pathwayCanvas) {
-        super(diagramPanel);
+        super(diagramPanel, pathwayCanvas);
         pc = pathwayCanvas; 
     }
 

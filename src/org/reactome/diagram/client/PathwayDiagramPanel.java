@@ -49,8 +49,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private InteractorCanvas interactorCanvas;
     // For overview
     private OverviewCanvas overview;
-    // For all selection related stuff.
-    private SelectionHandler selectionHandler;
     // Used with a back-end RESTful API server
     private PathwayDiagramController controller;
     // To show popup menu
@@ -121,11 +119,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         initWidget(contentPane);
 
         // Add behaviors
-        CanvasEventInstaller eventInstaller = new CanvasEventInstaller(this, canvasList.get(canvasList.size() - 1));
-        eventInstaller.installHandlers();
+        CanvasEventInstaller eventInstaller = canvasList.get(canvasList.size() - 1).getEventInstaller();
+        eventInstaller.installUserInputHandlers();    
+        eventInstaller.installDiagramEventHandlers();
         
-        selectionHandler = new SelectionHandler(this);
-            
         popupMenu = new CanvasPopupMenu();
         popupMenu.setPathwayDiagramPanel(this);
         popupMenu.setStyleName(style.canvasPopup());
@@ -234,9 +231,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	//        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
-        overview.update();
+//        overview.update();
+        interactorCanvas.removeAllProteins();
         pathwayCanvas.setPathway(pathway);
-        pathwayCanvas.update();
+        //pathwayCanvas.update();
+        update();
         PathwayChangeEvent event = new PathwayChangeEvent();
         if (old != null)
             event.setPreviousPathwayDBId(old.getReactomeId());
@@ -297,7 +296,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	canvas.reset();
     }
     
-    public PathwayCanvas getCanvas() {
+    public PathwayCanvas getPathwayCanvas() {
         return this.pathwayCanvas;
     }
     
@@ -339,10 +338,21 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void select(GwtEvent<? extends EventHandler> event, int x, int y) {
         // Need to consider both scale and translate
         Point correctedPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
-    	
-        selectionHandler.select(event,
-        						correctedPoint.getX(), 
-                                correctedPoint.getY());
+    	        
+        Collections.reverse(canvasList);
+        
+        for (DiagramCanvas canvas : canvasList) {
+        	if (canvas.getSelectionHandler().select(event, correctedPoint) != null) {
+        		canvas.getSelectionHandler().fireSelectionEvent();
+        		break;        		
+        	}
+                      
+        	if (canvas == canvasList.get(canvasList.size() - 1)) {
+        		canvas.getSelectionHandler().fireSelectionEvent();
+        	}
+        }
+        	
+        Collections.reverse(canvasList);
     }
         
     public void addSelectionEventHandler(SelectionEventHandler handler) {
@@ -370,7 +380,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @return
      */
     public List<GraphObject> getSelectedObjects() {
-        return selectionHandler.getSelectedObjects();
+        List<GraphObject> selectedObjects = null;
+        
+        for (DiagramCanvas canvas : canvasList) {
+        	selectedObjects = canvas.getSelectionHandler().getSelectedObjects();     
+        	if (!selectedObjects.isEmpty())
+        		break;
+        }
+    	
+    	return selectedObjects;
     }
     
     /**
@@ -378,7 +396,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @param dbIds
      */
     public void setSelectionIds(List<Long> dbIds) {
-        selectionHandler.setSelectionIds(dbIds);
+        for (DiagramCanvas canvas : canvasList)
+    		canvas.getSelectionHandler().setSelectionIds(dbIds);
     }
     
     /**
@@ -395,7 +414,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Reset all selection.
      */
     public void clearSelection() {
-        selectionHandler.clearSelection();
+    	for (DiagramCanvas canvas : canvasList)
+    		canvas.getSelectionHandler().clearSelection();
     }
     
     /**

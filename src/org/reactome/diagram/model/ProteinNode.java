@@ -8,9 +8,11 @@
 package org.reactome.diagram.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -44,23 +46,33 @@ public class ProteinNode extends Node {
 		Document iDom = XMLParser.parse(xml);
 		Element iElement = iDom.getDocumentElement();
 		XMLParser.removeWhitespace(iElement);
-		
-		NodeList interactionList = 
-				((Element) iElement.getElementsByTagName("resultList").item(0)).getElementsByTagName("interactionList").item(0).getChildNodes();
+	
+		NodeList interactionList; 	
+		try {	
+			interactionList = ((Element) iElement.getElementsByTagName("resultList").item(0)).getElementsByTagName("interactionList").item(0).getChildNodes();
+		} catch (NullPointerException npe) {
+			Window.alert(this.getDisplayName() + " has no interactors for the selected interaction database");
+			setDisplayingInteractors(false);
+			return;
+		}
 		
 		InteractorNode iNode;
 		for (int i = 0; i < interactionList.getLength(); i++) {
 			com.google.gwt.xml.client.Node node = interactionList.item(i);
 			String name = node.getNodeName();
-			
+		
 			if (name.equals("interactors")) {
 				Element interactorElement = (Element) node;
-				
+			
 				com.google.gwt.xml.client.Node accNode = interactorElement.getElementsByTagName("accession").item(0);
 				String acc = accNode.getChildNodes().item(0).getNodeValue();
-				
+			
 				com.google.gwt.xml.client.Node genenameNode = interactorElement.getElementsByTagName("genename").item(0);
 				String geneName = genenameNode.getChildNodes().item(0).getNodeValue();
+
+				com.google.gwt.xml.client.Node scoreNode = interactorElement.getElementsByTagName("score").item(0);
+				String scoreString = scoreNode.getChildNodes().item(0).getNodeValue();
+				double score = Double.parseDouble(scoreString);
 				
 				iNode = new InteractorNode();
 				iNode.setRefId(acc);
@@ -70,12 +82,13 @@ public class ProteinNode extends Node {
 					iNode.setRefType(InteractorType.Protein);
 				}
 				iNode.setDisplayName(geneName);
+				iNode.setScore(score);
 				
 				interactors.add(iNode);
-			}
-			
+			}			
 		}
 		
+		Collections.sort(interactors);
 	}
 
 	public boolean isDisplayingInteractors() {
