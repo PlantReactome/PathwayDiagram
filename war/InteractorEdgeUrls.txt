@@ -1,5 +1,5 @@
 IntAct	http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?query=##ACC##%20AND%20##INT##
-MINT	http://mint.bio.uniroma2.it/mint/search.do?ac=##ACC##
+MINT	http://mint.bio.uniroma2.it/mint/search/search.do?ac=##ACC##
 BioGrid	http://www.thebiogrid.org/search.php?keywords=##ACC##
 MatrixDB	http://matrixdb.ibcp.fr/cgi-bin/interactome
 MPIDB	http://www.jcvi.org/mpidb/interaction.php?pname=##ACC##&species_txtbox=&species_select=&dbsource=&cvname=&confidence_structure=&confidence_method=&confidence_interologs=&confidence_purification=&confidence_evidences=&submit=search
