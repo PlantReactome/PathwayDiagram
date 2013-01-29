@@ -8,8 +8,8 @@
   z-index:1;
 }
 
-.interactorCanvas {
-  opacity: 0.5;	
+.interactorCanvas {  	
+  background-color: rgba(136,136,136,0.2);
 }
 
 .controlPane {   

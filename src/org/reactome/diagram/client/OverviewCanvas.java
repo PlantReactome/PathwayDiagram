@@ -94,7 +94,6 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
 
     @Override
     public void update() {
-        System.out.println("a");
         super.update();
         // Draw an rectangle for the view
         // Need a decent line to show the rectangle

@@ -21,6 +21,7 @@ import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.event.shared.EventHandler;
@@ -32,6 +33,7 @@ import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RequiresResize;
 
 /**
@@ -56,6 +58,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     // Loading icon
     private Image loadingIcon;
 
+    private PathwayCanvasControls controls;
+    
     private Style style; 
     
     interface ImageResources extends ClientBundle {
@@ -93,6 +97,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         canvasList.add(pathwayCanvas);        
         
         interactorCanvas = new InteractorCanvas(this);
+        //interactorCanvas.setStyleName(style.interactorCanvas());
         contentPane.add(interactorCanvas, 4, 4);
         //interactorCanvas.setVisible(false);
         canvasList.add(interactorCanvas);
@@ -107,7 +112,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.setVisible(false); // Don't show it!
         
         // Controls
-        PathwayCanvasControls controls = new PathwayCanvasControls(this);
+        controls = new PathwayCanvasControls(this);
         controls.setStyleName(style.controlPane());
         contentPane.add(controls, 4, 4);
         
@@ -196,7 +201,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public CanvasPopupMenu getPopupMenu() {
         return popupMenu;
     }
-        
+
+    public PathwayCanvasControls getControls() {
+    	return controls;
+    }
+    
     public void setSize(int windowWidth, int windowHeight) {
         int width = (int) (windowWidth - 40);
         int height = (int) (windowHeight - 40);
@@ -426,6 +435,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		canvas.update();
     }
     
+    public void setCursor(Cursor cursor) {
+    	getElement().getStyle().setCursor(cursor);    	
+    }
+    
     public Style getStyle() {
     	return this.style;
     }
@@ -462,7 +475,16 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         String tooltip();
     }
 
-	@Override
+    public ListBox getInteractorDBList() {
+    	ListBox interactorDBList = new ListBox();
+    	    	
+    	for (String db : InteractorCanvas.getInteractorDBMap().keySet()) 
+    		interactorDBList.addItem(db, InteractorCanvas.getInteractorDBMap().get(db));	
+    		
+    	return interactorDBList;
+    }
+    
+    @Override
 	public void onContextMenu(ContextMenuEvent event) {
 		// Suppress browser context menu so canvas pop-up menu can be seen
 		event.preventDefault();

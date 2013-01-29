@@ -5,11 +5,11 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.GraphObject;
@@ -22,7 +22,14 @@ import org.reactome.diagram.view.InteractorRenderer;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 
 /**
  * This class is used to draw interactors.
@@ -38,7 +45,10 @@ public class InteractorCanvas extends DiagramCanvas {
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
     // Interactor objects mapped to their accession ids 
 	private Map<String, InteractorNode> uniqueInteractors; 
-		    
+	private static Map<String, String> psicquicMap;
+	private static Map<String, String> interactorDBMap; 
+	private boolean loadingInteractors;
+	
     public InteractorCanvas(PathwayDiagramPanel dPane) {
     	super(dPane);
        	c2d = getContext2d();
@@ -46,13 +56,13 @@ public class InteractorCanvas extends DiagramCanvas {
        	hoverHandler = new InteractorCanvasHoverHandler(diagramPanel, this);
        	selectionHandler = new InteractorCanvasSelectionHandler(diagramPanel, this);
        	
-       	setInteractorDatabase("IntAct"); 
-    	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
+    	diagramPanel.getController().setInteractorDBList();
+       	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
     	uniqueInteractors = new HashMap<String, InteractorNode>();
     }
         
-    public Set<ProteinNode> getProteins() {
-    	return this.proteinsToInteractors.keySet();
+    public List<ProteinNode> getProteins() {
+    	return new ArrayList<ProteinNode>(this.proteinsToInteractors.keySet());
     }	
     
     public void addProtein(ProteinNode protein) {    	
@@ -130,12 +140,13 @@ public class InteractorCanvas extends DiagramCanvas {
         clean(c2d); // Clear canvas
     	    	
         
-    	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
-        InteractorNode draggingNode = null;
-    	List<InteractorNode> interactorsToDraw = new ArrayList<InteractorNode>();
-    	List<InteractorEdge> edgesToDraw = new ArrayList<InteractorEdge>();
-        
         if (!proteinsToInteractors.isEmpty()) {
+    		GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
+    		InteractorNode draggingNode = null;
+    		List<InteractorNode> interactorsToDraw = new ArrayList<InteractorNode>();
+    		List<InteractorEdge> edgesToDraw = new ArrayList<InteractorEdge>();
+        
+        //if (!proteinsToInteractors.isEmpty()) {
     		for (ProteinNode prot : proteinsToInteractors.keySet()) {
         		List<InteractorNode> interactors = proteinsToInteractors.get(prot);
         		  
@@ -176,29 +187,33 @@ public class InteractorCanvas extends DiagramCanvas {
     			for (InteractorEdge edge : draggingNode.getEdges()) {
     				edgesToDraw.add(edge);
     			}
+    		}    		
+        
+    		// Draw edges
+    		for (int i = 0; i < edgesToDraw.size(); i++) {
+    			InteractorEdge edge = edgesToDraw.get(i);
+        	
+    			HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
+    			if (edgeRenderer != null) {
+    				edgeRenderer.render(c2d, edge);
+    			}
     		}
-    	}	
         
-        // Draw edges
-        for (int i = 0; i < edgesToDraw.size(); i++) {
-        	InteractorEdge edge = edgesToDraw.get(i);
+    		// Draw interactors after edges (i.e. above them)        
+    		for (int i = 0; i < interactorsToDraw.size(); i++) {
+    			InteractorNode interactor = interactorsToDraw.get(i);
         	
-        	HyperEdgeRenderer edgeRenderer = viewFactory.getEdgeRenderere(edge);
-        	if (edgeRenderer != null) {
-        		edgeRenderer.render(c2d, edge);
-        	}
+    			InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
+    			if (renderer != null) {
+    				renderer.render(c2d, interactor);
+    			}
+    		}
+    		
+    		this.setStyleName(getStyle());
+        } else {
+        	this.removeStyleName(getStyle());
         }
-        
-        // Draw interactors after edges (i.e. above them)        
-        for (int i = 0; i < interactorsToDraw.size(); i++) {
-        	InteractorNode interactor = interactorsToDraw.get(i);
-        	
-        	InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
-        	if (renderer != null) {
-        		renderer.render(c2d, interactor);
-        	}
-        }
-                
+    		
         c2d.restore();
     }    
         
@@ -406,7 +421,99 @@ public class InteractorCanvas extends DiagramCanvas {
 	}
 
 	public void setInteractorDatabase(String interactorDatabase) {
-		this.interactorDatabase = interactorDatabase;
-		this.diagramPanel.getController().setInteractorEdgeUrl(interactorDatabase);
+		setInteractorDatabase(interactorDatabase, false);
+	}
+	
+	public void setInteractorDatabase(String interactorDatabase, boolean initializing) {
+		this.interactorDatabase = interactorDatabase;		
+		InteractorEdge.setUrl(InteractorCanvas.interactorDBMap, interactorDatabase);
+		
+		List<ProteinNode> proteinList = new ArrayList<ProteinNode>(getProteins());
+		removeAllProteins();
+		if (!initializing && !proteinList.isEmpty())
+			setStyleName(getStyle());
+		
+		for (ProteinNode protein: proteinList)
+			this.diagramPanel.getController().getInteractors(protein);		
+	}
+	
+	public static Map<String, String> getPSICQUICMap() {
+		return psicquicMap;
+	}
+	
+	public void setPSICQUICMap(String xml) {
+		psicquicMap = new HashMap<String, String>();
+		
+		Document psicquicDom = XMLParser.parse(xml);
+		Element psicquicElement = psicquicDom.getDocumentElement();
+		XMLParser.removeWhitespace(psicquicElement);
+		
+		NodeList nodeList = psicquicElement.getChildNodes();
+		
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			String name = node.getNodeName();
+			
+			if (name.equals("service")) {
+				Element serviceElement = (Element) node;
+				
+				Node nameNode = serviceElement.getElementsByTagName("name").item(0);
+				String serviceName = nameNode.getChildNodes().item(0).getNodeValue();
+				
+				Node urlNode = serviceElement.getElementsByTagName("restUrl").item(0);
+				String serviceUrl = urlNode.getChildNodes().item(0).getNodeValue();
+				
+				psicquicMap.put(serviceName, serviceUrl);
+			}
+		}
+		
+		addToInteractorDBMap(psicquicMap);
+	}
+	
+	public static Map<String, String> getInteractorDBMap() {
+		return interactorDBMap;
+	}
+	
+	public void addToInteractorDBMap(Map<String, String> map) {
+		if (interactorDBMap == null) {
+			interactorDBMap = map;
+		} else {
+			for (String db : map.keySet()) {
+				if (!interactorDBMap.containsKey(db))
+					interactorDBMap.put(db, map.get(db));
+			}
+		}
+			
+		ListBox interactorDBList = diagramPanel.getControls().getInteractionDBList();		
+		interactorDBList.clear();
+		
+		List<String> dbs = new ArrayList<String>(interactorDBMap.keySet());
+		Collections.sort(dbs);
+		for (int i = 0; i < dbs.size(); i++) {
+			String db = dbs.get(i);
+			
+			interactorDBList.addItem(db, map.get(db));
+			if (db.equals("IntAct")) {
+				interactorDBList.setSelectedIndex(i);
+				setInteractorDatabase(db, true);				
+			}
+		}		
+	}		
+	
+	private String getStyle() {
+		return diagramPanel.getStyle().interactorCanvas();
+	}
+
+	public boolean isLoadingInteractors() {
+		return loadingInteractors;
+	}
+
+	public void setLoadingInteractors(boolean loadingInteractors) {
+		this.loadingInteractors = loadingInteractors;
+		if (loadingInteractors) {
+			diagramPanel.setCursor(Cursor.WAIT);
+		} else {
+			diagramPanel.setCursor(Cursor.DEFAULT);
+		}
 	}
 }

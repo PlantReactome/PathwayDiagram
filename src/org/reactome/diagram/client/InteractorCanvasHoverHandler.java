@@ -36,7 +36,9 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
         super.hover(hoverPoint, objects);
 
         if (hoveredObject != null) {
-        	diagramPanel.getElement().getStyle().setCursor(Cursor.POINTER);
+        	diagramPanel.setCursor(Cursor.POINTER);
+        } else if (ic.isLoadingInteractors()) {
+        	diagramPanel.setCursor(Cursor.WAIT);
         }
         
         return hoveredObject;

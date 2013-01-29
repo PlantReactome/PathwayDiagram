@@ -7,12 +7,16 @@ package org.reactome.diagram.client;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 
 /**
  * This customized FlexTable is used to set up controls for PathwayCanvas: e.g. 
@@ -41,6 +45,7 @@ public class PathwayCanvasControls extends FlexTable {
     
     private PathwayDiagramPanel diagramPane;
     private static Resources resources;
+    private ListBox interactionDBList;
     
     public PathwayCanvasControls(PathwayDiagramPanel diagramPane) {
         this.diagramPane = diagramPane;
@@ -125,6 +130,19 @@ public class PathwayCanvasControls extends FlexTable {
             }
         });
         
+        interactionDBList = new ListBox();
+        interactionDBList.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				InteractorCanvas ic = diagramPane.getInteractorCanvas();
+				
+				ic.setInteractorDatabase(interactionDBList.getItemText(interactionDBList.getSelectedIndex()));
+			}
+        	
+        });
+        
+        
 //        setButtonSize(refresh);
 //        setButtonSize(zoomPlus);
 //        setButtonSize(zoomMinus);
@@ -146,6 +164,14 @@ public class PathwayCanvasControls extends FlexTable {
         setWidget(1, 0, scrollBottom);
         setWidget(0, 5, scrollRight);
         cellFormatter.setRowSpan(0, 5, 2);
+        setWidget(0, 6, new Label("Interaction DB:"));
+        cellFormatter.setRowSpan(0, 6, 2);
+        setWidget(0, 7, interactionDBList);
+        cellFormatter.setRowSpan(0, 7, 2);
+    }
+
+    public ListBox getInteractionDBList() {
+    	return interactionDBList;
     }
     
 //    private void setButtonSize(PushButton btn) {
