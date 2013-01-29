@@ -133,7 +133,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        addTestCode();
+        //addTestCode();
     }
     
     private void addTestCode() {

@@ -6,6 +6,8 @@
 
 package org.reactome.diagram.model;
 
+import java.util.Map;
+
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -47,18 +49,9 @@ public class InteractorEdge extends HyperEdge {
 		return url.replace("##ACC##", protein.getRefId()).replace("##INT##", interactor.getRefId());
 	}
 
-	public static void setUrl(String urllist, String interactionDatabase) {
-		String [] lines = urllist.split("\n");
-		
-		for (String line : lines) {
-			String [] columns = line.split("\t");
-			
-			String database = columns[0];
-			String url = columns[1];
-			
-			if (database.equals(interactionDatabase))
-				InteractorEdge.url = url;
-		}	
+	public static void setUrl(Map<String, String> interactionDBMap, String interactionDatabase) {
+		String url = interactionDBMap.get(interactionDatabase);
+		InteractorEdge.url = url;			
 	}
 
 	public boolean isPicked(Point point) {

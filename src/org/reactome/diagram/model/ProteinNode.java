@@ -46,13 +46,13 @@ public class ProteinNode extends Node {
 		Document iDom = XMLParser.parse(xml);
 		Element iElement = iDom.getDocumentElement();
 		XMLParser.removeWhitespace(iElement);
-	
+		
 		NodeList interactionList; 	
 		try {	
 			interactionList = ((Element) iElement.getElementsByTagName("resultList").item(0)).getElementsByTagName("interactionList").item(0).getChildNodes();
 		} catch (NullPointerException npe) {
 			Window.alert(this.getDisplayName() + " has no interactors for the selected interaction database");
-			setDisplayingInteractors(false);
+			//setDisplayingInteractors(false);
 			return;
 		}
 		
