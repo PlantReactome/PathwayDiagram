@@ -46,7 +46,7 @@ public class InteractorEdge extends HyperEdge {
 	public String getUrl() {
 		String url = InteractorEdge.url;
 		
-		return url.replace("##ACC##", protein.getRefId()).replace("##INT##", interactor.getRefId());
+		return url.replace("##ACC##", protein.getRefId()).replace("##INT##", interactor.getAccession());
 	}
 
 	public static void setUrl(Map<String, String> interactionDBMap, String interactionDatabase) {

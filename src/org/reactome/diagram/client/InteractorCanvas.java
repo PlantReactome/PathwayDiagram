@@ -90,8 +90,9 @@ public class InteractorCanvas extends DiagramCanvas {
     	int interactorsAdded = 0;
     	// Process each interactor for the protein
     	for (InteractorNode i : protein.getInteractors()) {
-    		String id = i.getRefId();
-
+    		String id = i.getAccession();
+    			
+    			
 			// If the interactor is already known by the canvas
     		// increase/decrease count for that interactor
     		if (uniqueInteractors.containsKey(id)) {
@@ -227,28 +228,41 @@ public class InteractorCanvas extends DiagramCanvas {
     	double interactorCentreX = protCentreX + Math.cos(angle) * Parameters.INTERACTOR_EDGE_LENGTH;
     	double interactorCentreY = protCentreY - Math.sin(angle) * Parameters.INTERACTOR_EDGE_LENGTH;
     
-    	String name = interactor.getDisplayName();
-    	String [] lines = name.split(" ");
+    	int interactorX;
+    	int interactorY;
+    	int width;
+    	int height;
     	
-    	// Establish width of interactor bounds
-    	int maxLineWidth = 5; // Default minimum 
-    	for (String line : lines) {
-    		maxLineWidth = Math.max(line.length(), maxLineWidth);
-    	}    	
-    	int width = maxLineWidth * Parameters.INTERACTOR_CHAR_WIDTH;
+    	if (interactor.getChemicalId() != null) {
+    		width = Parameters.IMAGE_WIDTH;
+    		height = Parameters.IMAGE_HEIGHT;
+    		interactorX = (int) (interactorCentreX - (width / 2));
+    		interactorY = (int) (interactorCentreY - (height / 2));
+    	} else {	
+    		String name = interactor.getDisplayName();    		    	
+    		String [] lines = name.split(" ");
+    	
+    		// Establish width of interactor bounds
+    		int maxLineWidth = 5; // Default minimum 
+    		for (String line : lines) {
+    			maxLineWidth = Math.max(line.length(), maxLineWidth);
+    		}    	
+    		width = maxLineWidth * Parameters.INTERACTOR_CHAR_WIDTH;
     	
     	
-    	// Establish height of interactor bounds
-    	GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
-    	InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
+    		// Establish height of interactor bounds
+    		GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
+    		InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
 
-    	int height = (renderer.splitName(name, c2d, width).size() + 1) * Parameters.LINE_HEIGHT;
+    		height = (renderer.splitName(name, c2d, width).size() + 1) * Parameters.LINE_HEIGHT;
     	
     	
     	
-    	int interactorX = (int) ((int) interactorCentreX - (width / 2));
-    	int interactorY = (int) ((int) interactorCentreY - (height / 2));
-    
+    		interactorX = (int) ((int) interactorCentreX - (width / 2));
+    		interactorY = (int) ((int) interactorCentreY - (height / 2));
+    	}	
+    		
+    		
     	return new Bounds(interactorX, interactorY, width, height); 
     }
 

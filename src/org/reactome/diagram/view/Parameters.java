@@ -34,7 +34,9 @@ public class Parameters {
 	public static final int TOTAL_INTERACTOR_NUM = 10;
 	public static final int INTERACTOR_EDGE_LENGTH = 170;
 	public static final int INTERACTOR_CHAR_WIDTH = 8;
-		
+	public static final int IMAGE_HEIGHT = 80;
+	public static final int IMAGE_WIDTH = 80;
+	
 	public static final int ZoomFactor = 1;
 	public static final int UpHeight = 0;
 	public static final int refreshRate = 1500;

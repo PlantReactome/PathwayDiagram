@@ -40,7 +40,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     public void render(Context2d c2d,
                        Node node) {
         setColors(c2d, node.getFgColor(), node.getBgColor());
-        Bounds bounds = node.getBounds();
+        
         String color = node.getBgColor();
         if (color == null) {
             c2d.setFillStyle(Parameters.defaultbgColor);
@@ -51,7 +51,13 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         
         setStroke(c2d,
                   node);
-        drawRectangle(bounds, 
+        drawNode(c2d, node);
+    }
+    
+    protected void drawNode(Context2d c2d, Node node) {
+        Bounds bounds = node.getBounds();
+    	
+    	drawRectangle(bounds, 
                       c2d,
                       node);
         drawName(c2d, 

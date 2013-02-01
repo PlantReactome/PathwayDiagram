@@ -21,7 +21,6 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 
 /**
  * This helper class is used to set up event handler for the canvas used in PathwayDiagramPanel.

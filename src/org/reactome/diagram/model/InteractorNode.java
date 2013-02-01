@@ -10,13 +10,17 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.ui.Image;
+
 public class InteractorNode extends Node implements Comparable<InteractorNode> {
     // 	
     private int count; 
 	private List<InteractorEdge> edges;
 	private InteractorType refType;
-	private String refId;	
+	private String accession;	
 	private double score;
+	private String chemicalId;
+	private Image image;
 	private boolean isDragging;
 	
 	/**
@@ -45,12 +49,12 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		this.refType = refType;
 	}
 	
-	public String getRefId() {
-		return refId;
+	public String getAccession() {
+		return accession;
 	}
 
-	public void setRefId(String refId) {
-		this.refId = refId;
+	public void setAccession(String accession) {
+		this.accession = accession;
 	}
 	
 	
@@ -60,6 +64,14 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 
 	public void setScore(double score) {
 		this.score = score;
+	}
+
+	public String getChemicalId() {
+		return chemicalId;
+	}
+
+	public void setChemicalId(String chemicalId) {
+		this.chemicalId = chemicalId;
 	}
 
 	public List<InteractorEdge> getEdges() {
@@ -82,15 +94,25 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 	public String getUrl() {
 		String url;
 		
-		if (this.refType == InteractorType.Chemical) {
-			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/CHEMBL";
+		if (this.refType == InteractorType.Chemical) {			
+			if (chemicalId != null || getDisplayName().matches("^\\d+$")) {
+				url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/";
+				
+				if (chemicalId != null) {				
+					url = url + chemicalId;
+				} else {
+					url = url + "CHEMBL" + getDisplayName();
+				}
+			} else {
+				url = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=" + this.accession;
+			}		
 		} else if (this.refType == InteractorType.Protein) { 
-			url = "http://www.uniprot.org/uniprot/"; 
+			url = "http://www.uniprot.org/uniprot/" + this.accession; 
 		} else {
-			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/";
+			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/" + this.accession;
 		}
 		
-		return url + this.refId;
+		return url;
 	}
 
 	public boolean isDragging() {
@@ -110,5 +132,13 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		}
 			
 		return 0;
+	}
+
+	public Image getImage() {
+		return image;
+	}
+
+	public void setImage(String url) {
+		this.image = new Image(url);
 	}
 }
