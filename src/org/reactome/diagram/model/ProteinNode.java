@@ -42,7 +42,7 @@ public class ProteinNode extends Node {
 	
 	public void setInteractors(String xml) {
 		interactors = new ArrayList<InteractorNode>();
-				
+		
 		Document iDom = XMLParser.parse(xml);
 		Element iElement = iDom.getDocumentElement();
 		XMLParser.removeWhitespace(iElement);
@@ -142,19 +142,19 @@ public class ProteinNode extends Node {
 			
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				com.google.gwt.xml.client.Node node = nodeList.item(i);
-				String name = node.getNodeName();
+				//String name = node.getNodeName();
 									
-				if (name.equals("referenceEntity")) {
+				//if (name.equals("referenceEntity")) {
 					Element reElement = (Element) node;
 					
 					com.google.gwt.xml.client.Node nameNode = reElement.getElementsByTagName("displayName").item(0);
 					String displayName = nameNode.getChildNodes().item(0).getNodeValue();
-															
+					
 					int start = displayName.indexOf(":") + 1;
 					int end = displayName.indexOf(" ");
 								
 					this.refId = displayName.substring(start, end);
-				}
+				//}
 			}
 		} catch (Exception e) {
 			GWT.log("Could not set reference id", e);			

@@ -94,10 +94,12 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
 
     @Override
     public void update() {
+    	Context2d c2d = getContext2d();
+    	
         super.update();
+        
         // Draw an rectangle for the view
         // Need a decent line to show the rectangle
-        Context2d c2d = getContext2d();
         c2d.setLineWidth(1.0d); // After the super.update call, all states should be reset to the original.
         // Use blue line
         CssColor blue = CssColor.make(0, 0, 255);
@@ -116,7 +118,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
      */
     @Override
     protected void updateOthers(Context2d c2d) {
-        if (selectedObjects == null || selectedObjects.size() == 0)
+    	if (selectedObjects == null || selectedObjects.size() == 0)
             return;
         GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
         for (GraphObject obj :  selectedObjects) {

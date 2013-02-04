@@ -9,6 +9,7 @@ package org.reactome.diagram.model;
 import java.util.Map;
 
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Window;
 
 /**
  * Sets and initializes all the Edge Elements for Render on the Canvas
@@ -46,7 +47,9 @@ public class InteractorEdge extends HyperEdge {
 	public String getUrl() {
 		String url = InteractorEdge.url;
 		
-		return url.replace("##ACC##", protein.getRefId()).replace("##INT##", interactor.getAccession());
+		url = url.replace("##ACC##", protein.getRefId());
+		url = url.replace("##INT##", interactor.getAccession());
+		return url;
 	}
 
 	public static void setUrl(Map<String, String> interactionDBMap, String interactionDatabase) {

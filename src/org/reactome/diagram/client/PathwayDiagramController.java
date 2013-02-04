@@ -192,7 +192,7 @@ public class PathwayDiagramController {
 
 				@Override
 				public void onResponseReceived(Request request,	Response response) {
-					if (response.getStatusCode() == 200) {
+					if (response.getStatusCode() == 200) {				
 						protein.setRefId(response.getText());
 						Window.open(selected.getUrl(), null, null);
 					} else {

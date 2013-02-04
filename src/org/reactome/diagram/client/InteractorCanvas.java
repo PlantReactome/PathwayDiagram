@@ -139,15 +139,20 @@ public class InteractorCanvas extends DiagramCanvas {
     	c2d.save();
         
         clean(c2d); // Clear canvas
-    	    	
+    	
+        drawInteractors(c2d);
+        drawInteractors(diagramPanel.getOverview().getContext2d());
         
+        c2d.restore();
+    }
+        
+    public void drawInteractors(Context2d c2d) {    
         if (!proteinsToInteractors.isEmpty()) {
     		GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
     		InteractorNode draggingNode = null;
     		List<InteractorNode> interactorsToDraw = new ArrayList<InteractorNode>();
     		List<InteractorEdge> edgesToDraw = new ArrayList<InteractorEdge>();
         
-        //if (!proteinsToInteractors.isEmpty()) {
     		for (ProteinNode prot : proteinsToInteractors.keySet()) {
         		List<InteractorNode> interactors = proteinsToInteractors.get(prot);
         		  
@@ -213,10 +218,8 @@ public class InteractorCanvas extends DiagramCanvas {
     		this.setStyleName(getStyle());
         } else {
         	this.removeStyleName(getStyle());
-        }
-    		
-        c2d.restore();
-    }    
+        }     
+    }
         
     // Gets interactor boundaries based on protein boundaries and how many
     // interactors have already been rendered for this protein

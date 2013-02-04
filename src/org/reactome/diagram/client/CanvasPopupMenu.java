@@ -95,9 +95,9 @@ public class CanvasPopupMenu extends PopupPanel {
     		
     		for (int i = 0; i < nodeList.getLength(); i++) {
     			Node node = nodeList.item(i);
-    			String name = node.getNodeName();
+    			//String name = node.getNodeName();
     			
-    			if (name.equals("physicalEntity")) {
+    			//if (name.equals("physicalEntity")) {
     				Element peElement = (Element) node;
     				
     				Node idNode = peElement.getElementsByTagName("dbId").item(0);
@@ -113,7 +113,7 @@ public class CanvasPopupMenu extends PopupPanel {
 							hide();
 						}    					
     				});    				
-    			}
+    			//}
     		}
     		
     		pmMenu.setStyleName(diagramPane.getStyle().subMenu());
