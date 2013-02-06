@@ -142,7 +142,11 @@ public abstract class SelectionHandler {
             else
                 obj.setIsSelected(false);
         }
-        fireSelectionEvent();
+        //DO NOT FIRE EVENT HERE, just update the diagram
+        OverviewCanvas overview = diagramPanel.getOverview();
+        overview.setSelectedObjects(selectedObjects);
+        overview.update();
+        diagramPanel.getPathwayCanvas().update();
     }
     
     /**
