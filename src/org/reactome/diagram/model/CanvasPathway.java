@@ -79,6 +79,11 @@ public class CanvasPathway extends Node {
             return;
         Element nameElm = (Element) nodeList.item(0);
         String name = nameElm.getFirstChild().getNodeValue();
+        // Get rid of "(name copied from...")
+        int index = name.indexOf("(name copied from");
+        if (index > 0) {
+            name = name.substring(0, index);
+        }
         obj.setDisplayName(name);
     }
     
