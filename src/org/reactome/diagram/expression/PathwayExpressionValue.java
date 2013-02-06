@@ -5,23 +5,24 @@
  * 
  */
 
-package org.reactome.diagram.model;
+package org.reactome.diagram.expression;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class PathwayExpressionValue {
 	private String species;
 	private Long speciesId;		
     private String pathway;
     private Long pathwayId;
-	private List<PathwayComponentExpressionValue> expressionValues; 
+	private Map<Long, PathwayComponentExpressionValue> expressionValues; 
     		
 	/**
 	 * Default constructor.
 	 */
 	public PathwayExpressionValue() {		
-		expressionValues = new ArrayList<PathwayComponentExpressionValue>();
+		expressionValues = new HashMap<Long, PathwayComponentExpressionValue>();
 	}
 
 	public String getSpecies() {
@@ -56,11 +57,11 @@ public class PathwayExpressionValue {
 		this.pathwayId = pathwayId;
 	}
 
-	public List<PathwayComponentExpressionValue> getExpressionValues() {
+	public Map<Long, PathwayComponentExpressionValue> getExpressionValues() {
 		return expressionValues;
 	}
 
-	public void setExpressionValues(List<PathwayComponentExpressionValue> expressionValues) {
+	public void setExpressionValues(Map<Long, PathwayComponentExpressionValue> expressionValues) {
 		this.expressionValues = expressionValues;
 	}
 	

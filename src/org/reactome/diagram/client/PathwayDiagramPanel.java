@@ -14,6 +14,7 @@ import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
+import org.reactome.diagram.expression.ExpressionProcessor;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
@@ -136,7 +137,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-//        addTestCode();
+       // addTestCode();
     }
     
     private void addTestCode() {
@@ -144,9 +145,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         contentPane.add(testBtn, 500, 4);
     	testBtn.addClickHandler(new ClickHandler() {
             
-          //  @Override
-        public void onClick(ClickEvent event) {
-//                controller.listPathways();
+    		ExpressionProcessor ep = new ExpressionProcessor(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");	
+    		//  @Override
+    		public void onClick(ClickEvent event) {
+        		ep.retrieveExpressionData();
+                //controller.listPathways();
                 PathwayTreeBrowser treeBrowser = new PathwayTreeBrowser(PathwayDiagramPanel.this);
                 treeBrowser.initTree();
             }
@@ -186,15 +189,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         };
         addSelectionEventHandler(selectionHandler);
 
-        // Check hovered object change
-    //    HoverEventHandler hoverHandler = new HoverEventHandler() {
+        //Check hovered object change
+        HoverEventHandler hoverHandler = new HoverEventHandler() {
 
-		//	@Override
-		//	public void onHover(HoverEvent e) {
-		//		System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
-		//	}
-        //};	
-        //addHoverEventHandler(hoverHandler);
+			@Override
+        	public void onHover(HoverEvent e) {
+				System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
+			}
+        };	
+        addHoverEventHandler(hoverHandler);
         
         
         // Check displayed pathway change

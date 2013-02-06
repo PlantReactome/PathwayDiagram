@@ -5,23 +5,25 @@
  * 
  */
 
-package org.reactome.diagram.model;
+package org.reactome.diagram.expression;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 public class ReactomeExpressionValue {
 	private String analysisId;
 	private double minExpression;		
     private double maxExpression;
 	private List<String> expressionColumnNames;
-    private List<PathwayExpressionValue> pathwayExpressionValues; 
+    private Map<Long, PathwayExpressionValue> pathwayExpressionValues; 
     		
 	/**
 	 * Default constructor.
 	 */
 	public ReactomeExpressionValue() {		
-		pathwayExpressionValues = new ArrayList<PathwayExpressionValue>();
+		pathwayExpressionValues = new HashMap<Long, PathwayExpressionValue>();
 	}
 
 	public String getAnalysisId() {
@@ -56,11 +58,11 @@ public class ReactomeExpressionValue {
 		this.expressionColumnNames = expressionColumnNames;
 	}
 
-	public List<PathwayExpressionValue> getPathwayExpressionValues() {
+	public Map<Long, PathwayExpressionValue> getPathwayExpressionValues() {
 		return pathwayExpressionValues;
 	}
 
-	public void setPathwayExpressionValues(List<PathwayExpressionValue> pathwayExpressionValues) {
+	public void setPathwayExpressionValues(Map<Long, PathwayExpressionValue> pathwayExpressionValues) {
 		this.pathwayExpressionValues = pathwayExpressionValues;
 	}
 	
