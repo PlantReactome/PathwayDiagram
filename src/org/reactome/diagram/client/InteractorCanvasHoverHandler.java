@@ -29,11 +29,13 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     }
 
     public GraphObject hover(Point hoverPoint) {
-        if (ic.getGraphObjects() == null)
+        this.hoverPoint = hoverPoint;
+    	
+    	if (ic.getGraphObjects() == null)
             return null;
                 
         List<GraphObject> objects = ic.getGraphObjects();
-        super.hover(hoverPoint, objects);
+        super.hover(objects);
 
         if (hoveredObject != null) {
         	diagramPanel.setCursor(Cursor.POINTER);

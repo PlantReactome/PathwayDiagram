@@ -104,7 +104,7 @@ public class PathwayDiagramController {
     public void setInteractorDBList() {
     	addPSICQUICList();
     	
-    	String url = GWT.getHostPageBaseURL() + "InteractorEdgeUrls.txt";
+    	String url = getHostUrl() + "InteractorEdgeUrls.txt";
     	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     	
     	try {

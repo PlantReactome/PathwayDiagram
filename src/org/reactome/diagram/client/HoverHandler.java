@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 public abstract class HoverHandler {
     protected PathwayDiagramPanel diagramPanel;
     protected DiagramCanvas canvas;
+    protected Point hoverPoint;
     protected GraphObject hoveredObject;
     protected PopupPanel tooltip;
     protected Timer timer;
@@ -56,7 +57,11 @@ public abstract class HoverHandler {
     	return tooltip;
     }
     
-    public void hover(Point hoverPoint, List<GraphObject> objects) {
+    public void clearHoveredObject() {
+    	hoveredObject = null;
+    }
+    
+    public void hover(List<GraphObject> objects) {
         // Only one object should be hovered over
         GraphObject hovered = null;
 
@@ -78,7 +83,8 @@ public abstract class HoverHandler {
         		tooltip.hide();
         	   	timer.cancel();
         	   	diagramPanel.getElement().getStyle().setCursor(Cursor.DEFAULT);
-        		hoveredObject = null;
+        	   	hoveredObject.setIsHovered(false);
+        	   	hoveredObject = null;
         	}
         	return;
         } else {
@@ -105,15 +111,15 @@ public abstract class HoverHandler {
        	if (hoveredObject.getType() == GraphObjectType.FlowLine)
     		return;
     	
-    	Point objPos = hoveredObject.getPosition();
+    	//Point objPos = hoveredObject.getPosition();
     	
     	double scale = canvas.getScale();
     	double translateX = canvas.getTranslateX();
     	double translateY = canvas.getTranslateY();
     	
     	// Compensate for canvas translation and scale
-    	double x = (objPos.getX() * scale) + translateX;
-    	double y = (objPos.getY() * scale) + translateY;
+    	double x = (hoverPoint.getX() * scale) + translateX;
+    	double y = (hoverPoint.getY() * scale) + translateY;
     	
     	int canvasZIndex;
     	    	
@@ -151,7 +157,7 @@ public abstract class HoverHandler {
     protected void fireHoverEvent() {
         HoverEvent event = new HoverEvent();
         event.setHoveredObject(hoveredObject);
-        canvas.fireEvent(event);
+        diagramPanel.fireEvent(event);
     }
 
     

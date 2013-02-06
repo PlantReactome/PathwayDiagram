@@ -137,7 +137,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-       // addTestCode();
+        //addTestCode();
     }
     
     private void addTestCode() {
@@ -145,10 +145,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         contentPane.add(testBtn, 500, 4);
     	testBtn.addClickHandler(new ClickHandler() {
             
-    		ExpressionProcessor ep = new ExpressionProcessor(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");	
+    		//ExpressionProcessor ep = new ExpressionProcessor(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");	
     		//  @Override
     		public void onClick(ClickEvent event) {
-        		ep.retrieveExpressionData();
+        		//ep.retrieveExpressionData();
                 //controller.listPathways();
                 PathwayTreeBrowser treeBrowser = new PathwayTreeBrowser(PathwayDiagramPanel.this);
                 treeBrowser.initTree();
@@ -348,6 +348,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
        	
        	for (DiagramCanvas canvas : canvasList) {
        		if (canvas.getHoverHandler().hover(hoveredPoint) != null) {
+       			stopHoveringExceptFor(canvas);
        			canvas.getHoverHandler().fireHoverEvent();
        			break;
        		}	
@@ -360,6 +361,16 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void hideTooltip() {
     	for (DiagramCanvas canvas : canvasList)
     		canvas.getHoverHandler().getTooltip().hide();
+    }
+    
+    public void stopHoveringExceptFor(DiagramCanvas c) {
+    	for (DiagramCanvas canvas : canvasList) {
+    		if (canvas == c)
+    			continue;
+    		HoverHandler hh = canvas.getHoverHandler();
+    		hh.getTooltip().hide();
+    		hh.clearHoveredObject();
+    	}
     }
     
     
