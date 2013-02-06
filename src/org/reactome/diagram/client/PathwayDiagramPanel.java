@@ -401,7 +401,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     protected void fireSelectionEvent(SelectionEvent event) {
-        pathwayCanvas.fireEvent(event);
+        fireEvent(event);
         pathwayCanvas.update();
     }
     
