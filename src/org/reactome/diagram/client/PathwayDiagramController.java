@@ -22,7 +22,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -356,7 +355,7 @@ public class PathwayDiagramController {
             // there. An external dbId for pathway is needed to set the correct
             // pathway id.
             pathway.setReactomeId(dbId); 
-            diagramPane.setPathway(pathway);
+            diagramPane.setCanvasPathway(pathway);
         }
         catch(Exception e) {
             Window.alert("Error in parsing XML: " + e);

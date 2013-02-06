@@ -61,6 +61,8 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         // Re-set selected objects
         if (selectedObjects != null)
             selectedObjects.clear();
+        if (pathway == null)
+            return;
         // Need to set scale automatically so that the whole pathway can be
         // drawn in this canvas.
         Bounds size = pathway.getPreferredSize();

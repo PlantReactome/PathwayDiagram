@@ -22,6 +22,8 @@ import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.event.shared.EventHandler;
@@ -34,6 +36,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RequiresResize;
 
 /**
@@ -133,21 +136,32 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        //addTestCode();
+//        addTestCode();
     }
     
     private void addTestCode() {
-//        PushButton testBtn = new PushButton("Test");
- //       contentPane.add(testBtn, 400, 4);
-//    	testBtn.addClickHandler(new ClickHandler() {
+        PushButton testBtn = new PushButton("Build Tree");
+        contentPane.add(testBtn, 500, 4);
+    	testBtn.addClickHandler(new ClickHandler() {
             
           //  @Override
-//        public void onClick(ClickEvent event) {
+        public void onClick(ClickEvent event) {
 //                controller.listPathways();
                 PathwayTreeBrowser treeBrowser = new PathwayTreeBrowser(PathwayDiagramPanel.this);
                 treeBrowser.initTree();
-//            }
-//        });
+            }
+        });
+    	
+    	PushButton removeAllBtn = new PushButton("Remove All");
+    	contentPane.add(removeAllBtn, 600, 4);
+    	removeAllBtn.addClickHandler(new ClickHandler() {
+            
+            @Override
+            public void onClick(ClickEvent event) {
+                removeAll();
+            }
+        });
+                
         // Test selections
         SelectionEventHandler selectionHandler = new SelectionEventHandler() {
             
@@ -234,7 +248,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         update();
     }
     
-    public void setPathway(CanvasPathway pathway) {
+    protected void setCanvasPathway(CanvasPathway pathway) {
         // Get the old displayed pathway
     	CanvasPathway old = pathwayCanvas.getPathway();
     	//        System.out.println("Set pathway: " + pathway.getReactomeId());
@@ -259,6 +273,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      */
     public void setPathway(Long dbId) {
     	controller.loadDiagramForDBId(dbId);
+    }
+    
+    /**
+     * Call this method to remove all displayed objects in this component.
+     */
+    public void removeAll() {
+        setCanvasPathway(null);
     }
     
     /**

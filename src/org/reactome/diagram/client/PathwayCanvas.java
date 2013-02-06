@@ -53,15 +53,14 @@ public class PathwayCanvas extends DiagramCanvas {
      * Update drawing.
      */
     public void update() {
-        if (pathway == null)
-            return;
         Context2d c2d = getContext2d();
         c2d.save();
 
         clean(c2d);
-        
-        drawer.drawPathway(pathway, this, c2d);
-        updateOthers(c2d);
+        if (pathway != null) {
+            drawer.drawPathway(pathway, this, c2d);
+            updateOthers(c2d);
+        }
         
         c2d.restore();
     }
