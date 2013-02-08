@@ -5,7 +5,7 @@
  * 
  */
 
-package org.reactome.diagram.expression;
+package org.reactome.diagram.expression.model;
 
 import java.util.List;
 

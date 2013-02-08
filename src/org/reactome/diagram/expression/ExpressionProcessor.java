@@ -10,6 +10,10 @@ package org.reactome.diagram.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
+import org.reactome.diagram.expression.model.PathwayExpressionValue;
+import org.reactome.diagram.expression.model.ReactomeExpressionValue;
+
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
