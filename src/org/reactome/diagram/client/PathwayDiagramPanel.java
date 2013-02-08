@@ -145,27 +145,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         final PushButton testBtn = new PushButton("Show Data Point");
         contentPane.add(testBtn, 700, 4);
         testBtn.addClickHandler(new ClickHandler() {
-            private ExpressionDataController control = null;
             
             @Override
             public void onClick(ClickEvent event) {
-                String text = testBtn.getText();
-                if (text.startsWith("Show")) {
-                    if (control == null)
-                        control = new ExpressionDataController();
-                    control.setColorPaneStyle(style.colorBar());
-                    control.setNavigationPaneStyle(style.dataPointControl());
-                    control.display(contentPane,
-                                    pathwayCanvas.getCoordinateSpaceWidth(),
-                                    pathwayCanvas.getCoordinateSpaceHeight());
-                    testBtn.setText("Hide Data Point");
-                }
-                else {
-                    if (control != null) {
-                        control.dispose();
-                        testBtn.setText("Show Data Point");
-                    }
-                }
+                ExpressionDataController control = new ExpressionDataController();
+                control.setColorPaneStyle(style.colorBar());
+                control.setNavigationPaneStyle(style.dataPointControl());
+                control.display(contentPane,
+                                pathwayCanvas.getCoordinateSpaceWidth(),
+                                pathwayCanvas.getCoordinateSpaceHeight());
             }
         });
     }

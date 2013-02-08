@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -31,15 +32,17 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author gwu
  *
  */
-public class ExpressionDataController {
+public class ExpressionDataController implements ResizeHandler {
+    // Keep HandlerRegistration in order to remove it
+    private HandlerRegistration handlerRegistration;
     private List<DataPointChangeEventHandler> dataPointChangeEventHandlers;
     // Customized widget to show controls used to navigation data points
-    private HorizontalPanel navigationPane;
+    private NavigationPane navigationPane;
     // Size of this panel
     private int navPaneWidth = 275;
     private int navPaneHeight = 17;
     // Customized widget to show a color gradient
-    private VerticalPanel colorPane;
+    private ColorSpectrumPane colorPane;
     private int colorPaneWidth = 36;
     private int colorPaneHeight = 325;
     // Container holding the above two controls
@@ -103,15 +106,14 @@ public class ExpressionDataController {
         container.add(colorPane, x, y);
         offsetWidth = container.getOffsetWidth() - width;
         offsetHeight = container.getOffsetHeight() - height;
-        container.addHandler(new ResizeHandler() {
-            
-            @Override
-            public void onResize(ResizeEvent event) {
-                if (!navigationPane.isVisible() || !colorPane.isVisible())
-                    return;
-                updatePosition();
-            }
-        }, ResizeEvent.getType());
+        handlerRegistration = this.container.addHandler(this, ResizeEvent.getType());
+    }
+    
+    @Override
+    public void onResize(ResizeEvent event) {
+        if (!navigationPane.isVisible() || !colorPane.isVisible())
+            return;
+        updatePosition();
     }
     
     private void updatePosition() {
@@ -130,6 +132,10 @@ public class ExpressionDataController {
             return; // It has not been displayed
         container.remove(navigationPane);
         container.remove(colorPane);
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+            handlerRegistration = null;
+        }
         container = null; // Null it so that it can be displayed again.
     }
     
@@ -158,69 +164,112 @@ public class ExpressionDataController {
     }
     
     private void initNavigationPane() {
-        navigationPane = new HorizontalPanel();
-        String size = "25px";
-        Resources resources = getResource();
-        Image previous = new Image(resources.previous());
-        previous.setSize(size, size);
-        previous.setAltText("previous");
-        previous.setTitle("previous");
-        previous.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                System.out.println("Previous is clicked!");
-            }
-        });
-        Image next = new Image(resources.next());
-        next.setAltText("next");
-        next.setTitle("next");
-        next.setSize(size, size);
-        next.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                System.out.println("Next is clicked!");
-            }
-        });
-        Image close = new Image(resources.close());
-        close.setAltText("close");
-        close.setTitle("close");
-        close.setSize(size, size);
-        close.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                System.out.println("Close is clicked!");
-            }
-        });
-        Label dataLabel = new Label("Data Point");
-        
-        navigationPane.add(previous);
-        navigationPane.setCellVerticalAlignment(previous,
-                                                HasVerticalAlignment.ALIGN_MIDDLE);
-        navigationPane.add(dataLabel);
-        navigationPane.setCellVerticalAlignment(dataLabel,
-                                                HasVerticalAlignment.ALIGN_MIDDLE);
-        navigationPane.setCellHorizontalAlignment(dataLabel, 
-                                                  HasHorizontalAlignment.ALIGN_CENTER);
-        HorizontalPanel panel1 = new HorizontalPanel();
-        navigationPane.add(panel1);
-        navigationPane.setCellVerticalAlignment(panel1,
-                                                HasVerticalAlignment.ALIGN_MIDDLE);
-        navigationPane.setCellHorizontalAlignment(panel1, 
-                                                  HasHorizontalAlignment.ALIGN_RIGHT);
-        panel1.add(next);
-        panel1.setCellVerticalAlignment(next,
-                                                HasVerticalAlignment.ALIGN_MIDDLE);
-        panel1.setCellHorizontalAlignment(next, 
-                                                  HasHorizontalAlignment.ALIGN_RIGHT);
-        panel1.add(close);
-        panel1.setCellVerticalAlignment(close,
-                                                HasVerticalAlignment.ALIGN_MIDDLE);
-        navigationPane.setCellHorizontalAlignment(close, 
-                                                  HasHorizontalAlignment.ALIGN_RIGHT);
+        navigationPane = new NavigationPane();
     }
     
     private void initColorPane() {
-        colorPane = new VerticalPanel();
+        colorPane = new ColorSpectrumPane();
+    }
+    
+    private class ColorSpectrumPane extends AbsolutePanel {
+        // Labels with some dumb values for debugging purposes
+        private Label bottomLabel = new Label("3.50");
+        private Label middleLabel = new Label("6.75");
+        private Label topLabel = new Label("10.00");
         
-        Image image = new Image(getResource().colorSpectrum());
-        colorPane.add(image);
+        public ColorSpectrumPane() {
+            init();
+        }
+        
+        private void init() {
+            Image image = new Image(getResource().colorSpectrum());
+            add(image, 0, 0);
+            VerticalPanel verticalPanel = new VerticalPanel();
+            verticalPanel.setSize(image.getWidth() + "px", 
+                                  image.getHeight() + "px");
+            verticalPanel.add(topLabel);
+            verticalPanel.setCellVerticalAlignment(topLabel, HasVerticalAlignment.ALIGN_TOP);
+            verticalPanel.setCellHorizontalAlignment(topLabel, HasHorizontalAlignment.ALIGN_CENTER);
+            verticalPanel.add(middleLabel);
+            verticalPanel.setCellVerticalAlignment(middleLabel, HasVerticalAlignment.ALIGN_MIDDLE);
+            verticalPanel.setCellHorizontalAlignment(middleLabel, HasHorizontalAlignment.ALIGN_CENTER);
+            verticalPanel.add(bottomLabel);
+            verticalPanel.setCellVerticalAlignment(bottomLabel, HasVerticalAlignment.ALIGN_BOTTOM);
+            verticalPanel.setCellHorizontalAlignment(bottomLabel, HasHorizontalAlignment.ALIGN_CENTER);
+            add(verticalPanel, 0, 0);
+        }
+    }
+    
+    private class NavigationPane extends HorizontalPanel {
+        private Label dataLabel;
+        private Image previous;
+        private Image next;
+        private Image close;
+        
+        public NavigationPane() {
+            init();
+        }
+        
+        private void init() {
+            Resources resources = getResource();
+            previous = new Image(resources.previous());
+            previous.setAltText("previous");
+            previous.setTitle("previous");
+            previous.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    System.out.println("Previous is clicked!");
+                }
+            });
+            next = new Image(resources.next());
+            next.setAltText("next");
+            next.setTitle("next");
+            next.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    System.out.println("Next is clicked!");
+                }
+            });
+            close = new Image(resources.close());
+            close.addClickHandler(new ClickHandler() {
+                
+                @Override
+                public void onClick(ClickEvent event) {
+                    ExpressionDataController.this.dispose();
+                }
+            });
+            close.setAltText("close");
+            close.setTitle("close");
+            close.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    System.out.println("Close is clicked!");
+                }
+            });
+            dataLabel = new Label("Data Point");
+            
+            add(previous);
+            setCellVerticalAlignment(previous,
+                                     HasVerticalAlignment.ALIGN_MIDDLE);
+            add(dataLabel);
+            setCellVerticalAlignment(dataLabel,
+                                     HasVerticalAlignment.ALIGN_MIDDLE);
+            setCellHorizontalAlignment(dataLabel, 
+                                       HasHorizontalAlignment.ALIGN_CENTER);
+            HorizontalPanel panel1 = new HorizontalPanel();
+            add(panel1);
+            setCellVerticalAlignment(panel1,
+                                     HasVerticalAlignment.ALIGN_MIDDLE);
+            setCellHorizontalAlignment(panel1, 
+                                       HasHorizontalAlignment.ALIGN_RIGHT);
+            panel1.add(next);
+            panel1.setCellVerticalAlignment(next,
+                                            HasVerticalAlignment.ALIGN_MIDDLE);
+            panel1.setCellHorizontalAlignment(next, 
+                                              HasHorizontalAlignment.ALIGN_RIGHT);
+            panel1.add(close);
+            panel1.setCellVerticalAlignment(close,
+                                            HasVerticalAlignment.ALIGN_MIDDLE);
+            setCellHorizontalAlignment(close, 
+                                       HasHorizontalAlignment.ALIGN_RIGHT);
+        }
     }
     
 }
