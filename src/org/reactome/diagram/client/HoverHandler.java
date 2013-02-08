@@ -110,17 +110,16 @@ public abstract class HoverHandler {
     protected void showTooltip() {
        	if (hoveredObject.getType() == GraphObjectType.FlowLine)
     		return;
-    	
+
     	//Point objPos = hoveredObject.getPosition();
     	
     	double scale = canvas.getScale();
     	double translateX = canvas.getTranslateX();
     	double translateY = canvas.getTranslateY();
     	
-    	// Compensate for canvas translation and scale
-    	double x = (hoverPoint.getX() * scale) + translateX;
-    	double y = (hoverPoint.getY() * scale) + translateY;
-    	
+    	// Compensate for canvas translation, scale and container position
+    	double x = (hoverPoint.getX() * scale) + translateX + this.diagramPanel.getPathwayCanvas().getAbsoluteLeft();
+    	double y = (hoverPoint.getY() * scale) + translateY + this.diagramPanel.getPathwayCanvas().getAbsoluteTop();
     	int canvasZIndex;
     	    	
     	try {
