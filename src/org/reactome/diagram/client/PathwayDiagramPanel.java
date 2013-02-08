@@ -14,7 +14,7 @@ import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
-import org.reactome.diagram.expression.ExpressionProcessor;
+import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.resources.client.ClientBundle;
@@ -137,10 +138,40 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        //addTestCode();
+        addTestCode();
+    }
+    
+    private void addTestDataPointDisplay() {
+        final PushButton testBtn = new PushButton("Show Data Point");
+        contentPane.add(testBtn, 700, 4);
+        testBtn.addClickHandler(new ClickHandler() {
+            private ExpressionDataController control = null;
+            
+            @Override
+            public void onClick(ClickEvent event) {
+                String text = testBtn.getText();
+                if (text.startsWith("Show")) {
+                    if (control == null)
+                        control = new ExpressionDataController();
+                    control.setColorPaneStyle(style.colorBar());
+                    control.setNavigationPaneStyle(style.dataPointControl());
+                    control.display(contentPane,
+                                    pathwayCanvas.getCoordinateSpaceWidth(),
+                                    pathwayCanvas.getCoordinateSpaceHeight());
+                    testBtn.setText("Hide Data Point");
+                }
+                else {
+                    if (control != null) {
+                        control.dispose();
+                        testBtn.setText("Show Data Point");
+                    }
+                }
+            }
+        });
     }
     
     private void addTestCode() {
+        addTestDataPointDisplay();
         PushButton testBtn = new PushButton("Build Tree");
         contentPane.add(testBtn, 500, 4);
     	testBtn.addClickHandler(new ClickHandler() {
@@ -249,6 +280,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             overview.setVisible(true);
         overview.updatePosition();
         update();
+        LocalResizeEvent event = new LocalResizeEvent(width, height);
+        contentPane.fireEvent(event);
     }
     
     protected void setCanvasPathway(CanvasPathway pathway) {
@@ -508,6 +541,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         String subMenu();
         
         String tooltip();
+        
+        String dataPointControl();
+        
+        String colorBar();
     }
 
     public ListBox getInteractorDBList() {
@@ -528,5 +565,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public InteractorCanvas getInteractorCanvas() {
 		return interactorCanvas;
+	}
+	
+	private class LocalResizeEvent extends ResizeEvent {
+	    
+	    public LocalResizeEvent(int width, int height) {
+	        super(width, height);
+	    }
+	    
 	}
 }

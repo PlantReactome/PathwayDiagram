@@ -44,3 +44,12 @@
 .tooltip {
 	background-color:rgba(220,220,220,1);
 }
+
+.dataPointControl {
+	/* Orange */
+	background-color: rgba(255, 127, 0, 1);
+}
+
+.colorBar {
+	background-color: rgba(0, 0, 0, 0);
+}
