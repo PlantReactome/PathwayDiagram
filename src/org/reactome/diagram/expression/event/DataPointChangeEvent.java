@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.expression.event;
 
+import org.reactome.diagram.expression.model.PathwayExpressionValue;
+
 import com.google.gwt.event.shared.GwtEvent;
 
 /**
@@ -14,9 +16,26 @@ import com.google.gwt.event.shared.GwtEvent;
  */
 public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> {
     public static Type<DataPointChangeEventHandler> TYPE = new Type<DataPointChangeEventHandler>();
+    private PathwayExpressionValue oldValue;
+    private PathwayExpressionValue newValue;
     
     public DataPointChangeEvent() {
-        
+    }
+    
+    public void setOldValue(PathwayExpressionValue value) {
+        this.oldValue = value;
+    }
+    
+    public void setNewValue(PathwayExpressionValue value) {
+        this.newValue = value;
+    }
+    
+    public PathwayExpressionValue getOldValue() {
+        return this.oldValue;
+    }
+    
+    public PathwayExpressionValue getNewValue() {
+        return this.newValue;
     }
     
     /* (non-Javadoc)
