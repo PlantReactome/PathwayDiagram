@@ -37,7 +37,7 @@ public class PathwayCanvasDrawer {
     
     /**
      * This method is used to draw pathway actually.
-     * @param c2d
+     * @param c2d canvas context 2d
      */
     public void drawPathway(CanvasPathway pathway,
                             PathwayCanvas canvas,
@@ -118,7 +118,7 @@ public class PathwayCanvasDrawer {
             c2d.translate(-canvas.getTranslateX(), -canvas.getTranslateY());
             c2d.scale(1.0d / canvas.getScale(), 1.0d / canvas.getScale());
             c2d.fillRect(0, 0, canvas.getOffsetWidth(), canvas.getOffsetHeight());
-            System.out.println("Size of canvas: " + canvas.getOffsetWidth() + ", " + canvas.getOffsetHeight());
+//            System.out.println("Size of canvas: " + canvas.getOffsetWidth() + ", " + canvas.getOffsetHeight());
             // Have to reset back to the original place
             c2d.translate(canvas.getTranslateX(), canvas.getTranslateY());
             c2d.scale(canvas.getScale(), canvas.getScale());
