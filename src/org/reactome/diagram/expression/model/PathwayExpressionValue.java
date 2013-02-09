@@ -8,6 +8,7 @@
 package org.reactome.diagram.expression.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -63,6 +64,22 @@ public class PathwayExpressionValue {
 
 	public void setExpressionValues(Map<Long, PathwayComponentExpressionValue> expressionValues) {
 		this.expressionValues = expressionValues;
+	}
+	
+	/**
+	 * Get a list of values for one specified data point (e.g. a time point).
+	 * @param dataPointIndex
+	 * @return key: pathway component id, value: expression value
+	 */
+	public Map<Long, Double> getExpressionValueForDataPoint(int dataPointIndex) {
+	    Map<Long, Double> dbIdToValue = new HashMap<Long, Double>();
+	    for (Long dbId : expressionValues.keySet()) {
+	        PathwayComponentExpressionValue compValue = expressionValues.get(dbId);
+	        List<Double> values = compValue.getValues();
+	        if (dataPointIndex < values.size())
+	            dbIdToValue.put(dbId, values.get(dataPointIndex));
+	    }
+	    return dbIdToValue;
 	}
 	
 }

@@ -66,4 +66,26 @@ public class ReactomeExpressionValue {
 		this.pathwayExpressionValues = pathwayExpressionValues;
 	}
 	
+	public PathwayExpressionValue getPathwayExpressionValue(Long pathwayId) {
+	    if (pathwayExpressionValues == null)
+	        return null;
+	    return pathwayExpressionValues.get(pathwayId);
+	}
+	
+	/**
+	 * Make sure data values in each PathwayComponentValue has the same lengths as expressionColumnNames.
+	 * Otherwise, an error may be generated because of mismatch.
+	 */
+	public boolean validateExpressionData() {
+	    for (Long pathwayId : pathwayExpressionValues.keySet()) {
+	        PathwayExpressionValue pathwayExp = pathwayExpressionValues.get(pathwayId);
+	        Map<Long, PathwayComponentExpressionValue> compIdToValue = pathwayExp.getExpressionValues();
+	        for (Long compId : compIdToValue.keySet()) {
+	            PathwayComponentExpressionValue compValues = compIdToValue.get(compId);
+	            if (compValues.getValues().size() != expressionColumnNames.size())
+	                return false;
+	        }
+	    }
+	    return true;
+	}
 }
