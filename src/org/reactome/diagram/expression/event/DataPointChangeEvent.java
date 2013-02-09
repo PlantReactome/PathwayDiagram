@@ -4,7 +4,7 @@
  */
 package org.reactome.diagram.expression.event;
 
-import org.reactome.diagram.expression.model.PathwayExpressionValue;
+import java.util.Map;
 
 import com.google.gwt.event.shared.GwtEvent;
 
@@ -16,28 +16,28 @@ import com.google.gwt.event.shared.GwtEvent;
  */
 public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> {
     public static Type<DataPointChangeEventHandler> TYPE = new Type<DataPointChangeEventHandler>();
-    private PathwayExpressionValue oldValue;
-    private PathwayExpressionValue newValue;
+    private Long pathwayId;
+    private Map<Long, String> pathwayComponentIdToColor;
     
     public DataPointChangeEvent() {
     }
     
-    public void setOldValue(PathwayExpressionValue value) {
-        this.oldValue = value;
+    public Long getPathwayId() {
+        return pathwayId;
     }
-    
-    public void setNewValue(PathwayExpressionValue value) {
-        this.newValue = value;
+
+    public void setPathwayId(Long pathwayId) {
+        this.pathwayId = pathwayId;
     }
-    
-    public PathwayExpressionValue getOldValue() {
-        return this.oldValue;
+
+    public Map<Long, String> getPathwayComponentIdToColor() {
+        return pathwayComponentIdToColor;
     }
-    
-    public PathwayExpressionValue getNewValue() {
-        return this.newValue;
+
+    public void setPathwayComponentIdToColor(Map<Long, String> pathwayComponentIdToColor) {
+        this.pathwayComponentIdToColor = pathwayComponentIdToColor;
     }
-    
+
     /* (non-Javadoc)
      * @see com.google.gwt.event.shared.GwtEvent#getAssociatedType()
      */
