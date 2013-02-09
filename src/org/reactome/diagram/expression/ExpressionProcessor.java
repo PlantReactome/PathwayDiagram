@@ -169,9 +169,11 @@ public class ExpressionProcessor {
 			}
 			expressionData.getPathwayExpressionValues().put(pev.getPathwayId(), pev);
 		}
-		
+		// Make sure the parsed data is correct
+		if (!expressionData.validateExpressionData()) {
+		    Window.alert("Some pathway object has not enough expression values!");
+		}
 		//showJsonKeys(experimentData);
-		
 	}
 	
 	private String getStringFromJson(String key, JSONObject json) {

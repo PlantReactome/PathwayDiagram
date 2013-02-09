@@ -5,21 +5,28 @@
 package org.reactome.diagram.expression;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
+import org.reactome.diagram.expression.model.PathwayExpressionValue;
+import org.reactome.diagram.expression.model.ReactomeExpressionValue;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -52,6 +59,9 @@ public class ExpressionDataController implements ResizeHandler {
     private int offsetHeight;
     // For fetching icons
     private static Resources resources;
+    // Data models handled by this controller
+    private ReactomeExpressionValue dataModel;
+    private Long pathwayId; // Displayed pathway id
     
     /**
      * Some icons
@@ -73,7 +83,7 @@ public class ExpressionDataController implements ResizeHandler {
         init();
     }
     
-    private static Resources getResource() {
+    static Resources getResource() {
         if (resources == null)
             resources = GWT.create(Resources.class);
         return resources;
@@ -82,6 +92,23 @@ public class ExpressionDataController implements ResizeHandler {
     private void init() {
         initNavigationPane();
         initColorPane();
+    }
+    
+    public void setDataModel(ReactomeExpressionValue model) {
+        this.dataModel = model;
+        navigationPane.setDataModel(model);
+    }
+    
+    public ReactomeExpressionValue getDataModel() {
+        return this.dataModel;
+    }
+    
+    public void setPathwayId(Long pathwayId) {
+        this.pathwayId = pathwayId;
+    }
+    
+    public Long getPathwayId() {
+        return this.pathwayId;
     }
     
     /**
@@ -147,6 +174,18 @@ public class ExpressionDataController implements ResizeHandler {
         dataPointChangeEventHandlers.add(handler);
     }
     
+    private void onDataPointChange(Integer dataIndex) {
+        if (pathwayId == null)
+            return; // Nothing to do. No pathway has been displayed.
+        PathwayExpressionValue pathwayValues = dataModel.getPathwayExpressionValue(pathwayId);
+        Map<Long, Double> compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
+        List<Double> values = new ArrayList<Double>(compIdToValue.values());
+        Collections.sort(values);
+        Double min = values.get(0);
+        Double max = values.get(values.size() - 1);
+//        colorPane.setValues(min, max);
+    }
+    
     protected void fireDataPointChangeEvent() {
         if (dataPointChangeEventHandlers == null)
             return;
@@ -165,6 +204,12 @@ public class ExpressionDataController implements ResizeHandler {
     
     private void initNavigationPane() {
         navigationPane = new NavigationPane();
+        navigationPane.addValueChangeHandler(new ValueChangeHandler<Integer>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Integer> event) {
+                onDataPointChange(event.getValue());
+            }
+        });
     }
     
     private void initColorPane() {
@@ -200,18 +245,20 @@ public class ExpressionDataController implements ResizeHandler {
         }
     }
     
-    private class NavigationPane extends HorizontalPanel {
+    private class NavigationPane extends HorizontalPanel implements HasValue<Integer> {
         private Label dataLabel;
         private Image previous;
         private Image next;
         private Image close;
+        private List<String> dataPoints;
+        private Integer currentDataIndex = 0;
         
         public NavigationPane() {
             init();
         }
         
         private void init() {
-            Resources resources = getResource();
+            Resources resources = ExpressionDataController.getResource();
             previous = new Image(resources.previous());
             previous.setAltText("previous");
             previous.setTitle("previous");
@@ -229,13 +276,6 @@ public class ExpressionDataController implements ResizeHandler {
                 }
             });
             close = new Image(resources.close());
-            close.addClickHandler(new ClickHandler() {
-                
-                @Override
-                public void onClick(ClickEvent event) {
-                    ExpressionDataController.this.dispose();
-                }
-            });
             close.setAltText("close");
             close.setTitle("close");
             close.addClickHandler(new ClickHandler() {
@@ -269,6 +309,84 @@ public class ExpressionDataController implements ResizeHandler {
                                             HasVerticalAlignment.ALIGN_MIDDLE);
             setCellHorizontalAlignment(close, 
                                        HasHorizontalAlignment.ALIGN_RIGHT);
+            // To avoid null exception
+            dataPoints = new ArrayList<String>();
+            // test code
+            for (int i = 0; i < 5; i ++) {
+                dataPoints.add(i + " hr");
+            }
+            installHandlers();
+        }
+        
+        private void installHandlers() {
+            close.addClickHandler(new ClickHandler() {
+                
+                @Override
+                public void onClick(ClickEvent event) {
+                    ExpressionDataController.this.dispose();
+                }
+            });
+            
+            previous.addClickHandler(new ClickHandler() {
+                
+                @Override
+                public void onClick(ClickEvent event) {
+                    setDataPoint(--currentDataIndex);
+                }
+            });
+            
+            next.addClickHandler(new ClickHandler() {
+                
+                @Override
+                public void onClick(ClickEvent event) {
+                    setDataPoint(++currentDataIndex);
+                }
+            });
+        }
+        
+        private void setDataPoint(int dataPoint) {
+            // Two checks to cycle all data points
+            if (dataPoint < 0)
+                dataPoint = dataPoints.size() - 1;
+            else if (dataPoint > dataPoints.size() - 1)
+                dataPoint = 0;
+            if (currentDataIndex == dataPoint)
+                return;
+            Integer old = this.currentDataIndex;
+            this.currentDataIndex = dataPoint;
+            dataLabel.setText((currentDataIndex + 1) + "/" + dataPoints.size() + ": " + 
+                              dataPoints.get(currentDataIndex));
+            ValueChangeEvent.fireIfNotEqual(this, 
+                                            old, 
+                                            currentDataIndex);
+        }
+        
+        @Override
+        public HandlerRegistration addValueChangeHandler(ValueChangeHandler<Integer> handler) {
+            return addHandler(handler, 
+                              ValueChangeEvent.getType());
+        }
+
+        @Override
+        public Integer getValue() {
+            return currentDataIndex;
+        }
+
+        @Override
+        public void setValue(Integer value) {
+            setDataPoint(value);
+        }
+
+        @Override
+        public void setValue(Integer value, boolean fireEvents) {
+            setDataPoint(value);
+        }
+
+        public void setDataModel(ReactomeExpressionValue dataModel) {
+            List<String> values = dataModel.getExpressionColumnNames();
+            dataPoints.clear();
+            dataPoints.addAll(values);
+            setDataPoint(0); // Start from the first point
         }
     }
     
