@@ -7,6 +7,7 @@ package org.reactome.diagram.view;
 import java.util.List;
 
 import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
@@ -26,6 +27,8 @@ public class EntitySetAndMemberLinkRenderer extends HyperEdgeRenderer {
     @Override
     public void render(Context2d c2d, 
                        HyperEdge edge) {
+        if (!shouldRender(edge))
+            return;
         setLineColor(c2d, edge);
         setStroke(c2d, edge);
         List<Point> points = edge.getBackbone();
@@ -47,6 +50,13 @@ public class EntitySetAndMemberLinkRenderer extends HyperEdgeRenderer {
                 2.0d * Math.PI);
         c2d.closePath();
         c2d.fill();
+    }
+    
+    private boolean shouldRender(HyperEdge edge) {
+        List<Node> nodes = edge.getConnectedNodes();
+        if (nodes == null || nodes.size() < 2) // If there is only one or nothing linked to it, don't render it.
+            return false;
+        return true;
     }
     
 }
