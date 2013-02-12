@@ -5,10 +5,11 @@
 package org.reactome.diagram.expression;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Test;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
@@ -97,6 +98,7 @@ public class ExpressionDataController implements ResizeHandler {
     public void setDataModel(ReactomeExpressionValue model) {
         this.dataModel = model;
         navigationPane.setDataModel(model);
+        colorPane.setDataModel(model);
     }
     
     public ReactomeExpressionValue getDataModel() {
@@ -175,21 +177,95 @@ public class ExpressionDataController implements ResizeHandler {
     }
     
     private void onDataPointChange(Integer dataIndex) {
+//        System.out.println("Data index: " + dataIndex);
         if (pathwayId == null)
             return; // Nothing to do. No pathway has been displayed.
         PathwayExpressionValue pathwayValues = dataModel.getPathwayExpressionValue(pathwayId);
         Map<Long, Double> compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
-        List<Double> values = new ArrayList<Double>(compIdToValue.values());
-        Collections.sort(values);
-        Double min = values.get(0);
-        Double max = values.get(values.size() - 1);
-//        colorPane.setValues(min, max);
+        Map<Long, String> compIdToColor = convertValueToColor(compIdToValue);
+        DataPointChangeEvent event = new DataPointChangeEvent();
+        event.setPathwayId(pathwayId);
+        event.setPathwayComponentIdToColor(compIdToColor);
+        fireDataPointChangeEvent(event);
     }
     
-    protected void fireDataPointChangeEvent() {
+    private Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
+        Map<Long, String> idToColor = new HashMap<Long, String>();
+        double min = dataModel.getMinExpression();
+        double max = dataModel.getMaxExpression();
+        double middle = (min + max) / 2.0d;
+        for (Long dbId : compIdToValue.keySet()) {
+            Double value = compIdToValue.get(dbId);
+            if (value == null)
+                continue;
+            String color = convertValueToColor(value, min, middle, max);
+            idToColor.put(dbId, 
+                          color);
+        }
+        return idToColor;
+    }
+    
+    private String convertValueToColor(double value, 
+                                       double min,
+                                       double middle,
+                                       double max) {
+        // A special case
+        if ((max - min) < 1.0e-4) // minimum 0.0001 // This is rather arbitary
+            return Integer.toHexString(0x00FF00); // Use gree
+        // Check if value is in the lower or upper half
+        int color;
+        if (value < middle) {
+            // Color should be placed between blue (lowest) and green (middle)
+            int blue = 0x0000FF;
+            int green = 0x00FF00;
+            color = (int) ((green - blue) / (middle - min) * (value - min) + blue);
+        }
+        else {
+            // Color should be placed between green (middle) and red (highest)
+            int green = 0x00FF00;
+            int red = 0xFF0000;
+            color = (int) ((red - green) / (max - middle) * (value - middle) + green);
+        }
+//        System.out.println("Color: " + color);
+        String rtn = Integer.toHexString(color);
+        // Make sure it has six digits
+        if (rtn.length() < 6) {
+            for (int i = rtn.length(); i < 6; i++) {
+                rtn = "0" + rtn;
+            }
+        }
+        return "#" + rtn.toUpperCase(); // This should be a valid CSS color
+    }
+    
+    @Test
+    public void testConvertValueToColor() {
+        System.out.println("Red: " + 0xFF0000);
+        System.out.println("Red: " + Integer.toHexString(0xFF0000));
+        System.out.println("Green: " + 0x00FF00);
+        System.out.println("Green: " + Integer.toHexString(0x00FF00));
+        System.out.println("Blue: " + 0x0000FF);
+        System.out.println("Blue: " + Integer.toHexString(0x0000FF));
+        System.out.println();
+        
+        double min = 3.50;
+        double max = 10.00;
+        double middle = (min + max) / 2.0d;
+        double[] values = new double[] {
+                3.50d,
+                5.17d,
+                6.75d,
+                8.38d,
+                10.00d
+        };
+        for (double value : values) {
+            String color = convertValueToColor(value, min, middle, max);
+            System.out.println(value + ": " + color);
+        }
+    }
+    
+    private void fireDataPointChangeEvent(DataPointChangeEvent event) {
         if (dataPointChangeEventHandlers == null)
             return;
-        DataPointChangeEvent event = new DataPointChangeEvent();
         for (DataPointChangeEventHandler handler : dataPointChangeEventHandlers)
             handler.onDataPointChanged(event);
     }
@@ -243,6 +319,31 @@ public class ExpressionDataController implements ResizeHandler {
             verticalPanel.setCellHorizontalAlignment(bottomLabel, HasHorizontalAlignment.ALIGN_CENTER);
             add(verticalPanel, 0, 0);
         }
+        
+        public void setDataModel(ReactomeExpressionValue model) {
+            double min = model.getMinExpression();
+            double max = model.getMaxExpression();
+//            // Just for test
+//            double min = 3.504d;
+//            double max = 10.58d;
+            double middle = (min + max) / 2.0d;
+            
+            bottomLabel.setText(format(min));
+            middleLabel.setText(format(middle));
+            topLabel.setText(format(max));
+        }
+        
+        private String format(double value) {
+            // If there are too many decimal points, make sure only two
+            String text = value + "";
+            int index = text.indexOf(".");
+            if (index < 0)
+                return text;
+            String decimal = text.substring(index + 1);
+            if (decimal.length() <= 2)
+                return text;
+            return text.substring(0, index) + "." + decimal.substring(0, 2);
+        }
     }
     
     private class NavigationPane extends HorizontalPanel implements HasValue<Integer> {
@@ -262,27 +363,12 @@ public class ExpressionDataController implements ResizeHandler {
             previous = new Image(resources.previous());
             previous.setAltText("previous");
             previous.setTitle("previous");
-            previous.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    System.out.println("Previous is clicked!");
-                }
-            });
             next = new Image(resources.next());
             next.setAltText("next");
             next.setTitle("next");
-            next.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    System.out.println("Next is clicked!");
-                }
-            });
             close = new Image(resources.close());
             close.setAltText("close");
             close.setTitle("close");
-            close.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                    System.out.println("Close is clicked!");
-                }
-            });
             dataLabel = new Label("Data Point");
             
             add(previous);
@@ -331,7 +417,7 @@ public class ExpressionDataController implements ResizeHandler {
                 
                 @Override
                 public void onClick(ClickEvent event) {
-                    setDataPoint(--currentDataIndex);
+                    setDataPoint(currentDataIndex - 1);
                 }
             });
             
@@ -339,7 +425,7 @@ public class ExpressionDataController implements ResizeHandler {
                 
                 @Override
                 public void onClick(ClickEvent event) {
-                    setDataPoint(++currentDataIndex);
+                    setDataPoint(currentDataIndex + 1);
                 }
             });
         }
@@ -354,8 +440,9 @@ public class ExpressionDataController implements ResizeHandler {
                 return;
             Integer old = this.currentDataIndex;
             this.currentDataIndex = dataPoint;
-            dataLabel.setText((currentDataIndex + 1) + "/" + dataPoints.size() + ": " + 
-                              dataPoints.get(currentDataIndex));
+            String message = (currentDataIndex + 1) + "/" + dataPoints.size() + ": " + 
+                    dataPoints.get(currentDataIndex);
+            dataLabel.setText(message);
             ValueChangeEvent.fireIfNotEqual(this, 
                                             old, 
                                             currentDataIndex);
