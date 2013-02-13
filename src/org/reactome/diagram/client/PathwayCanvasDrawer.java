@@ -114,14 +114,13 @@ public class PathwayCanvasDrawer {
                 return; // That's it for the normal pathway!
             // Draw a shade to cover all normal objects.
             c2d.setFillStyle(org.reactome.diagram.view.Parameters.defaultShadeColor);
-            // Have to reset to the original point
-            c2d.translate(-canvas.getTranslateX(), -canvas.getTranslateY());
-            c2d.scale(1.0d / canvas.getScale(), 1.0d / canvas.getScale());
-            c2d.fillRect(0, 0, canvas.getOffsetWidth(), canvas.getOffsetHeight());
+            // The canvas size actually doesn't change. So need to scale back the size
+            // of the gray rectangle to offset the canvas zooming
+            c2d.fillRect(0,
+                         0,
+                         canvas.getOffsetWidth() / canvas.getScale(),
+                         canvas.getOffsetHeight() / canvas.getScale());
 //            System.out.println("Size of canvas: " + canvas.getOffsetWidth() + ", " + canvas.getOffsetHeight());
-            // Have to reset back to the original place
-            c2d.translate(canvas.getTranslateX(), canvas.getTranslateY());
-            c2d.scale(canvas.getScale(), canvas.getScale());
             drawDiseaseObjects(c2d, diseasePathway);
             drawOverlaidObjects(c2d, diseasePathway);
             drawCrossedObjects(c2d, diseasePathway);
