@@ -9,7 +9,6 @@ package org.reactome.diagram.model;
 import java.util.Map;
 
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 
 /**
  * Sets and initializes all the Edge Elements for Render on the Canvas
