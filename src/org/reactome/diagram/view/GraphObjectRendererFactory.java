@@ -21,7 +21,7 @@ public class GraphObjectRendererFactory {
     private static GraphObjectRendererFactory factory;
     // Keep a registered renderer here
     private Map<GraphObjectType, GraphObjectRenderer<? extends GraphObject>> typeToRenderer;
-    // This is only for test
+    // Default node and edge renderer
     private NodeRenderer nodeRenderer = new NodeRenderer();
     private HyperEdgeRenderer edgeRenderer = new HyperEdgeRenderer();
     
@@ -45,6 +45,8 @@ public class GraphObjectRendererFactory {
                            new CompartmentRenderer());
         typeToRenderer.put(GraphObjectType.EntitySetAndMemberLink, 
                            new EntitySetAndMemberLinkRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableInteraction,
+                           new RenderableInteractionRenderer());
     }
     
     public static GraphObjectRendererFactory getFactory() {

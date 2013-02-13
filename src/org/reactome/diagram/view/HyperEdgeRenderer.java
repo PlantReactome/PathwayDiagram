@@ -11,7 +11,6 @@ import org.reactome.diagram.model.ConnectWidget;
 import org.reactome.diagram.model.ConnectWidget.ConnectRole;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.HyperEdge;
-import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ReactionType;
 
 import com.google.gwt.canvas.dom.client.Context2d;
@@ -120,13 +119,13 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
     }
     
     protected void drawReactionNode(Context2d context, HyperEdge edge) {
-        
-        if (edge instanceof InteractorEdge)
-        	return;
+        // This case has been covered by RenderableInteraction
+        // since InteractorEdge is a RenderableInteraction.
+//        if (edge instanceof InteractorEdge)
+//        	return;
         
         GraphObjectType edgeType = edge.getType();
-        if (edgeType == GraphObjectType.FlowLine ||
-            edgeType == GraphObjectType.RenderableInteraction)
+        if (edgeType == GraphObjectType.FlowLine)
             return; // Don't draw any nodes for these two types of edges
         	
         ReactionType reactionType = edge.getReactionType();	
@@ -329,7 +328,7 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
         c2d.setFillStyle(oldStyle);
     }
     
-    private void drawArrow(Context2d c2d, 
+    protected void drawArrow(Context2d c2d, 
                            Point controlPoint, 
                            Point position,
                            boolean isOpen) {

@@ -21,6 +21,8 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.model.ConnectWidget.ConnectRole;
+
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -38,6 +40,10 @@ public class HyperEdge extends GraphObject {
     private List<Point> backbone;
     // For reaction type if it is a reaction
     private ReactionType reactionType;
+    // For interaction type. Most likely a new class called RenderableInteraction should be created.
+    // However, lump all edge related properties in this super-class for easy managing for the time
+    // being
+    private InteractionType interactionType;
     // Defined for sensing
     private final int SENSING_DISTANCE = 10;
     
@@ -53,6 +59,18 @@ public class HyperEdge extends GraphObject {
         if (connectWidgets != null) {
             for (ConnectWidget widget : connectWidgets) {
                 if (widget.getNode() != null)
+                    nodes.add(widget.getNode());
+            }
+        }
+        return nodes;
+    }
+    
+    public List<Node> getOutputNodes() {
+        List<Node> nodes = new ArrayList<Node>();
+        if (connectWidgets != null) {
+            for (ConnectWidget widget : connectWidgets) {
+                if (widget.getRole() == ConnectRole.OUTPUT &&
+                    widget.getNode() != null)
                     nodes.add(widget.getNode());
             }
         }
@@ -177,6 +195,20 @@ public class HyperEdge extends GraphObject {
 	
 	public ReactionType getReactionType() {
 	    return this.reactionType;
+	}
+	
+	/**
+	 * If this HyperEdge is used for a RenderableInteraction, an InteractionType
+	 * should be set is available.
+	 * Note: Most likely a new class RenderableInteraction should be created. 
+	 * @param type
+	 */
+	public void setInteractionType(InteractionType type) {
+	    this.interactionType = type;
+	}
+	
+	public InteractionType getInteractionType() {
+	    return this.interactionType;
 	}
 
     @Override

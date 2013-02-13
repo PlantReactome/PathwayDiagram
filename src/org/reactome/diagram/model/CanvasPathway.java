@@ -233,6 +233,13 @@ public class CanvasPathway extends Node {
             String type = rxtTypeInfo.toUpperCase().replaceAll(" ", "_");
             edge.setReactionType(ReactionType.valueOf(type));
         }
+        // Check interactionType for RenderableInteraction if any
+        String interactionTypeInfo = edgeElm.getAttribute("interactionType");
+        if (interactionTypeInfo != null) {
+            String type = interactionTypeInfo.toUpperCase();
+            edge.setInteractionType(InteractionType.valueOf(type));
+//            edge.setInteractionType(InteractionType.INHIBIT); // This is only for testing inhibit drawing
+        }
         // Edge specific information
         String pointsText = edgeElm.getAttribute("points");
         List<Point> points = ModelHelper.makePoints(pointsText);
