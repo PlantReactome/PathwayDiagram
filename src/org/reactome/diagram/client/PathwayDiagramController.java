@@ -37,27 +37,27 @@ public class PathwayDiagramController {
     // The root RESTful URL
 	private String hostUrl = null;
 		
+    @SuppressWarnings("FieldCanBeLocal")
     private final String RESTFUL_URL = "RESTfulWS/";
-    private final String PATHWAY_DIAGRAM = RESTFUL_URL + "pathwayDiagram/";
-    
-    //    public static final String RESTFUL_URL = "http://localhost:8080/ReactomeRESTfulAPI/RESTfulWS/pathwaydiagram/";
+
     private PathwayDiagramPanel diagramPane;
     
     public PathwayDiagramController(PathwayDiagramPanel pane) {
         this.diagramPane = pane;
     }
     
+    @SuppressWarnings("UnusedDeclaration")
     public void listPathways() {
         String url = GWT.getHostPageBaseURL() + "ListOfPathways.txt";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
         try {
             builder.sendRequest(null, new RequestCallback() {
-                
+
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     showListOfPathways(response.getText());
                 }
-                
+
                 @Override
                 public void onError(Request request, Throwable exception) {
                     requestFailed(exception);
@@ -68,7 +68,7 @@ public class PathwayDiagramController {
             requestFailed(e);
         }
     }
-    
+
     private void showListOfPathways(String text) {
         VerticalPanel vPane = new VerticalPanel();
         String[] lines = text.split("\n");
@@ -104,7 +104,7 @@ public class PathwayDiagramController {
     public void setInteractorDBList() {
     	addPSICQUICList();
     	
-    	String url = getHostUrl() + "InteractorEdgeUrls.txt";
+    	String url = GWT.getHostPageBaseURL() + "InteractorEdgeUrls.txt";
     	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     	
     	try {
@@ -132,10 +132,7 @@ public class PathwayDiagramController {
     }
     
     private void addPSICQUICList() {
-    	String hostUrl = getHostUrl();
-    	
-    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "psicquicList";
+        String url = this.getHostUrl() + "psicquicList";
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/xml");
     	
@@ -179,11 +176,8 @@ public class PathwayDiagramController {
     public void openInteractionPage(final InteractorEdge selected) {
     	final ProteinNode protein = selected.getProtein();
 
-    	String hostUrl = getHostUrl();
-    	
-    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "referenceEntity/" + protein.getReactomeId();
-    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+        String url = this.getHostUrl() + "referenceEntity/" + protein.getReactomeId();
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/xml");
     	
     	try {
@@ -212,18 +206,14 @@ public class PathwayDiagramController {
    	}
     
     public void getInteractors(final ProteinNode selected) {
-    	Long dbId = selected.getReactomeId(); 
-    	String hostUrl = getHostUrl();
-
+    	Long dbId = selected.getReactomeId();
     	final InteractorCanvas ic = diagramPane.getInteractorCanvas();
-   	
-    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "psiquicInteractions/" + dbId + "/" + ic.getInteractorDatabase();
+
+        String url = this.getHostUrl() + "psiquicInteractions/" + dbId + "/" + ic.getInteractorDatabase();
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/xml");
-    	
+
     	ic.setLoadingInteractors(true);
-    	
     	try {
     		requestBuilder.sendRequest(null, new RequestCallback() {
 				public void onResponseReceived(Request request,	Response response) {
@@ -252,10 +242,7 @@ public class PathwayDiagramController {
     }
     
     public void getParticipatingMolecules(final Long dbId) {
-    	String hostUrl = getHostUrl();
-    	    	
-    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "complexSubunits/" + dbId;
+        String url = this.getHostUrl() + "complexSubunits/" + dbId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/xml");
     	
@@ -282,14 +269,9 @@ public class PathwayDiagramController {
     /**
      * Load a pathway diagram for a specified Pathway DB_ID.
      * @param dbId db_id for a pathway.
-     * @return
      */
     public void loadDiagramForDBId(final Long dbId) {
-        String hostUrl = getHostUrl();
-//        System.out.println("Host url: " + hostUrl);
-        // Do some simple parsing
-        int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-        String url = hostUrl.substring(0, lastIndex + 1) + PATHWAY_DIAGRAM + dbId + "/xml";
+        String url = this.getHostUrl() + "pathwayDiagram/" + dbId + "/xml";
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         
         
@@ -369,8 +351,6 @@ public class PathwayDiagramController {
     
     /**
      * Create a CanvasPathway object based on the passed XML element.
-     * @param pathwayElm
-     * @return
      */
     private CanvasPathway createPathway(Element pathwayElm) {
         String isDiseaseRelated = pathwayElm.getAttribute("isDisease");
@@ -384,12 +364,12 @@ public class PathwayDiagramController {
     }
     
     public String getHostUrl() {
-    	if (hostUrl != null) {
-    		return this.hostUrl;
+    	if (hostUrl == null) {
+            String aux = GWT.getHostPageBaseURL();
+            int lastIndex =  aux.lastIndexOf("/", aux.length() - 2);
+            this.hostUrl = aux.substring(0, lastIndex + 1) + RESTFUL_URL;
     	}
-    	else{
-    		return GWT.getHostPageBaseURL();
-    	}
+        return this.hostUrl;
     }
     
 }
