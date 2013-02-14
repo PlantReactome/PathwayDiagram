@@ -62,6 +62,7 @@ public class Parameters {
 	public static final int defaultCrossWidth = 3;
 	
 	public static final double[] dashedLinePattern = new double[]{5.0d, 5.0d};
+	public static final double[] setToSetLinePattern = new double[]{10.0d, 20.0d};
 	public static final int dashedLineWidth = 2;
 	
 	public static final int OVERVIEW_SIZE = 100;

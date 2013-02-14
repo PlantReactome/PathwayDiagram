@@ -20,10 +20,28 @@ import com.google.gwt.touch.client.Point;
  *
  */
 public class EntitySetAndMemberLinkRenderer extends HyperEdgeRenderer {
+    private boolean needOutput;
+    private double[] dashLinePattern = Parameters.dashedLinePattern;
     
     public EntitySetAndMemberLinkRenderer() {
     }
     
+    public boolean isNeedOutput() {
+        return needOutput;
+    }
+
+    public void setNeedOutput(boolean needOutput) {
+        this.needOutput = needOutput;
+    }
+
+    public double[] getDashLinePattern() {
+        return dashLinePattern;
+    }
+
+    public void setDashLinePattern(double[] dashLinePattern) {
+        this.dashLinePattern = dashLinePattern;
+    }
+
     @Override
     public void render(Context2d c2d, 
                        HyperEdge edge) {
@@ -35,12 +53,14 @@ public class EntitySetAndMemberLinkRenderer extends HyperEdgeRenderer {
         for (int i = 0; i < points.size() - 1; i++) {
             Point start = points.get(i);
             Point end = points.get(i + 1);
-            drawDashedLine(c2d, start, end, Parameters.dashedLinePattern);
+            drawDashedLine(c2d, start, end, dashLinePattern);
         }
         drawCircle(c2d, points);
     }
     
     private void drawCircle(Context2d c2d, List<Point> points) {
+        if (!needOutput)
+            return;
         c2d.beginPath();
         Point last = points.get(points.size() - 1);
         c2d.arc(last.getX(),

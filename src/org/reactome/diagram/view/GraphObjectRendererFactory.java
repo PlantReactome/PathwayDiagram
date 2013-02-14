@@ -31,6 +31,8 @@ public class GraphObjectRendererFactory {
 
     private void registerRenderers() {
         typeToRenderer = new HashMap<GraphObjectType, GraphObjectRenderer<? extends GraphObject>>();
+        typeToRenderer.put(GraphObjectType.Note,
+                           new NoteRenderer());
         typeToRenderer.put(GraphObjectType.RenderableProtein, 
                            new NodeRenderer());
         typeToRenderer.put(GraphObjectType.RenderableInteractor,
@@ -45,6 +47,11 @@ public class GraphObjectRendererFactory {
                            new CompartmentRenderer());
         typeToRenderer.put(GraphObjectType.EntitySetAndMemberLink, 
                            new EntitySetAndMemberLinkRenderer());
+        EntitySetAndMemberLinkRenderer renderer = new EntitySetAndMemberLinkRenderer();
+        renderer.setNeedOutput(false);
+        renderer.setDashLinePattern(Parameters.setToSetLinePattern);
+        typeToRenderer.put(GraphObjectType.EntitySetAndEntitySetLink,
+                           renderer);
         typeToRenderer.put(GraphObjectType.RenderableInteraction,
                            new RenderableInteractionRenderer());
     }
