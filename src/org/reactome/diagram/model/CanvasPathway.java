@@ -184,9 +184,10 @@ public class CanvasPathway extends Node {
         
         String bgColor = nodeElm.getAttribute("bgColor");
         if (bgColor != null) {
+            // All color values are in integer. But alpha should be in [0.0, 1.0].
             double alpha = 1.0d;
             if (node.getType() == GraphObjectType.RenderableCompartment)
-                alpha = 0.75d;
+                alpha = 0.5d;
             String color = ModelHelper.makeColor(bgColor.split(" "), alpha);
             node.setBgColor(color);
         }
