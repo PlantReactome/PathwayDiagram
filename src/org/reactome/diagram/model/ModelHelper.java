@@ -59,10 +59,13 @@ public class ModelHelper {
 	/**Builds a CSS Color String out of the RGB value of the bgColor Attribute
 	 * 
 	 * @param colorAtt Value of the bgColor Attribute
+	 * @param rndAlpha value should between 0.0 and 1.0.
 	 * @return Color String
 	 */
 	public static String makeColor(String[] colorAtt,
 	                               double rndAlpha) {
+	    if (rndAlpha < 0.0d || rndAlpha > 1.0d)
+	        throw new IllegalArgumentException(rndAlpha + " shoud be in [0.0, 1.0]!");
 		String bgColor = "rgba(" + colorAtt[0] + "," + colorAtt[1] + "," + colorAtt[2] + "," + rndAlpha + ")";
 		return bgColor;
 	}
