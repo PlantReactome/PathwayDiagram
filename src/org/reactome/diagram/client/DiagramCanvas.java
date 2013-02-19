@@ -25,7 +25,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected double scale;
     // For view change
     protected ViewChangeEvent viewEvent;
-    
+    protected PathwayDiagramPanel diagramPane;
     protected HoverHandler hoverHandler;
     protected SelectionHandler selectionHandler;
 	protected CanvasEventInstaller eventInstaller;
@@ -35,7 +35,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
     
     public DiagramCanvas(PathwayDiagramPanel diagramPane) {
-        scale = 1.0d;
+        this.diagramPane = diagramPane;
+    	scale = 1.0d;
         eventInstaller = new CanvasEventInstaller(diagramPane, this);
         //eventInstaller.installDiagramEventHandlers();
     }

@@ -1,4 +1,5 @@
 /*
+
  * Created on Nov 9, 2011
  *
  */
@@ -20,6 +21,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -240,6 +242,17 @@ public class PathwayDiagramController {
             ic.setLoadingInteractors(false);
         }
     }
+    
+    public void openInteractionExportPage(Long dbId) {
+    	String hostUrl = getHostUrl();
+    	
+    	String serviceName = diagramPane.getInteractorCanvas().getInteractorDatabase();
+    	
+    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "exportPsiquicInteractions/" + dbId + "/" + serviceName;
+
+    	Window.open(url, null, null);
+    }
 
     public void getParticipatingMolecules(final Long dbId) {
         String url = this.getHostUrl() + "complexSubunits/" + dbId;
@@ -264,8 +277,44 @@ public class PathwayDiagramController {
             requestFailed(ex);
         }
     }
+    
+    public void getOtherPathways(final Long dbId) {
+    	String hostUrl = getHostUrl();
+    	
+    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "pathwaysForEntities"; 
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
+    	requestBuilder.setHeader("Accept", "application/xml");
+    	
+    	StringBuffer postData = new StringBuffer();
+    	postData.append(URL.encode("ID"));
+    	postData.append("=");
+    	postData.append(URL.encode(dbId.toString()));
+    	//requestBuilder.setHeader("Content-type", "application/x-www-form-urlencoded");
+    	
+    	try {
+    		requestBuilder.sendRequest(postData.toString(), new RequestCallback() {
 
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					if (response.getStatusCode() == 200) {
+						diagramPane.getPopupMenu().setPathwayMenu(response.getText());
+					} else {
+						requestFailed("Could not retrieve other pathways");
+					}
+				}
 
+				@Override
+				public void onError(Request request, Throwable exception) {
+					requestFailed(exception);
+				}
+    			
+    		});
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
+    
     /**
      * Load a pathway diagram for a specified Pathway DB_ID.
      * @param dbId db_id for a pathway.

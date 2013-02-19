@@ -10,10 +10,11 @@ package org.reactome.diagram.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.client.PathwayDiagramPanel;
+
 import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
-
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -24,21 +25,24 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
 	private String url;
     private JSONObject jsonData;
     private ReactomeExpressionValue expressionData; 
-    		
+    private PathwayDiagramPanel diagramPane;
+    
 	/**
 	 * Default constructor.
 	 */
-	public ExpressionProcessor() {		
-	
+	public ExpressionProcessor(PathwayDiagramPanel dPane) {		
+		this.diagramPane = dPane;
 	}
 
-	public ExpressionProcessor(String url) {
+	public ExpressionProcessor(String url, PathwayDiagramPanel dPane) {
 		this.url = url;
+		this.diagramPane = dPane;
 	}
 	
 	public String getUrl() {
@@ -61,7 +65,7 @@ public class ExpressionProcessor {
 		this.expressionData = expressionData;
 	}
 
-	public void retrieveExpressionData() {
+	public void displayExpressionData(final AbsolutePanel contentPane, final ExpressionDataController edc) {
 		if (url == null)
 			return;
 		
@@ -74,7 +78,10 @@ public class ExpressionProcessor {
 				public void onResponseReceived(Request request,	Response response) {
 					if (response.getStatusCode() == 200) {
 						jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
-						parseExpressionData();	
+						edc.setDataModel(parseExpressionData());
+						edc.display(contentPane,
+								    diagramPane.getPathwayCanvas().getCoordinateSpaceWidth(),
+								    diagramPane.getPathwayCanvas().getCoordinateSpaceHeight());
 					} else {
 						Window.alert("Unable to retrieve expression data - " + response.getStatusText());
 					}
@@ -92,15 +99,15 @@ public class ExpressionProcessor {
 		
 	}
 	
-	private void parseExpressionData() {
+	private ReactomeExpressionValue parseExpressionData() {
 		expressionData = new ReactomeExpressionValue();
 		
 		expressionData.setAnalysisId(getStringFromJson("analysisId", jsonData));
 	
 		JSONObject experimentData = jsonData.get("table").isObject();
 
-		expressionData.setMinExpression(Double.parseDouble(getStringFromJson("minExpression", experimentData)));
-		expressionData.setMaxExpression(Double.parseDouble(getStringFromJson("maxExpression", experimentData)));
+		expressionData.setMinExpression(experimentData.get("minExpression").isNumber().doubleValue());
+		expressionData.setMaxExpression(experimentData.get("maxExpression").isNumber().doubleValue());
 		
 		
 		JSONArray columnNamesArray = experimentData.get("expressionColumnNames").isArray();
@@ -149,7 +156,7 @@ public class ExpressionProcessor {
 						
 						Long dbId = Long.parseLong(getStringFromJson("DB_ID", pathwayComponentValue));
 						String expressionId = getStringFromJson("ID", pathwayComponentValue);
-
+					
 						JSONArray expressionLevelsArray = pathwayComponentValue.get("levels").isArray();
 						List<Double> expressionLevels = new ArrayList<Double>();
 						
@@ -172,7 +179,9 @@ public class ExpressionProcessor {
 		// Make sure the parsed data is correct
 		if (!expressionData.validateExpressionData()) {
 		    Window.alert("Some pathway object has not enough expression values!");
+		    return null;
 		}
+		return expressionData;
 		//showJsonKeys(experimentData);
 	}
 	

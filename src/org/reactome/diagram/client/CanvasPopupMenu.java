@@ -4,8 +4,10 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
@@ -159,6 +161,7 @@ public class CanvasPopupMenu extends PopupPanel {
     	menuBar.addItem(new MenuItem("Export Interactors", new Command() { 
     		@Override
     		public void execute() {
+    			diagramPane.getController().openInteractionExportPage(pSelected.getReactomeId());
     			hide();
     		}
     	}));
@@ -171,22 +174,82 @@ public class CanvasPopupMenu extends PopupPanel {
     
     // Menu items common to all physical entities
     private void createPhysicalEntityMenu() {
-    	menuBar.addItem(new MenuItem("Other Pathways", getPathwayMenu())); 
+    	diagramPane.getController().getOtherPathways(selected.getReactomeId());
+    	
+    	//menuBar.addItem(new MenuItem("Other Pathways", getPathwayMenu())); 
     }
         
-    private MenuBar getPathwayMenu() {
+    public void setPathwayMenu(String xml) {
     	MenuBar pathwayMenu = new MenuBar(true);
     	pathwayMenu.setAutoOpen(true);    	
-    	pathwayMenu.setStyleName(this.getStyleName());
     	
-    	List<ReactomeObject> pathways = getOtherPathways();
+    	List<MenuItem> menuItems = new ArrayList<MenuItem>();
+    	final CanvasPathway currentPathway = diagramPane.getPathway();
     	
+    	try {
+    		Document pathwayDom = XMLParser.parse(xml);
+    		Element otherPathwayElement = pathwayDom.getDocumentElement();
+    		XMLParser.removeWhitespace(otherPathwayElement);
+    		
+    		NodeList nodeList = otherPathwayElement.getChildNodes();
+    		
+    		for (int i = 0; i < nodeList.getLength(); i++) {
+    			Node node = nodeList.item(i);
+    			String name = node.getNodeName();
+    					
+    			if (name.equals("pathway")) {
+    				NodeList pathwayNodes = node.getChildNodes();
+    				
+    				final ReactomeObject pathway = new ReactomeObject();
+    				
+    				for (int j = 0; j < pathwayNodes.getLength(); j++) {
+    					Node pathwayAttribute = pathwayNodes.item(j);
+    					String attributeName = pathwayAttribute.getNodeName();
+    					
+    					if (attributeName.equals("dbId")) {
+          					Long pathwayId = Long.parseLong(pathwayAttribute.getChildNodes().item(0).getNodeValue());
+          					pathway.setReactomeId(pathwayId);
+    					} else if (attributeName.equals("displayName")) {	
+    						String pathwayName = pathwayAttribute.getChildNodes().item(0).getNodeValue();
+    						pathway.setDisplayName(pathwayName);
+    					} else {
+    						continue;
+    					}
+    				}
+    				
+    				if (pathway.getDisplayName() == null || pathway.getReactomeId() == null	
+    					|| pathway.getReactomeId().longValue() == currentPathway.getReactomeId().longValue())
+    					continue;
+    				
+    				menuItems.add(pathwayMenu.addItem(pathway.getDisplayName(), new Command() {
+
+    					@Override
+    					public void execute() {
+    						diagramPane.setPathway(pathway.getReactomeId());
+    						hide();
+    					}
+    					
+    				}));
+    			}
+    		}    			
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     	
-    	return pathwayMenu;
-    }
-    
-    private List<ReactomeObject> getOtherPathways() {
-    	return null;
+    	pathwayMenu.setStyleName(diagramPane.getStyle().subMenu());
+    	pathwayMenu.setAnimationEnabled(true);
+    	pathwayMenu.addSeparator(new MenuItemSeparator());
+    	
+    	if (menuItems.size() == 0) {
+    		menuBar.addItem("No other pathways", new Command() {
+    			public void execute() {
+    				hide();
+    			}
+    		});
+    	} else {
+    		menuBar.addItem("Other Pathways", pathwayMenu);
+    	}
+    	show();
     }
     
     /**
