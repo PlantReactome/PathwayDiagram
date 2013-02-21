@@ -162,9 +162,9 @@ public abstract class SelectionHandler {
         selectionEvent = new SelectionEvent();
         selectionEvent.setDoCentring(false);
         selectionEvent.setSelectedObjects(selectedObjects);
-        OverviewCanvas overview = diagramPanel.getOverview();
-        overview.setSelectedObjects(selectedObjects);
-        overview.update();
+        //OverviewCanvas overview = diagramPanel.getOverview();
+        //overview.setSelectedObjects(selectedObjects);
+        //overview.update();
         diagramPanel.fireSelectionEvent(selectionEvent);        
     }
     

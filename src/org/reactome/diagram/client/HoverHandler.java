@@ -129,7 +129,7 @@ public abstract class HoverHandler {
     	}
     	
     	// Position label 
-    	tooltip.setPopupPosition( (int) x, (int) y);
+    	tooltip.setPopupPosition( (int) x + 2, (int) y + 2);
     	
     	// Label must appear above the canvas
     	tooltip.getElement().getStyle().setZIndex(canvasZIndex + 1); 

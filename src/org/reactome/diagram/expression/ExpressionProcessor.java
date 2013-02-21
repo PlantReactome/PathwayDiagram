@@ -10,6 +10,7 @@ package org.reactome.diagram.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramPanel;
 
 import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
@@ -31,18 +32,16 @@ public class ExpressionProcessor {
 	private String url;
     private JSONObject jsonData;
     private ReactomeExpressionValue expressionData; 
-    private PathwayDiagramPanel diagramPane;
     
 	/**
 	 * Default constructor.
 	 */
-	public ExpressionProcessor(PathwayDiagramPanel dPane) {		
-		this.diagramPane = dPane;
+	public ExpressionProcessor() {		
+
 	}
 
-	public ExpressionProcessor(String url, PathwayDiagramPanel dPane) {
+	public ExpressionProcessor(String url) {
 		this.url = url;
-		this.diagramPane = dPane;
 	}
 	
 	public String getUrl() {
@@ -65,7 +64,7 @@ public class ExpressionProcessor {
 		this.expressionData = expressionData;
 	}
 
-	public void displayExpressionData(final AbsolutePanel contentPane, final ExpressionDataController edc) {
+	public void displayExpressionData(final AbsolutePanel contentPane, final ExpressionDataController edc, final ExpressionCanvas expressionCanvas) {
 		if (url == null)
 			return;
 		
@@ -80,8 +79,8 @@ public class ExpressionProcessor {
 						jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
 						edc.setDataModel(parseExpressionData());
 						edc.display(contentPane,
-								    diagramPane.getPathwayCanvas().getCoordinateSpaceWidth(),
-								    diagramPane.getPathwayCanvas().getCoordinateSpaceHeight());
+								    expressionCanvas.getCoordinateSpaceWidth(),
+								    expressionCanvas.getCoordinateSpaceHeight());
 					} else {
 						Window.alert("Unable to retrieve expression data - " + response.getStatusText());
 					}

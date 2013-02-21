@@ -69,8 +69,21 @@ public class ExpressionCanvas extends DiagramCanvas {
         if (pathway != null) {
             for (GraphObject entity : getGraphObjects()) {
             	if (entity instanceof Node) {
+            		if (entity.getType() == GraphObjectType.RenderableCompartment)
+            			continue;
+            		
             		Long entityId = entity.getReactomeId();
-            		String entityColor = entityColorMap.get(entityId);
+            		String entityColor = null;
+            		
+            		for (Long dbId : entityColorMap.keySet()) {
+            			if (dbId.equals(entityId)) {
+            				entityColor = entityColorMap.get(dbId);
+            				break;
+            			}	            		
+            		}	
+            		
+            		String oldBgColor = ((Node) entity).getBgColor();
+            		String oldFgColor = ((Node) entity).getFgColor();
             		
             		if (entityColor != null) {
             			((Node) entity).setBgColor(entityColor);
@@ -84,6 +97,9 @@ public class ExpressionCanvas extends DiagramCanvas {
             		GraphObjectRendererFactory factory = GraphObjectRendererFactory.getFactory();
             		NodeRenderer renderer = factory.getNodeRenderer((Node) entity);
             		renderer.render(c2d, (Node) entity);
+            		
+            		((Node) entity).setBgColor(oldBgColor);
+            		((Node) entity).setFgColor(oldFgColor);
             	}
             }
             updateOthers(c2d);

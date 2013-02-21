@@ -12,6 +12,8 @@ import java.util.Map;
 import org.junit.Test;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
+import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
+import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
 
@@ -44,6 +46,7 @@ public class ExpressionDataController implements ResizeHandler {
     // Keep HandlerRegistration in order to remove it
     private HandlerRegistration handlerRegistration;
     private List<DataPointChangeEventHandler> dataPointChangeEventHandlers;
+    private List<ExpressionOverlayStopEventHandler> expressionOverlayStopEventHandlers;
     // Customized widget to show controls used to navigation data points
     private NavigationPane navigationPane;
     // Size of this panel
@@ -168,6 +171,14 @@ public class ExpressionDataController implements ResizeHandler {
         container = null; // Null it so that it can be displayed again.
     }
     
+    public void addExpressionOverlayStopEventHandler(ExpressionOverlayStopEventHandler handler) {
+    	if (expressionOverlayStopEventHandlers == null)
+    		expressionOverlayStopEventHandlers = new ArrayList<ExpressionOverlayStopEventHandler>();
+    	if (expressionOverlayStopEventHandlers.contains(handler))
+    		return;
+    	expressionOverlayStopEventHandlers.add(handler);
+    }
+    
     public void addDataPointChangeEventHandler(DataPointChangeEventHandler handler) {
         if (dataPointChangeEventHandlers == null)
             dataPointChangeEventHandlers = new ArrayList<DataPointChangeEventHandler>();
@@ -263,6 +274,15 @@ public class ExpressionDataController implements ResizeHandler {
         }
     }
     
+    private void fireExpressionOverlayStopEvent() {
+    	if (expressionOverlayStopEventHandlers == null)
+    		return;
+    	ExpressionOverlayStopEvent event = new ExpressionOverlayStopEvent();
+    	for (ExpressionOverlayStopEventHandler handler : expressionOverlayStopEventHandlers)
+    		handler.onExpressionOverlayStopped(event);
+    		
+    }
+    
     private void fireDataPointChangeEvent(DataPointChangeEvent event) {
         if (dataPointChangeEventHandlers == null)
             return;
@@ -352,7 +372,7 @@ public class ExpressionDataController implements ResizeHandler {
         private Image next;
         private Image close;
         private List<String> dataPoints;
-        private Integer currentDataIndex = 0;
+        private Integer currentDataIndex = -1;
         
         public NavigationPane() {
             init();
@@ -410,6 +430,7 @@ public class ExpressionDataController implements ResizeHandler {
                 @Override
                 public void onClick(ClickEvent event) {
                     ExpressionDataController.this.dispose();
+                    ExpressionDataController.this.fireExpressionOverlayStopEvent();
                 }
             });
             

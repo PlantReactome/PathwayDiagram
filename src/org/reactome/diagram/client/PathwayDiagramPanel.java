@@ -18,6 +18,8 @@ import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.ExpressionProcessor;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
+import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
+import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
@@ -37,7 +39,6 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
@@ -143,7 +144,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         // Add behaviors
         CanvasEventInstaller eventInstaller = canvasList.get(canvasList.size() - 1).getEventInstaller();
         eventInstaller.installUserInputHandlers();    
-        eventInstaller.installDiagramEventHandlers();
+        //eventInstaller.installDiagramEventHandlers();
         
         popupMenu = new CanvasPopupMenu();
         popupMenu.setPathwayDiagramPanel(this);
@@ -293,8 +294,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.setPathway(pathway);
 //        overview.update();
         interactorCanvas.removeAllProteins();
-        pathwayCanvas.setPathway(pathway);
-        //pathwayCanvas.update();
+        pathwayCanvas.setPathway(pathway);    
+
+        if (expressionController != null) {
+        	expressionController.setPathwayId(pathway.getReactomeId());
+        	expressionCanvas.setPathway(pathway);
+        }
         update();
         PathwayChangeEvent event = new PathwayChangeEvent();
         if (old != null)
@@ -540,24 +545,37 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void showExpressionData(String url) {
-    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(url, this);    	
+    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(url);    	
     	expressionController = new ExpressionDataController();
     	
     	DataPointChangeEventHandler dpChangeHandler = new DataPointChangeEventHandler() {
 
 			@Override
 			public void onDataPointChanged(DataPointChangeEvent e) {
-				Window.alert(e.toDebugString());
 				expressionCanvas.setEntityColorMap(e.getPathwayComponentIdToColor());
 				expressionCanvas.update();
 			}    		
     	};
     	
+    	ExpressionOverlayStopEventHandler exprOverlayStopHandler = new ExpressionOverlayStopEventHandler() {
+
+			@Override
+			public void onExpressionOverlayStopped(ExpressionOverlayStopEvent e) {
+				expressionController = null;
+				expressionCanvas.setPathway(null);
+				expressionCanvas.update();				
+			}
+    		
+    	};
+    	
+    	expressionCanvas.setPathway(getPathway());
+    	expressionController.setPathwayId(getPathway().getReactomeId());    	
     	expressionController.addDataPointChangeEventHandler(dpChangeHandler);
+    	expressionController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);
     	expressionController.setColorPaneStyle(style.colorBar());
     	expressionController.setNavigationPaneStyle(style.dataPointControl());
     	
-    	expressionProcessor.displayExpressionData(contentPane, expressionController);
+    	expressionProcessor.displayExpressionData(contentPane, expressionController, expressionCanvas);
     }
     
     /**
