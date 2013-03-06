@@ -13,11 +13,12 @@ import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.model.ReactomeObject;
 
-
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.MenuItemSeparator;
@@ -36,6 +37,7 @@ import com.google.gwt.xml.client.XMLParser;
 public class CanvasPopupMenu extends PopupPanel {
     private PathwayDiagramPanel diagramPane;
     private MenuBar menuBar;
+    private List<MenuItem> menuItems;
     private org.reactome.diagram.model.Node selected;
     
     public CanvasPopupMenu() {
@@ -45,6 +47,7 @@ public class CanvasPopupMenu extends PopupPanel {
     
     private void init() {
         menuBar = new MenuBar(true);
+        menuItems = new ArrayList<MenuItem>();
         setWidget(menuBar);
     }
     
@@ -62,73 +65,109 @@ public class CanvasPopupMenu extends PopupPanel {
     
     // Pathway Node Menu
     private void createProcessNodeMenu() {
-        menuBar.addItem(new MenuItem("Go to Pathway", new Command() {
-            @Override
-            public void execute() {
-                diagramPane.setPathway(selected.getReactomeId());
-                hide();
-            }
-        }));
-        
+        menuItems.add(
+        	menuBar.addItem(new MenuItem("Go to Pathway", new Command() {
+        		@Override
+        		public void execute() {
+        			diagramPane.setPathway(selected.getReactomeId());
+        			hide();
+        		}
+        	}))
+        );
     }   
     
     // Complex Entity Menu
-    private void createComplexMenu() {
+    private void createComplexMenu(boolean expressionData) {
     	createPhysicalEntityMenu();
-    	retrievePMs(); 
+    	retrievePMs(expressionData); 
     }
 
     // Participating molecules menu	
-    private void retrievePMs() {
-    	diagramPane.getController().getParticipatingMolecules(selected.getReactomeId());    	
+    private void retrievePMs(final boolean expressionData) { 
+    	final PathwayDiagramController controller = diagramPane.getController();
+    	    	
+    	controller.getParticipatingMolecules(selected.getReactomeId(), new RequestCallback() {
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() == 200) {
+					try {
+						Document pmDom = XMLParser.parse(response.getText());
+						Element pmElement = pmDom.getDocumentElement();
+						XMLParser.removeWhitespace(pmElement);
+						
+						NodeList nodeList = pmElement.getChildNodes();
+						
+						List<ReactomeObject> molecules = new ArrayList<ReactomeObject>();
+						for (int i = 0; i < nodeList.getLength(); i++) {
+							Node node = nodeList.item(i);
+							
+							Element peElement = (Element) node;
+							
+							Node idNode = peElement.getElementsByTagName("dbId").item(0);
+							Long molId = Long.parseLong(idNode.getChildNodes().item(0).getNodeValue());
+							
+							Node nameNode = peElement.getElementsByTagName("displayName").item(0);
+							String molName = nameNode.getChildNodes().item(0).getNodeValue();
+							
+							ReactomeObject molecule = new ReactomeObject();
+							molecule.setDisplayName(molName);
+							molecule.setReactomeId(molId);
+							molecules.add(molecule);
+						}
+						setPMMenu(molecules, expressionData);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					controller.requestFailed("Could not get participating molecules");					
+				}
+			}
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				controller.requestFailed(exception);
+			}
+    		
+    	});    	
     }
     
     // Set participating molecules menu
-    public void setPMMenu(String xml) {
-    	MenuBar pmMenu = new MenuBar(true);
-    	pmMenu.setAutoOpen(true);
+    private void setPMMenu(final List<ReactomeObject> molecules, boolean expressionData) {
+    	if (expressionData) {
+    		menuItems.add(
+    			menuBar.addItem("Display Participating Molecules", new Command() {
+					@Override
+					public void execute() {
+						diagramPane.getExpressionComplexPopup().showPopup(selected, molecules);
+						hide();							
+					}    					
+    			})
+    		);
+    	} else {
+    		MenuBar pmMenu = new MenuBar(true);
+    		pmMenu.setAutoOpen(true);
+    				    				
+    		for (ReactomeObject molecule : molecules) {			
+    			pmMenu.addItem(molecule.getDisplayName(), new Command() {
+    				@Override
+    				public void execute() {
+    					// TODO Auto-generated method stub
+    					hide();
+    				}    					
+    			});    				    		
+    		}	
     	
-    	try {
-    		Document pmDom = XMLParser.parse(xml);
-    		Element pmElement = pmDom.getDocumentElement();
-    		XMLParser.removeWhitespace(pmElement);
-    		
-    		NodeList nodeList = pmElement.getChildNodes();
-    		
-    		for (int i = 0; i < nodeList.getLength(); i++) {
-    			Node node = nodeList.item(i);
-    			//String name = node.getNodeName();
-    			
-    			//if (name.equals("physicalEntity")) {
-    				Element peElement = (Element) node;
-    				
-    				Node idNode = peElement.getElementsByTagName("dbId").item(0);
-    				Long molId = Long.parseLong(idNode.getChildNodes().item(0).getNodeValue());
-    				
-    				Node nameNode = peElement.getElementsByTagName("displayName").item(0);
-    				String molName = nameNode.getChildNodes().item(0).getNodeValue();
-    				
-    				pmMenu.addItem(molName, new Command() {
-						@Override
-						public void execute() {
-							// TODO Auto-generated method stub
-							hide();
-						}    					
-    				});    				
-    			//}
-    		}
-    		
     		pmMenu.setStyleName(diagramPane.getStyle().subMenu());
     		pmMenu.setAnimationEnabled(true);
     		pmMenu.addSeparator(new MenuItemSeparator());
-    		menuBar.addItem("Participating Molecules", pmMenu);
-    		show();
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
+    		menuItems.add(
+    				menuBar.addItem("Participating Molecules", pmMenu)
+    		);
+    	}	
+   		show();
     }
-    
-    
+     
     // Protein/RNA/DNA Entity Menu    
     private void createGEEMenu() {
     	createPhysicalEntityMenu();
@@ -141,20 +180,22 @@ public class CanvasPopupMenu extends PopupPanel {
     	} else {
     		action = "Display";
     	}
-    		
-    	menuBar.addItem(new MenuItem(action + " Interactors", new Command() {
-    		@Override
-    		public void execute() {
-    			if (displaying) {
-    				diagramPane.getInteractorCanvas().removeProtein(pSelected);
-    				pSelected.setDisplayingInteractors(false);
-    			} else {	
-    				diagramPane.getController().getInteractors(pSelected);
-    				pSelected.setDisplayingInteractors(true);
-    			}
-    			hide();
-    		}	
-   		}));
+    	
+    	menuItems.add(
+    		menuBar.addItem(new MenuItem(action + " Interactors", new Command() {
+    			@Override
+    			public void execute() {
+    				if (displaying) {
+    					diagramPane.getInteractorCanvas().removeProtein(pSelected);
+    					pSelected.setDisplayingInteractors(false);
+    				} else {	
+    					diagramPane.getController().getInteractors(pSelected);
+    					pSelected.setDisplayingInteractors(true);
+    				}
+    				hide();
+    			}	
+    		}))
+    	);
     	
     	
     	
@@ -176,14 +217,26 @@ public class CanvasPopupMenu extends PopupPanel {
     private void createPhysicalEntityMenu() {
     	diagramPane.getController().getOtherPathways(selected.getReactomeId());
     	
-    	//menuBar.addItem(new MenuItem("Other Pathways", getPathwayMenu())); 
+    	menuItems.add(
+    		menuBar.addItem(new MenuItem("Retrieving other Pathways...", new Command() {
+    			
+    			@Override
+    			public void execute() {
+				
+    			}
+    	
+    		}))
+    	); 
     }
         
     public void setPathwayMenu(String xml) {
-    	MenuBar pathwayMenu = new MenuBar(true);
-    	pathwayMenu.setAutoOpen(true);    	
+    	// Assumes the pathway menu item is the first menu item -- need to revisit this
+    	MenuItem pathwayMenuItem = menuItems.get(0);
     	
-    	List<MenuItem> menuItems = new ArrayList<MenuItem>();
+    	MenuBar pathwaySubMenu = new MenuBar(true);
+    	pathwaySubMenu.setAutoOpen(true);    	
+    	
+    	List<MenuItem> pathwaySubMenuItems = new ArrayList<MenuItem>();
     	final CanvasPathway currentPathway = diagramPane.getPathway();
     	
     	try {
@@ -221,7 +274,7 @@ public class CanvasPopupMenu extends PopupPanel {
     					|| pathway.getReactomeId().longValue() == currentPathway.getReactomeId().longValue())
     					continue;
     				
-    				menuItems.add(pathwayMenu.addItem(pathway.getDisplayName(), new Command() {
+    				pathwaySubMenuItems.add(pathwaySubMenu.addItem(pathway.getDisplayName(), new Command() {
 
     					@Override
     					public void execute() {
@@ -236,19 +289,21 @@ public class CanvasPopupMenu extends PopupPanel {
     		e.printStackTrace();
     	}
     	
-    	pathwayMenu.setStyleName(diagramPane.getStyle().subMenu());
-    	pathwayMenu.setAnimationEnabled(true);
-    	pathwayMenu.addSeparator(new MenuItemSeparator());
+    	pathwaySubMenu.setStyleName(diagramPane.getStyle().subMenu());
+    	pathwaySubMenu.setAnimationEnabled(true);
+    	pathwaySubMenu.addSeparator(new MenuItemSeparator());
     	
-    	if (menuItems.size() == 0) {
-    		menuBar.addItem("No other pathways", new Command() {
+    	menuBar.removeItem(pathwayMenuItem);
+    	if (pathwaySubMenuItems.size() == 0) {
+    		pathwayMenuItem = new MenuItem("No other pathways", new Command() {
     			public void execute() {
     				hide();
     			}
     		});
     	} else {
-    		menuBar.addItem("Other Pathways", pathwayMenu);
+    		pathwayMenuItem = new MenuItem("Other Pathways", pathwaySubMenu);
     	}
+    	menuBar.insertItem(pathwayMenuItem, 0);
     	show();
     }
     
@@ -258,6 +313,7 @@ public class CanvasPopupMenu extends PopupPanel {
     @Override
     public void hide() {
         menuBar.clearItems();
+        menuItems.clear();
         super.hide();
     }
     
@@ -276,14 +332,21 @@ public class CanvasPopupMenu extends PopupPanel {
     
     private void createMenu(MouseEvent<? extends EventHandler> event) {
         selected = (org.reactome.diagram.model.Node) getSelectedObject();    	
-        //Window.alert(selected.getDisplayName());
         
         GraphObjectType type = selected.getType();
         
         if (type == GraphObjectType.ProcessNode) {
             createProcessNodeMenu();            
         } else if (type == GraphObjectType.RenderableComplex) {
-        	createComplexMenu();
+        	boolean expressionData;
+        	
+        	if (diagramPane.getExpressionCanvas().getPathway() == null) {
+        		expressionData = false;
+        	} else {
+        		expressionData = true;
+        	}
+        	
+        	createComplexMenu(expressionData);
         } else if (type == GraphObjectType.RenderableProtein) {
         	createGEEMenu();
         } else if (type == GraphObjectType.RenderableChemical) {
@@ -297,5 +360,4 @@ public class CanvasPopupMenu extends PopupPanel {
     private GraphObject getSelectedObject() {
     	return diagramPane.getSelectedObjects().get(0);
     }
-    
 }

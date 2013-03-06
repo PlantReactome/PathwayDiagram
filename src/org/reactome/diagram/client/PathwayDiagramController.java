@@ -254,28 +254,28 @@ public class PathwayDiagramController {
     	Window.open(url, null, null);
     }
 
-    public void getParticipatingMolecules(final Long dbId) {
+    public void getParticipatingMolecules(Long dbId, RequestCallback callback) {
         String url = this.getHostUrl() + "complexSubunits/" + dbId;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
         try {
-            requestBuilder.sendRequest(null, new RequestCallback() {
-                public void onError(Request request, Throwable exception) {
-                    requestFailed(exception);
-                }
-
-                public void onResponseReceived(Request request, Response response) {
-                    if (response.getStatusCode() == 200) {
-                        diagramPane.getPopupMenu().setPMMenu(response.getText());
-                    } else {
-                        requestFailed("response failed");
-                    }
-                }
-            });
+            requestBuilder.sendRequest(null, callback);
         } catch (RequestException ex) {
             requestFailed(ex);
         }
+    }
+
+    public void getPhysicalToReferenceEntityMap(Long pathwayId, RequestCallback callback) {
+    	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathwayId;
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	requestBuilder.setHeader("Accept", "application/json");
+    	
+    	try {
+    		requestBuilder.sendRequest(null, callback);
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
     }
     
     public void getOtherPathways(final Long dbId) {

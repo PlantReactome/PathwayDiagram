@@ -18,6 +18,9 @@ public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> 
     public static Type<DataPointChangeEventHandler> TYPE = new Type<DataPointChangeEventHandler>();
     private Long pathwayId;
     private Map<Long, String> pathwayComponentIdToColor;
+    private Map<Long, Double> pathwayComponentIdToExpressionLevel;
+    private Map<Long, String> pathwayComponentIdToExpressionId;
+    private Map<Long, String> pathwayComponentIdToTooltip;
     
     public DataPointChangeEvent() {
     }
@@ -38,7 +41,34 @@ public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> 
         this.pathwayComponentIdToColor = pathwayComponentIdToColor;
     }
 
-    /* (non-Javadoc)
+    public Map<Long, Double> getPathwayComponentIdToExpressionLevel() {
+		return pathwayComponentIdToExpressionLevel;
+	}
+
+	public void setPathwayComponentIdToExpressionLevel(
+			Map<Long, Double> pathwayComponentIdToExpressionLevel) {
+		this.pathwayComponentIdToExpressionLevel = pathwayComponentIdToExpressionLevel;
+	}
+
+	public Map<Long, String> getPathwayComponentIdToExpressionId() {
+		return pathwayComponentIdToExpressionId;
+	}
+
+	public void setPathwayComponentIdToExpressionId(
+			Map<Long, String> pathwayComponentIdToExpressionId) {
+		this.pathwayComponentIdToExpressionId = pathwayComponentIdToExpressionId;
+	}
+
+	public Map<Long, String> getPathwayComponentIdToTooltip() {
+		return pathwayComponentIdToTooltip;
+	}
+
+	public void setPathwayComponentIdToTooltip(
+			Map<Long, String> pathwayComponentIdToTooltip) {
+		this.pathwayComponentIdToTooltip = pathwayComponentIdToTooltip;
+	}
+
+	/* (non-Javadoc)
      * @see com.google.gwt.event.shared.GwtEvent#getAssociatedType()
      */
     @Override

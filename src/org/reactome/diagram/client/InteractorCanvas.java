@@ -215,9 +215,9 @@ public class InteractorCanvas extends DiagramCanvas {
     			}
     		}
     		
-    		this.setStyleName(getStyle());
+    		setGreyOutCanvas(true);
         } else {
-        	this.removeStyleName(getStyle());
+        	setGreyOutCanvas(false);
         }     
     }
         
@@ -448,7 +448,7 @@ public class InteractorCanvas extends DiagramCanvas {
 		List<ProteinNode> proteinList = new ArrayList<ProteinNode>(getProteins());
 		removeAllProteins();
 		if (!initializing && !proteinList.isEmpty())
-			setStyleName(getStyle());
+			setGreyOutCanvas(true);
 		
 		for (ProteinNode protein: proteinList)
 			this.diagramPanel.getController().getInteractors(protein);		
@@ -516,10 +516,6 @@ public class InteractorCanvas extends DiagramCanvas {
 			}
 		}		
 	}		
-	
-	private String getStyle() {
-		return diagramPanel.getStyle().interactorCanvas();
-	}
 
 	public boolean isLoadingInteractors() {
 		return loadingInteractors;

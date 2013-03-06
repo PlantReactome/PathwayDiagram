@@ -109,7 +109,12 @@ public class ExpressionDataController implements ResizeHandler {
     }
     
     public void setPathwayId(Long pathwayId) {
-        this.pathwayId = pathwayId;
+        if (this.pathwayId == null) {
+    		this.pathwayId = pathwayId;
+        } else {
+        	this.pathwayId = pathwayId;
+        	onDataPointChange(navigationPane.getValue());
+        }
     }
     
     public Long getPathwayId() {
@@ -194,9 +199,28 @@ public class ExpressionDataController implements ResizeHandler {
         PathwayExpressionValue pathwayValues = dataModel.getPathwayExpressionValue(pathwayId);
         Map<Long, Double> compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
         Map<Long, String> compIdToColor = convertValueToColor(compIdToValue);
+        Map<Long, String> compIdToExpressionId = pathwayValues.getDbIdsToExpressionIds();
+        
+       // Map<Long, String> compIdToTooltip = new HashMap<Long, String>();
+        //for (Long dbId : compIdToValue.keySet()) {
+        //	String expressionId = compIdToExpressionId.get(dbId);
+        //	if (expressionId == null)
+        //		expressionId = "N/A";
+
+        //	Double expressionLevel = compIdToValue.get(dbId);
+        	        	
+        	
+        //	String tooltip = "ID: " + expressionId + "\n Level: " + expressionLevel;
+        	
+        //	compIdToTooltip.put(dbId, tooltip);
+        //}
+        
         DataPointChangeEvent event = new DataPointChangeEvent();
         event.setPathwayId(pathwayId);
         event.setPathwayComponentIdToColor(compIdToColor);
+        event.setPathwayComponentIdToExpressionLevel(compIdToValue);
+        event.setPathwayComponentIdToExpressionId(compIdToExpressionId);
+        //event.setPathwayComponentIdToTooltip(compIdToTooltip);
         fireDataPointChangeEvent(event);
     }
     

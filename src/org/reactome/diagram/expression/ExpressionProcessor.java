@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.client.ExpressionCanvas;
-import org.reactome.diagram.client.PathwayDiagramPanel;
 
 import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;

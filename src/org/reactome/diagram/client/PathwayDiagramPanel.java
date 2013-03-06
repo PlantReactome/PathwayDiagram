@@ -14,6 +14,7 @@ import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
+import org.reactome.diagram.expression.ExpressionComplexComponentPopup;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.ExpressionProcessor;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
@@ -59,6 +60,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private PathwayCanvas pathwayCanvas;
     // Expression and species comparison overlay shown here
     private ExpressionCanvas expressionCanvas;
+    // Popup for showing complex component expression data
+    private ExpressionComplexComponentPopup expressionComplexPopup;
     // GUI component for expression data
     private ExpressionDataController expressionController;
     // Interactors shown here
@@ -295,12 +298,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 //        overview.update();
         interactorCanvas.removeAllProteins();
         pathwayCanvas.setPathway(pathway);    
-
+        pathwayCanvas.update();        
+        
         if (expressionController != null) {
         	expressionController.setPathwayId(pathway.getReactomeId());
         	expressionCanvas.setPathway(pathway);
         }
-        update();
+        
         PathwayChangeEvent event = new PathwayChangeEvent();
         if (old != null)
             event.setPreviousPathwayDBId(old.getReactomeId());
@@ -547,13 +551,22 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void showExpressionData(String url) {
     	ExpressionProcessor expressionProcessor = new ExpressionProcessor(url);    	
     	expressionController = new ExpressionDataController();
+    	expressionComplexPopup = new ExpressionComplexComponentPopup(expressionCanvas);
+    	expressionComplexPopup.setStyleName(style.expressionComplexPopup());
     	
     	DataPointChangeEventHandler dpChangeHandler = new DataPointChangeEventHandler() {
 
 			@Override
 			public void onDataPointChanged(DataPointChangeEvent e) {
 				expressionCanvas.setEntityColorMap(e.getPathwayComponentIdToColor());
-				expressionCanvas.update();
+				expressionCanvas.setEntityExpressionIdMap(e.getPathwayComponentIdToExpressionId());
+				expressionCanvas.setEntityExpressionLevelMap(e.getPathwayComponentIdToExpressionLevel());
+				//expressionCanvas.setEntityTooltipMap(e.getPathwayComponentIdToTooltip());
+				if (expressionCanvas.getPathway() == null) {
+					expressionCanvas.setPathway(getPathway());
+				} else {
+					expressionCanvas.update();
+				}
 			}    		
     	};
     	
@@ -562,13 +575,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			@Override
 			public void onExpressionOverlayStopped(ExpressionOverlayStopEvent e) {
 				expressionController = null;
-				expressionCanvas.setPathway(null);
-				expressionCanvas.update();				
+				expressionComplexPopup = null;
+				expressionCanvas.setPathway(null);				
 			}
     		
     	};
     	
-    	expressionCanvas.setPathway(getPathway());
+    	//expressionCanvas.setPathway(getPathway(), false);
     	expressionController.setPathwayId(getPathway().getReactomeId());    	
     	expressionController.addDataPointChangeEventHandler(dpChangeHandler);
     	expressionController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);
@@ -597,7 +610,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         String mainCanvas();
 
-        String interactorCanvas();
+        String greyOutCanvas();
         
         String controlPane();
         
@@ -612,6 +625,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         String dataPointControl();
         
         String colorBar();
+        
+        String expressionComplexPopup();
     }
 
     public ListBox getInteractorDBList() {
@@ -632,6 +647,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public InteractorCanvas getInteractorCanvas() {
 		return interactorCanvas;
+	}
+	
+	public ExpressionCanvas getExpressionCanvas() {
+		return expressionCanvas;
+	}
+	
+	public ExpressionComplexComponentPopup getExpressionComplexPopup() {
+		return expressionComplexPopup;
 	}
 	
 	private class LocalResizeEvent extends ResizeEvent {

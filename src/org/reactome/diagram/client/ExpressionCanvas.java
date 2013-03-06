@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,13 @@ import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -24,6 +33,11 @@ import com.google.gwt.canvas.dom.client.Context2d;
  */
 public class ExpressionCanvas extends DiagramCanvas {
     private Map<Long, String> entityColorMap;
+    private Map<Long, Double> entityExpressionLevelMap;
+    private Map<Long, String> entityExpressionIdMap;
+    //private Map<Long, String> entityTooltipMap;
+    private Map<Long, List<Long>> physicalToReferenceEntityMap;
+    
     private CanvasPathway pathway;
     
     public ExpressionCanvas() {
@@ -32,6 +46,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
+    	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
     }
    
     public Map<Long, String> getEntityColorMap() {
@@ -42,12 +57,83 @@ public class ExpressionCanvas extends DiagramCanvas {
 		this.entityColorMap = entityColorMap;
 	}
 
+	public Map<Long, Double> getEntityExpressionLevelMap() {
+		return entityExpressionLevelMap;
+	}
+
+	public void setEntityExpressionLevelMap(Map<Long, Double> entityExpressionLevelMap) {
+		this.entityExpressionLevelMap = entityExpressionLevelMap;
+	}
+
+	public Map<Long, String> getEntityExpressionIdMap() {
+		return entityExpressionIdMap;
+	}
+
+	public void setEntityExpressionIdMap(Map<Long, String> entityExpressionIdMap) {
+		this.entityExpressionIdMap = entityExpressionIdMap;
+	}
+
+	//public Map<Long, String> getEntityTooltipMap() {
+		//return entityTooltipMap;
+	//}
+
+	//public void setEntityTooltipMap(Map<Long, String> entityTooltipMap) {
+	//	this.entityTooltipMap = entityTooltipMap;
+	//}
+
+	public Map<Long, List<Long>> getPhysicalToReferenceEntityMap() {
+		return physicalToReferenceEntityMap;
+	}
+	
 	public CanvasPathway getPathway() {
 		return pathway;
 	}
 
 	public void setPathway(CanvasPathway pathway) {
+		setPathway(pathway, true);
+	}
+	
+	public void setPathway(CanvasPathway pathway, final boolean updateCanvas) {
 		this.pathway = pathway;
+		physicalToReferenceEntityMap = new HashMap<Long, List<Long>>();
+		
+		if (pathway != null) {
+			final PathwayDiagramController controller = this.diagramPane.getController();		
+			controller.getPhysicalToReferenceEntityMap(pathway.getReactomeId(), new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request, Response response) {
+					if (response.getStatusCode() == 200) {					
+						JSONArray mapObjects = (JSONArray) JSONParser.parseStrict(response.getText());
+						for (int i = 0; i < mapObjects.size(); i++) {
+							JSONObject entityMap = mapObjects.get(i).isObject();
+							Long physicalEntityId = new Long((long) entityMap.get("peDbId").isNumber().doubleValue());
+							JSONArray referenceEntityArray = entityMap.get("refDbIds").isArray();
+							ArrayList<Long> referenceEntityIds = new ArrayList<Long>(); 
+							
+							physicalToReferenceEntityMap.put(physicalEntityId, referenceEntityIds);
+							for (int j = 0; j < referenceEntityArray.size(); j++) {
+								Long referenceEntityId = new Long((long) referenceEntityArray.get(j).isNumber().doubleValue());
+								referenceEntityIds.add(referenceEntityId);
+							}						
+						}
+						
+						if (updateCanvas)
+							update();
+					} else {
+						controller.requestFailed("Could not retrieve physical to reference entity map");
+					}
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					controller.requestFailed(exception);
+				}			
+			});
+		} else {
+			if (updateCanvas)
+				update();
+		}
 	}
 
 	public List<GraphObject> getGraphObjects() {
@@ -73,15 +159,21 @@ public class ExpressionCanvas extends DiagramCanvas {
             			continue;
             		
             		Long entityId = entity.getReactomeId();
-            		String entityColor = null;
+            		List<Long> referenceEntityIds = physicalToReferenceEntityMap.get(entityId);
             		
-            		for (Long dbId : entityColorMap.keySet()) {
-            			if (dbId.equals(entityId)) {
-            				entityColor = entityColorMap.get(dbId);
-            				break;
-            			}	            		
-            		}	
+            		Long refEntityId = null;            		
             		
+            		try {
+            			if (entity.getType() != GraphObjectType.RenderableComplex && referenceEntityIds.size() == 1) 
+            				refEntityId = referenceEntityIds.get(0);
+            		} catch (NullPointerException npe) {
+            			System.out.println("Entity Id - " + entityId);
+            			for (Long id : physicalToReferenceEntityMap.keySet())	
+            				System.out.println("Map Id -" + id);
+            		}
+            		
+            		String entityColor = entityColorMap.get(refEntityId);
+            				            		
             		String oldBgColor = ((Node) entity).getBgColor();
             		String oldFgColor = ((Node) entity).getFgColor();
             		

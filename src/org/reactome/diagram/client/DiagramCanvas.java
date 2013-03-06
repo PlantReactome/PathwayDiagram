@@ -29,7 +29,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected HoverHandler hoverHandler;
     protected SelectionHandler selectionHandler;
 	protected CanvasEventInstaller eventInstaller;
-        
+	protected boolean greyOutCanvas;
+	
     public DiagramCanvas() {
     	scale = 1.0d;
     }
@@ -88,7 +89,22 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	
     }
     
-    public void reset() {
+    public boolean isGreyOutCanvas() {
+		return greyOutCanvas;
+	}
+
+	public void setGreyOutCanvas(boolean greyOutCanvas) {
+		this.greyOutCanvas = greyOutCanvas;
+				 
+		String greyOut = this.diagramPane.getStyle().greyOutCanvas();
+		if (greyOutCanvas) {
+			setStyleName(greyOut);
+		} else {
+			removeStyleName(greyOut);
+		}			
+	}
+
+	public void reset() {
         resetTranslate();
         scale = 1.0d;
         fireViewChangeEvent();
