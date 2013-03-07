@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
@@ -229,73 +228,16 @@ public class ExpressionDataController implements ResizeHandler {
         double min = dataModel.getMinExpression();
         double max = dataModel.getMaxExpression();
         double middle = (min + max) / 2.0d;
+        ExpressionColorHelper colorHelper = new ExpressionColorHelper();
         for (Long dbId : compIdToValue.keySet()) {
             Double value = compIdToValue.get(dbId);
             if (value == null)
                 continue;
-            String color = convertValueToColor(value, min, middle, max);
+            String color = colorHelper.convertValueToColor(value, min, middle, max);
             idToColor.put(dbId, 
                           color);
         }
         return idToColor;
-    }
-    
-    private String convertValueToColor(double value, 
-                                       double min,
-                                       double middle,
-                                       double max) {
-        // A special case
-        if ((max - min) < 1.0e-4) // minimum 0.0001 // This is rather arbitary
-            return Integer.toHexString(0x00FF00); // Use gree
-        // Check if value is in the lower or upper half
-        int color;
-        if (value < middle) {
-            // Color should be placed between blue (lowest) and green (middle)
-            int blue = 0x0000FF;
-            int green = 0x00FF00;
-            color = (int) ((green - blue) / (middle - min) * (value - min) + blue);
-        }
-        else {
-            // Color should be placed between green (middle) and red (highest)
-            int green = 0x00FF00;
-            int red = 0xFF0000;
-            color = (int) ((red - green) / (max - middle) * (value - middle) + green);
-        }
-//        System.out.println("Color: " + color);
-        String rtn = Integer.toHexString(color);
-        // Make sure it has six digits
-        if (rtn.length() < 6) {
-            for (int i = rtn.length(); i < 6; i++) {
-                rtn = "0" + rtn;
-            }
-        }
-        return "#" + rtn.toUpperCase(); // This should be a valid CSS color
-    }
-    
-    @Test
-    public void testConvertValueToColor() {
-        System.out.println("Red: " + 0xFF0000);
-        System.out.println("Red: " + Integer.toHexString(0xFF0000));
-        System.out.println("Green: " + 0x00FF00);
-        System.out.println("Green: " + Integer.toHexString(0x00FF00));
-        System.out.println("Blue: " + 0x0000FF);
-        System.out.println("Blue: " + Integer.toHexString(0x0000FF));
-        System.out.println();
-        
-        double min = 3.50;
-        double max = 10.00;
-        double middle = (min + max) / 2.0d;
-        double[] values = new double[] {
-                3.50d,
-                5.17d,
-                6.75d,
-                8.38d,
-                10.00d
-        };
-        for (double value : values) {
-            String color = convertValueToColor(value, min, middle, max);
-            System.out.println(value + ": " + color);
-        }
     }
     
     private void fireExpressionOverlayStopEvent() {
