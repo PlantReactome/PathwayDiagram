@@ -63,7 +63,7 @@ public class ExpressionProcessor {
 		this.expressionData = expressionData;
 	}
 
-	public void displayExpressionData(final AbsolutePanel contentPane, final ExpressionDataController edc, final ExpressionCanvas expressionCanvas) {
+	public void displayExpressionData(final AbsolutePanel contentPane, final DataController dataController, final ExpressionCanvas expressionCanvas) {
 		if (url == null)
 			return;
 		
@@ -76,8 +76,10 @@ public class ExpressionProcessor {
 				public void onResponseReceived(Request request,	Response response) {
 					if (response.getStatusCode() == 200) {
 						jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
-						edc.setDataModel(parseExpressionData());
-						edc.display(contentPane,
+						expressionData = parseExpressionData();
+						expressionCanvas.setAnalysisType(expressionData.getAnalysisType());
+						dataController.setDataModel(expressionData);
+						dataController.display(contentPane,
 								    expressionCanvas.getCoordinateSpaceWidth(),
 								    expressionCanvas.getCoordinateSpaceHeight());
 					} else {
@@ -98,10 +100,11 @@ public class ExpressionProcessor {
 	}
 	
 	private ReactomeExpressionValue parseExpressionData() {
-		expressionData = new ReactomeExpressionValue();
+		ReactomeExpressionValue expressionData = new ReactomeExpressionValue();
 		
 		expressionData.setAnalysisId(getStringFromJson("analysisId", jsonData));
-	
+		expressionData.setAnalysisType(getStringFromJson("analysisType", jsonData));
+		
 		JSONObject experimentData = jsonData.get("table").isObject();
 
 		expressionData.setMinExpression(experimentData.get("minExpression").isNumber().doubleValue());

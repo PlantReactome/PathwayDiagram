@@ -9,11 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.diagram.expression.event.DataPointChangeEvent;
-import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
-import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
-import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
-import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
 
 import com.google.gwt.core.client.GWT;
@@ -41,16 +36,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author gwu
  *
  */
-public class ExpressionDataController implements ResizeHandler {
-    // Keep HandlerRegistration in order to remove it
-    private HandlerRegistration handlerRegistration;
-    private List<DataPointChangeEventHandler> dataPointChangeEventHandlers;
-    private List<ExpressionOverlayStopEventHandler> expressionOverlayStopEventHandlers;
-    // Customized widget to show controls used to navigation data points
-    private NavigationPane navigationPane;
-    // Size of this panel
-    private int navPaneWidth = 275;
-    private int navPaneHeight = 17;
+public class ExpressionDataController extends DataController implements ResizeHandler {
     // Customized widget to show a color gradient
     private ColorSpectrumPane colorPane;
     private int colorPaneWidth = 36;
@@ -62,9 +48,6 @@ public class ExpressionDataController implements ResizeHandler {
     private int offsetHeight;
     // For fetching icons
     private static Resources resources;
-    // Data models handled by this controller
-    private ReactomeExpressionValue dataModel;
-    private Long pathwayId; // Displayed pathway id
     
     /**
      * Some icons
@@ -76,8 +59,6 @@ public class ExpressionDataController implements ResizeHandler {
         ImageResource previous();
         @Source("right.png")
         ImageResource next();
-        @Source("whiteclose.png")
-        ImageResource close();
         @Source("ColorSpectrum.png")
         ImageResource colorSpectrum();
     }
@@ -86,25 +67,21 @@ public class ExpressionDataController implements ResizeHandler {
         init();
     }
     
-    static Resources getResource() {
+    static Resources getResources() {
         if (resources == null)
             resources = GWT.create(Resources.class);
         return resources;
     }
     
-    private void init() {
+    protected void init() {
         initNavigationPane();
         initColorPane();
     }
     
     public void setDataModel(ReactomeExpressionValue model) {
         this.dataModel = model;
-        navigationPane.setDataModel(model);
+        ((NavigationPane) navigationPane).setDataModel(model);
         colorPane.setDataModel(model);
-    }
-    
-    public ReactomeExpressionValue getDataModel() {
-        return this.dataModel;
     }
     
     public void setPathwayId(Long pathwayId) {
@@ -112,12 +89,8 @@ public class ExpressionDataController implements ResizeHandler {
     		this.pathwayId = pathwayId;
         } else {
         	this.pathwayId = pathwayId;
-        	onDataPointChange(navigationPane.getValue());
+        	onDataPointChange(((NavigationPane) navigationPane).getValue());
         }
-    }
-    
-    public Long getPathwayId() {
-        return this.pathwayId;
     }
     
     /**
@@ -134,12 +107,14 @@ public class ExpressionDataController implements ResizeHandler {
         int x = (width - navPaneWidth) / 2;
         int y = height - navPaneHeight;
         container.add(navigationPane, x, y);
+        
         // Set up position for the color panel
         colorPane.setSize(colorPaneWidth + "px",
                           colorPaneHeight + "px");
         x = (width - colorPaneWidth - 10); // Some extra space
         y = 50; 
         container.add(colorPane, x, y);
+        
         offsetWidth = container.getOffsetWidth() - width;
         offsetHeight = container.getOffsetHeight() - height;
         handlerRegistration = this.container.addHandler(this, ResizeEvent.getType());
@@ -175,55 +150,7 @@ public class ExpressionDataController implements ResizeHandler {
         container = null; // Null it so that it can be displayed again.
     }
     
-    public void addExpressionOverlayStopEventHandler(ExpressionOverlayStopEventHandler handler) {
-    	if (expressionOverlayStopEventHandlers == null)
-    		expressionOverlayStopEventHandlers = new ArrayList<ExpressionOverlayStopEventHandler>();
-    	if (expressionOverlayStopEventHandlers.contains(handler))
-    		return;
-    	expressionOverlayStopEventHandlers.add(handler);
-    }
-    
-    public void addDataPointChangeEventHandler(DataPointChangeEventHandler handler) {
-        if (dataPointChangeEventHandlers == null)
-            dataPointChangeEventHandlers = new ArrayList<DataPointChangeEventHandler>();
-        if (dataPointChangeEventHandlers.contains(handler))
-            return;
-        dataPointChangeEventHandlers.add(handler);
-    }
-    
-    private void onDataPointChange(Integer dataIndex) {
-//        System.out.println("Data index: " + dataIndex);
-        if (pathwayId == null)
-            return; // Nothing to do. No pathway has been displayed.
-        PathwayExpressionValue pathwayValues = dataModel.getPathwayExpressionValue(pathwayId);
-        Map<Long, Double> compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
-        Map<Long, String> compIdToColor = convertValueToColor(compIdToValue);
-        Map<Long, String> compIdToExpressionId = pathwayValues.getDbIdsToExpressionIds();
-        
-       // Map<Long, String> compIdToTooltip = new HashMap<Long, String>();
-        //for (Long dbId : compIdToValue.keySet()) {
-        //	String expressionId = compIdToExpressionId.get(dbId);
-        //	if (expressionId == null)
-        //		expressionId = "N/A";
-
-        //	Double expressionLevel = compIdToValue.get(dbId);
-        	        	
-        	
-        //	String tooltip = "ID: " + expressionId + "\n Level: " + expressionLevel;
-        	
-        //	compIdToTooltip.put(dbId, tooltip);
-        //}
-        
-        DataPointChangeEvent event = new DataPointChangeEvent();
-        event.setPathwayId(pathwayId);
-        event.setPathwayComponentIdToColor(compIdToColor);
-        event.setPathwayComponentIdToExpressionLevel(compIdToValue);
-        event.setPathwayComponentIdToExpressionId(compIdToExpressionId);
-        //event.setPathwayComponentIdToTooltip(compIdToTooltip);
-        fireDataPointChangeEvent(event);
-    }
-    
-    private Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
+    protected Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
         Map<Long, String> idToColor = new HashMap<Long, String>();
         double min = dataModel.getMinExpression();
         double max = dataModel.getMaxExpression();
@@ -240,22 +167,6 @@ public class ExpressionDataController implements ResizeHandler {
         return idToColor;
     }
     
-    private void fireExpressionOverlayStopEvent() {
-    	if (expressionOverlayStopEventHandlers == null)
-    		return;
-    	ExpressionOverlayStopEvent event = new ExpressionOverlayStopEvent();
-    	for (ExpressionOverlayStopEventHandler handler : expressionOverlayStopEventHandlers)
-    		handler.onExpressionOverlayStopped(event);
-    		
-    }
-    
-    private void fireDataPointChangeEvent(DataPointChangeEvent event) {
-        if (dataPointChangeEventHandlers == null)
-            return;
-        for (DataPointChangeEventHandler handler : dataPointChangeEventHandlers)
-            handler.onDataPointChanged(event);
-    }
-    
     public void setNavigationPaneStyle(String style) {
         navigationPane.setStyleName(style);
     }
@@ -266,7 +177,7 @@ public class ExpressionDataController implements ResizeHandler {
     
     private void initNavigationPane() {
         navigationPane = new NavigationPane();
-        navigationPane.addValueChangeHandler(new ValueChangeHandler<Integer>() {
+        ((NavigationPane) navigationPane).addValueChangeHandler(new ValueChangeHandler<Integer>() {
             @Override
             public void onValueChange(ValueChangeEvent<Integer> event) {
                 onDataPointChange(event.getValue());
@@ -289,7 +200,7 @@ public class ExpressionDataController implements ResizeHandler {
         }
         
         private void init() {
-            Image image = new Image(getResource().colorSpectrum());
+            Image image = new Image(getResources().colorSpectrum());
             add(image, 0, 0);
             VerticalPanel verticalPanel = new VerticalPanel();
             verticalPanel.setSize(image.getWidth() + "px", 
@@ -332,39 +243,32 @@ public class ExpressionDataController implements ResizeHandler {
         }
     }
     
-    private class NavigationPane extends HorizontalPanel implements HasValue<Integer> {
-        private Label dataLabel;
+    protected class NavigationPane extends DataController.NavigationPane implements HasValue<Integer> {
         private Image previous;
         private Image next;
-        private Image close;
         private List<String> dataPoints;
         private Integer currentDataIndex = -1;
         
         public NavigationPane() {
-            init();
-        }
-        
-        private void init() {
-            Resources resources = ExpressionDataController.getResource();
+        	super();
+            Resources resources = ExpressionDataController.getResources();
             previous = new Image(resources.previous());
             previous.setAltText("previous");
             previous.setTitle("previous");
             next = new Image(resources.next());
             next.setAltText("next");
             next.setTitle("next");
-            close = new Image(resources.close());
-            close.setAltText("close");
-            close.setTitle("close");
-            dataLabel = new Label("Data Point");
-            
+        
+            init();
+        }
+        
+        protected void init() { 
             add(previous);
             setCellVerticalAlignment(previous,
                                      HasVerticalAlignment.ALIGN_MIDDLE);
-            add(dataLabel);
-            setCellVerticalAlignment(dataLabel,
-                                     HasVerticalAlignment.ALIGN_MIDDLE);
-            setCellHorizontalAlignment(dataLabel, 
-                                       HasHorizontalAlignment.ALIGN_CENTER);
+    
+            addDataLabel();
+                        
             HorizontalPanel panel1 = new HorizontalPanel();
             add(panel1);
             setCellVerticalAlignment(panel1,
@@ -376,11 +280,9 @@ public class ExpressionDataController implements ResizeHandler {
                                             HasVerticalAlignment.ALIGN_MIDDLE);
             panel1.setCellHorizontalAlignment(next, 
                                               HasHorizontalAlignment.ALIGN_RIGHT);
-            panel1.add(close);
-            panel1.setCellVerticalAlignment(close,
-                                            HasVerticalAlignment.ALIGN_MIDDLE);
-            setCellHorizontalAlignment(close, 
-                                       HasHorizontalAlignment.ALIGN_RIGHT);
+            
+            addCloseButton();
+            
             // To avoid null exception
             dataPoints = new ArrayList<String>();
             // test code
@@ -390,15 +292,8 @@ public class ExpressionDataController implements ResizeHandler {
             installHandlers();
         }
         
-        private void installHandlers() {
-            close.addClickHandler(new ClickHandler() {
-                
-                @Override
-                public void onClick(ClickEvent event) {
-                    ExpressionDataController.this.dispose();
-                    ExpressionDataController.this.fireExpressionOverlayStopEvent();
-                }
-            });
+        protected void installHandlers() {      
+            super.installHandlers();
             
             previous.addClickHandler(new ClickHandler() {
                 

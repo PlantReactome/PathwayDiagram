@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class ReactomeExpressionValue {
 	private String analysisId;
+	private String analysisType;
 	private double minExpression;		
     private double maxExpression;
 	private List<String> expressionColumnNames;
@@ -32,6 +33,14 @@ public class ReactomeExpressionValue {
 
 	public void setAnalysisId(String analysisId) {
 		this.analysisId = analysisId;
+	}
+
+	public String getAnalysisType() {
+		return analysisType;
+	}
+
+	public void setAnalysisType(String analysisType) {
+		this.analysisType = analysisType;
 	}
 
 	public double getMinExpression() {
