@@ -32,10 +32,10 @@ import com.google.gwt.user.client.Window;
  *
  */
 public class ExpressionCanvas extends DiagramCanvas {
-    private Map<Long, String> entityColorMap;
+    private String analysisType;
+	private Map<Long, String> entityColorMap;
     private Map<Long, Double> entityExpressionLevelMap;
     private Map<Long, String> entityExpressionIdMap;
-    //private Map<Long, String> entityTooltipMap;
     private Map<Long, List<Long>> physicalToReferenceEntityMap;
     
     private CanvasPathway pathway;
@@ -49,7 +49,15 @@ public class ExpressionCanvas extends DiagramCanvas {
     	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
     }
    
-    public Map<Long, String> getEntityColorMap() {
+    public String getAnalysisType() {
+		return analysisType;
+	}
+
+	public void setAnalysisType(String analysisType) {
+		this.analysisType = analysisType;
+	}
+
+	public Map<Long, String> getEntityColorMap() {
 		return entityColorMap;
 	}
 
@@ -72,14 +80,6 @@ public class ExpressionCanvas extends DiagramCanvas {
 	public void setEntityExpressionIdMap(Map<Long, String> entityExpressionIdMap) {
 		this.entityExpressionIdMap = entityExpressionIdMap;
 	}
-
-	//public Map<Long, String> getEntityTooltipMap() {
-		//return entityTooltipMap;
-	//}
-
-	//public void setEntityTooltipMap(Map<Long, String> entityTooltipMap) {
-	//	this.entityTooltipMap = entityTooltipMap;
-	//}
 
 	public Map<Long, List<Long>> getPhysicalToReferenceEntityMap() {
 		return physicalToReferenceEntityMap;
@@ -162,7 +162,6 @@ public class ExpressionCanvas extends DiagramCanvas {
             		List<Long> referenceEntityIds = physicalToReferenceEntityMap.get(entityId);
             		
             		Long refEntityId = null;            		
-            		
             		try {
             			if (entity.getType() != GraphObjectType.RenderableComplex && referenceEntityIds.size() == 1) 
             				refEntityId = referenceEntityIds.get(0);
@@ -171,19 +170,40 @@ public class ExpressionCanvas extends DiagramCanvas {
             			for (Long id : physicalToReferenceEntityMap.keySet())	
             				System.out.println("Map Id -" + id);
             		}
-            		
-            		String entityColor = entityColorMap.get(refEntityId);
             				            		
             		String oldBgColor = ((Node) entity).getBgColor();
             		String oldFgColor = ((Node) entity).getFgColor();
             		
-            		if (entityColor != null) {
-            			((Node) entity).setBgColor(entityColor);
-            		} else if (entity.getType() == GraphObjectType.RenderableComplex) {
+            		if (entity.getType() == GraphObjectType.RenderableComplex) {
             			((Node) entity).setBgColor("rgb(0,0,0)"); // Black background
             			((Node) entity).setFgColor("rgb(255,255,255)"); // White Text
             		} else {
-            			((Node) entity).setBgColor("rgb(192,192,192)"); // Grey for no data
+            			String nodeColor = null;
+            			
+            			String assignedNodeColor = entityColorMap.get(refEntityId);
+            			if (analysisType.equals("expression")) {
+            				if (assignedNodeColor != null) {
+            					nodeColor = assignedNodeColor;
+            				}
+            			} else if (analysisType.equals("species_comparison")) {
+            				if (entity.getType() == GraphObjectType.RenderableProtein) {
+            					if (assignedNodeColor != null) {
+            						nodeColor = assignedNodeColor;
+            					} else {
+            						nodeColor = "rgb(0,0,255)"; // Blue for no inference
+            						entityColorMap.put(refEntityId, nodeColor);
+            					}
+            				}
+            			} else {
+            				Window.alert("Unknown analysis type");
+            				break;
+            			}
+            			
+            			if (nodeColor == null) {
+            				nodeColor = "rgb(192,192,192)"; // Grey for no data
+            			}
+            			
+            			((Node) entity).setBgColor(nodeColor); 
             		}
             			
             		GraphObjectRendererFactory factory = GraphObjectRendererFactory.getFactory();

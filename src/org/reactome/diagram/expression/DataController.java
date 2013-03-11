@@ -226,16 +226,18 @@ public abstract class DataController implements ResizeHandler {
             setCellHorizontalAlignment(dataLabel, 
                                        HasHorizontalAlignment.ALIGN_CENTER);
         }    
-            
-        protected void addCloseButton() {    
-            HorizontalPanel panel1 = new HorizontalPanel();
-            add(panel1);
-            setCellVerticalAlignment(panel1,
-                                     HasVerticalAlignment.ALIGN_MIDDLE);
-            setCellHorizontalAlignment(panel1, 
-                                       HasHorizontalAlignment.ALIGN_RIGHT);
-            panel1.add(close);
-            panel1.setCellVerticalAlignment(close,
+        
+        protected void addCloseButton() {
+        	HorizontalPanel panel = new HorizontalPanel();
+        	add(panel);
+        	setCellVerticalAlignment(panel, HasVerticalAlignment.ALIGN_MIDDLE);
+        	setCellHorizontalAlignment(panel, HasHorizontalAlignment.ALIGN_RIGHT);
+        	addCloseButton(panel);
+        }
+        
+        protected void addCloseButton(HorizontalPanel panel) {    
+            panel.add(close);
+            panel.setCellVerticalAlignment(close,
                                             HasVerticalAlignment.ALIGN_MIDDLE);
             setCellHorizontalAlignment(close, 
                                        HasHorizontalAlignment.ALIGN_RIGHT);

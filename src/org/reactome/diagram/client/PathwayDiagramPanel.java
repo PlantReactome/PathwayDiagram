@@ -14,9 +14,11 @@ import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
+import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ExpressionComplexComponentPopup;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.ExpressionProcessor;
+import org.reactome.diagram.expression.SpeciesComparisonDataController;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
@@ -62,8 +64,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private ExpressionCanvas expressionCanvas;
     // Popup for showing complex component expression data
     private ExpressionComplexComponentPopup expressionComplexPopup;
-    // GUI component for expression data
-    private ExpressionDataController expressionController;
+    // GUI component for expression or species comparison data
+    private DataController overlayDataController;
     // Interactors shown here
     private InteractorCanvas interactorCanvas;
     // For overview
@@ -300,8 +302,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         pathwayCanvas.setPathway(pathway);    
         pathwayCanvas.update();        
         
-        if (expressionController != null) {
-        	expressionController.setPathwayId(pathway.getReactomeId());
+        if (overlayDataController != null) {
+        	overlayDataController.setPathwayId(pathway.getReactomeId());
         	expressionCanvas.setPathway(pathway);
         }
         
@@ -548,9 +550,22 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return this.style;
     }
     
+    public void showSpeciesComparisonData(String url) {
+    	SpeciesComparisonDataController speciesComparisonDataController = new SpeciesComparisonDataController(); 
+    	showOverlayData(url, speciesComparisonDataController);
+    }
+    
     public void showExpressionData(String url) {
+    	ExpressionDataController expressionController = new ExpressionDataController();
+    	expressionController.setColorPaneStyle(style.colorBar());
+    	showOverlayData(url, expressionController);
+    }
+    
+    private void showOverlayData(String url, DataController controller) {
+    	overlayDataController = controller;
+    	
     	ExpressionProcessor expressionProcessor = new ExpressionProcessor(url);    	
-    	expressionController = new ExpressionDataController();
+    	
     	expressionComplexPopup = new ExpressionComplexComponentPopup(expressionCanvas);
     	expressionComplexPopup.setStyleName(style.expressionComplexPopup());
     	
@@ -561,7 +576,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 				expressionCanvas.setEntityColorMap(e.getPathwayComponentIdToColor());
 				expressionCanvas.setEntityExpressionIdMap(e.getPathwayComponentIdToExpressionId());
 				expressionCanvas.setEntityExpressionLevelMap(e.getPathwayComponentIdToExpressionLevel());
-				//expressionCanvas.setEntityTooltipMap(e.getPathwayComponentIdToTooltip());
+				
 				if (expressionCanvas.getPathway() == null) {
 					expressionCanvas.setPathway(getPathway());
 				} else {
@@ -574,21 +589,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 			@Override
 			public void onExpressionOverlayStopped(ExpressionOverlayStopEvent e) {
-				expressionController = null;
+				overlayDataController = null;
 				expressionComplexPopup = null;
 				expressionCanvas.setPathway(null);				
 			}
     		
     	};
     	
-    	//expressionCanvas.setPathway(getPathway(), false);
-    	expressionController.setPathwayId(getPathway().getReactomeId());    	
-    	expressionController.addDataPointChangeEventHandler(dpChangeHandler);
-    	expressionController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);
-    	expressionController.setColorPaneStyle(style.colorBar());
-    	expressionController.setNavigationPaneStyle(style.dataPointControl());
+    	overlayDataController.setPathwayId(getPathway().getReactomeId());    	
+    	overlayDataController.addDataPointChangeEventHandler(dpChangeHandler);
+    	overlayDataController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);    	
+    	overlayDataController.setNavigationPaneStyle(style.dataPointControl());
     	
-    	expressionProcessor.displayExpressionData(contentPane, expressionController, expressionCanvas);
+    	expressionProcessor.displayExpressionData(contentPane, overlayDataController, expressionCanvas);
     }
     
     /**

@@ -281,7 +281,7 @@ public class ExpressionDataController extends DataController implements ResizeHa
             panel1.setCellHorizontalAlignment(next, 
                                               HasHorizontalAlignment.ALIGN_RIGHT);
             
-            addCloseButton();
+            addCloseButton(panel1);
             
             // To avoid null exception
             dataPoints = new ArrayList<String>();
