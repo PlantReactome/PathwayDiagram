@@ -77,7 +77,7 @@ public class ExpressionProcessor {
 					if (response.getStatusCode() == 200) {
 						jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
 						expressionData = parseExpressionData();
-						expressionCanvas.setAnalysisType(expressionData.getAnalysisType());
+						//expressionCanvas.setAnalysisType(expressionData.getAnalysisType());
 						dataController.setDataModel(expressionData);
 						dataController.display(contentPane,
 								    expressionCanvas.getCoordinateSpaceWidth(),
@@ -162,7 +162,9 @@ public class ExpressionProcessor {
 						List<Double> expressionLevels = new ArrayList<Double>();
 						
 						for (int l = 0; l < expressionLevelsArray.size(); l++) {
-							Double value = Double.parseDouble(expressionLevelsArray.get(l).isString().stringValue());
+							Double value = new Double(100.0); 
+									
+							//		Double.parseDouble(expressionLevelsArray.get(l).isString().stringValue());
 							expressionLevels.add(value);
 						}
 						
@@ -178,12 +180,11 @@ public class ExpressionProcessor {
 			expressionData.getPathwayExpressionValues().put(pev.getPathwayId(), pev);
 		}
 		// Make sure the parsed data is correct
-		if (!expressionData.validateExpressionData()) {
+		if (!expressionData.validateExpressionData() && expressionData.getAnalysisType().equals("expression")) {
 		    Window.alert("Some pathway object has not enough expression values!");
-		    return null;
+		    //return null;
 		}
-		return expressionData;
-		//showJsonKeys(experimentData);
+		return expressionData;		
 	}
 	
 	private String getStringFromJson(String key, JSONObject json) {

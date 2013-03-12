@@ -139,7 +139,7 @@ public class CanvasPopupMenu extends PopupPanel {
     			menuBar.addItem("Display Participating Molecules", new Command() {
 					@Override
 					public void execute() {
-						diagramPane.getExpressionComplexPopup().showPopup(selected, molecules);
+						diagramPane.getComplexComponentPopup().showPopup(selected, molecules);
 						hide();							
 					}    					
     			})

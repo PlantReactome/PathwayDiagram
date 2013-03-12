@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author gwu
  *
  */
-public class ExpressionComplexComponentPopup extends PopupPanel {
+public class ComplexComponentPopup extends PopupPanel {
     private ExpressionCanvas expressionCanvas;
 	private VerticalPanel vPanel;
 	private Node selectedComplex;
@@ -34,13 +34,13 @@ public class ExpressionComplexComponentPopup extends PopupPanel {
 	private FlexTable componentTable;
 	private Label complexLabel;
     
-    public ExpressionComplexComponentPopup(ExpressionCanvas expressionCanvas) {
+    public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
         super(true);
         this.expressionCanvas = expressionCanvas;
         addCloseHandler(new CloseHandler<PopupPanel>() {
 				@Override
 				public void onClose(CloseEvent<PopupPanel> event) {
-					ExpressionComplexComponentPopup.this.expressionCanvas.setGreyOutCanvas(false);
+					ComplexComponentPopup.this.expressionCanvas.setGreyOutCanvas(false);
 				}       	
         });
         init();
@@ -80,8 +80,8 @@ public class ExpressionComplexComponentPopup extends PopupPanel {
         String labelText = selectedComplex.getDisplayName();
                	
         addComplexComponentsToFlexTable(components);
-        if (this.complexComponents == null || this.complexComponents.isEmpty()) {
-        	labelText = labelText + " has no components with expression data";
+        if (this.complexComponents == null || this.complexComponents.isEmpty()) {   	
+        	labelText = labelText + " has no components with data";
         } else {
         	labelText = labelText + " components: ";
         }
@@ -100,9 +100,21 @@ public class ExpressionComplexComponentPopup extends PopupPanel {
     	for (int i = 0; i < this.complexComponents.size(); i++) {
     		ComplexComponent component = this.complexComponents.get(i);
     		
-    		String label = component.getDisplayName() + "(ID: " + component.getExpressionId()
-    					   + " Level: " + component.getExpressionLevel() + ")";
-    					   
+    		String label = component.getDisplayName();
+    		
+    		if (component.getExpressionId() != null || component.getExpressionLevel() != null) {		
+    			label = label + " (";
+    			
+    			if (component.getExpressionId() != null) {
+    				label = label + "ID: " + component.getExpressionId();
+    			}
+    			
+    			if (component.getExpressionLevel() != null) {	
+    				label = label + " Level: " + component.getExpressionLevel();
+    			}
+    				
+    			label = label + ")";
+    		}			   
     		Label componentName = new Label(label);
     		componentName.getElement().getStyle().setBackgroundColor(component.getExpressionColor());
     		

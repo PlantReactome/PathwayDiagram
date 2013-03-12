@@ -7,6 +7,8 @@ package org.reactome.diagram.expression;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.reactome.diagram.expression.model.ReactomeExpressionValue;
+
 import com.google.gwt.user.client.ui.Label;
 
 /**
@@ -23,18 +25,19 @@ public class SpeciesComparisonDataController extends DataController {
        
     protected void init() {
     	navigationPane = new SpeciesComparisonNavigationPane();
-    }	
+    }
+    
+    public void setDataModel(ReactomeExpressionValue dataModel) {
+    	super.setDataModel(dataModel);
+    	((SpeciesComparisonNavigationPane) navigationPane).setDataModel(dataModel);
+    }
     
     public void setPathwayId(Long pathwayId) {
         if (this.pathwayId == null) {
     		this.pathwayId = pathwayId;
         } else {
         	this.pathwayId = pathwayId;
-        	
-        	// Set label to species name
-        	((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(dataModel.getPathwayExpressionValue(pathwayId).getSpecies());
-        	
-        	onDataPointChange(0);
+        	setSpecies();
         }
     }
     
@@ -57,6 +60,11 @@ public class SpeciesComparisonDataController extends DataController {
     	return compIdToColor;    	
     }
     
+    protected void setSpecies() {
+    	((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(dataModel.getPathwayExpressionValue(pathwayId).getSpecies());
+    	onDataPointChange(0);
+    }
+    
     protected class SpeciesComparisonNavigationPane extends NavigationPane {
                 
         public SpeciesComparisonNavigationPane() {
@@ -74,6 +82,10 @@ public class SpeciesComparisonDataController extends DataController {
         Label getDataLabel() {
 			return dataLabel;
         	
+        }
+        
+        public void setDataModel(ReactomeExpressionValue dataModel) {
+        	SpeciesComparisonDataController.this.setSpecies();
         }
     }
 }

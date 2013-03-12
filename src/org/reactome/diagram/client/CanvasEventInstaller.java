@@ -58,7 +58,11 @@ public class CanvasEventInstaller {
 //        });
 
     }    
-        
+    
+    public void installOverviewEventHandlerForCanvas() {
+    	canvas.addHandler(diagramPane.getOverview(), ViewChangeEvent.TYPE);
+    }
+    
     public void installDiagramEventHandlers() {
     
         // To catch overview dragging
@@ -76,11 +80,7 @@ public class CanvasEventInstaller {
         };
         
         final OverviewCanvas overview = diagramPane.getOverview();
-        overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);
-        canvas.addHandler(overview, ViewChangeEvent.TYPE);
-        
-        
-        
+        overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);              
         
         // The following is used to hilight linked objects
         // Test selections
