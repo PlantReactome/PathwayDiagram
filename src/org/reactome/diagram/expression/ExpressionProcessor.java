@@ -162,9 +162,7 @@ public class ExpressionProcessor {
 						List<Double> expressionLevels = new ArrayList<Double>();
 						
 						for (int l = 0; l < expressionLevelsArray.size(); l++) {
-							Double value = new Double(100.0); 
-									
-							//		Double.parseDouble(expressionLevelsArray.get(l).isString().stringValue());
+							Double value = Double.parseDouble(expressionLevelsArray.get(l).isString().stringValue());
 							expressionLevels.add(value);
 						}
 						
@@ -182,7 +180,7 @@ public class ExpressionProcessor {
 		// Make sure the parsed data is correct
 		if (!expressionData.validateExpressionData() && expressionData.getAnalysisType().equals("expression")) {
 		    Window.alert("Some pathway object has not enough expression values!");
-		    //return null;
+		    return null;
 		}
 		return expressionData;		
 	}

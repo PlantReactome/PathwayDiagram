@@ -166,7 +166,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onClick(ClickEvent event) {
-            	showSpeciesComparisonData(GWT.getHostPageBaseURL() + "SpeciesComparisonDataForJoel.json");
+            	showExpressionData(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");
             }
         });
     }
