@@ -25,8 +25,10 @@ public abstract class HoverHandler {
     protected DiagramCanvas canvas;
     protected Point hoverPoint;
     protected GraphObject hoveredObject;
+    protected boolean isOverSameObject;    
     protected PopupPanel tooltip;
     protected Timer timer;
+    Boolean timeElapsed;
     
     public HoverHandler(PathwayDiagramPanel diagramPanel, DiagramCanvas canvas) {
         this.diagramPanel = diagramPanel;
@@ -40,6 +42,7 @@ public abstract class HoverHandler {
 			@Override
 			public void run() {
 				tooltip.hide();				
+				timeElapsed = true;
 			}
         	
         };
@@ -77,6 +80,7 @@ public abstract class HoverHandler {
             }
         }
 
+        isOverSameObject = false;
         // Remove displayed label if just hovering over empty space
         if (hovered == null) {
         	if (hoveredObject != null) {
@@ -92,6 +96,7 @@ public abstract class HoverHandler {
         	if (hoveredObject != null) {
         		// Do nothing if the new object is the same as the old        		
         		if (hovered == hoveredObject) {
+        			isOverSameObject = true; 
         			return;
         		}
         		hoveredObject.setIsHovered(false);
@@ -101,8 +106,7 @@ public abstract class HoverHandler {
         	
         	// Set new hovered object
         	hoveredObject = hovered;
-        	showTooltip();
-        
+        	        
         	//fireHoverEvent();
         }	
     }
@@ -138,6 +142,7 @@ public abstract class HoverHandler {
     	tooltip.show();
     	
     	// Hide after 2 seconds
+    	timeElapsed = false;
     	timer.schedule(2000);
     }
     

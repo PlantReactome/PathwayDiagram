@@ -33,6 +33,9 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
         List<GraphObject> objects = pc.getPathway().getGraphObjects();
         super.hover(objects);        
         
+        if (hoveredObject != null && (!(isOverSameObject && timeElapsed)))
+        	showTooltip();
+        
         return hoveredObject;        
     }
         

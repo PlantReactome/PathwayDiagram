@@ -59,8 +59,24 @@ public class CanvasEventInstaller {
 
     }    
     
-    public void installOverviewEventHandlerForCanvas() {
+    public void installEventHandlersForCanvas() {
+    	final OverviewCanvas overview = diagramPane.getOverview();
+    	
     	canvas.addHandler(diagramPane.getOverview(), ViewChangeEvent.TYPE);
+    	
+    	// highlight linked objects
+    	SelectionEventHandler selectionHandler = new SelectionEventHandler() {
+
+			@Override
+			public void onSelectionChanged(SelectionEvent e) {
+				hiliteAndCentreObjects(e);
+				overview.setSelectedObjects(e.getSelectedObjects());
+				overview.update();
+			}
+    		
+    	};
+    	
+    	diagramPane.addSelectionEventHandler(selectionHandler);
     }
     
     public void installDiagramEventHandlers() {
@@ -79,22 +95,8 @@ public class CanvasEventInstaller {
             }
         };
         
-        final OverviewCanvas overview = diagramPane.getOverview();
+        OverviewCanvas overview = diagramPane.getOverview();
         overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);              
-        
-        // The following is used to hilight linked objects
-        // Test selections
-        SelectionEventHandler selectionHandler = new SelectionEventHandler() {
-           
-        	@Override
-        	public void onSelectionChanged(SelectionEvent e) {
-        		hiliteAndCentreObjects(e);
-        		overview.setSelectedObjects(e.getSelectedObjects());
-        		overview.update();
-           	}
-        };
-        diagramPane.addSelectionEventHandler(selectionHandler);
-        	
     }
     
     private void hiliteAndCentreObjects(SelectionEvent e) {

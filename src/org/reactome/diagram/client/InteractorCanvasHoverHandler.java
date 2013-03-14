@@ -13,7 +13,7 @@ import org.reactome.diagram.model.InteractorType;
 
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.HTML;
 
 /**
  * This class is used to handle hovering over objects for PathwayDiagramPanel.
@@ -42,6 +42,9 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
         } else if (ic.isLoadingInteractors()) {
         	diagramPanel.setCursor(Cursor.WAIT);
         }
+
+        if (!(isOverSameObject && timeElapsed)) 
+        	showTooltip();
         
         return hoveredObject;
     }
@@ -60,7 +63,7 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     		} else {	
     			return;
     		}	
-    		label =  super.getLabel() + "\n" + description + ((InteractorNode) hoveredObject).getAccession();
+    		label =  super.getLabel() + "<br />" + description + ((InteractorNode) hoveredObject).getAccession();
     	} else if (hoveredObject instanceof InteractorEdge) {
     		label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
     				((InteractorEdge) hoveredObject).getInteractor().getDisplayName();     		
@@ -68,7 +71,7 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     		return;
     	}
     	 	
-    	tooltip.setWidget(new Label(label));
+    	tooltip.setWidget(new HTML(label));
     
     	super.showTooltip();
     }

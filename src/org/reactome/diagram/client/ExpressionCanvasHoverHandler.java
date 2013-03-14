@@ -6,6 +6,7 @@ package org.reactome.diagram.client;
 
 import java.util.List;
 
+import org.reactome.diagram.expression.AnalysisType;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
@@ -28,32 +29,33 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
         
-    	if (ec.getGraphObjects() == null)
+    	if (ec.getGraphObjects() == null || ec.getAnalysisType() == AnalysisType.SpeciesComparison)
             return null;
         
     	
         List<GraphObject> objects = ec.getGraphObjects();
         super.hover(objects);
-        
-        return hoveredObject;
+                
+        if (hoveredObject != null && hoveredObject.getType() == GraphObjectType.RenderableProtein) {        	
+        	if (!(isOverSameObject && timeElapsed))
+        		showTooltip();
+        	
+        	return hoveredObject;
+        } else {
+        	return null;
+        }	
     }
         
     protected void showTooltip() {
     	String label;
     	
-       	GraphObjectType type =  hoveredObject.getType();
+    	Long refId = ec.getPhysicalToReferenceEntityMap().get(hoveredObject.getReactomeId()).get(0);  	
     	
-    	if (type != null && type == GraphObjectType.RenderableProtein) {
-    		Long refId = ec.getPhysicalToReferenceEntityMap().get(hoveredObject.getReactomeId()).get(0);  	
-    		
-    		String expressionId = ec.getEntityExpressionIdMap().get(refId);
-    		Double expressionLevel = ec.getEntityExpressionLevelMap().get(refId);
-    		
-    		label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
-    	} else {	
-    		return;
-    	}    		
-      	 	
+    	String expressionId = ec.getEntityExpressionIdMap().get(refId);
+    	Double expressionLevel = ec.getEntityExpressionLevelMap().get(refId);
+    	
+    	label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
+   
     	tooltip.setWidget(new HTML(label));
     
     	super.showTooltip();
