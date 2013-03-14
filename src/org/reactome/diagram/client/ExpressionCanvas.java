@@ -130,7 +130,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 					controller.requestFailed(exception);
 				}			
 			});
-		} else {
+		} 
+		else {
 			if (updateCanvas)
 				update();
 		}
@@ -152,7 +153,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 
         clean(c2d);
         
-        if (pathway != null) {
+        if (pathway != null && physicalToReferenceEntityMap != null) {
             for (GraphObject entity : getGraphObjects()) {
             	if (entity instanceof Node) {
             		if (entity.getType() == GraphObjectType.RenderableCompartment)
@@ -161,14 +162,10 @@ public class ExpressionCanvas extends DiagramCanvas {
             		Long entityId = entity.getReactomeId();
             		List<Long> referenceEntityIds = physicalToReferenceEntityMap.get(entityId);
             		
-            		Long refEntityId = null;            		
-            		try {
-            			if (entity.getType() != GraphObjectType.RenderableComplex && referenceEntityIds.size() == 1) 
-            				refEntityId = referenceEntityIds.get(0);
-            		} catch (NullPointerException npe) {
-            			System.out.println("Entity Id - " + entityId);
-            			for (Long id : physicalToReferenceEntityMap.keySet())	
-            				System.out.println("Map Id -" + id);
+            		Long refEntityId = null;       
+            		if (referenceEntityIds != null && referenceEntityIds.size() > 0 &&
+            		    entity.getType() != GraphObjectType.RenderableComplex) {
+            		    refEntityId = referenceEntityIds.get(0);
             		}
             				            		
             		String oldBgColor = ((Node) entity).getBgColor();
@@ -177,7 +174,8 @@ public class ExpressionCanvas extends DiagramCanvas {
             		if (entity.getType() == GraphObjectType.RenderableComplex) {
             			((Node) entity).setBgColor("rgb(0,0,0)"); // Black background
             			((Node) entity).setFgColor("rgb(255,255,255)"); // White Text
-            		} else {
+            		} 
+            		else {
             			String nodeColor = null;
             			
             			String assignedNodeColor = entityColorMap.get(refEntityId);
@@ -185,16 +183,19 @@ public class ExpressionCanvas extends DiagramCanvas {
             				if (assignedNodeColor != null) {
             					nodeColor = assignedNodeColor;
             				}
-            			} else if (analysisType.equals("species_comparison")) {
+            			} 
+            			else if (analysisType.equals("species_comparison")) {
             				if (entity.getType() == GraphObjectType.RenderableProtein) {
             					if (assignedNodeColor != null) {
             						nodeColor = assignedNodeColor;
-            					} else {
+            					} 
+            					else {
             						nodeColor = "rgb(0,0,255)"; // Blue for no inference
             						entityColorMap.put(refEntityId, nodeColor);
             					}
             				}
-            			} else {
+            			} 
+            			else {
             				Window.alert("Unknown analysis type");
             				break;
             			}
