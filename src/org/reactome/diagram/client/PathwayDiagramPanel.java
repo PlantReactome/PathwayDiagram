@@ -24,6 +24,7 @@ import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
 import org.reactome.diagram.expression.model.AnalysisType;
+import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
@@ -570,9 +571,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 			@Override
 			public void onDataPointChanged(DataPointChangeEvent e) {
-				expressionCanvas.setEntityColorMap(e.getPathwayComponentIdToColor());
-				expressionCanvas.setEntityExpressionIdMap(e.getPathwayComponentIdToExpressionId());
-				expressionCanvas.setEntityExpressionLevelMap(e.getPathwayComponentIdToExpressionLevel());
+				ExpressionCanvasModel expressionCanvasModel = expressionCanvas.getExpressionCanvasModel();
+				
+				expressionCanvasModel.setEntityColorMap(e.getPathwayComponentIdToColor());
+				expressionCanvasModel.setEntityExpressionIdMap(e.getPathwayComponentIdToExpressionId());
+				expressionCanvasModel.setEntityExpressionLevelMap(e.getPathwayComponentIdToExpressionLevel());
 				
 				if (expressionCanvas.getPathway() == null) {
 					expressionCanvas.setPathway(getPathway());

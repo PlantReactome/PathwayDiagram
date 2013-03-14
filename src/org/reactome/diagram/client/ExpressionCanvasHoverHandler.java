@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 import java.util.List;
 
 import org.reactome.diagram.expression.model.AnalysisType;
+import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
@@ -49,10 +50,12 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     protected void showTooltip() {
     	String label;
     	
-    	Long refId = ec.getPhysicalToReferenceEntityMap().get(hoveredObject.getReactomeId()).get(0);  	
+    	ExpressionCanvasModel ecm = ec.getExpressionCanvasModel();
     	
-    	String expressionId = ec.getEntityExpressionIdMap().get(refId);
-    	Double expressionLevel = ec.getEntityExpressionLevelMap().get(refId);
+    	Long refId = ecm.getPhysicalToReferenceEntityMap().get(hoveredObject.getReactomeId()).get(0);  	
+    	
+    	String expressionId = ecm.getEntityExpressionIdMap().get(refId);
+    	Double expressionLevel = ecm.getEntityExpressionLevelMap().get(refId);
     	
     	label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
    

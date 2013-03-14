@@ -1,5 +1,5 @@
 /*
- * Created on Feb , 2013
+ * Created on Feb 2013
  *
  */
 package org.reactome.diagram.client;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.reactome.diagram.expression.model.AnalysisType;
+import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
@@ -34,20 +35,17 @@ import com.google.gwt.user.client.Window;
  */
 public class ExpressionCanvas extends DiagramCanvas {
     private AnalysisType analysisType;
-	private Map<Long, String> entityColorMap;
-    private Map<Long, Double> entityExpressionLevelMap;
-    private Map<Long, String> entityExpressionIdMap;
-    private Map<Long, List<Long>> physicalToReferenceEntityMap;
-    
+	private ExpressionCanvasModel expressionCanvasModel;    
     private CanvasPathway pathway;
     
     public ExpressionCanvas() {
-
+    	expressionCanvasModel = new ExpressionCanvasModel();
     }
     
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
     	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
+    	expressionCanvasModel = new ExpressionCanvasModel();
     }
    
     public AnalysisType getAnalysisType() {
@@ -58,32 +56,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 		this.analysisType = analysisType;
 	}
 
-	public Map<Long, String> getEntityColorMap() {
-		return entityColorMap;
-	}
-
-	public void setEntityColorMap(Map<Long, String> entityColorMap) {
-		this.entityColorMap = entityColorMap;
-	}
-
-	public Map<Long, Double> getEntityExpressionLevelMap() {
-		return entityExpressionLevelMap;
-	}
-
-	public void setEntityExpressionLevelMap(Map<Long, Double> entityExpressionLevelMap) {
-		this.entityExpressionLevelMap = entityExpressionLevelMap;
-	}
-
-	public Map<Long, String> getEntityExpressionIdMap() {
-		return entityExpressionIdMap;
-	}
-
-	public void setEntityExpressionIdMap(Map<Long, String> entityExpressionIdMap) {
-		this.entityExpressionIdMap = entityExpressionIdMap;
-	}
-
-	public Map<Long, List<Long>> getPhysicalToReferenceEntityMap() {
-		return physicalToReferenceEntityMap;
+	public ExpressionCanvasModel getExpressionCanvasModel() {
+		return expressionCanvasModel;
 	}
 	
 	public CanvasPathway getPathway() {
@@ -96,7 +70,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 	
 	public void setPathway(CanvasPathway pathway, final boolean updateCanvas) {
 		this.pathway = pathway;
-		physicalToReferenceEntityMap = new HashMap<Long, List<Long>>();
+		final HashMap<Long, List<Long>> physicalToReferenceEntityMap = new HashMap<Long, List<Long>>();
 		
 		if (pathway != null) {
 			final PathwayDiagramController controller = this.diagramPane.getController();		
@@ -118,6 +92,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 								referenceEntityIds.add(referenceEntityId);
 							}						
 						}
+						expressionCanvasModel.setPhysicalToReferenceEntityMap(physicalToReferenceEntityMap);
 						
 						if (updateCanvas)
 							update();
@@ -154,6 +129,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 
         clean(c2d);
         
+        Map<Long, List<Long>> physicalToReferenceEntityMap = expressionCanvasModel.getPhysicalToReferenceEntityMap();
         if (pathway != null && physicalToReferenceEntityMap != null) {
             for (GraphObject entity : getGraphObjects()) {
             	if (entity instanceof Node) {
@@ -179,7 +155,7 @@ public class ExpressionCanvas extends DiagramCanvas {
             		else {
             			String nodeColor = null;
             			
-            			String assignedNodeColor = entityColorMap.get(refEntityId);
+            			String assignedNodeColor = expressionCanvasModel.getEntityColorMap().get(refEntityId);
             			if (analysisType == AnalysisType.Expression) {
             				if (assignedNodeColor != null) {
             					nodeColor = assignedNodeColor;
@@ -191,7 +167,7 @@ public class ExpressionCanvas extends DiagramCanvas {
             					} 
             					else {
             						nodeColor = "rgb(0,0,255)"; // Blue for no inference
-            						entityColorMap.put(refEntityId, nodeColor);
+            						expressionCanvasModel.getEntityColorMap().put(refEntityId, nodeColor);
             					}
             				}
             			} 

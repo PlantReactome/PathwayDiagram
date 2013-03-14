@@ -1,4 +1,5 @@
 /*
+
  * Created on Feb 22, 2013
  *
  */
@@ -9,11 +10,10 @@ import java.util.List;
 
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.expression.model.AnalysisType;
+import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.Node;
 import org.reactome.diagram.model.ReactomeObject;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -30,7 +30,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class ComplexComponentPopup extends PopupPanel {
     private ExpressionCanvas expressionCanvas;
 	private VerticalPanel vPanel;
-	private Node selectedComplex;
     private List<ComplexComponent> complexComponents;
 	private FlexTable componentTable;
 	private Label complexLabel;
@@ -76,7 +75,6 @@ public class ComplexComponentPopup extends PopupPanel {
      */
     public void showPopup(Node selectedComplex, List<ReactomeObject> components) {
         hide();
-        this.selectedComplex = selectedComplex;
         
         String labelText = selectedComplex.getDisplayName();
                	
@@ -127,27 +125,28 @@ public class ComplexComponentPopup extends PopupPanel {
     private List<ComplexComponent> createComplexComponents(List<ReactomeObject> components) {
     	List<ComplexComponent> complexComponents = new ArrayList<ComplexComponent>();
     	
+    	ExpressionCanvasModel expressionCanvasModel = expressionCanvas.getExpressionCanvasModel();
     	for (ReactomeObject component : components) {
     		ComplexComponent complexComponent = new ComplexComponent();
     		
     		Long dbId = component.getReactomeId();
-    		Long refId = expressionCanvas.getPhysicalToReferenceEntityMap().get(dbId).get(0);
+    		Long refId = expressionCanvasModel.getPhysicalToReferenceEntityMap().get(dbId).get(0);
     		complexComponent.setDbId(refId);
     		complexComponent.setDisplayName(component.getDisplayName());
     		
-    		if (expressionCanvas.getEntityColorMap().get(refId) == null) {
+    		if (expressionCanvasModel.getEntityColorMap().get(refId) == null) {
     			if (expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison) {
     				// Blue color for an entity without inference    		
     				String color = "rgb(0, 0, 255)";
-    				expressionCanvas.getEntityColorMap().put(refId, color);
+    				expressionCanvasModel.getEntityColorMap().put(refId, color);
     			} else {
     				continue;
     			}	
     		}
     		
-    		complexComponent.setExpressionId(expressionCanvas.getEntityExpressionIdMap().get(refId));
-    		complexComponent.setExpressionLevel(expressionCanvas.getEntityExpressionLevelMap().get(refId));
-    		complexComponent.setExpressionColor(expressionCanvas.getEntityColorMap().get(refId));
+    		complexComponent.setExpressionId(expressionCanvasModel.getEntityExpressionIdMap().get(refId));
+    		complexComponent.setExpressionLevel(expressionCanvasModel.getEntityExpressionLevelMap().get(refId));
+    		complexComponent.setExpressionColor(expressionCanvasModel.getEntityColorMap().get(refId));
     		
     		complexComponents.add(complexComponent);
     	}
