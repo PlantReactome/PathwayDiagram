@@ -29,7 +29,6 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
 	private String url;
-    private JSONObject jsonData;
     private ReactomeExpressionValue expressionData; 
     
 	/**
@@ -49,10 +48,6 @@ public class ExpressionProcessor {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public JSONObject getJsonData() {
-		return jsonData;
 	}
 
 	public ReactomeExpressionValue getExpressionData() {
@@ -75,8 +70,8 @@ public class ExpressionProcessor {
 				@Override
 				public void onResponseReceived(Request request,	Response response) {
 					if (response.getStatusCode() == 200) {
-						jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
-						expressionData = parseExpressionData();
+						JSONObject jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
+						expressionData = parseExpressionData(jsonData);
 						//expressionCanvas.setAnalysisType(expressionData.getAnalysisType());
 						dataController.setDataModel(expressionData);
 						dataController.display(contentPane,
@@ -99,7 +94,7 @@ public class ExpressionProcessor {
 		
 	}
 	
-	private ReactomeExpressionValue parseExpressionData() {
+	private ReactomeExpressionValue parseExpressionData(JSONObject jsonData) {
 		ReactomeExpressionValue expressionData = new ReactomeExpressionValue();
 		
 		expressionData.setAnalysisId(getStringFromJson("analysisId", jsonData));
@@ -109,7 +104,6 @@ public class ExpressionProcessor {
 
 		expressionData.setMinExpression(experimentData.get("minExpression").isNumber().doubleValue());
 		expressionData.setMaxExpression(experimentData.get("maxExpression").isNumber().doubleValue());
-		
 		
 		JSONArray columnNamesArray = experimentData.get("expressionColumnNames").isArray();
 		List<String> expressionColumnNames = new ArrayList<String>();
