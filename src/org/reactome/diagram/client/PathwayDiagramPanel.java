@@ -23,6 +23,7 @@ import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
@@ -545,13 +546,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void showSpeciesComparisonData(String url) {
-    	expressionCanvas.setAnalysisType("species_comparison");
+    	expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
     	SpeciesComparisonDataController speciesComparisonDataController = new SpeciesComparisonDataController(); 
     	showOverlayData(url, speciesComparisonDataController);
     }
     
     public void showExpressionData(String url) {
-    	expressionCanvas.setAnalysisType("expression");
+    	expressionCanvas.setAnalysisType(AnalysisType.Expression);
     	ExpressionDataController expressionController = new ExpressionDataController();
     	expressionController.setColorPaneStyle(style.colorBar());
     	showOverlayData(url, expressionController);

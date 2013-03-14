@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.client.ExpressionCanvas;
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.Node;
 import org.reactome.diagram.model.ReactomeObject;
 
@@ -102,7 +103,7 @@ public class ComplexComponentPopup extends PopupPanel {
     		
     		String label = component.getDisplayName();
     		
-    		if (component.getExpressionId() != null || component.getExpressionLevel() != null) {		
+    		if (expressionCanvas.getAnalysisType() == AnalysisType.Expression && (component.getExpressionId() != null || component.getExpressionLevel() != null)) {		
     			label = label + " (";
     			
     			if (component.getExpressionId() != null) {
@@ -135,7 +136,13 @@ public class ComplexComponentPopup extends PopupPanel {
     		complexComponent.setDisplayName(component.getDisplayName());
     		
     		if (expressionCanvas.getEntityColorMap().get(refId) == null) {
-    			continue;
+    			if (expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison) {
+    				// Blue color for an entity without inference    		
+    				String color = "rgb(0, 0, 255)";
+    				expressionCanvas.getEntityColorMap().put(refId, color);
+    			} else {
+    				continue;
+    			}	
     		}
     		
     		complexComponent.setExpressionId(expressionCanvas.getEntityExpressionIdMap().get(refId));

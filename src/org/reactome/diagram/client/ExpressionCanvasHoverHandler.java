@@ -6,7 +6,7 @@ package org.reactome.diagram.client;
 
 import java.util.List;
 
-import org.reactome.diagram.expression.AnalysisType;
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 

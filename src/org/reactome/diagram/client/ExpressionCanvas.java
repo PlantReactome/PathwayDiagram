@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
@@ -32,7 +33,7 @@ import com.google.gwt.user.client.Window;
  *
  */
 public class ExpressionCanvas extends DiagramCanvas {
-    private String analysisType;
+    private AnalysisType analysisType;
 	private Map<Long, String> entityColorMap;
     private Map<Long, Double> entityExpressionLevelMap;
     private Map<Long, String> entityExpressionIdMap;
@@ -49,11 +50,11 @@ public class ExpressionCanvas extends DiagramCanvas {
     	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
     }
    
-    public String getAnalysisType() {
+    public AnalysisType getAnalysisType() {
 		return analysisType;
 	}
 
-	public void setAnalysisType(String analysisType) {
+	public void setAnalysisType(AnalysisType analysisType) {
 		this.analysisType = analysisType;
 	}
 
@@ -179,12 +180,11 @@ public class ExpressionCanvas extends DiagramCanvas {
             			String nodeColor = null;
             			
             			String assignedNodeColor = entityColorMap.get(refEntityId);
-            			if (analysisType.equals("expression")) {
+            			if (analysisType == AnalysisType.Expression) {
             				if (assignedNodeColor != null) {
             					nodeColor = assignedNodeColor;
             				}
-            			} 
-            			else if (analysisType.equals("species_comparison")) {
+            			} else if (analysisType == AnalysisType.SpeciesComparison) {
             				if (entity.getType() == GraphObjectType.RenderableProtein) {
             					if (assignedNodeColor != null) {
             						nodeColor = assignedNodeColor;
