@@ -209,9 +209,12 @@ public class PathwayDiagramController {
 
     public void getInteractors(final ProteinNode selected) {
         Long dbId = selected.getReactomeId();
+        
+        diagramPane.initInteractorCanvas();
         final InteractorCanvas ic = diagramPane.getInteractorCanvas();
 
         String url = this.getHostUrl() + "psiquicInteractions/" + dbId + "/" + ic.getInteractorDatabase();
+        
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
@@ -266,13 +269,31 @@ public class PathwayDiagramController {
         }
     }
 
-    public void getPhysicalToReferenceEntityMap(Long pathwayId, RequestCallback callback) {
+    public void getPhysicalToReferenceEntityMap(Long pathwayId, final boolean updateCanvas) {
     	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathwayId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/json");
     	
+    	final ExpressionCanvas ec = diagramPane.getExpressionCanvas();
+    	
     	try {
-    		requestBuilder.sendRequest(null, callback);
+    		requestBuilder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					if (response.getStatusCode() == 200) {
+						ec.getExpressionCanvasModel().setPhysicalToReferenceEntityMap(response.getText(), updateCanvas);
+					} else {
+						requestFailed("Could not retrieve physical to reference entity map");
+					}
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					requestFailed(exception);					
+				}
+    			
+    		});
     	} catch (RequestException ex) {
     		requestFailed(ex);
     	}
@@ -369,7 +390,7 @@ public class PathwayDiagramController {
      * @param xmlText The XML Text to be parsed
      */
     private void renderXML(String xmlText, Long dbId) {
-        //System.out.println(xmlText);
+        System.out.println(xmlText);
         //Image loadingIcon = diagramPane.getLoadingIcon();
         //loadingIcon.setVisible(true);
 

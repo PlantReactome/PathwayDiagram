@@ -45,7 +45,6 @@ public class PathwayCanvasControls extends FlexTable {
     
     private PathwayDiagramPanel diagramPane;
     private static Resources resources;
-    private ListBox interactionDBList;
     
     public PathwayCanvasControls(PathwayDiagramPanel diagramPane) {
         this.diagramPane = diagramPane;
@@ -129,20 +128,7 @@ public class PathwayCanvasControls extends FlexTable {
                 diagramPane.update();
             }
         });
-        
-        interactionDBList = new ListBox();
-        interactionDBList.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				InteractorCanvas ic = diagramPane.getInteractorCanvas();
-				
-				ic.setInteractorDatabase(interactionDBList.getItemText(interactionDBList.getSelectedIndex()));
-			}
-        	
-        });
-        
-        
+               
 //        setButtonSize(refresh);
 //        setButtonSize(zoomPlus);
 //        setButtonSize(zoomMinus);
@@ -164,16 +150,18 @@ public class PathwayCanvasControls extends FlexTable {
         setWidget(1, 0, scrollBottom);
         setWidget(0, 5, scrollRight);
         cellFormatter.setRowSpan(0, 5, 2);
-        setWidget(0, 6, new Label("Interaction DB:"));
-        cellFormatter.setRowSpan(0, 6, 2);
-        setWidget(0, 7, interactionDBList);
-        cellFormatter.setRowSpan(0, 7, 2);
     }
 
-    public ListBox getInteractionDBList() {
-    	return interactionDBList;
-    }
-    
+	public void addInteractionDBListToControls(ListBox interactionDBList) {
+		FlexCellFormatter cellFormatter = getFlexCellFormatter();
+				
+		setWidget(0, 6, new Label("Interaction DB: "));
+		cellFormatter.setRowSpan(0, 6, 2);
+		setWidget(0, 7, interactionDBList);
+		cellFormatter.setRowSpan(0, 7, 2);
+	}
+	
+	
 //    private void setButtonSize(PushButton btn) {
 //        btn.setSize("10px", "10px");
 //    }

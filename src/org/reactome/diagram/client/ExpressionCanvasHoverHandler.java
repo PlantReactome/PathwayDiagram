@@ -38,8 +38,9 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
         super.hover(objects);
                 
         if (hoveredObject != null && hoveredObject.getType() == GraphObjectType.RenderableProtein) {        	
-        	if (!(isOverSameObject && timeElapsed))
+        	if (!(isOverSameObject && timeElapsed)) {       	
         		showTooltip();
+        	}
         	
         	return hoveredObject;
         } else {

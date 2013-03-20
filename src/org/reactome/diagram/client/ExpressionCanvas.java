@@ -4,8 +4,6 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,12 +18,6 @@ import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
 
 /**
@@ -38,14 +30,10 @@ public class ExpressionCanvas extends DiagramCanvas {
 	private ExpressionCanvasModel expressionCanvasModel;    
     private CanvasPathway pathway;
     
-    public ExpressionCanvas() {
-    	expressionCanvasModel = new ExpressionCanvasModel();
-    }
-    
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
     	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
-    	expressionCanvasModel = new ExpressionCanvasModel();
+    	expressionCanvasModel = new ExpressionCanvasModel(this);
     }
    
     public AnalysisType getAnalysisType() {
@@ -68,44 +56,11 @@ public class ExpressionCanvas extends DiagramCanvas {
 		setPathway(pathway, true);
 	}
 	
-	public void setPathway(CanvasPathway pathway, final boolean updateCanvas) {
+	public void setPathway(CanvasPathway pathway, boolean updateCanvas) {
 		this.pathway = pathway;
-		final HashMap<Long, List<Long>> physicalToReferenceEntityMap = new HashMap<Long, List<Long>>();
-		
-		if (pathway != null) {
-			final PathwayDiagramController controller = this.diagramPane.getController();		
-			controller.getPhysicalToReferenceEntityMap(pathway.getReactomeId(), new RequestCallback() {
 
-				@Override
-				public void onResponseReceived(Request request, Response response) {
-					if (response.getStatusCode() == 200) {					
-						JSONArray mapObjects = (JSONArray) JSONParser.parseStrict(response.getText());
-						for (int i = 0; i < mapObjects.size(); i++) {
-							JSONObject entityMap = mapObjects.get(i).isObject();
-							Long physicalEntityId = new Long((long) entityMap.get("peDbId").isNumber().doubleValue());
-							JSONArray referenceEntityArray = entityMap.get("refDbIds").isArray();
-							ArrayList<Long> referenceEntityIds = new ArrayList<Long>(); 
-							
-							physicalToReferenceEntityMap.put(physicalEntityId, referenceEntityIds);
-							for (int j = 0; j < referenceEntityArray.size(); j++) {
-								Long referenceEntityId = new Long((long) referenceEntityArray.get(j).isNumber().doubleValue());
-								referenceEntityIds.add(referenceEntityId);
-							}						
-						}
-						expressionCanvasModel.setPhysicalToReferenceEntityMap(physicalToReferenceEntityMap);
-						
-						if (updateCanvas)
-							update();
-					} else {
-						controller.requestFailed("Could not retrieve physical to reference entity map");
-					}
-				}
-
-				@Override
-				public void onError(Request request, Throwable exception) {
-					controller.requestFailed(exception);
-				}			
-			});
+		if (pathway != null) {	
+			diagramPane.getController().getPhysicalToReferenceEntityMap(pathway.getReactomeId(), updateCanvas);
 		} 
 		else {
 			if (updateCanvas)

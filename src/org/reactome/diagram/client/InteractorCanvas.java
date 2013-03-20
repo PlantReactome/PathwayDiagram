@@ -23,6 +23,8 @@ import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
@@ -40,7 +42,9 @@ public class InteractorCanvas extends DiagramCanvas {
     private Context2d c2d;
     private PathwayDiagramPanel diagramPanel;
     
-    private String interactorDatabase;
+    private final String defaultInteractorDatabase = "IntAct";
+    
+    private String interactorDatabase = defaultInteractorDatabase;
     // Proteins mapped to their list of interactors
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
     // Interactor objects mapped to their accession ids 
@@ -246,8 +250,8 @@ public class InteractorCanvas extends DiagramCanvas {
     		String [] lines = name.split(" ");
     	
     		// Establish width of interactor bounds
-    		int maxLineWidth = 5; // Default minimum 
-    		for (String line : lines) {
+    		int maxLineWidth = 6; // Default minimum 
+    		for (String line : lines) {    			
     			maxLineWidth = Math.max(line.length(), maxLineWidth);
     		}    	
     		width = maxLineWidth * Parameters.INTERACTOR_CHAR_WIDTH;
@@ -501,8 +505,7 @@ public class InteractorCanvas extends DiagramCanvas {
 			}
 		}
 			
-		ListBox interactorDBList = diagramPanel.getControls().getInteractionDBList();		
-		interactorDBList.clear();
+		final ListBox interactorDBList = new ListBox();	
 		
 		List<String> dbs = new ArrayList<String>(interactorDBMap.keySet());
 		Collections.sort(dbs);
@@ -510,11 +513,22 @@ public class InteractorCanvas extends DiagramCanvas {
 			String db = dbs.get(i);
 			
 			interactorDBList.addItem(db, map.get(db));
-			if (db.equals("IntAct")) {
+			if (db.equals(defaultInteractorDatabase)) {
 				interactorDBList.setSelectedIndex(i);
 				setInteractorDatabase(db, true);				
 			}
-		}		
+		}
+		
+		interactorDBList.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				setInteractorDatabase(interactorDBList.getItemText(interactorDBList.getSelectedIndex()));				
+			}
+			
+		});
+		
+		diagramPane.getControls().addInteractionDBListToControls(interactorDBList);		
 	}		
 
 	public boolean isLoadingInteractors() {

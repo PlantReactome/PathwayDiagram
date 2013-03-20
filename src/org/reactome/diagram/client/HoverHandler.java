@@ -28,7 +28,7 @@ public abstract class HoverHandler {
     protected boolean isOverSameObject;    
     protected PopupPanel tooltip;
     protected Timer timer;
-    Boolean timeElapsed;
+    protected boolean timeElapsed;
     
     public HoverHandler(PathwayDiagramPanel diagramPanel, DiagramCanvas canvas) {
         this.diagramPanel = diagramPanel;
@@ -84,11 +84,8 @@ public abstract class HoverHandler {
         // Remove displayed label if just hovering over empty space
         if (hovered == null) {
         	if (hoveredObject != null) {
-        		tooltip.hide();
-        	   	timer.cancel();
+        		stopCurrentHovering();        	   	
         	   	diagramPanel.getElement().getStyle().setCursor(Cursor.DEFAULT);
-        	   	hoveredObject.setIsHovered(false);
-        	   	hoveredObject = null;
         	}
         	return;
         } else {
@@ -99,15 +96,11 @@ public abstract class HoverHandler {
         			isOverSameObject = true; 
         			return;
         		}
-        		hoveredObject.setIsHovered(false);
-        		tooltip.hide();
-        		timer.cancel();
+        		stopCurrentHovering();
         	} 
         	
         	// Set new hovered object
         	hoveredObject = hovered;
-        	        
-        	//fireHoverEvent();
         }	
     }
         
@@ -133,7 +126,7 @@ public abstract class HoverHandler {
     	}
     	
     	// Position label 
-    	tooltip.setPopupPosition( (int) x + 2, (int) y + 2);
+    	tooltip.setPopupPosition( (int) x + 3, (int) y + 10);
     	
     	// Label must appear above the canvas
     	tooltip.getElement().getStyle().setZIndex(canvasZIndex + 1); 
@@ -142,7 +135,6 @@ public abstract class HoverHandler {
     	tooltip.show();
     	
     	// Hide after 2 seconds
-    	timeElapsed = false;
     	timer.schedule(2000);
     }
     
@@ -164,6 +156,13 @@ public abstract class HoverHandler {
         diagramPanel.fireEvent(event);
     }
 
+    private void stopCurrentHovering() {
+    	tooltip.hide();
+    	timer.cancel();
+    	hoveredObject.setIsHovered(false);
+    	hoveredObject = null;
+    	timeElapsed = true;
+    }
     
 	public abstract GraphObject hover(Point hoveredPoint);
 	

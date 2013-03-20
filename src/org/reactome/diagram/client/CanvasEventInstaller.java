@@ -60,6 +60,8 @@ public class CanvasEventInstaller {
     }    
     
     public void installEventHandlersForCanvas() {
+    	installUserInputHandlers();
+    	
     	final OverviewCanvas overview = diagramPane.getOverview();
     	
     	canvas.addHandler(diagramPane.getOverview(), ViewChangeEvent.TYPE);
@@ -79,7 +81,7 @@ public class CanvasEventInstaller {
     	diagramPane.addSelectionEventHandler(selectionHandler);
     }
     
-    public void installDiagramEventHandlers() {
+    public void installOverviewEventHandler() {
     
         // To catch overview dragging
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {

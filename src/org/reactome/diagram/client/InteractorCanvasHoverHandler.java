@@ -45,7 +45,7 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
 
         if (!(isOverSameObject && timeElapsed)) 
         	showTooltip();
-        
+                
         return hoveredObject;
     }
         

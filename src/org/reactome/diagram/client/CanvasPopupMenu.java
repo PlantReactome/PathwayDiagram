@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
@@ -148,11 +149,14 @@ public class CanvasPopupMenu extends PopupPanel {
     		MenuBar pmMenu = new MenuBar(true);
     		pmMenu.setAutoOpen(true);
     				    				
-    		for (ReactomeObject molecule : molecules) {			
+    		for (final ReactomeObject molecule : molecules) {			
     			pmMenu.addItem(molecule.getDisplayName(), new Command() {
     				@Override
     				public void execute() {
-    					// TODO Auto-generated method stub
+    					ParticipatingMoleculeSelectionEvent pmSelectionEvent = new ParticipatingMoleculeSelectionEvent();
+    					pmSelectionEvent.setSelectedParticipatingMoleculeId(molecule.getReactomeId());
+    					diagramPane.fireEvent(pmSelectionEvent);
+    					
     					hide();
     				}    					
     			});    				    		

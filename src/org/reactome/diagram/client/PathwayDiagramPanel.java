@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.event.HoverEventHandler;
+import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
+import org.reactome.diagram.event.ParticipatingMoleculeSelectionEventHandler;
 import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
@@ -110,22 +112,16 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview = new OverviewCanvas(this);
         
         pathwayCanvas = new PathwayCanvas(this);         
+        CanvasEventInstaller eventInstaller = pathwayCanvas.getEventInstaller();
+        eventInstaller.installOverviewEventHandler();
+        eventInstaller.installUserInputHandlers();
+        
         // Keep the original information
         contentPane.add(pathwayCanvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName(style.mainCanvas());
 //        canvas.setSize("100%", "100%");
 //        contentPane.setSize("100%", "100%");
         canvasList.add(pathwayCanvas);        
-
-        expressionCanvas = new ExpressionCanvas(this);
-        contentPane.add(expressionCanvas, 4, 4);
-        canvasList.add(expressionCanvas);
-        
-        interactorCanvas = new InteractorCanvas(this);
-        //interactorCanvas.setStyleName(style.interactorCanvas());
-        contentPane.add(interactorCanvas, 4, 4);
-        //interactorCanvas.setVisible(false);
-        canvasList.add(interactorCanvas);
         
         // Set up overview
         //overview = new OverviewCanvas();
@@ -146,12 +142,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         loadingIcon.setVisible(false);
         contentPane.add(loadingIcon, 725, 340);
         
-        initWidget(contentPane);
-
-        // Add behaviors
-        CanvasEventInstaller eventInstaller = canvasList.get(canvasList.size() - 1).getEventInstaller();
-        eventInstaller.installUserInputHandlers();    
-        eventInstaller.installDiagramEventHandlers();
+        initWidget(contentPane);        
         
         popupMenu = new CanvasPopupMenu();
         popupMenu.setPathwayDiagramPanel(this);
@@ -272,6 +263,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     private void onResize(int width, int height) {
         for (DiagramCanvas canvas : canvasList) {
+        	if (canvas == null)
+        		continue;        		
+        	
     	   	canvas.setSize(width - 8 + "px", height - 8 + "px");
         	canvas.setCoordinateSpaceWidth(width - 8);
         	canvas.setCoordinateSpaceHeight(height - 8);
@@ -293,11 +287,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	//        System.out.println("Set pathway: " + pathway.getReactomeId());
         // Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
-//        overview.update();
-        interactorCanvas.removeAllProteins();
+
         pathwayCanvas.setPathway(pathway);    
         pathwayCanvas.update();        
-        
+ 
+        if (interactorCanvas != null)
+        	interactorCanvas.removeAllProteins();
+        	
         if (overlayDataController != null) {
         	overlayDataController.setPathwayId(pathway.getReactomeId());
         	expressionCanvas.setPathway(pathway);
@@ -356,18 +352,30 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void translate(double dx, double dy) {
-        for (DiagramCanvas canvas : canvasList) 	
+        for (DiagramCanvas canvas : canvasList) {
+        	if (canvas == null)
+        		continue;
+        
         	canvas.translate(dx, dy);
+        }	
     }
     
     public void scale(double scale) {
-        for (DiagramCanvas canvas : canvasList)	
-    		canvas.scale(scale);
+        for (DiagramCanvas canvas : canvasList) {	
+    		if (canvas == null)
+    			continue;
+        
+        	canvas.scale(scale);
+        }	
     }
     
     public void reset() {
-    	for (DiagramCanvas canvas : canvasList)
-        	canvas.reset();
+    	for (DiagramCanvas canvas : canvasList) {
+        	if (canvas == null)
+        		continue;
+    		
+    		canvas.reset();
+    	}
     }
     
     public PathwayCanvas getPathwayCanvas() {
@@ -388,6 +396,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
        	Collections.reverse(canvasList);       	
        	
        	for (DiagramCanvas canvas : canvasList) {
+       		if (canvas == null)
+       			continue;
+       		
        		HoverHandler hh = canvas.getHoverHandler();
        		
        		if (hh != null && hh.hover(hoveredPoint) != null) {
@@ -403,6 +414,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
     public void hideTooltip() {
     	for (DiagramCanvas canvas : canvasList) {
+    		if (canvas == null)
+    			continue;
+    		
     		HoverHandler hh = canvas.getHoverHandler();
     		
     		if (hh != null)
@@ -412,7 +426,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void stopHoveringExceptFor(DiagramCanvas c) {
     	for (DiagramCanvas canvas : canvasList) {
-    		if (canvas == c)
+    		if (canvas == null || canvas == c)
     			continue;
     		HoverHandler hh = canvas.getHoverHandler();
     		
@@ -436,6 +450,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         Collections.reverse(canvasList);
         
         for (DiagramCanvas canvas : canvasList) {
+        	if (canvas == null)
+        		continue;
+        	
         	SelectionHandler sh = canvas.getSelectionHandler();
         	
         	if (sh == null)
@@ -469,6 +486,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                    PathwayChangeEvent.TYPE);
     }
     
+    public void addParticipatingMoleculeSelectionEventHandler(ParticipatingMoleculeSelectionEventHandler handler) {
+    	addHandler(handler,
+    			  		ParticipatingMoleculeSelectionEvent.TYPE);
+    }
+    
     protected void fireSelectionEvent(SelectionEvent event) {
         fireEvent(event);
         pathwayCanvas.update();
@@ -482,6 +504,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         List<GraphObject> selectedObjects = null;
         
         for (DiagramCanvas canvas : canvasList) {
+        	if (canvas == null)
+       			continue;
         	SelectionHandler sh = canvas.getSelectionHandler();
         	
         	if (sh == null)
@@ -501,7 +525,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      */
     public void setSelectionIds(List<Long> dbIds) {
         for (DiagramCanvas canvas : canvasList) {
-    		SelectionHandler sh = canvas.getSelectionHandler();
+    		if (canvas == null)
+    			continue;
+        	
+        	SelectionHandler sh = canvas.getSelectionHandler();
     		
     		if (sh != null)
     			sh.setSelectionIds(dbIds);
@@ -523,6 +550,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      */
     public void clearSelection() {
     	for (DiagramCanvas canvas : canvasList) {
+    		if (canvas == null)
+    			continue;
+    		
     		SelectionHandler sh = canvas.getSelectionHandler();
     		
     		if (sh != null)
@@ -534,8 +564,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Update drawing.
      */
     public void update() {
-        for (DiagramCanvas canvas : canvasList)
-    		canvas.update();
+        for (DiagramCanvas canvas : canvasList) {
+    		if (canvas == null)
+    			continue;
+    		
+        	canvas.update();
+        }	
     }
     
     public void setCursor(Cursor cursor) {
@@ -547,12 +581,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void showSpeciesComparisonData(String url) {
+    	initExpressionCanvas();    	    		
     	expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
     	SpeciesComparisonDataController speciesComparisonDataController = new SpeciesComparisonDataController(); 
     	showOverlayData(url, speciesComparisonDataController);
     }
     
     public void showExpressionData(String url) {
+    	initExpressionCanvas();    	
     	expressionCanvas.setAnalysisType(AnalysisType.Expression);
     	ExpressionDataController expressionController = new ExpressionDataController();
     	expressionController.setColorPaneStyle(style.colorBar());
@@ -676,5 +712,26 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	        super(width, height);
 	    }
 	    
+	}
+
+	public void initInteractorCanvas() {
+		if (interactorCanvas == null) {
+			interactorCanvas = new InteractorCanvas(this);
+			
+			int insertionIndex = canvasList.size(); // Above all other canvases
+			contentPane.insert(interactorCanvas, 4, 4, insertionIndex);			
+			canvasList.add(insertionIndex, interactorCanvas);
+			onResize();
+		}	
+	}
+	
+	public void initExpressionCanvas() {
+		if (expressionCanvas == null) {
+			expressionCanvas = new ExpressionCanvas(this);
+			
+			contentPane.insert(expressionCanvas, 4, 4, 1);		
+			canvasList.add(canvasList.indexOf(pathwayCanvas) + 1, expressionCanvas);
+			onResize();
+		}
 	}
 }
