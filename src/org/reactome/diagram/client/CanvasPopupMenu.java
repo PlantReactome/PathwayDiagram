@@ -84,7 +84,7 @@ public class CanvasPopupMenu extends PopupPanel {
     }
 
     // Participating molecules menu	
-    private void retrievePMs(final boolean expressionData) { 
+    private void retrievePMs(final boolean expressionData) {
     	final PathwayDiagramController controller = diagramPane.getController();
     	    	
     	controller.getParticipatingMolecules(selected.getReactomeId(), new RequestCallback() {
@@ -323,7 +323,7 @@ public class CanvasPopupMenu extends PopupPanel {
     
     /**
      * Show popup menu
-     * @param panel
+     * @param event
      */
     public void showPopupMenu(MouseEvent<? extends EventHandler> event) {
        	event.preventDefault();
@@ -342,14 +342,10 @@ public class CanvasPopupMenu extends PopupPanel {
         if (type == GraphObjectType.ProcessNode) {
             createProcessNodeMenu();            
         } else if (type == GraphObjectType.RenderableComplex) {
-        	boolean expressionData;
-        	
-        	if (diagramPane.getExpressionCanvas().getPathway() == null) {
-        		expressionData = false;
-        	} else {
-        		expressionData = true;
-        	}
-        	
+            boolean expressionData = !(
+                    diagramPane.getExpressionCanvas() == null ||
+                    diagramPane.getExpressionCanvas().getPathway() == null
+            );
         	createComplexMenu(expressionData);
         } else if (type == GraphObjectType.RenderableProtein) {
         	createGEEMenu();
