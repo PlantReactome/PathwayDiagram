@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 
 import java.util.HashMap;
 
+import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.InteractorEdge;
@@ -28,6 +29,8 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
 /**
@@ -390,7 +393,7 @@ public class PathwayDiagramController {
      * @param xmlText The XML Text to be parsed
      */
     private void renderXML(String xmlText, Long dbId) {
-        System.out.println(xmlText);
+        //System.out.println(xmlText);
         //Image loadingIcon = diagramPane.getLoadingIcon();
         //loadingIcon.setVisible(true);
 
@@ -410,8 +413,8 @@ public class PathwayDiagramController {
             diagramPane.setCanvasPathway(pathway);
         }
         catch(Exception e) {
-            Window.alert("Error in parsing XML: " + e);
-            e.printStackTrace();
+            // Could be a subpathway with no diagram -- try to get parent pathway diagram instead
+        	getDiagramPathwayId(dbId, e);
         }
 
         diagramPane.setCursor(Cursor.DEFAULT);
@@ -419,6 +422,71 @@ public class PathwayDiagramController {
         //loadingIcon.setVisible(false);
     }
 
+    private void getDiagramPathwayId(final Long dbId, final Exception e) {
+    	String url = getHostUrl() + "queryEventAncestors/" + dbId;
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	
+    	try {
+    		requestBuilder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					try {
+						Document ancestorDom = XMLParser.parse(response.getText());
+						Element ancestorElement = ancestorDom.getDocumentElement();
+						XMLParser.removeWhitespace(ancestorElement);
+						
+						SubpathwaySelectionEvent subPathwayEvent = new SubpathwaySelectionEvent();
+						subPathwayEvent.setSubpathwayId(dbId);
+						
+						Long pathwayDiagramId = null;
+						
+						NodeList ancestorLists = ancestorElement.getElementsByTagName("DatabaseObjects"); 
+						
+						ancestorLists:
+						for (int i = 0; i < ancestorLists.getLength(); i++) { 
+							Node ancestorListNode = ancestorLists.item(i);
+							
+							NodeList ancestorList = ((Element) ancestorListNode).getElementsByTagName("databaseObjects");
+							
+							// Most related ancestor pathway at bottom, so counting down
+							for (int j = ancestorList.getLength() - 1; j >= 0; j--) {
+								Node ancestor = ancestorList.item(j);
+																										
+								String diagramBoolean = ((Element) ancestor).getElementsByTagName("hasDiagram").item(0).getNodeValue();
+								Boolean hasDiagram = new Boolean(diagramBoolean);
+								
+								if (hasDiagram) {
+									pathwayDiagramId = new Long(((Element) ancestor).getElementsByTagName("dbId").item(0).getNodeValue());
+									break ancestorLists;
+								}
+							}
+						}	
+						
+						if (pathwayDiagramId != null) {
+							subPathwayEvent.setDiagramPathwayId(pathwayDiagramId);
+							diagramPane.fireEvent(subPathwayEvent);
+						} else {
+							throw e;
+						}	
+					} catch (Exception e) {
+						Window.alert("Error in parsing XML: " + e);
+						e.printStackTrace();
+					}
+					
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					requestFailed(exception);
+				} 
+    		
+    		});    		
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
+    
     /**
      * Create a CanvasPathway object based on the passed XML element.
      */

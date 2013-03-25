@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.client.ExpressionCanvas;
+import org.reactome.diagram.client.PathwayDiagramPanel;
 
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
@@ -25,29 +27,24 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
-	private String url;
+	private final static String baseurl = ""; 
+	private String analysisId;
     private ReactomeExpressionValue expressionData; 
     
-	/**
-	 * Default constructor.
-	 */
-	public ExpressionProcessor() {		
-
-	}
-
-	public ExpressionProcessor(String url) {
-		this.url = url;
-	}
+    
+    public ExpressionProcessor(String analysisId) {
+    	this.analysisId = analysisId;
+    }	
+    	
 	
-	public String getUrl() {
-		return url;
+	public String getAnalysisId() {
+		return analysisId;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setAnalysisId(String analysisId) {
+		this.analysisId = analysisId;
 	}
 
 	public ReactomeExpressionValue getExpressionData() {
@@ -58,9 +55,11 @@ public class ExpressionProcessor {
 		this.expressionData = expressionData;
 	}
 
-	public void displayExpressionData(final AbsolutePanel contentPane, final DataController dataController, final ExpressionCanvas expressionCanvas) {
-		if (url == null)
+	public void createDataController(final PathwayDiagramPanel diagramPane, final ExpressionCanvas expressionCanvas) {
+		if (analysisId == null)
 			return;
+		
+		String url = baseurl + analysisId;
 		
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 	
@@ -72,11 +71,22 @@ public class ExpressionProcessor {
 					if (response.getStatusCode() == 200) {
 						JSONObject jsonData = (JSONObject) JSONParser.parseStrict(response.getText());
 						expressionData = parseExpressionData(jsonData);
-						//expressionCanvas.setAnalysisType(expressionData.getAnalysisType());
+						
+						DataController dataController;
+						String analysisType = expressionData.getAnalysisType(); 
+						if (analysisType.equals("expression")) {
+							expressionCanvas.setAnalysisType(AnalysisType.Expression);
+							dataController = new ExpressionDataController();
+						} else if (analysisType.equals("species_comparison")) {
+							expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
+							dataController = new SpeciesComparisonDataController();
+						} else {
+							Window.alert(analysisType + " is an unknown analysis type");
+							return;
+						}
+						
 						dataController.setDataModel(expressionData);
-						dataController.display(contentPane,
-								    expressionCanvas.getCoordinateSpaceWidth(),
-								    expressionCanvas.getCoordinateSpaceHeight());
+						diagramPane.setDataController(dataController);						
 					} else {
 						Window.alert("Unable to retrieve expression data - " + response.getStatusText());
 					}

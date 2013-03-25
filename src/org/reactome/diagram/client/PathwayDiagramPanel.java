@@ -1,4 +1,4 @@
-/*
+/* 
  * Created on Sep 23, 2011
  *
  */
@@ -16,16 +16,16 @@ import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
+import org.reactome.diagram.event.SubpathwaySelectionEvent;
+import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ComplexComponentPopup;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.ExpressionProcessor;
-import org.reactome.diagram.expression.SpeciesComparisonDataController;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
-import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
@@ -116,7 +116,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         eventInstaller.installOverviewEventHandler();
         eventInstaller.installUserInputHandlers();
         
-        // Keep the original information
+// Keep the original information
         contentPane.add(pathwayCanvas, 4, 4); // Give it some buffer space
         contentPane.setStyleName(style.mainCanvas());
 //        canvas.setSize("100%", "100%");
@@ -159,7 +159,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onClick(ClickEvent event) {
-            	showExpressionData(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");
+            	showAnalysisData(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");
             }
         });
     }
@@ -298,12 +298,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	overlayDataController.setPathwayId(pathway.getReactomeId());
         	expressionCanvas.setPathway(pathway);
         }
-        
-        PathwayChangeEvent event = new PathwayChangeEvent();
-        if (old != null)
-            event.setPreviousPathwayDBId(old.getReactomeId());
-        if (pathway != null)
-            event.setCurrentPathwayDBId(pathway.getReactomeId());
+      
+       	PathwayChangeEvent event = new PathwayChangeEvent();
+       	if (old != null)
+       		event.setPreviousPathwayDBId(old.getReactomeId());
+       	if (pathway != null)
+       		event.setCurrentPathwayDBId(pathway.getReactomeId());
+
         fireEvent(event);
     }
     
@@ -491,6 +492,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     			  		ParticipatingMoleculeSelectionEvent.TYPE);
     }
     
+    public void addSubpathwaySelectionEventHandler(SubpathwaySelectionEventHandler handler) {
+    	addHandler(handler, SubpathwaySelectionEvent.TYPE);
+    }
+    
+    public void addExpressionOverlayStopHandler(ExpressionOverlayStopEventHandler handler) {
+    	addHandler(handler, ExpressionOverlayStopEvent.TYPE);
+    }
+    
     protected void fireSelectionEvent(SelectionEvent event) {
         fireEvent(event);
         pathwayCanvas.update();
@@ -532,6 +541,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		
     		if (sh != null)
     			sh.setSelectionIds(dbIds);
+        }
+        
+        if (getSelectedObjects() != null) {
+        	SelectionEvent event = new SelectionEvent();
+        	event.setSelectedObjects(getSelectedObjects());
+        	fireSelectionEvent(event);
         }
     }
     
@@ -580,28 +595,20 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return this.style;
     }
     
-    public void showSpeciesComparisonData(String url) {
+    public void showAnalysisData(String analysisId) {
     	initExpressionCanvas();    	    		
-    	expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
-    	SpeciesComparisonDataController speciesComparisonDataController = new SpeciesComparisonDataController(); 
-    	showOverlayData(url, speciesComparisonDataController);
-    }
-    
-    public void showExpressionData(String url) {
-    	initExpressionCanvas();    	
-    	expressionCanvas.setAnalysisType(AnalysisType.Expression);
-    	ExpressionDataController expressionController = new ExpressionDataController();
-    	expressionController.setColorPaneStyle(style.colorBar());
-    	showOverlayData(url, expressionController);
-    }
-    
-    private void showOverlayData(String url, DataController controller) {
-    	overlayDataController = controller;
-    	
-    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(url);    	
+       	
+    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(analysisId);    	
+    	expressionProcessor.createDataController(this, expressionCanvas);
     	
     	complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	complexComponentPopup.setStyleName(style.expressionComplexPopup());
+    }
+    
+    public void setDataController(DataController dataController) {
+    	overlayDataController = dataController;
+    	if (overlayDataController == null)
+    		return;
     	
     	DataPointChangeEventHandler dpChangeHandler = new DataPointChangeEventHandler() {
 
@@ -636,8 +643,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	overlayDataController.addDataPointChangeEventHandler(dpChangeHandler);
     	overlayDataController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);    	
     	overlayDataController.setNavigationPaneStyle(style.dataPointControl());
+    	if (overlayDataController instanceof ExpressionDataController)
+    		((ExpressionDataController) overlayDataController).setColorPaneStyle(style.colorBar());
     	
-    	expressionProcessor.displayExpressionData(contentPane, overlayDataController, expressionCanvas);
+    	overlayDataController.display(contentPane, 
+    			expressionCanvas.getCoordinateSpaceWidth(), 
+    			expressionCanvas.getCoordinateSpaceHeight());
     }
     
     /**
