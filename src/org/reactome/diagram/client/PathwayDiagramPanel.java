@@ -1,4 +1,5 @@
 /* 
+
  * Created on Sep 23, 2011
  *
  */
@@ -595,11 +596,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return this.style;
     }
     
-    public void showAnalysisData(String analysisId) {
+    public void showAnalysisData(String analysisString) {
     	initExpressionCanvas();    	    		
        	
-    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(analysisId);    	
-    	expressionProcessor.createDataController(this, expressionCanvas);
+    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(analysisString);    	
+    	expressionProcessor.createDataController(this, contentPane, expressionCanvas);
     	
     	complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	complexComponentPopup.setStyleName(style.expressionComplexPopup());
@@ -728,10 +729,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	public void initInteractorCanvas() {
 		if (interactorCanvas == null) {
 			interactorCanvas = new InteractorCanvas(this);
-			
+						
 			int insertionIndex = canvasList.size(); // Above all other canvases
 			contentPane.insert(interactorCanvas, 4, 4, insertionIndex);			
 			canvasList.add(insertionIndex, interactorCanvas);
+			
+			interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
+			interactorCanvas.scale(pathwayCanvas.getScale());
 			onResize();
 		}	
 	}
@@ -742,6 +746,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			
 			contentPane.insert(expressionCanvas, 4, 4, 1);		
 			canvasList.add(canvasList.indexOf(pathwayCanvas) + 1, expressionCanvas);
+			
+			expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
+			expressionCanvas.scale(pathwayCanvas.getScale());
 			onResize();
 		}
 	}

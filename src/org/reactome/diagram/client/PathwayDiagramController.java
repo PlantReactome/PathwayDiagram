@@ -32,6 +32,7 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.xml.client.impl.DOMParseException;
 
 /**
  * This class is related to communicating activites between the front end and the RESTful APIs.
@@ -400,7 +401,7 @@ public class PathwayDiagramController {
         diagramPane.setCursor(Cursor.WAIT);
 
         try {
-            Document pathwayDom = XMLParser.parse(xmlText);
+            Document pathwayDom = XMLParser.parse(xmlText);            
             Element pathwayElement = pathwayDom.getDocumentElement();
             XMLParser.removeWhitespace(pathwayElement);
             CanvasPathway pathway = createPathway(pathwayElement);
@@ -411,14 +412,12 @@ public class PathwayDiagramController {
             // pathway id.
             pathway.setReactomeId(dbId);
             diagramPane.setCanvasPathway(pathway);
-        }
-        catch(Exception e) {
+        } catch (DOMParseException e) {
             // Could be a subpathway with no diagram -- try to get parent pathway diagram instead
         	getDiagramPathwayId(dbId, e);
+        } finally {
+        	diagramPane.setCursor(Cursor.DEFAULT);
         }
-
-        diagramPane.setCursor(Cursor.DEFAULT);
-
         //loadingIcon.setVisible(false);
     }
 
@@ -433,6 +432,7 @@ public class PathwayDiagramController {
 				public void onResponseReceived(Request request,	Response response) {
 					try {
 						Document ancestorDom = XMLParser.parse(response.getText());
+						
 						Element ancestorElement = ancestorDom.getDocumentElement();
 						XMLParser.removeWhitespace(ancestorElement);
 						
@@ -445,19 +445,20 @@ public class PathwayDiagramController {
 						
 						ancestorLists:
 						for (int i = 0; i < ancestorLists.getLength(); i++) { 
+							
 							Node ancestorListNode = ancestorLists.item(i);
 							
-							NodeList ancestorList = ((Element) ancestorListNode).getElementsByTagName("databaseObjects");
+							NodeList ancestorList = ((Element) ancestorListNode).getElementsByTagName("databaseObject");
 							
 							// Most related ancestor pathway at bottom, so counting down
-							for (int j = ancestorList.getLength() - 1; j >= 0; j--) {
+							for (int j = ancestorList.getLength() - 1; j >= 0; j--) {							
 								Node ancestor = ancestorList.item(j);
 																										
-								String diagramBoolean = ((Element) ancestor).getElementsByTagName("hasDiagram").item(0).getNodeValue();
+								String diagramBoolean = ((Element) ancestor).getElementsByTagName("hasDiagram").item(0).getFirstChild().getNodeValue();								
 								Boolean hasDiagram = new Boolean(diagramBoolean);
 								
 								if (hasDiagram) {
-									pathwayDiagramId = new Long(((Element) ancestor).getElementsByTagName("dbId").item(0).getNodeValue());
+									pathwayDiagramId = new Long(((Element) ancestor).getElementsByTagName("dbId").item(0).getFirstChild().getNodeValue());
 									break ancestorLists;
 								}
 							}
