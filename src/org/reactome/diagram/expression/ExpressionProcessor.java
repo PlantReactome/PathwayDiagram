@@ -26,7 +26,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
-	private final static String baseurl = "http://reactomedev.oicr.on.ca"; 
+	private final static String baseurl = "/"; 
 	private String analysisName;
     private String analysisId;
 	private ReactomeExpressionValue expressionData; 
@@ -69,7 +69,7 @@ public class ExpressionProcessor {
 		if (analysisId == null)
 			return;
 		
-		ResultsPoller resultsPoller = new ResultsPoller(contentPane, baseurl);
+		ResultsPoller resultsPoller = new ResultsPoller(contentPane);
 		resultsPoller.pollForResults(analysisId, "expression_analysis_with_levels", new ResultsDisplayHandler() {
 
 			@Override
