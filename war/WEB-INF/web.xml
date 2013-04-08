@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app
-    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
+        PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
 
-<web-app>
-  
-  <!-- Servlets -->
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>ReactomeBrowser.html</welcome-file>
-  </welcome-file-list>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>ReactomeRESTfulAPI</servlet-name>
+        <servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
+        <init-param>
+            <param-name>proxyHost</param-name>
+            <param-value>reactomedev.oicr.on.ca</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxyPort</param-name>
+            <param-value>7080</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxyPath</param-name>
+            <param-value>/ReactomeRESTfulAPI/RESTfulWS</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReactomeRESTfulAPI</servlet-name>
+        <url-pattern>/ReactomeRESTfulAPI/RESTfulWS/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AnalysisExpression</servlet-name>
+        <servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
+        <init-param>
+            <param-name>proxyHost</param-name>
+            <param-value>reactomedev.oicr.on.ca</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxyPort</param-name>
+            <param-value>80</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxyPath</param-name>
+            <param-value>/ReactomeGWT</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AnalysisExpression</servlet-name>
+        <url-pattern>/ReactomeGWT/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>ReactomeBrowser.html</welcome-file>
+    </welcome-file-list>
 
 </web-app>
