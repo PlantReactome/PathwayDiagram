@@ -2,6 +2,9 @@
 
 package org.reactome.gwt.client.analysis.getdata.results;
 
+import org.reactome.gwt.client.analysis.AnalysisUtils;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Panel;
@@ -19,11 +22,9 @@ public abstract class Monitor {
 	private String analysisId;
 	private String analysisName;
 	private MonitorSubmitCompleteHandler monitorSubmitCompleteHandler;
-	protected boolean slashSeparatedParams = true; // use Spring MVC server
-	protected String moduleBaseUrl = null;
+	protected boolean slashSeparatedParams = false;
 	
-	public Monitor(String moduleBaseUrl, String analysisId, String analysisName, Panel hostPanel, String command) {
-		this.moduleBaseUrl = moduleBaseUrl;
+	public Monitor(String analysisId, String analysisName, Panel hostPanel, String command) {
 		this.analysisId = analysisId;
 		this.analysisName = analysisName;
 		this.hostPanel = hostPanel;
@@ -53,6 +54,8 @@ public abstract class Monitor {
 		String action = null;
 		if (slashSeparatedParams) {
 			form.setMethod(FormPanel.METHOD_GET);
+//			String moduleBaseUrl = GWT.getModuleBaseURL().replaceAll("/site", "");
+			String moduleBaseUrl = AnalysisUtils.getWebsiteBaseUrl();
 			action = moduleBaseUrl + "service/analysis/" + command.toLowerCase() + "/" + analysisId + "/" + analysisName;
 			form.setAction(action);
 		} else {
@@ -63,7 +66,7 @@ public abstract class Monitor {
 				value += "__" + analysisName;
 			hiddenPanel.add(new Hidden(command, value));
 			form.add(hiddenPanel);
-			action = moduleBaseUrl + "analysis";
+			action = GWT.getModuleBaseURL() + "analysis";
 			form.setAction(action);
 		}
 		hostPanel.add(form);

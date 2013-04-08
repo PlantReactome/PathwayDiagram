@@ -2,7 +2,6 @@
 
 package org.reactome.gwt.client.analysis.getdata.results;
 
-
 import com.google.gwt.user.client.ui.Panel;
 
 /**
@@ -11,8 +10,10 @@ import com.google.gwt.user.client.ui.Panel;
  * @author David Croft
  */
 public class StatusMonitor extends Monitor {
-	public StatusMonitor(String moduleBaseUrl, String analysisId, String analysisName, Panel basePanel, Monitor resultsMonitor, StatusDisplayHandler statusDisplayHandler) {
-		super(moduleBaseUrl, analysisId, analysisName, basePanel, "STATUS");
+	public StatusMonitor(String analysisId, String analysisName, Panel basePanel, Monitor resultsMonitor, StatusDisplayHandler statusDisplayHandler) {
+		super(analysisId, analysisName, basePanel, "STATUS");
 		setMonitorSubmitCompleteHandler(new StatusMonitorSubmitCompleteHandler(this, resultsMonitor, statusDisplayHandler));
+		
+		slashSeparatedParams = true; // use Spring MVC server
 	}
 }

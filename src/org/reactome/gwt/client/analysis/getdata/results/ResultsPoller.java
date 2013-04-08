@@ -1,11 +1,10 @@
 package org.reactome.gwt.client.analysis.getdata.results;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.reactome.gwt.client.analysis.AnalysisUtils;
+import java.util.HashMap;import java.util.Map;
 
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Panel;
 
 /**
@@ -17,7 +16,6 @@ import com.google.gwt.user.client.ui.Panel;
 public class ResultsPoller {
 	private Map<String,Map<String,JSONObject>> jsonObjectMap = new HashMap<String,Map<String,JSONObject>>();
 	private Panel panel = null;
-	private String moduleBaseUrl = null;
 
 	/**
 	 * A panel attached to the document root is required to make an invisible form
@@ -25,9 +23,8 @@ public class ResultsPoller {
 	 * 
 	 * @param panel
 	 */
-	public ResultsPoller(Panel panel, String moduleBaseUrl) {
+	public ResultsPoller(Panel panel) {
 		this.panel = panel;
-		this.moduleBaseUrl = moduleBaseUrl;
 	}
 
 	/**
@@ -58,8 +55,8 @@ public class ResultsPoller {
 		}
 		
 		WrapperResultsDisplayHandler wrapperResultsDisplayHandler = new WrapperResultsDisplayHandler(analysisId, analysisName, resultsDisplayHandler);
-		Monitor resultsMonitor = new ResultsMonitor(moduleBaseUrl, analysisId, analysisName, panel, wrapperResultsDisplayHandler);
-		Monitor statusMonitor = new StatusMonitor(moduleBaseUrl, analysisId, analysisName, panel, resultsMonitor, null);
+		Monitor resultsMonitor = new ResultsMonitor(analysisId, analysisName, panel, wrapperResultsDisplayHandler);
+		Monitor statusMonitor = new StatusMonitor(analysisId, analysisName, panel, resultsMonitor, null);
 		statusMonitor.poll();
 	}
 	
@@ -80,40 +77,15 @@ public class ResultsPoller {
 		 */
 		@Override
 		public void broadcastResults(JSONObject jsonObject) {
-			if (jsonObjectMap == null) {
-				showWarningInResultsDisplayPanel("ResultsPoller.WrapperResultsDisplayHandler.broadcastResults: WARNING - jsonObjectMap == null");
-				return;
-			}
-			if (analysisName == null) {
-				showWarningInResultsDisplayPanel("ResultsPoller.WrapperResultsDisplayHandler.broadcastResults: WARNING - analysisName == null");
-				return;
-			}
-			if (analysisId == null) {
-				showWarningInResultsDisplayPanel("ResultsPoller.WrapperResultsDisplayHandler.broadcastResults: WARNING - analysisId == null");
-				return;
-			}
-			
-			try {
-				resultsDisplayHandler.broadcastResults(jsonObject);
-			} catch (Exception e) {
-				showWarningInResultsDisplayPanel("ResultsPoller.WrapperResultsDisplayHandler.broadcastResults: WARNING - results display handler could not broadcast results");
-				e.printStackTrace();
-				return;
-			}
+			resultsDisplayHandler.broadcastResults(jsonObject);
 			
 			Map<String,JSONObject> nameModelMap = null;
-			try {
-				if (jsonObjectMap.containsKey(analysisId))
-					nameModelMap = jsonObjectMap.get(analysisId);
-				else
-					jsonObjectMap.clear(); // never store more than one analysis in the cache
-			} catch (Exception e) {
-				showWarningInResultsDisplayPanel("ResultsPoller.WrapperResultsDisplayHandler.broadcastResults: WARNING - problem getting nameModelMap");
-				e.printStackTrace();
-			}
+			if (jsonObjectMap.containsKey(analysisId))
+				nameModelMap = jsonObjectMap.get(analysisId);
+			else
+				jsonObjectMap.clear(); // never store more than one analysis in the cache
 			if (nameModelMap == null)
 				nameModelMap = new HashMap<String,JSONObject>();
-						
 			nameModelMap.put(analysisName, jsonObject);
 			jsonObjectMap.put(analysisId, nameModelMap);
 		}
