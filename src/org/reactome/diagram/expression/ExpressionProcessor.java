@@ -12,21 +12,24 @@ import java.util.List;
 
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramPanel;
-
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
-import org.reactome.gwt.client.analysis.getdata.results.ResultsDisplayHandler;
-import org.reactome.gwt.client.analysis.getdata.results.ResultsPoller;
 
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
-	private final static String baseurl = "/"; 
 	private String analysisName;
     private String analysisId;
 	private ReactomeExpressionValue expressionData; 
@@ -65,41 +68,81 @@ public class ExpressionProcessor {
 		this.expressionData = expressionData;
 	}
 
-	public void createDataController(final PathwayDiagramPanel diagramPane, AbsolutePanel contentPane, final ExpressionCanvas expressionCanvas) {
+	public void createDataController(final PathwayDiagramPanel diagramPane,
+	                                 AbsolutePanel contentPane, 
+	                                 final ExpressionCanvas expressionCanvas) {
 		if (analysisId == null)
 			return;
 		
-		ResultsPoller resultsPoller = new ResultsPoller(contentPane);
-		resultsPoller.pollForResults(analysisId, "expression_analysis_with_levels", new ResultsDisplayHandler() {
-
-			@Override
-			public void broadcastResults(JSONObject jsonObject) {
-				expressionData = parseExpressionData(jsonObject);
-				
-				DataController dataController;
-				String analysisType = expressionData.getAnalysisType();
-				
-				if (analysisType.equals("expression")) {
-					expressionCanvas.setAnalysisType(AnalysisType.Expression);
-					dataController = new ExpressionDataController();
-				} else if (analysisType.equals("species_comparison")) {
-					expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
-					dataController = new SpeciesComparisonDataController();
-				} else {
-					Window.alert(analysisType + " is an unknown analysis type");
-					return;
-				}
-							
-				dataController.setDataModel(expressionData);
-				diagramPane.setDataController(dataController);
-			}
-
-			@Override
-			public void showWarningInResultsDisplayPanel(String message) {
-				// TODO Auto-generated method stub
-				
-			}
-		});		
+		// Create a simple URL call
+		String url = "ReactomeGWT/service/analysis/results/" + analysisId + "/" + analysisName;
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+        requestBuilder.setHeader("Accept", "application/json");
+        try {
+            requestBuilder.sendRequest(null, new RequestCallback() {
+                public void onError(Request request, Throwable exception) {
+                    Window.alert("Error in retrieving expression results: " + exception);
+                }
+                public void onResponseReceived(Request request, Response response) {
+                    if (200 == response.getStatusCode()) {
+                        JSONValue jsonObj = JSONParser.parseStrict(response.toString());
+                        expressionData = parseExpressionData((JSONObject)jsonObj);
+                        
+                        DataController dataController;
+                        String analysisType = expressionData.getAnalysisType();
+                        
+                        if (analysisType.equals("expression")) {
+                            expressionCanvas.setAnalysisType(AnalysisType.Expression);
+                            dataController = new ExpressionDataController();
+                        } else if (analysisType.equals("species_comparison")) {
+                            expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
+                            dataController = new SpeciesComparisonDataController();
+                        } else {
+                            Window.alert(analysisType + " is an unknown analysis type");
+                            return;
+                        }
+                        
+                        dataController.setDataModel(expressionData);
+                        diagramPane.setDataController(dataController);
+                    }
+                }
+            });
+        } 
+        catch (RequestException ex) {
+            Window.alert("Error in retrieving expression results: " + ex);
+        } 
+		
+//		ResultsPoller resultsPoller = new ResultsPoller(contentPane);
+//		resultsPoller.pollForResults(analysisId, "expression_analysis_with_levels", new ResultsDisplayHandler() {
+//
+//			@Override
+//			public void broadcastResults(JSONObject jsonObject) {
+//				expressionData = parseExpressionData(jsonObject);
+//				
+//				DataController dataController;
+//				String analysisType = expressionData.getAnalysisType();
+//				
+//				if (analysisType.equals("expression")) {
+//					expressionCanvas.setAnalysisType(AnalysisType.Expression);
+//					dataController = new ExpressionDataController();
+//				} else if (analysisType.equals("species_comparison")) {
+//					expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
+//					dataController = new SpeciesComparisonDataController();
+//				} else {
+//					Window.alert(analysisType + " is an unknown analysis type");
+//					return;
+//				}
+//							
+//				dataController.setDataModel(expressionData);
+//				diagramPane.setDataController(dataController);
+//			}
+//
+//			@Override
+//			public void showWarningInResultsDisplayPanel(String message) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});		
 	}
 	
 	private ReactomeExpressionValue parseExpressionData(JSONObject jsonData) {

@@ -25,8 +25,9 @@
   <source path='view' />
   <source path='event' />
   <source path='expression' />
-  <source path='expression/event' />
-  <source path='expression/model' />
+<!--   <source path='expression/event' /> -->
+<!--   <source path='expression/model' /> -->
+  <source path='gwt' />
 
     <!-- Control logging -->
     <set-property name="gwt.logging.enabled" value="FALSE"/> 
