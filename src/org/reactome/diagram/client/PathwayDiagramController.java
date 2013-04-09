@@ -228,7 +228,12 @@ public class PathwayDiagramController {
                 public void onResponseReceived(Request request,	Response response) {
                     if (response.getStatusCode() == 200) {
                         selected.setInteractors(response.getText());
-
+                        
+                        if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
+                        	AlertPopup alert = new AlertPopup(selected.getDisplayName() + " has no interactors for the selected interaction database");
+                        	alert.center();
+                        }                        	
+                        	
                         ic.addProtein(selected);
                     } else {
                         requestFailed("Failed to get interactors - " + response.getStatusText());
@@ -378,7 +383,8 @@ public class PathwayDiagramController {
      * @param exception Exception whenever the XML file is not load
      */
     protected void requestFailed(Throwable exception) {
-        Window.alert("Failed to send the message: " + exception.getMessage());
+        AlertPopup alert = new AlertPopup("Failed to send the message: " + exception.getMessage());
+        alert.center();
     }
 
     /**
@@ -386,7 +392,8 @@ public class PathwayDiagramController {
      * @param message An error message to alert the user of problems
      */
     protected void requestFailed(String message) {
-        Window.alert("WARNING: " + message);
+        AlertPopup alert = new AlertPopup("WARNING: " + message);
+        alert.center();
     }
 
     /**
@@ -471,7 +478,8 @@ public class PathwayDiagramController {
 							throw e;
 						}	
 					} catch (Exception e) {
-						Window.alert("Error in parsing XML: " + e);
+						AlertPopup alert = new AlertPopup("Error in parsing XML: " + e);
+						alert.center();
 						e.printStackTrace();
 					}
 					

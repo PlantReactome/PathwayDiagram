@@ -10,6 +10,7 @@ package org.reactome.diagram.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramPanel;
 import org.reactome.diagram.expression.model.AnalysisType;
@@ -26,14 +27,13 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
 	private String analysisName;
     private String analysisId;
 	private ReactomeExpressionValue expressionData; 
-    
+    private AlertPopup alertPopup;
     
     public ExpressionProcessor(String analysisString) {
     	String[] analysisParams = analysisString.split("\\.");    	
@@ -81,8 +81,10 @@ public class ExpressionProcessor {
         try {
             requestBuilder.sendRequest(null, new RequestCallback() {
                 public void onError(Request request, Throwable exception) {
-                    Window.alert("Error in retrieving expression results: " + exception);
+                    alertPopup = new AlertPopup("Error in retrieving expression results: " + exception);
+                    alertPopup.center();
                 }
+                
                 public void onResponseReceived(Request request, Response response) {
                     if (200 == response.getStatusCode()) {
                         JSONValue jsonObj = JSONParser.parseStrict(response.toString());
@@ -98,7 +100,8 @@ public class ExpressionProcessor {
                             expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
                             dataController = new SpeciesComparisonDataController();
                         } else {
-                            Window.alert(analysisType + " is an unknown analysis type");
+                            alertPopup = new AlertPopup(analysisType + " is an unknown analysis type");
+                            alertPopup.center();
                             return;
                         }
                         
@@ -109,7 +112,8 @@ public class ExpressionProcessor {
             });
         } 
         catch (RequestException ex) {
-            Window.alert("Error in retrieving expression results: " + ex);
+            alertPopup = new AlertPopup("Error in retrieving expression results: " + ex);
+            alertPopup.center();
         } 
 		
 //		ResultsPoller resultsPoller = new ResultsPoller(contentPane);
@@ -217,14 +221,16 @@ public class ExpressionProcessor {
 						pev.getExpressionValues().put(dbId, pcev);
 					}
 				} else {
-					Window.alert("Unknown type -- " + componentType);
+					alertPopup = new AlertPopup("Unknown type -- " + componentType);
+					alertPopup.center();
 				}				
 			}
 			expressionData.getPathwayExpressionValues().put(pev.getPathwayId(), pev);
 		}
 		// Make sure the parsed data is correct
 		if (!expressionData.validateExpressionData() && expressionData.getAnalysisType().equals("expression")) {
-		    Window.alert("Some pathway object has not enough expression values!");
+		    alertPopup = new AlertPopup("Some pathway object has not enough expression values!");
+		    alertPopup.center();
 		    return null;
 		}
 		return expressionData;		

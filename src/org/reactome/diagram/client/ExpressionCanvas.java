@@ -18,7 +18,6 @@ import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.user.client.Window;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -127,7 +126,8 @@ public class ExpressionCanvas extends DiagramCanvas {
             				}
             			} 
             			else {
-            				Window.alert("Unknown analysis type");
+            				AlertPopup alert = new AlertPopup("Unknown analysis type");
+            				alert.center();
             				break;
             			}
             			
