@@ -86,8 +86,8 @@ public class ExpressionProcessor {
                 }
                 
                 public void onResponseReceived(Request request, Response response) {
-                    if (200 == response.getStatusCode()) {
-                        JSONValue jsonObj = JSONParser.parseStrict(response.toString());
+                    if (200 == response.getStatusCode()) {                	
+                        JSONValue jsonObj = JSONParser.parseStrict(response.getText());
                         expressionData = parseExpressionData((JSONObject)jsonObj);
                         
                         DataController dataController;
