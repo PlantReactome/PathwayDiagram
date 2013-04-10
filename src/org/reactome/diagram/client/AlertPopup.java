@@ -4,12 +4,10 @@
  */
 package org.reactome.diagram.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -24,15 +22,19 @@ public class AlertPopup extends PopupPanel {
 	private Button button;
     private Label alertLabel;
     
+    public AlertPopup(String labelText, Boolean hide) {	
+   		this(labelText);
+   		if (hide)
+   			hide();
+    }
+    
     public AlertPopup(String labelText) {
         super();
-        
-        Resources resources = GWT.create(Resources.class);
-        Style style = resources.alertPopupStyle();
-        style.ensureInjected();
-        
-        setStyleName(style.alertPopup());
-        
+        init(labelText);
+        center();
+    }
+    
+    private void init(String labelText) { 
         vPane = new VerticalPanel();
         alertLabel = new Label(labelText);        
         button = new Button("Ok", new ClickHandler() {
@@ -44,6 +46,7 @@ public class AlertPopup extends PopupPanel {
         	
         });
         
+        vPane.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         vPane.add(alertLabel);
         vPane.add(button);
         
@@ -56,16 +59,5 @@ public class AlertPopup extends PopupPanel {
 
 	public void setAlertText(String alertText) {
 		this.alertLabel.setText(alertText);
-	}
-	
-	interface Resources extends ClientBundle {
-		@Source(Style.DEFAULT_CSS)
-		Style alertPopupStyle();
-	}
-	
-	interface Style extends CssResource {
-		String DEFAULT_CSS = "org/reactome/diagram/client/PathwayDiagram.css";
-		
-		String alertPopup();		
 	}	
 }    
