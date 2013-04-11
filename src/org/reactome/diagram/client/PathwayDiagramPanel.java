@@ -636,7 +636,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			public void onExpressionOverlayStopped(ExpressionOverlayStopEvent e) {
 				overlayDataController = null;
 				complexComponentPopup = null;
-				expressionCanvas.setPathway(null);				
+				expressionCanvas.setPathway(null);
+				fireEvent(e);
 			}
     		
     	};
