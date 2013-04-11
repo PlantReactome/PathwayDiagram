@@ -147,7 +147,7 @@ public class PathwayTreeBrowser {
     private String getRESTfulURL() {
         PathwayDiagramController controller = diagramPane.getController();
         String hostUrl = controller.getHostUrl();
-              System.out.println("Host url: " + hostUrl);
+              //System.out.println("Host url: " + hostUrl);
         // Do some simple parsing
         int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
         String url = hostUrl.substring(0, lastIndex + 1) + "RESTfulWS/";
