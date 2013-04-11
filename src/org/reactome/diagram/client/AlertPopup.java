@@ -4,6 +4,7 @@
  */
 package org.reactome.diagram.client;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -50,6 +51,7 @@ public class AlertPopup extends PopupPanel {
         vPane.add(alertLabel);
         vPane.add(button);
         
+        setStyle();
         setWidget(vPane);
     }
 
@@ -60,4 +62,13 @@ public class AlertPopup extends PopupPanel {
 	public void setAlertText(String alertText) {
 		this.alertLabel.setText(alertText);
 	}	
+	
+	private void setStyle() {
+		Style style = getElement().getStyle();
+		
+		style.setZIndex(2);
+		style.setBackgroundColor("rgb(255, 255, 255)");
+		style.setBorderWidth(1, Style.Unit.PX);
+		style.setBorderColor("rgb(0, 0, 0)");
+	}
 }    

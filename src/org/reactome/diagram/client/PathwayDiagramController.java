@@ -231,7 +231,6 @@ public class PathwayDiagramController {
                         
                         if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
                         	AlertPopup alert = new AlertPopup(selected.getDisplayName() + " has no interactors for the selected interaction database");
-                        	alert.center();
                         }                        	
                         	
                         ic.addProtein(selected);
@@ -384,7 +383,6 @@ public class PathwayDiagramController {
      */
     protected void requestFailed(Throwable exception) {
         AlertPopup alert = new AlertPopup("Failed to send the message: " + exception.getMessage());
-        alert.center();
     }
 
     /**
@@ -393,8 +391,8 @@ public class PathwayDiagramController {
      */
     protected void requestFailed(String message) {
         AlertPopup alert = new AlertPopup("WARNING: " + message);
-        alert.center();
-    }
+    }    
+    
 
     /**
      * Parses the XML Text and Builds a HashMap of the nodes and the edges. Renders the Canvas Visualization.
@@ -479,7 +477,6 @@ public class PathwayDiagramController {
 						}	
 					} catch (Exception e) {
 						AlertPopup alert = new AlertPopup("Error in parsing XML: " + e);
-						alert.center();
 						e.printStackTrace();
 					}
 					

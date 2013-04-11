@@ -127,7 +127,6 @@ public class ExpressionCanvas extends DiagramCanvas {
             			} 
             			else {
             				AlertPopup alert = new AlertPopup("Unknown analysis type");
-            				alert.center();
             				break;
             			}
             			

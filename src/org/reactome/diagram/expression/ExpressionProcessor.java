@@ -82,7 +82,6 @@ public class ExpressionProcessor {
             requestBuilder.sendRequest(null, new RequestCallback() {
                 public void onError(Request request, Throwable exception) {
                     alertPopup = new AlertPopup("Error in retrieving expression results: " + exception);
-                    alertPopup.center();
                 }
                 
                 public void onResponseReceived(Request request, Response response) {
@@ -101,7 +100,6 @@ public class ExpressionProcessor {
                             dataController = new SpeciesComparisonDataController();
                         } else {
                             alertPopup = new AlertPopup(analysisType + " is an unknown analysis type");
-                            alertPopup.center();
                             return;
                         }
                         
@@ -113,40 +111,7 @@ public class ExpressionProcessor {
         } 
         catch (RequestException ex) {
             alertPopup = new AlertPopup("Error in retrieving expression results: " + ex);
-            alertPopup.center();
         } 
-		
-//		ResultsPoller resultsPoller = new ResultsPoller(contentPane);
-//		resultsPoller.pollForResults(analysisId, "expression_analysis_with_levels", new ResultsDisplayHandler() {
-//
-//			@Override
-//			public void broadcastResults(JSONObject jsonObject) {
-//				expressionData = parseExpressionData(jsonObject);
-//				
-//				DataController dataController;
-//				String analysisType = expressionData.getAnalysisType();
-//				
-//				if (analysisType.equals("expression")) {
-//					expressionCanvas.setAnalysisType(AnalysisType.Expression);
-//					dataController = new ExpressionDataController();
-//				} else if (analysisType.equals("species_comparison")) {
-//					expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
-//					dataController = new SpeciesComparisonDataController();
-//				} else {
-//					Window.alert(analysisType + " is an unknown analysis type");
-//					return;
-//				}
-//							
-//				dataController.setDataModel(expressionData);
-//				diagramPane.setDataController(dataController);
-//			}
-//
-//			@Override
-//			public void showWarningInResultsDisplayPanel(String message) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		});		
 	}
 	
 	private ReactomeExpressionValue parseExpressionData(JSONObject jsonData) {
@@ -222,7 +187,6 @@ public class ExpressionProcessor {
 					}
 				} else {
 					alertPopup = new AlertPopup("Unknown type -- " + componentType);
-					alertPopup.center();
 				}				
 			}
 			expressionData.getPathwayExpressionValues().put(pev.getPathwayId(), pev);
@@ -230,7 +194,6 @@ public class ExpressionProcessor {
 		// Make sure the parsed data is correct
 		if (!expressionData.validateExpressionData() && expressionData.getAnalysisType().equals("expression")) {
 		    alertPopup = new AlertPopup("Some pathway object has not enough expression values!");
-		    alertPopup.center();
 		    return null;
 		}
 		return expressionData;		
