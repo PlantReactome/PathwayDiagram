@@ -319,8 +319,11 @@ public class CanvasEventInstaller {
             	draggableNode = ((InteractorCanvas) canvas).getDraggableNode(new Point(previousX, previousY));
             
             
-            if (draggableNode != null) {            	
-            	diagramPane.drag(draggableNode, dx, dy);            	
+            if (draggableNode != null) {            
+            	double scale = canvas.getScale();
+            	int scaleDeltaX = (int) (dx / scale);
+            	int scaleDeltaY = (int) (dy / scale);
+            	diagramPane.drag(draggableNode, scaleDeltaX, scaleDeltaY);            	
             } else {
             	diagramPane.translate(dx, dy);
             	diagramPane.update();
