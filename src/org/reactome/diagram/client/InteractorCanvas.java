@@ -528,7 +528,7 @@ public class InteractorCanvas extends DiagramCanvas {
 			
 		});
 		
-		diagramPane.getControls().addInteractionDBListToControls(interactorDBList);		
+		//diagramPane.getControls().addInteractionDBListToControls(interactorDBList);		
 	}		
 
 	public boolean isLoadingInteractors() {

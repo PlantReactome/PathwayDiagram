@@ -89,16 +89,7 @@ public class ExpressionCanvas extends DiagramCanvas {
             	if (entity instanceof Node) {
             		if (entity.getType() == GraphObjectType.RenderableCompartment)
             			continue;
-            		
-            		Long entityId = entity.getReactomeId();
-            		List<Long> referenceEntityIds = physicalToReferenceEntityMap.get(entityId);
-            		
-            		Long refEntityId = null;       
-            		if (referenceEntityIds != null && referenceEntityIds.size() > 0 &&
-            		    entity.getType() != GraphObjectType.RenderableComplex) {
-            		    refEntityId = referenceEntityIds.get(0);
-            		}
-            				            		
+            		            		
             		String oldBgColor = ((Node) entity).getBgColor();
             		String oldFgColor = ((Node) entity).getFgColor();
             		
@@ -107,32 +98,8 @@ public class ExpressionCanvas extends DiagramCanvas {
             			((Node) entity).setFgColor("rgb(255,255,255)"); // White Text
             		} 
             		else {
-            			String nodeColor = null;
-            			
-            			String assignedNodeColor = expressionCanvasModel.getEntityColorMap().get(refEntityId);
-            			if (analysisType == AnalysisType.Expression) {
-            				if (assignedNodeColor != null) {
-            					nodeColor = assignedNodeColor;
-            				}
-            			} else if (analysisType == AnalysisType.SpeciesComparison) {
-            				if (entity.getType() == GraphObjectType.RenderableProtein) {
-            					if (assignedNodeColor != null) {
-            						nodeColor = assignedNodeColor;
-            					} 
-            					else {
-            						nodeColor = "rgb(0,0,255)"; // Blue for no inference
-            						expressionCanvasModel.getEntityColorMap().put(refEntityId, nodeColor);
-            					}
-            				}
-            			} 
-            			else {
-            				AlertPopup alert = new AlertPopup("Unknown analysis type");
-            				break;
-            			}
-            			
-            			if (nodeColor == null) {
-            				nodeColor = "rgb(192,192,192)"; // Grey for no data
-            			}
+            			Long refEntityId = getReferenceEntityId(physicalToReferenceEntityMap.get(entity.getReactomeId()));            			
+            			String nodeColor = getEntityColor(refEntityId, entity.getType());            
             			
             			((Node) entity).setBgColor(nodeColor); 
             		}
@@ -151,6 +118,43 @@ public class ExpressionCanvas extends DiagramCanvas {
         c2d.restore();
     }
 
+	private Long getReferenceEntityId(List<Long> referenceEntityIds) {
+		if (referenceEntityIds != null && referenceEntityIds.size() > 0) {
+		     return referenceEntityIds.get(0);
+		}
+		return null;
+	}
+
+	private String getEntityColor(Long refEntityId, GraphObjectType entityType) {
+		if (expressionCanvasModel.getEntityColorMap() != null) {            					
+			String color = expressionCanvasModel.getEntityColorMap().get(refEntityId);
+			if (color == null) {
+				color = getDefaultColor(entityType);
+				expressionCanvasModel.getEntityColorMap().put(refEntityId, color); // Cache color for future lookups
+			}
+			
+			return color;
+		} else {		
+			return getDefaultColor(entityType);
+		}
+	}
+
+	private String getDefaultColor(GraphObjectType entityType) {
+		String defaultColor = null;
+		if (AnalysisType.contains(analysisType.name())) {
+			defaultColor = "rgb(192,192,192)"; // Grey by default
+			
+			if (analysisType == AnalysisType.SpeciesComparison && entityType == GraphObjectType.RenderableProtein) {
+				defaultColor =  "rgb(0, 0, 255)"; // Blue for protein in species comparison with no inference
+			}			
+		} else {
+			AlertPopup alert = new AlertPopup(analysisType.name() + " is an unknown analysis type");
+		}
+		
+		return defaultColor;
+		
+	}
+ 
     /**
      * A template method so that other kinds of things can be updated. Nothing
      * has been done in this class.

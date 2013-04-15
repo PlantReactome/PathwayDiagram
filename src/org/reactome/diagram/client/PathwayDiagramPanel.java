@@ -161,7 +161,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
             	//showAnalysisData(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");
-                showAnalysisData("expression_analysis.foo");
+                showAnalysisData("expression_analysis_with_levels.foo");
             }
         });
     }
@@ -646,12 +646,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	overlayDataController.addDataPointChangeEventHandler(dpChangeHandler);
     	overlayDataController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);    	
     	overlayDataController.setNavigationPaneStyle(style.dataPointControl());
+    	
     	if (overlayDataController instanceof ExpressionDataController)
     		((ExpressionDataController) overlayDataController).setColorPaneStyle(style.colorBar());
     	
     	overlayDataController.display(contentPane, 
     			expressionCanvas.getCoordinateSpaceWidth(), 
     			expressionCanvas.getCoordinateSpaceHeight());
+    	
+    	expressionCanvas.setPathway(getPathway());
     }
     
     /**

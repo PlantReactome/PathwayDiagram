@@ -90,12 +90,11 @@ public abstract class DataController implements ResizeHandler {
     }
     
     public void setPathwayId(Long pathwayId) {
-        if (this.pathwayId == null) {
-    		this.pathwayId = pathwayId;
-        } else {
-        	this.pathwayId = pathwayId;
+        if (this.pathwayId != null) {
         	onDataPointChange(0);
         }
+        
+        this.pathwayId = pathwayId;
     }
     
     public Long getPathwayId() {
@@ -170,9 +169,16 @@ public abstract class DataController implements ResizeHandler {
         if (pathwayId == null)
             return; // Nothing to do. No pathway has been displayed.
         PathwayExpressionValue pathwayValues = dataModel.getPathwayExpressionValue(pathwayId);
-        Map<Long, Double> compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
-        Map<Long, String> compIdToColor = convertValueToColor(compIdToValue);
-        Map<Long, String> compIdToExpressionId = pathwayValues.getDbIdsToExpressionIds();
+        
+        Map<Long, Double> compIdToValue = null;
+        Map<Long, String> compIdToColor = null;
+        Map<Long, String> compIdToExpressionId = null;
+        
+        if (pathwayValues != null) {
+        	compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
+        	compIdToColor = convertValueToColor(compIdToValue);
+        	compIdToExpressionId = pathwayValues.getDbIdsToExpressionIds();
+        }        
         
         DataPointChangeEvent event = new DataPointChangeEvent();
         event.setPathwayId(pathwayId);

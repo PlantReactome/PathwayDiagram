@@ -33,7 +33,8 @@ public class ExpressionProcessor {
 	private String analysisName;
     private String analysisId;
 	private ReactomeExpressionValue expressionData; 
-    private AlertPopup alertPopup;
+    @SuppressWarnings("unused")
+	private AlertPopup alertPopup;
     
     public ExpressionProcessor(String analysisString) {
     	String[] analysisParams = analysisString.split("\\.");    	
@@ -117,13 +118,16 @@ public class ExpressionProcessor {
 	private ReactomeExpressionValue parseExpressionData(JSONObject jsonData) {
 		ReactomeExpressionValue expressionData = new ReactomeExpressionValue();
 		
-		expressionData.setAnalysisId(getStringFromJson("analysisId", jsonData));
-		expressionData.setAnalysisType(getStringFromJson("analysisType", jsonData));
+		JSONObject expressionJson = jsonData.get("springModel").isObject();
 		
-		JSONObject experimentData = jsonData.get("table").isObject();
+		expressionData.setAnalysisId(getStringFromJson("analysisId", expressionJson));
+		//expressionData.setAnalysisType(getStringFromJson("analysisType", expressionJson));
+		
+		JSONObject experimentData = expressionJson.get("table").isObject();
 
 		expressionData.setMinExpression(experimentData.get("minExpression").isNumber().doubleValue());
 		expressionData.setMaxExpression(experimentData.get("maxExpression").isNumber().doubleValue());
+		expressionData.setAnalysisType(getStringFromJson("analysisType", experimentData));
 		
 		JSONArray columnNamesArray = experimentData.get("expressionColumnNames").isArray();
 		List<String> expressionColumnNames = new ArrayList<String>();

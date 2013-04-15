@@ -151,7 +151,10 @@ public class ExpressionDataController extends DataController implements ResizeHa
     }
     
     protected Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
-        Map<Long, String> idToColor = new HashMap<Long, String>();
+        if (compIdToValue == null)
+        	return null;
+    	
+    	Map<Long, String> idToColor = new HashMap<Long, String>();
         double min = dataModel.getMinExpression();
         double max = dataModel.getMaxExpression();
         double middle = (min + max) / 2.0d;

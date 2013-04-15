@@ -9,7 +9,17 @@ package org.reactome.diagram.expression.model;
  * @author weiserj
  *
  */
-public enum AnalysisType {
-    Expression,
-    SpeciesComparison	
+public enum AnalysisType { 
+	Expression, 
+	SpeciesComparison; 
+
+	public static boolean contains(String test) {
+		for (AnalysisType analysis : AnalysisType.values()) {
+			if (analysis.name().equals(test)) {
+				return true;
+			}
+		}
+	
+		return false;
+	}
 }
