@@ -1,4 +1,5 @@
 /*
+
  * Created on Oct 28, 2011
  *
  */
@@ -10,12 +11,18 @@ import java.util.List;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.view.Parameters;
 
+import com.google.gwt.canvas.client.Canvas;
+import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -140,8 +147,34 @@ public class PathwayCanvasControls extends FlexTable {
         Button downloadDiagram = new Button("Download Diagram", new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(ClickEvent event) {							
+				if (diagramPane.getPathway() == null) {
+					AlertPopup alert = new AlertPopup("Please choose a pathway to download.");
+					return;
+				}
 				
+				Canvas downloadCanvas = createDownloadCanvas(diagramPane.getCanvasList().get(0));
+				
+				Context2d context = downloadCanvas.getContext2d();
+				
+				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList())					
+					context.drawImage(canvasLayer.getCanvasElement(),0,0);				
+				
+				String canvasUrl = downloadCanvas.toDataUrl("application/octet-stream");
+				Window.open(canvasUrl, null, null);
+			}
+
+			private Canvas createDownloadCanvas(DiagramCanvas diagramCanvas) {				
+				Integer width = diagramCanvas.getCanvasElement().getWidth();
+				Integer height = diagramCanvas.getCanvasElement().getHeight();
+				
+				Canvas downloadCanvas = Canvas.createIfSupported();				
+				downloadCanvas.setWidth(width + "px");
+				downloadCanvas.setHeight(height + "px");
+				downloadCanvas.setCoordinateSpaceWidth(width);
+				downloadCanvas.setCoordinateSpaceHeight(height);
+				
+				return downloadCanvas;				
 			}        	
         });
         	
@@ -186,7 +219,7 @@ public class PathwayCanvasControls extends FlexTable {
 	private class SearchPanel extends HorizontalPanel {
 		private Label searchLabel;
 		private TextBox searchBox;
-		private Button doSearch; 
+		private Button doSearchButton; 
 		
 		public SearchPanel() {
 			super();
@@ -196,21 +229,20 @@ public class PathwayCanvasControls extends FlexTable {
 		private void init() {
 			searchLabel = new Label("Find Reaction/Entity:");
 			searchBox = new TextBox();
-			doSearch = new Button("Search Diagram", new ClickHandler() {
+			searchBox.addKeyUpHandler(new KeyUpHandler() {
+
+				@Override
+				public void onKeyUp(KeyUpEvent event) {	
+					if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) { 
+						doSearch();				
+					}
+				}
+			});
+			doSearchButton = new Button("Search Diagram", new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					if (searchBox.getText().isEmpty() || diagramPane.getPathway() == null)
-						return;
-					
-					List<Long> matchingResults = searchDiagram(searchBox.getText());
-					
-					if (matchingResults.isEmpty()) {
-						@SuppressWarnings("unused")
-						AlertPopup alert = new AlertPopup(searchBox.getText() + " can not be found for the current pathway");
-					}
-					
-					diagramPane.setSelectionIds(matchingResults);
+					doSearch();
 				}
 				
 			});
@@ -219,7 +251,7 @@ public class PathwayCanvasControls extends FlexTable {
 			
 			add(searchLabel);
 			add(searchBox);			
-			add(doSearch);						
+			add(doSearchButton);						
 			
 			Style style = this.getElement().getStyle();
 			style.setPadding(1, Style.Unit.PX);
@@ -241,6 +273,21 @@ public class PathwayCanvasControls extends FlexTable {
 			
 			return matchingObjectIds;
 			
+		}
+
+		private void doSearch() {
+			if (searchBox.getText().isEmpty() || diagramPane.getPathway() == null)
+				return;
+			
+			List<Long> matchingResults = searchDiagram(searchBox.getText());
+			
+			if (matchingResults.isEmpty()) {
+				@SuppressWarnings("unused")
+				AlertPopup alert = new AlertPopup(searchBox.getText() + " can not be found for the current pathway");
+				return;
+			}
+			
+			diagramPane.setSelectionIds(matchingResults);
 		}
 	}
     

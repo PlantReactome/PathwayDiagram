@@ -153,7 +153,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         addTestCode();
     }
     
-    private void addTestDataPointDisplay() {
+    public List<DiagramCanvas> getCanvasList() {
+		return canvasList;
+	}
+
+	private void addTestDataPointDisplay() {
         final PushButton testBtn = new PushButton("Show Data Point");
         contentPane.add(testBtn, 700, 4);
         testBtn.addClickHandler(new ClickHandler() {

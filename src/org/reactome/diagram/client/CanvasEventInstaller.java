@@ -145,7 +145,8 @@ public class CanvasEventInstaller {
             double x = (objX * -1.0 * scale) + (canvas.getCoordinateSpaceWidth() / 2);
             double y = (objY * -1.0 * scale) + (canvas.getCoordinateSpaceHeight() / 2);
             
-            diagramPane.translate(-objX + x, -objY + y);
+            diagramPane.reset();
+            diagramPane.translate(x, y);
             diagramPane.hideTooltip();
     }    
     	
