@@ -30,7 +30,7 @@ public class AlertPopup extends PopupPanel {
     }
     
     public AlertPopup(String labelText) {
-        super();
+        super(false, true);
         init(labelText);
         center();
     }
