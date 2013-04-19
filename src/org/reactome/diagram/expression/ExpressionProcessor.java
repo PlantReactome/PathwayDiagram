@@ -129,7 +129,7 @@ public class ExpressionProcessor {
 			expressionData.setMaxExpression(getDoubleFromJson("maxExpression", experimentData));
 			expressionData.setAnalysisType(getStringFromJson("analysisType", experimentData));
 		
-			JSONArray columnNamesArray = getJsonArray("expressionColumnNames", expressionJson);
+			JSONArray columnNamesArray = getJsonArray("expressionColumnNames", experimentData);
 			List<String> expressionColumnNames = new ArrayList<String>();
 		
 			for (int i = 0; i < columnNamesArray.size(); i++) {
@@ -259,10 +259,10 @@ public class ExpressionProcessor {
 	}
 	
 	private Long getLongFromJson(Object key, JSONValue json) throws JSONException {
-		Double doubleValue = getDoubleFromJson(key, json);
+		String doubleValue = getStringFromJson(key, json);
 		
 		try {
-			return Long.parseLong(doubleValue.toString());
+			return Long.parseLong(doubleValue);
 		} catch (NumberFormatException e) {
 			throw new JSONException(key + " is not a long value", e);
 		}
