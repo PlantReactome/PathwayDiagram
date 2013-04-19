@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.reactome.diagram.event.ViewChangeEvent;
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
@@ -72,7 +73,12 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
     
     public void scale(double scale) {
-        this.scale *= scale;
+        Double newScale = this.scale * scale;
+        
+        if (newScale > Parameters.ZOOMMAX || newScale < Parameters.ZOOMMIN)
+        	return;
+        
+    	this.scale *= scale;
         fireViewChangeEvent();
     }
     

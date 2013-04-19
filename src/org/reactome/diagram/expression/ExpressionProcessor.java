@@ -24,8 +24,11 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONException;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
@@ -33,8 +36,6 @@ public class ExpressionProcessor {
 	private String analysisName;
     private String analysisId;
 	private ReactomeExpressionValue expressionData; 
-    @SuppressWarnings("unused")
-	private AlertPopup alertPopup;
     
     public ExpressionProcessor(String analysisString) {
     	String[] analysisParams = analysisString.split("\\.");    	
@@ -82,7 +83,7 @@ public class ExpressionProcessor {
         try {
             requestBuilder.sendRequest(null, new RequestCallback() {
                 public void onError(Request request, Throwable exception) {
-                    alertPopup = new AlertPopup("Error in retrieving expression results: " + exception);
+                    AlertPopup.alert("Error in retrieving expression results: " + exception);
                 }
                 
                 public void onResponseReceived(Request request, Response response) {
@@ -100,7 +101,7 @@ public class ExpressionProcessor {
                             expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
                             dataController = new SpeciesComparisonDataController();
                         } else {
-                            alertPopup = new AlertPopup(analysisType + " is an unknown analysis type");
+                            AlertPopup.alert(analysisType + " is an unknown analysis type");
                             return;
                         }
                         
@@ -111,100 +112,160 @@ public class ExpressionProcessor {
             });
         } 
         catch (RequestException ex) {
-            alertPopup = new AlertPopup("Error in retrieving expression results: " + ex);
+            AlertPopup.alert("Error in retrieving expression results: " + ex);
         } 
 	}
 	
 	private ReactomeExpressionValue parseExpressionData(JSONObject jsonData) {
 		ReactomeExpressionValue expressionData = new ReactomeExpressionValue();
 		
-		JSONObject expressionJson = jsonData.get("springModel").isObject();
-		
-		expressionData.setAnalysisId(getStringFromJson("analysisId", expressionJson));
-		//expressionData.setAnalysisType(getStringFromJson("analysisType", expressionJson));
-		
-		JSONObject experimentData = expressionJson.get("table").isObject();
-
-		expressionData.setMinExpression(experimentData.get("minExpression").isNumber().doubleValue());
-		expressionData.setMaxExpression(experimentData.get("maxExpression").isNumber().doubleValue());
-		expressionData.setAnalysisType(getStringFromJson("analysisType", experimentData));
-		
-		JSONArray columnNamesArray = experimentData.get("expressionColumnNames").isArray();
-		List<String> expressionColumnNames = new ArrayList<String>();
-		
-		for (int i = 0; i < columnNamesArray.size(); i++) {
-			String columnName = columnNamesArray.get(i).isString().stringValue();
-			expressionColumnNames.add(columnName);
-		}
-		expressionData.setExpressionColumnNames(expressionColumnNames);
-		
-		JSONArray pathways = experimentData.get("rows").isArray();		
-		for (int i = 0; i < pathways.size(); i++) {
-			PathwayExpressionValue pev = new PathwayExpressionValue();
-			JSONArray pathway = pathways.get(i).isArray();
+		try {
+			JSONObject expressionJson = getJsonObject("springModel", jsonData);
 			
-			for (int j = 0; j < pathway.size(); j++) {
-				JSONArray componentArray = pathway.get(j).isArray();
-				
-				JSONObject componentObject = componentArray.get(0).isObject();
-				String componentType = getStringFromJson("type", componentObject);
-				
-				if (componentType.equals("pathway.expression")) {
-					JSONObject valueObject = componentObject.get("value").isObject();
-					
-					String pathwayName = getStringFromJson("name", valueObject);
-					Long pathwayId = Long.parseLong(getStringFromJson("DB_ID", valueObject));
-				
-					pev.setPathway(pathwayName);
-					pev.setPathwayId(pathwayId);					
-				} else if (componentType.equals("instance")) {
-					JSONObject valueObject = componentObject.get("value").isObject();
-					
-					String speciesName = getStringFromJson("name", valueObject);
-					Long speciesId = Long.parseLong(getStringFromJson("DB_ID", valueObject));
-					
-					pev.setSpecies(speciesName);
-					pev.setSpeciesId(speciesId);
-				} else if (componentType.equals("pathway.expressionlevels")) {
-					for (int k = 0; k < componentArray.size(); k++) {
-						PathwayComponentExpressionValue pcev = new PathwayComponentExpressionValue();
-						
-						//pcev.setDataType(componentType);
-						
-						JSONObject pathwayComponentValue = componentArray.get(k).isObject().get("value").isObject();
-						
-						Long dbId = Long.parseLong(getStringFromJson("DB_ID", pathwayComponentValue));
-						String expressionId = getStringFromJson("ID", pathwayComponentValue);
-					
-						JSONArray expressionLevelsArray = pathwayComponentValue.get("levels").isArray();
-						List<Double> expressionLevels = new ArrayList<Double>();
-						
-						for (int l = 0; l < expressionLevelsArray.size(); l++) {
-							Double value = Double.parseDouble(expressionLevelsArray.get(l).isString().stringValue());
-							expressionLevels.add(value);
-						}
-						
-						pcev.setDbId(dbId);
-						pcev.setExpressionId(expressionId);
-						pcev.setValues(expressionLevels);
-						pev.getExpressionValues().put(dbId, pcev);
-					}
-				} else {
-					alertPopup = new AlertPopup("Unknown type -- " + componentType);
-				}				
+			expressionData.setAnalysisId(getStringFromJson("analysisId", expressionJson));
+			JSONObject experimentData = getJsonObject("table", expressionJson);
+
+			expressionData.setMinExpression(getDoubleFromJson("minExpression", experimentData));
+			expressionData.setMaxExpression(getDoubleFromJson("maxExpression", experimentData));
+			expressionData.setAnalysisType(getStringFromJson("analysisType", experimentData));
+		
+			JSONArray columnNamesArray = getJsonArray("expressionColumnNames", expressionJson);
+			List<String> expressionColumnNames = new ArrayList<String>();
+		
+			for (int i = 0; i < columnNamesArray.size(); i++) {
+				String columnName = getStringFromJson(i, columnNamesArray);
+				expressionColumnNames.add(columnName);
 			}
-			expressionData.getPathwayExpressionValues().put(pev.getPathwayId(), pev);
+			expressionData.setExpressionColumnNames(expressionColumnNames);
+		
+			JSONArray pathways = getJsonArray("rows", experimentData);		
+			for (int i = 0; i < pathways.size(); i++) {
+				PathwayExpressionValue pev = new PathwayExpressionValue();
+				JSONArray pathway = getJsonArray(i, pathways);
+			
+				for (int j = 0; j < pathway.size(); j++) {
+					JSONArray componentArray = getJsonArray(j, pathway);
+					
+					JSONObject componentObject = getJsonObject(0, componentArray);
+					String componentType = getStringFromJson("type", componentObject);
+				
+					if (componentType.equals("pathway.expression")) {
+						JSONObject valueObject = getJsonObject("value", componentObject);
+					
+						String pathwayName = getStringFromJson("name", valueObject);
+						Long pathwayId = getLongFromJson("DB_ID", valueObject);
+				
+						pev.setPathway(pathwayName);
+						pev.setPathwayId(pathwayId);					
+					} else if (componentType.equals("instance")) {
+						JSONObject valueObject = getJsonObject("value", componentObject);
+					
+						String speciesName = getStringFromJson("name", valueObject);
+						Long speciesId = getLongFromJson("DB_ID", valueObject);
+					
+						pev.setSpecies(speciesName);
+						pev.setSpeciesId(speciesId);
+					} else if (componentType.equals("pathway.expressionlevels")) {
+						for (int k = 0; k < componentArray.size(); k++) {
+							PathwayComponentExpressionValue pcev = new PathwayComponentExpressionValue();
+						
+							//pcev.setDataType(componentType);
+						
+							JSONObject pathwayComponentValue = getJsonObject("value", getJsonObject(k, componentArray));
+						
+							Long dbId = getLongFromJson("DB_ID", pathwayComponentValue);
+							String expressionId = getStringFromJson("ID", pathwayComponentValue);
+					
+							JSONArray expressionLevelsArray = getJsonArray("levels", pathwayComponentValue);
+							List<Double> expressionLevels = new ArrayList<Double>();
+						
+							for (int l = 0; l < expressionLevelsArray.size(); l++) {
+								Double value = Double.parseDouble(getStringFromJson(l, expressionLevelsArray));
+								expressionLevels.add(value);						
+							}
+						
+							pcev.setDbId(dbId);
+							pcev.setExpressionId(expressionId);
+							pcev.setValues(expressionLevels);
+							pev.getExpressionValues().put(dbId, pcev);
+						}
+					} else {
+						AlertPopup.alert("Unknown type -- " + componentType);
+					}					
+				}
+				expressionData.getPathwayExpressionValues().put(pev.getPathwayId(), pev);
+			}
+		} catch (JSONException e) {
+			AlertPopup.alert(e.getMessage());
 		}
+		
 		// Make sure the parsed data is correct
 		if (!expressionData.validateExpressionData() && expressionData.getAnalysisType().equals("expression")) {
-		    alertPopup = new AlertPopup("Some pathway object has not enough expression values!");
+		    AlertPopup.alert("Some pathway object has not enough expression values!");
 		    return null;
 		}
 		return expressionData;		
 	}
 	
-	private String getStringFromJson(String key, JSONObject json) {
-		return json.get(key).isString().stringValue();
+	private JSONValue getJsonValue(Object key, JSONValue json) throws JSONException {
+		JSONValue jsonValue = null;
+		if (json instanceof JSONObject)
+			jsonValue = ((JSONObject) json).get((String) key);
+		else if (json instanceof JSONArray)
+			jsonValue = ((JSONArray) json).get((Integer) key);
+			
+			
+		if (jsonValue == null) {
+			throw new JSONException(key + " does not exist in the JSONObject provided");
+		}
+		
+		return jsonValue;
+	}
+	
+	private JSONObject getJsonObject(Object key, JSONValue json) throws JSONException {
+		JSONObject jsonObject = getJsonValue(key, json).isObject();
+		if (jsonObject == null) {
+			throw new JSONException(key + " is not a JSONObject");
+		}
+		
+		return jsonObject;				
+	}
+	
+	private JSONArray getJsonArray(Object key, JSONValue json) throws JSONException {
+		JSONArray jsonArray = getJsonValue(key, json).isArray();
+		if (jsonArray == null) {
+			throw new JSONException(key + " is not a JSONArray");
+		}
+		
+		return jsonArray;		
+	}
+	
+	private String getStringFromJson(Object key, JSONValue json) throws JSONException {
+		JSONString jsonString = getJsonValue(key, json).isString();
+		if (jsonString == null) {
+			throw new JSONException(key + " is not a string");
+		}		
+		
+		return jsonString.stringValue();
+	}
+	
+	private Double getDoubleFromJson(Object key, JSONValue json) throws JSONException {
+		JSONNumber jsonNumber = getJsonValue(key, json).isNumber();
+		if (jsonNumber == null) {
+			throw new JSONException(key + " is not a number");
+		}
+		
+		return jsonNumber.doubleValue();		
+	}
+	
+	private Long getLongFromJson(Object key, JSONValue json) throws JSONException {
+		Double doubleValue = getDoubleFromJson(key, json);
+		
+		try {
+			return Long.parseLong(doubleValue.toString());
+		} catch (NumberFormatException e) {
+			throw new JSONException(key + " is not a long value", e);
+		}
 	}
 	
 	public void showJsonKeys(JSONObject o) {

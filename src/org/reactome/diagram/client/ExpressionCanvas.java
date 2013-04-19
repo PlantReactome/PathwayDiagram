@@ -148,7 +148,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 				defaultColor =  "rgb(0, 0, 255)"; // Blue for protein in species comparison with no inference
 			}			
 		} else {
-			AlertPopup alert = new AlertPopup(analysisType.name() + " is an unknown analysis type");
+			AlertPopup.alert(analysisType.name() + " is an unknown analysis type");
 		}
 		
 		return defaultColor;

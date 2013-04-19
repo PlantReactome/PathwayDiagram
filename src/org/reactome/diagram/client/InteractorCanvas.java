@@ -5,7 +5,6 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -23,15 +22,8 @@ import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.dom.client.Style.Cursor;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
+
 
 /**
  * This class is used to draw interactors.
@@ -42,15 +34,10 @@ public class InteractorCanvas extends DiagramCanvas {
     private Context2d c2d;
     private PathwayDiagramPanel diagramPanel;
     
-    private final String defaultInteractorDatabase = "IntAct";
-    
-    private String interactorDatabase = defaultInteractorDatabase;
     // Proteins mapped to their list of interactors
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
     // Interactor objects mapped to their accession ids 
 	private Map<String, InteractorNode> uniqueInteractors; 
-	private static Map<String, String> psicquicMap;
-	private static Map<String, String> interactorDBMap; 
 	private boolean loadingInteractors;
 	
     public InteractorCanvas(PathwayDiagramPanel dPane) {
@@ -60,11 +47,13 @@ public class InteractorCanvas extends DiagramCanvas {
        	hoverHandler = new InteractorCanvasHoverHandler(diagramPanel, this);
        	selectionHandler = new InteractorCanvasSelectionHandler(diagramPanel, this);
        	
-    	diagramPanel.getController().setInteractorDBList();
+       	//diagramPanel.getController().setInteractorDBList(interactorCanvasModel);
+       	
        	proteinsToInteractors = new HashMap<ProteinNode, List<InteractorNode>>();
     	uniqueInteractors = new HashMap<String, InteractorNode>();
     }
-        
+    
+    
     public List<ProteinNode> getProteins() {
     	return new ArrayList<ProteinNode>(this.proteinsToInteractors.keySet());
     }	
@@ -83,9 +72,10 @@ public class InteractorCanvas extends DiagramCanvas {
     }
     
     public void removeAllProteins() {
-    	proteinsToInteractors.clear();
-    	uniqueInteractors.clear();
-    	update();
+    	for (ProteinNode protein : getProteins()) {
+    		removeProtein(protein);
+    		protein.setDisplayingInteractors(false);
+    	} 	
     }
     
     private void addOrRemoveInteractors(ProteinNode protein, String action) {    	    	
@@ -433,12 +423,7 @@ public class InteractorCanvas extends DiagramCanvas {
     
 	@Override
 	protected void updateOthers(Context2d c2d) {
-		// TODO Auto-generated method stub
 		
-	}
-
-	public String getInteractorDatabase() {
-		return interactorDatabase;
 	}
 
 	public void setInteractorDatabase(String interactorDatabase) {
@@ -446,9 +431,6 @@ public class InteractorCanvas extends DiagramCanvas {
 	}
 	
 	public void setInteractorDatabase(String interactorDatabase, boolean initializing) {
-		this.interactorDatabase = interactorDatabase;		
-		InteractorEdge.setUrl(InteractorCanvas.interactorDBMap, interactorDatabase);
-		
 		List<ProteinNode> proteinList = new ArrayList<ProteinNode>(getProteins());
 		removeAllProteins();
 		if (!initializing && !proteinList.isEmpty())
@@ -457,79 +439,6 @@ public class InteractorCanvas extends DiagramCanvas {
 		for (ProteinNode protein: proteinList)
 			this.diagramPanel.getController().getInteractors(protein);		
 	}
-	
-	public static Map<String, String> getPSICQUICMap() {
-		return psicquicMap;
-	}
-	
-	public void setPSICQUICMap(String xml) {
-		psicquicMap = new HashMap<String, String>();
-		
-		Document psicquicDom = XMLParser.parse(xml);
-		Element psicquicElement = psicquicDom.getDocumentElement();
-		XMLParser.removeWhitespace(psicquicElement);
-		
-		NodeList nodeList = psicquicElement.getChildNodes();
-		
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			Node node = nodeList.item(i);
-			String name = node.getNodeName();
-			
-			if (name.equals("service")) {
-				Element serviceElement = (Element) node;
-				
-				Node nameNode = serviceElement.getElementsByTagName("name").item(0);
-				String serviceName = nameNode.getChildNodes().item(0).getNodeValue();
-				
-				Node urlNode = serviceElement.getElementsByTagName("restUrl").item(0);
-				String serviceUrl = urlNode.getChildNodes().item(0).getNodeValue();
-				
-				psicquicMap.put(serviceName, serviceUrl);
-			}
-		}
-		
-		addToInteractorDBMap(psicquicMap);
-	}
-	
-	public static Map<String, String> getInteractorDBMap() {
-		return interactorDBMap;
-	}
-	
-	public void addToInteractorDBMap(Map<String, String> map) {
-		if (interactorDBMap == null) {
-			interactorDBMap = map;
-		} else {
-			for (String db : map.keySet()) {
-				if (!interactorDBMap.containsKey(db))
-					interactorDBMap.put(db, map.get(db));
-			}
-		}
-			
-		final ListBox interactorDBList = new ListBox();	
-		
-		List<String> dbs = new ArrayList<String>(interactorDBMap.keySet());
-		Collections.sort(dbs);
-		for (int i = 0; i < dbs.size(); i++) {
-			String db = dbs.get(i);
-			
-			interactorDBList.addItem(db, map.get(db));
-			if (db.equals(defaultInteractorDatabase)) {
-				interactorDBList.setSelectedIndex(i);
-				setInteractorDatabase(db, true);				
-			}
-		}
-		
-		interactorDBList.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				setInteractorDatabase(interactorDBList.getItemText(interactorDBList.getSelectedIndex()));				
-			}
-			
-		});
-		
-		//diagramPane.getControls().addInteractionDBListToControls(interactorDBList);		
-	}		
 
 	public boolean isLoadingInteractors() {
 		return loadingInteractors;

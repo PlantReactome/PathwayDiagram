@@ -369,9 +369,9 @@ public class CanvasEventInstaller {
     private void mouseWheel(MouseWheelEvent event) {
     	if (!diagramPane.getPopupMenu().isShowing()) {
     		if (event.isNorth()) {
-    			diagramPane.scale(Parameters.ZOOMIN);
+    			diagramPane.scale(Parameters.ZOOMFACTOR);
     		} else {
-    			diagramPane.scale(Parameters.ZOOMOUT);
+    			diagramPane.scale(1 / Parameters.ZOOMFACTOR);
     		}
     	
     		diagramPane.update();

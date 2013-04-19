@@ -10,6 +10,7 @@ import java.util.HashMap;
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
+import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ProteinNode;
 
@@ -107,10 +108,9 @@ public class PathwayDiagramController {
                 (height - spHeight) / 2);
     }
 
-    public void setInteractorDBList() {
-        addPSICQUICList();
-
+    public void setInteractorDBList(final InteractorCanvasModel interactorCanvasModel) {
         String url = GWT.getHostPageBaseURL() + "InteractorEdgeUrls.txt";
+        
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 
         try {
@@ -119,8 +119,9 @@ public class PathwayDiagramController {
                 @Override
                 public void onResponseReceived(Request request,	Response response) {
                     if (response.getStatusCode() == 200) {
-                        diagramPane.getInteractorCanvas().addToInteractorDBMap(getInteractionDBMap(response.getText()));
-                        //InteractorEdge.setUrl(response.getText(), interactionDatabase);
+                        interactorCanvasModel.addToInteractorDBMap(getInteractionDBMap(response.getText()));                        
+                        addPSICQUICList(interactorCanvasModel);
+                        diagramPane.getControls().addInteractionOverlayButton();
                     } else {
                         requestFailed("Could not retrieve InteractorEdgeUrls.txt");
                     }
@@ -137,8 +138,9 @@ public class PathwayDiagramController {
         }
     }
 
-    private void addPSICQUICList() {
+    private void addPSICQUICList(final InteractorCanvasModel interactorCanvasModel) {
         String url = this.getHostUrl() + "psicquicList";
+ 
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
@@ -148,9 +150,9 @@ public class PathwayDiagramController {
                 @Override
                 public void onResponseReceived(Request request,	Response response) {
 					if (response.getStatusCode() == 200) {
-                        diagramPane.getInteractorCanvas().setPSICQUICMap(response.getText());
+                        interactorCanvasModel.setPSICQUICMap(response.getText());
 					} else {
-						requestFailed("Could not retrieve psiquicList");
+						requestFailed("Could not retrieve psiquicList.  HTML Status code - " + response.getStatusCode());
 					}
                 }
 
@@ -183,6 +185,7 @@ public class PathwayDiagramController {
         final ProteinNode protein = selected.getProtein();
 
         String url = this.getHostUrl() + "referenceEntity/" + protein.getReactomeId();
+        Window.alert(url);
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
@@ -217,7 +220,7 @@ public class PathwayDiagramController {
         diagramPane.initInteractorCanvas();
         final InteractorCanvas ic = diagramPane.getInteractorCanvas();
 
-        String url = this.getHostUrl() + "psiquicInteractions/" + dbId + "/" + ic.getInteractorDatabase();
+        String url = this.getHostUrl() + "psiquicInteractions/" + dbId + "/" + diagramPane.getInteractorCanvasModel().getInteractorDatabase();
         
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
@@ -230,7 +233,7 @@ public class PathwayDiagramController {
                         selected.setInteractors(response.getText());
                         
                         if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
-                        	AlertPopup alert = new AlertPopup(selected.getDisplayName() + " has no interactors for the selected interaction database");
+                        	AlertPopup.alert(selected.getDisplayName() + " has no interactors for the selected interaction database");
                         }                        	
                         	
                         ic.addProtein(selected);
@@ -257,7 +260,7 @@ public class PathwayDiagramController {
     public void openInteractionExportPage(Long dbId) {
     	String hostUrl = getHostUrl();
     	
-    	String serviceName = diagramPane.getInteractorCanvas().getInteractorDatabase();
+    	String serviceName = diagramPane.getInteractorCanvasModel().getInteractorDatabase();
     	
     	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
     	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "exportPsiquicInteractions/" + dbId + "/" + serviceName;
@@ -382,7 +385,7 @@ public class PathwayDiagramController {
      * @param exception Exception whenever the XML file is not load
      */
     protected void requestFailed(Throwable exception) {
-        AlertPopup alert = new AlertPopup("Failed to send the message: " + exception.getMessage());
+        AlertPopup.alert("Failed to send the message: " + exception.getMessage());
     }
 
     /**
@@ -390,7 +393,7 @@ public class PathwayDiagramController {
      * @param message An error message to alert the user of problems
      */
     protected void requestFailed(String message) {
-        AlertPopup alert = new AlertPopup("WARNING: " + message);
+        AlertPopup.alert("WARNING: " + message);
     }    
     
 
@@ -476,7 +479,7 @@ public class PathwayDiagramController {
 							throw e;
 						}	
 					} catch (Exception e) {
-						AlertPopup alert = new AlertPopup("Error in parsing XML: " + e);
+						AlertPopup.alert("Error in parsing XML: " + e);
 						e.printStackTrace();
 					}
 					

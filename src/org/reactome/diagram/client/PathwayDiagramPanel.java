@@ -31,6 +31,7 @@ import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
+import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 
@@ -50,7 +51,6 @@ import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RequiresResize;
 
@@ -73,6 +73,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private DataController overlayDataController;
     // Interactors shown here
     private InteractorCanvas interactorCanvas;
+    // Interactor Database Model
+    private InteractorCanvasModel interactorCanvasModel;
     // For overview
     private OverviewCanvas overview;
     // Used with a back-end RESTful API server
@@ -116,6 +118,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         CanvasEventInstaller eventInstaller = pathwayCanvas.getEventInstaller();
         eventInstaller.installOverviewEventHandler();
         eventInstaller.installUserInputHandlers();
+        
+        interactorCanvasModel = new InteractorCanvasModel();
+        controller.setInteractorDBList(interactorCanvasModel);
         
 // Keep the original information
         contentPane.add(pathwayCanvas, 4, 4); // Give it some buffer space
@@ -246,7 +251,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         return this.controller;
     }
     
-    public CanvasPopupMenu getPopupMenu() {
+    public InteractorCanvasModel getInteractorCanvasModel() {
+		return interactorCanvasModel;
+	}
+
+	public CanvasPopupMenu getPopupMenu() {
         return popupMenu;
     }
 
@@ -698,15 +707,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         String expressionComplexPopup();
     }
-
-    public ListBox getInteractorDBList() {
-    	ListBox interactorDBList = new ListBox();
-    	    	
-    	for (String db : InteractorCanvas.getInteractorDBMap().keySet()) 
-    		interactorDBList.addItem(db, InteractorCanvas.getInteractorDBMap().get(db));	
-    		
-    	return interactorDBList;
-    }
     
     @Override
 	public void onContextMenu(ContextMenuEvent event) {
@@ -738,7 +738,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	public void initInteractorCanvas() {
 		if (interactorCanvas == null) {
 			interactorCanvas = new InteractorCanvas(this);
-						
+			interactorCanvasModel.setInteractorCanvas(interactorCanvas);
+			
 			int insertionIndex = canvasList.size(); // Above all other canvases
 			contentPane.insert(interactorCanvas, 4, 4, insertionIndex);			
 			canvasList.add(insertionIndex, interactorCanvas);

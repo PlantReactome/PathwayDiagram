@@ -18,31 +18,23 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author weiserj
  *
  */
-public class AlertPopup extends PopupPanel {
-    private VerticalPanel vPane;
-	private Button button;
-    private Label alertLabel;
+public class AlertPopup {
+    private static PopupPanel popUp;
     
-    public AlertPopup(String labelText, Boolean hide) {	
-   		this(labelText);
-   		if (hide)
-   			hide();
+    public static void alert(String alertText) {
+    	init(alertText);
+    	popUp.center();
     }
     
-    public AlertPopup(String labelText) {
-        super(false, true);
-        init(labelText);
-        center();
-    }
-    
-    private void init(String labelText) { 
-        vPane = new VerticalPanel();
-        alertLabel = new Label(labelText);        
-        button = new Button("Ok", new ClickHandler() {
+    private static void init(String labelText) { 
+        popUp = new PopupPanel(false, true);
+    	VerticalPanel vPane = new VerticalPanel();
+        Label alertLabel = new Label(labelText);        
+        Button button = new Button("Ok", new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				hide();
+				popUp.hide();
 			}
         	
         });
@@ -52,19 +44,11 @@ public class AlertPopup extends PopupPanel {
         vPane.add(button);
         
         setStyle();
-        setWidget(vPane);
+        popUp.setWidget(vPane);
     }
 
-	public String getAlertText() {
-		return alertLabel.getText();
-	}
-
-	public void setAlertText(String alertText) {
-		this.alertLabel.setText(alertText);
-	}	
-	
-	private void setStyle() {
-		Style style = getElement().getStyle();
+	private static void setStyle() {
+		Style style = popUp.getElement().getStyle();
 		
 		style.setZIndex(2);
 		style.setBackgroundColor("rgb(255, 255, 255)");
