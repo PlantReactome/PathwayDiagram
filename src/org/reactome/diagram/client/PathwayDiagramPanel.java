@@ -462,13 +462,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void select(GwtEvent<? extends EventHandler> event, int x, int y) {
         // Need to consider both scale and translate
         Point correctedPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
-    	        
-        Collections.reverse(canvasList);
-        
-        for (DiagramCanvas canvas : canvasList) {
+        DiagramCanvas baseCanvas = canvasList.get(0);
+                
+        // Loop through each canvas starting with the top layer and working backwards
+        for (int i = canvasList.size() - 1; i >= 0; i--) {
+        	DiagramCanvas canvas = canvasList.get(i);
+        	
         	if (canvas == null)
         		continue;
-        	
+        	        	        	
         	SelectionHandler sh = canvas.getSelectionHandler();
         	
         	if (sh == null)
@@ -478,13 +480,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         		sh.fireSelectionEvent();
         		break;        		
         	}
-                      
-        	if (canvas == canvasList.get(canvasList.size() - 1)) {
+
+        	// Nothing new has been selected, so fire an event to de-select old selections
+        	if (canvas.equals(baseCanvas)) {
         		sh.fireSelectionEvent();
-        	}
+        	}        	
         }
-        	
-        Collections.reverse(canvasList);
     }
         
     public void addSelectionEventHandler(SelectionEventHandler handler) {
@@ -755,6 +756,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			expressionCanvas = new ExpressionCanvas(this);
 			
 			contentPane.insert(expressionCanvas, 4, 4, 1);		
+			System.out.println(canvasList.indexOf(pathwayCanvas));
 			canvasList.add(canvasList.indexOf(pathwayCanvas) + 1, expressionCanvas);
 			
 			expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());

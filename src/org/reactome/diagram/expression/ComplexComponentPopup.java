@@ -11,6 +11,7 @@ import java.util.List;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
+import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
 import org.reactome.diagram.model.ReactomeObject;
 
@@ -134,19 +135,30 @@ public class ComplexComponentPopup extends PopupPanel {
     		complexComponent.setDbId(refId);
     		complexComponent.setDisplayName(component.getDisplayName());
     		
-    		if (expressionCanvasModel.getEntityColorMap().get(refId) == null) {
-    			if (expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison) {
-    				// Blue color for an entity without inference    		
-    				String color = "rgb(0, 0, 255)";
-    				expressionCanvasModel.getEntityColorMap().put(refId, color);
-    			} else {
-    				continue;
-    			}	
+    		String color = null;
+    		if (expressionCanvasModel.getEntityColorMap() != null) {  
+    			color = expressionCanvasModel.getEntityColorMap().get(refId);
+    		} else {
+    			if (expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison && 
+    				component.getSchemaClass().equals("EntityWithAccessionedSequence")) {
+    				color = expressionCanvas.getEntityColor(refId, GraphObjectType.RenderableProtein);
+    			}
     		}
     		
-    		complexComponent.setExpressionId(expressionCanvasModel.getEntityExpressionIdMap().get(refId));
-    		complexComponent.setExpressionLevel(expressionCanvasModel.getEntityExpressionLevelMap().get(refId));
-    		complexComponent.setExpressionColor(expressionCanvasModel.getEntityColorMap().get(refId));
+    		if (color == null)
+    			continue;
+    		
+    		String expressionId = null;
+    		if (expressionCanvasModel.getEntityExpressionIdMap() != null)     		
+    			expressionId = expressionCanvasModel.getEntityExpressionIdMap().get(refId);
+    		
+    		Double expressionLevel = null;
+    		if (expressionCanvasModel.getEntityExpressionLevelMap() != null)
+    			expressionLevel = expressionCanvasModel.getEntityExpressionLevelMap().get(refId);
+    		
+    		complexComponent.setExpressionId(expressionId);
+    		complexComponent.setExpressionLevel(expressionLevel);
+    		complexComponent.setExpressionColor(color);
     		
     		complexComponents.add(complexComponent);
     	}

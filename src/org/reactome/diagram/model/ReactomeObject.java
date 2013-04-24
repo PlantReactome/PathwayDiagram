@@ -14,6 +14,7 @@ public class ReactomeObject {
     private String displayName;
     private Long reactomeId;
     private Integer id;
+    private String schemaClass;
     
     public ReactomeObject() {
     }
@@ -41,4 +42,13 @@ public class ReactomeObject {
     public void setReactomeId(Long reactomeId) {
         this.reactomeId = reactomeId;
     }
+
+	public String getSchemaClass() {		
+		return schemaClass;
+	}
+	
+	public void setSchemaClass(String schemaClass) {
+		this.schemaClass = schemaClass;
+	}
+	
 }

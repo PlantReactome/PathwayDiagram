@@ -110,10 +110,14 @@ public class CanvasPopupMenu extends PopupPanel {
 							
 							Node nameNode = peElement.getElementsByTagName("displayName").item(0);
 							String molName = nameNode.getChildNodes().item(0).getNodeValue();
+
+							Node schemaClassNode = peElement.getElementsByTagName("schemaClass").item(0);
+							String molSchemaClass = schemaClassNode.getChildNodes().item(0).getNodeValue();
 							
 							ReactomeObject molecule = new ReactomeObject();
 							molecule.setDisplayName(molName);
 							molecule.setReactomeId(molId);
+							molecule.setSchemaClass(molSchemaClass);
 							molecules.add(molecule);
 						}
 						setPMMenu(molecules, expressionData);

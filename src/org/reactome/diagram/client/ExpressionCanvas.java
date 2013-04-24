@@ -4,6 +4,7 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -125,18 +126,18 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return null;
 	}
 
-	private String getEntityColor(Long refEntityId, GraphObjectType entityType) {
+	public String getEntityColor(Long refEntityId, GraphObjectType entityType) {		
+		String color = null;		
 		if (expressionCanvasModel.getEntityColorMap() != null) {            					
-			String color = expressionCanvasModel.getEntityColorMap().get(refEntityId);
-			if (color == null) {
-				color = getDefaultColor(entityType);
-				expressionCanvasModel.getEntityColorMap().put(refEntityId, color); // Cache color for future lookups
-			}
-			
-			return color;
-		} else {		
-			return getDefaultColor(entityType);
+			color = expressionCanvasModel.getEntityColorMap().get(refEntityId);
+		} 		
+							
+		if (color == null) {
+			color = getDefaultColor(entityType);
+			//expressionCanvasModel.getEntityColorMap().put(refEntityId, color); // Cache color for future lookups
 		}
+
+		return color;
 	}
 
 	private String getDefaultColor(GraphObjectType entityType) {
@@ -146,7 +147,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 			
 			if (analysisType == AnalysisType.SpeciesComparison && entityType == GraphObjectType.RenderableProtein) {
 				defaultColor =  "rgb(0, 0, 255)"; // Blue for protein in species comparison with no inference
-			}			
+			}
 		} else {
 			AlertPopup.alert(analysisType.name() + " is an unknown analysis type");
 		}

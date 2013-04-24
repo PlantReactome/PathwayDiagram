@@ -33,13 +33,13 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
-	private String analysisName;
+	private String analysisName = "expression_analysis_with_levels";
     private String analysisId;
 	private ReactomeExpressionValue expressionData; 
     
     public ExpressionProcessor(String analysisString) {
     	String[] analysisParams = analysisString.split("\\.");    	
-    	this.analysisName = analysisParams[0];
+    	//this.analysisName = analysisParams[0];
     	this.analysisId = analysisParams[1];
     }	
     	
