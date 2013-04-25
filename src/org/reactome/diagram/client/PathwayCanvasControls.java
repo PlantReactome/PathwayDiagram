@@ -18,7 +18,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ClientBundle;
@@ -329,9 +328,15 @@ public class PathwayCanvasControls extends FlexTable {
 	}
 
 	private class SearchPanel extends HorizontalPanel {
+		private List<Long> matchingEntityIds;
 		private Label searchLabel;
 		private TextBox searchBox;
-		private Button doSearchButton; 
+		private Label resultsLabel;
+		private Button previousButton; 
+		private Button nextButton;
+		private Button selectAllButton;
+		private Integer selectedIndex;
+		private String searchString;
 		
 		public SearchPanel() {
 			super();
@@ -339,22 +344,49 @@ public class PathwayCanvasControls extends FlexTable {
 		}
 		
 		private void init() {
+			matchingEntityIds = new ArrayList<Long>();
 			searchLabel = new Label("Find Reaction/Entity:");
 			searchBox = new TextBox();
 			searchBox.addKeyUpHandler(new KeyUpHandler() {
 
 				@Override
 				public void onKeyUp(KeyUpEvent event) {	
-					if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) { 
-						doSearch();				
-					}
+					String newSearchString = searchBox.getText();
+					
+					if (!newSearchString.equalsIgnoreCase(searchString))
+						doSearch(newSearchString);
+					
+					searchString = newSearchString;
 				}
 			});
-			doSearchButton = new Button("Search Diagram", new ClickHandler() {
+			
+			resultsLabel = new Label();
+			
+			previousButton = new Button("Previous", new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					doSearch();
+					selectEntity(selectedIndex - 1);					
+				}
+				
+			});
+			
+			nextButton = new Button("Next", new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					selectEntity(selectedIndex + 1);
+				}
+				
+			});
+			
+			selectAllButton = new Button("Select All", new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					diagramPane.setSelectionIds(matchingEntityIds);
+					selectedIndex = -1;
+					resultsLabel.setText("Focused on: All " + matchingEntityIds.size());
 				}
 				
 			});
@@ -362,8 +394,13 @@ public class PathwayCanvasControls extends FlexTable {
 			setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 			
 			add(searchLabel);
-			add(searchBox);			
-			add(doSearchButton);						
+			add(searchBox);						
+			add(previousButton);
+			add(nextButton);
+			add(selectAllButton);
+			add(resultsLabel);
+			
+			enableButtons(Boolean.FALSE);
 			
 			Style style = this.getElement().getStyle();
 			style.setPadding(1, Style.Unit.PX);
@@ -374,38 +411,62 @@ public class PathwayCanvasControls extends FlexTable {
 		// Returns a list of db ids for objects in the pathway diagram
 		// which match the given query
 		private List<Long> searchDiagram(String query) {
-			doSearchButton.setEnabled(false);		
+			List<Long> matchingObjectIds = new ArrayList<Long>();
 			
-			List<GraphObject> pathwayObjects = diagramPane.getPathway().getGraphObjects();
-
-			List<Long> matchingObjectIds = new ArrayList<Long>(); 
+			if (!query.isEmpty()) {
 			
-			for (GraphObject pathwayObject: pathwayObjects) {
-				if (pathwayObject.getDisplayName() == null)
-					continue;
+				List<GraphObject> pathwayObjects = diagramPane.getPathway().getGraphObjects(); 			
+				for (GraphObject pathwayObject: pathwayObjects) {
+					if (pathwayObject.getDisplayName() == null)
+						continue;
 					
-				if (pathwayObject.getDisplayName().toLowerCase().contains(query.toLowerCase()))
-					matchingObjectIds.add(pathwayObject.getReactomeId());
+					if (pathwayObject.getDisplayName().toLowerCase().contains(query.toLowerCase()))
+						matchingObjectIds.add(pathwayObject.getReactomeId());
+				}						
 			}
-						
-			doSearchButton.setEnabled(true);
-			return matchingObjectIds;
-			
+				
+			return matchingObjectIds;			
 		}
 
-		private void doSearch() {
-			if (searchBox.getText().isEmpty() || diagramPane.getPathway() == null)
-				return;
-			
-			List<Long> matchingResults = searchDiagram(searchBox.getText());
-			
-			if (matchingResults.isEmpty()) {
-				
-				AlertPopup.alert(searchBox.getText() + " can not be found for the current pathway");
+		private void doSearch(String query) {
+			if (query.isEmpty() || diagramPane.getPathway() == null) {
+				resultsLabel.setText(null);
+				matchingEntityIds.clear();
+				enableButtons(Boolean.FALSE);
 				return;
 			}
 			
-			diagramPane.setSelectionIds(matchingResults);
+			matchingEntityIds = searchDiagram(query);
+			
+			if (matchingEntityIds.isEmpty()) {
+				enableButtons(Boolean.FALSE);
+				resultsLabel.setText("No matches found for " + searchBox.getText());
+				return;
+			} else {
+				enableButtons(Boolean.TRUE);
+			}
+			
+			selectEntity(0);
+		}
+		
+		private void selectEntity(Integer index) {
+			if (index >= matchingEntityIds.size()) {
+				index = 0;
+			} else if (index < 0) {
+				index = matchingEntityIds.size() - 1;
+			}
+			
+			selectedIndex = index;
+			
+			resultsLabel.setText("Focused on: " + (index + 1) + " of " + matchingEntityIds.size());
+			
+			diagramPane.setSelectionId(matchingEntityIds.get(index));
+		}
+		
+		private void enableButtons(Boolean enable) {
+			previousButton.setEnabled(enable);
+			nextButton.setEnabled(enable);
+			selectAllButton.setEnabled(enable);
 		}
 	}
     
