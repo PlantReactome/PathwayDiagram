@@ -83,7 +83,13 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         updatePosition();
     }
     
-    public void updatePosition() {
+    @Override
+	public void scale(double scale) {
+		this.scale *= scale;
+		super.fireViewChangeEvent();
+    }
+
+	public void updatePosition() {
         // Need to make sure it is placed at the correct position
         //TODO: This is hard-coded and should be changed soon
         AbsolutePanel container = (AbsolutePanel) getParent();
