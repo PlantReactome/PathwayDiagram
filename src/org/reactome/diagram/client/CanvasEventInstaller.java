@@ -383,21 +383,23 @@ public class CanvasEventInstaller {
     }
     
     private void arrowKeyUp(KeyUpEvent event) {
-    	int x = 0;
-    	int y = 0; 
+    	if (!diagramPane.getPopupMenu().isShowing()) {
+    		int x = 0;
+    		int y = 0; 
     	
-    	if (event.isLeftArrow()) {
-    		x = Parameters.MOVEX;
-    	} else if (event.isRightArrow()) {
-    		x = -Parameters.MOVEX;
-    	} else if (event.isUpArrow()) {
-    		y = Parameters.MOVEY;
-    	} else if (event.isDownArrow()) {
-    		y = -Parameters.MOVEY;
+    		if (event.isLeftArrow()) {
+    			x = Parameters.MOVEX;
+    		} else if (event.isRightArrow()) {
+    			x = -Parameters.MOVEX;
+    		} else if (event.isUpArrow()) {
+    			y = Parameters.MOVEY;
+    		} else if (event.isDownArrow()) {
+    			y = -Parameters.MOVEY;
+    		}
+    	
+    		diagramPane.translate(x, y);
+    		diagramPane.update();
     	}
-    	
-    	diagramPane.translate(x, y);
-    	diagramPane.update();
     }
     
 }
