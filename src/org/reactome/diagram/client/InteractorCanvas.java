@@ -33,6 +33,8 @@ import com.google.gwt.touch.client.Point;
 public class InteractorCanvas extends DiagramCanvas {
     private Context2d c2d;
     private PathwayDiagramPanel diagramPanel;
+    private String userMessage;
+    private Boolean displayUserMessage = true;
     
     // Proteins mapped to their list of interactors
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
@@ -44,6 +46,7 @@ public class InteractorCanvas extends DiagramCanvas {
     	super(dPane);
        	c2d = getContext2d();
        	diagramPanel = dPane;
+       	userMessage = new String();
        	hoverHandler = new InteractorCanvasHoverHandler(diagramPanel, this);
        	selectionHandler = new InteractorCanvasSelectionHandler(diagramPanel, this);
        	
@@ -134,8 +137,13 @@ public class InteractorCanvas extends DiagramCanvas {
         
         clean(c2d); // Clear canvas
     	
+        setGreyOutCanvas(!uniqueInteractors.isEmpty()); // Grey out if there are unique interactors to display
+        
         drawInteractors(c2d);
         drawInteractors(diagramPanel.getOverview().getContext2d());
+        
+        if (displayUserMessage)
+        	displayUserMessage();
         
         c2d.restore();
     }
@@ -208,10 +216,6 @@ public class InteractorCanvas extends DiagramCanvas {
     				renderer.render(c2d, interactor);
     			}
     		}
-    		
-    		setGreyOutCanvas(true);
-        } else {
-        	setGreyOutCanvas(false);
         }     
     }
         
@@ -436,8 +440,15 @@ public class InteractorCanvas extends DiagramCanvas {
 		if (!initializing && !proteinList.isEmpty())
 			setGreyOutCanvas(true);
 		
-		for (ProteinNode protein: proteinList)
-			this.diagramPanel.getController().getInteractors(protein);		
+		for (ProteinNode protein: proteinList) {
+			Boolean displayMessages;
+			if (protein == proteinList.get(proteinList.size() - 1))
+				displayMessages = Boolean.TRUE;
+			else
+				displayMessages = Boolean.FALSE;
+			
+			this.diagramPanel.getController().getInteractors(protein, displayMessages);
+		}
 	}
 
 	public boolean isLoadingInteractors() {
@@ -451,5 +462,33 @@ public class InteractorCanvas extends DiagramCanvas {
 		} else {
 			diagramPanel.setCursor(Cursor.DEFAULT);
 		}
+	}
+	
+	public String getUserMessage() {
+		return userMessage;
+	}
+
+	public void addToUserMessage(String message) {
+		userMessage = userMessage.concat(message + "<br />"); 
+	}
+	
+	private void displayUserMessage() {
+		if (userMessage != null && !userMessage.isEmpty()) {
+			AlertPopup.alert(userMessage);
+			clearUserMessage();
+		}	
+	}
+
+	private void clearUserMessage() {
+		userMessage = new String();
+	}
+	
+	public Boolean getDisplayUserMessage() {
+		return displayUserMessage;
+	}
+
+
+	public void setDisplayUserMessage(Boolean displayUserMessage) {
+		this.displayUserMessage = displayUserMessage;
 	}
 }
