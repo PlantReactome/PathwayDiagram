@@ -214,8 +214,12 @@ public class PathwayDiagramController {
         }
     }
 
-    public void getInteractors(final ProteinNode selected) {
-        Long dbId = selected.getReactomeId();
+    
+    
+    public void getInteractors(final ProteinNode selected, final Boolean displayUserMessage) {
+        selected.getInteractors().clear(); // Clear existing interactors
+    	
+    	Long dbId = selected.getReactomeId();
         
         diagramPane.initInteractorCanvas();
         final InteractorCanvas ic = diagramPane.getInteractorCanvas();
@@ -230,13 +234,23 @@ public class PathwayDiagramController {
             requestBuilder.sendRequest(null, new RequestCallback() {
                 public void onResponseReceived(Request request,	Response response) {
                     if (response.getStatusCode() == 200) {
-                        selected.setInteractors(response.getText());
+                        if (response.getText().contains("errorMessage")) {
+                        	String errorMessage = diagramPane.getInteractorCanvasModel().getInteractorDatabase() + " is currently unavailable";
+                        	if (!ic.getUserMessage().contains(errorMessage))
+                        		ic.addToUserMessage(errorMessage);
+                        		
+                        	selected.setDisplayingInteractors(false);
+                        } else {                    	
+                        	selected.setInteractors(response.getText());
                         
-                        if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
-                        	AlertPopup.alert(selected.getDisplayName() + " has no interactors for the selected interaction database");
-                        }                        	
-                        	
-                        ic.addProtein(selected);
+                        	if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
+                        		ic.addToUserMessage(selected.getDisplayName() + " has no interactors for the selected interaction database");
+                        		selected.setDisplayingInteractors(false);  
+                        	}
+                        }
+                        
+                        ic.setDisplayUserMessage(displayUserMessage);
+                        ic.addProtein(selected);                        
                     } else {
                         requestFailed("Failed to get interactors - " + response.getStatusText());
                         selected.setDisplayingInteractors(false);
