@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -30,6 +29,7 @@ public class ProteinNode extends Node {
 	 * Default constructor.
 	 */
 	public ProteinNode() {		
+		interactors = new ArrayList<InteractorNode>();		
 	}
 
 	public List<InteractorNode> getInteractors() {
@@ -40,8 +40,8 @@ public class ProteinNode extends Node {
 		this.interactors = interactors;
 	}
 	
-	public void setInteractors(String xml) {
-		interactors = new ArrayList<InteractorNode>();
+	public void setInteractors(String xml) {		
+		interactors.clear();
 		
 		Document iDom = XMLParser.parse(xml);
 		Element iElement = iDom.getDocumentElement();
