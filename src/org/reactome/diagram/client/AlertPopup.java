@@ -8,8 +8,8 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -29,7 +29,7 @@ public class AlertPopup {
     private static void init(String labelText) { 
         popUp = new PopupPanel(false, true);
     	VerticalPanel vPane = new VerticalPanel();
-        Label alertLabel = new Label(labelText);        
+        HTML alertLabel = new HTML(labelText);        
         Button button = new Button("Ok", new ClickHandler() {
 
 			@Override
