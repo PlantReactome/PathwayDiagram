@@ -6,7 +6,6 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.reactome.diagram.event.HoverEvent;
@@ -170,7 +169,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
             	//showAnalysisData(GWT.getHostPageBaseURL() + "ExpressionLevelJsonForJoel.txt");
-                showAnalysisData("expression_analysis_with_levels.foo");
+                showAnalysisData("expression_analysis_with_levels.1480574852");
             }
         });
     }
@@ -408,10 +407,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void hover(int x, int y) {
        	Point hoveredPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
-    
-       	Collections.reverse(canvasList);       	
        	
-       	for (DiagramCanvas canvas : canvasList) {
+       	for (int i = canvasList.size() - 1; i >= 0; i--) {
+       		DiagramCanvas canvas = canvasList.get(i);
        		if (canvas == null)
        			continue;
        		
@@ -422,10 +420,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
        			hh.fireHoverEvent();
        			break;
        		}	
-       	}
-       	
-       	Collections.reverse(canvasList);
-       	
+       	}       	
     }
 
     public void hideTooltip() {
