@@ -1,5 +1,4 @@
 /*
-
  * Created on Oct 28, 2011
  *
  */
@@ -253,7 +252,17 @@ public class PathwayCanvasControls extends FlexTable {
 		}
 		
 		private ListBox getInteractorDBListBox() {
-			return interactorCanvasModel.getInteractorDBListBox();
+			ListBox interactorDBListBox = interactorCanvasModel.getInteractorDBListBox();
+			String currentDBSelection = interactorCanvasModel.getInteractorDatabase();
+			
+			for (Integer i = 0; i < interactorDBListBox.getItemCount(); i++) {
+				if (interactorDBListBox.getItemText(i).equals(currentDBSelection)) {
+					interactorDBListBox.setSelectedIndex(i);
+					break;
+				}	
+			}
+			
+			return interactorDBListBox;			
 		}
 
 		private Button getClearOverlayButton() {
