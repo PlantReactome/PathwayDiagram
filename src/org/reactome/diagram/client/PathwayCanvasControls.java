@@ -269,7 +269,7 @@ public class PathwayCanvasControls extends FlexTable {
 		
 		private Button getFileUploadButton() {
 			final FormPanel form = new FormPanel();
-			form.setAction(diagramPane.getController().getHostUrl() + "");
+			form.setAction(diagramPane.getController().getHostUrl() + "uploadInteractionFile");
 			form.setEncoding(FormPanel.ENCODING_MULTIPART);
 			form.setMethod(FormPanel.METHOD_POST);
 			form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
@@ -291,9 +291,9 @@ public class PathwayCanvasControls extends FlexTable {
 					FlexTable uploadFileTableLayout = new FlexTable();
 					
 					TextBox fileLabel = new TextBox(); 
-					fileLabel.setName("interactionFileLabel");
+					fileLabel.setName("fileLabel");
 					final FileUpload fileUpload = new FileUpload();
-					fileUpload.setName("interactionFile");
+					fileUpload.setName("file");
 					
 					Button submitButton = new Button("Submit", new ClickHandler() {
 
