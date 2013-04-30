@@ -27,6 +27,8 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -226,8 +228,8 @@ public class PathwayCanvasControls extends FlexTable {
     
 	private class InteractionOverlayOptionsPopup extends DialogBox {
 		private InteractorCanvasModel interactorCanvasModel;
-		private FlexTable optionsTable;	
-		 
+		private FlexTable optionsTable;
+		
 		public InteractionOverlayOptionsPopup() {
 			super(true, true);
 			setText("Interaction Overlay Options");
@@ -241,7 +243,7 @@ public class PathwayCanvasControls extends FlexTable {
 			optionsTable.setText(0, 0, "Interaction Database:");
 			optionsTable.setWidget(0, 1, getInteractorDBListBox());
 			optionsTable.setText(1, 0, "Upload a file");
-			optionsTable.setWidget(1, 1, new FileUpload());
+			optionsTable.setWidget(1, 1, getFileUploadButton());
 			optionsTable.setText(2, 0, "Clear Overlay");
 			optionsTable.setWidget(2, 1, getClearOverlayButton());
 			optionsTable.setText(3, 0, "Submit a new PSICQUIC service");
@@ -263,6 +265,76 @@ public class PathwayCanvasControls extends FlexTable {
 			}
 			
 			return interactorDBListBox;			
+		}
+		
+		private Button getFileUploadButton() {
+			final FormPanel form = new FormPanel();
+			form.setAction(diagramPane.getController().getHostUrl() + "");
+			form.setEncoding(FormPanel.ENCODING_MULTIPART);
+			form.setMethod(FormPanel.METHOD_POST);
+			form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+
+				@Override
+				public void onSubmitComplete(SubmitCompleteEvent event) {
+					AlertPopup.alert(event.getResults());
+				}
+				
+			});
+			
+			Button fileUploadButton = new Button("Select File", new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					final DialogBox uploadFileDialogBox = new DialogBox(Boolean.FALSE, Boolean.TRUE);
+					uploadFileDialogBox.setText("Upload a file");
+					
+					FlexTable uploadFileTableLayout = new FlexTable();
+					
+					TextBox fileLabel = new TextBox(); 
+					fileLabel.setName("interactionFileLabel");
+					final FileUpload fileUpload = new FileUpload();
+					fileUpload.setName("interactionFile");
+					
+					Button submitButton = new Button("Submit", new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent event) {
+							String fileName = fileUpload.getFilename();
+							if (fileName.length() == 0) {
+								AlertPopup.alert("Please select a file to upload");
+							} else {
+								form.submit();
+							}
+						}
+						
+					});
+					
+					Button cancelButton = new Button("Cancel", new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent event) {
+							uploadFileDialogBox.hide();
+						}
+						
+					});
+					
+					
+					uploadFileTableLayout.setText(0, 0, "Label for data set");
+					uploadFileTableLayout.setWidget(0, 1, fileLabel);
+					uploadFileTableLayout.setText(1, 0, "Select a file to upload");
+					uploadFileTableLayout.setWidget(1, 1, fileUpload);
+					uploadFileTableLayout.setWidget(2, 0, submitButton);
+					uploadFileTableLayout.setWidget(2, 1, cancelButton);
+					
+					form.add(uploadFileTableLayout);
+					
+					uploadFileDialogBox.setWidget(form);
+					uploadFileDialogBox.getElement().getStyle().setZIndex(2);
+					uploadFileDialogBox.center();
+				}				
+			});
+			
+			return fileUploadButton;		
 		}
 
 		private Button getClearOverlayButton() {
