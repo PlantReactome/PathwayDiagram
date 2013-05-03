@@ -30,7 +30,7 @@ import com.google.gwt.xml.client.XMLParser;
 public class InteractorCanvasModel {
     private final String defaultInteractorDatabase = "IntAct";    
     private String interactorDatabase;    
-   	private Map<String, String> psicquicMap;
+   	private Map<String, String> psicquicMap;   	
 	private Map<String, String> interactorDBMap; 
 	private InteractorCanvas interactorCanvas;
 	
@@ -51,6 +51,16 @@ public class InteractorCanvasModel {
     	// Already set to the chosen interactor database
     	if (this.interactorDatabase == interactorDatabase)
     		return;
+    	
+    	// if the interactor database contains 'Interaction File', this is a user
+    	// uploaded file id to be used as the interactorDatabase name
+    	String uploadIdFlag = "Interaction_File";
+    	if (interactorDatabase.contains(uploadIdFlag)) {
+    		Integer uploadIdStart = interactorDatabase.indexOf(uploadIdFlag); 
+    		String uploadId = interactorDatabase.substring(uploadIdStart);
+    		interactorDatabase = new String(uploadId);
+    	}
+    	
     	
     	this.interactorDatabase = interactorDatabase;
     	InteractorEdge.setUrl(interactorDBMap, interactorDatabase);
@@ -142,7 +152,7 @@ public class InteractorCanvasModel {
 		interactorDBList.addChangeHandler(new ChangeHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onChange(ChangeEvent event) {				
 				setInteractorDatabase(interactorDBList.getItemText(interactorDBList.getSelectedIndex()));				
 			}
 			

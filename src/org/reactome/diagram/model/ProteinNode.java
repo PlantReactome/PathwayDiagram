@@ -72,15 +72,24 @@ public class ProteinNode extends Node {
 				try {
 					com.google.gwt.xml.client.Node accNode = interactorElement.getElementsByTagName("accession").item(0);								
 					acc = accNode.getChildNodes().item(0).getNodeValue();
-			
+				} catch (NullPointerException e) {
+					acc = "";
+				}
+					
+				try {
 					com.google.gwt.xml.client.Node genenameNode = interactorElement.getElementsByTagName("genename").item(0);
 					geneName = genenameNode.getChildNodes().item(0).getNodeValue();
-				
+				} catch (NullPointerException e) {
+					continue;
+					//geneName = "";
+				}
+								
+				try {
 					com.google.gwt.xml.client.Node scoreNode = interactorElement.getElementsByTagName("score").item(0);
 					scoreString = scoreNode.getChildNodes().item(0).getNodeValue();
 					score = Double.parseDouble(scoreString);
 				} catch (NullPointerException e) {
-					continue;
+					score = 0;
 				}
 
 				try {

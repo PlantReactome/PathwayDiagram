@@ -38,7 +38,7 @@ public class InteractorCanvas extends DiagramCanvas {
     
     // Proteins mapped to their list of interactors
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
-    // Interactor objects mapped to their accession ids 
+    // Interactor objects mapped to their accession ids or display name if no accession is available 
 	private Map<String, InteractorNode> uniqueInteractors; 
 	private boolean loadingInteractors;
 	
@@ -88,6 +88,8 @@ public class InteractorCanvas extends DiagramCanvas {
     	// Process each interactor for the protein
     	for (InteractorNode i : protein.getInteractors()) {
     		String id = i.getAccession();
+    		if (id.isEmpty())
+    			id = i.getDisplayName();
     			
     			
 			// If the interactor is already known by the canvas
@@ -140,7 +142,7 @@ public class InteractorCanvas extends DiagramCanvas {
         setGreyOutCanvas(!uniqueInteractors.isEmpty()); // Grey out if there are unique interactors to display
         
         drawInteractors(c2d);
-        drawInteractors(diagramPanel.getOverview().getContext2d());
+        //drawInteractors(diagramPanel.getOverview().getContext2d());
         
         if (displayUserMessage)
         	displayUserMessage();
@@ -435,18 +437,21 @@ public class InteractorCanvas extends DiagramCanvas {
 	}
 	
 	public void setInteractorDatabase(String interactorDatabase, boolean initializing) {
+		// Cache proteins before removing them from the canvas
 		List<ProteinNode> proteinList = new ArrayList<ProteinNode>(getProteins());
 		removeAllProteins();
+		
 		if (!initializing && !proteinList.isEmpty())
 			setGreyOutCanvas(true);
 		
+		clearUserMessage();
+		
+		// Re-obtain proteins for the new interactor database
 		for (ProteinNode protein: proteinList) {
-			Boolean displayMessages;
-			if (protein == proteinList.get(proteinList.size() - 1))
-				displayMessages = Boolean.TRUE;
-			else
-				displayMessages = Boolean.FALSE;
-			
+			// Display accumulated warning messages, if any, to the user if this is the last protein
+			// whose interactors are being obtained and rendered
+			Boolean displayMessages = (protein == proteinList.get(proteinList.size() - 1));
+						
 			this.diagramPanel.getController().getInteractors(protein, displayMessages);
 		}
 	}

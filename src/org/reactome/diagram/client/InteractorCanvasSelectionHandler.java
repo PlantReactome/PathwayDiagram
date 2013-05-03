@@ -59,9 +59,9 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
 
 	@Override
 	protected void doAdditionalActions(GraphObject selected) {
-		if (selected instanceof InteractorNode) {
+		if (selected instanceof InteractorNode && !((InteractorNode) selected).getAccession().isEmpty()) {
 			Window.open(((InteractorNode) selected).getUrl(), "_blank", "");
-		} else if (selected instanceof InteractorEdge) {
+		} else if (selected instanceof InteractorEdge && ((InteractorEdge) selected).getUrl() != null) {
 			diagramPanel.getController().openInteractionPage((InteractorEdge) selected);
 		}
 		

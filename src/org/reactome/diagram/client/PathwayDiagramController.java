@@ -185,7 +185,6 @@ public class PathwayDiagramController {
         final ProteinNode protein = selected.getProtein();
 
         String url = this.getHostUrl() + "referenceEntity/" + protein.getReactomeId();
-        Window.alert(url);
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
@@ -242,7 +241,7 @@ public class PathwayDiagramController {
                         	selected.setDisplayingInteractors(false);
                         } else {                    	
                         	selected.setInteractors(response.getText());
-                        
+                        	
                         	if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
                         		ic.addToUserMessage(selected.getDisplayName() + " has no interactors for the selected interaction database");
                         		selected.setDisplayingInteractors(false);  

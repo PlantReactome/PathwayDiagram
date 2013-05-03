@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.reactome.diagram.model.GraphObject;
@@ -29,12 +30,16 @@ import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * This customized FlexTable is used to set up controls for PathwayCanvas: e.g. 
@@ -231,7 +236,7 @@ public class PathwayCanvasControls extends FlexTable {
 		private FlexTable optionsTable;
 		
 		public InteractionOverlayOptionsPopup() {
-			super(true, true);
+			super(Boolean.FALSE, Boolean.TRUE);
 			setText("Interaction Overlay Options");
 			init();
 		}
@@ -248,7 +253,17 @@ public class PathwayCanvasControls extends FlexTable {
 			optionsTable.setWidget(2, 1, getClearOverlayButton());
 			optionsTable.setText(3, 0, "Submit a new PSICQUIC service");
 			optionsTable.setWidget(3, 1, getPSICQUICServiceButton());
+			optionsTable.setWidget(4, 0, new Button("Close", new ClickHandler() {
 
+				@Override
+				public void onClick(ClickEvent event) {
+					hide();
+				}
+				
+			}));
+			
+			optionsTable.getFlexCellFormatter().setColSpan(4, 0, 2);
+			optionsTable.getFlexCellFormatter().setHorizontalAlignment(4, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 			getElement().getStyle().setZIndex(2);
 			setWidget(optionsTable);
 		}
@@ -258,7 +273,7 @@ public class PathwayCanvasControls extends FlexTable {
 			String currentDBSelection = interactorCanvasModel.getInteractorDatabase();
 			
 			for (Integer i = 0; i < interactorDBListBox.getItemCount(); i++) {
-				if (interactorDBListBox.getItemText(i).equals(currentDBSelection)) {
+				if (interactorDBListBox.getItemText(i).endsWith(currentDBSelection)) {
 					interactorDBListBox.setSelectedIndex(i);
 					break;
 				}	
@@ -268,21 +283,13 @@ public class PathwayCanvasControls extends FlexTable {
 		}
 		
 		private Button getFileUploadButton() {
-			final FormPanel form = new FormPanel();
-			form.setAction(diagramPane.getController().getHostUrl() + "uploadInteractionFile");
-			form.setEncoding(FormPanel.ENCODING_MULTIPART);
-			form.setMethod(FormPanel.METHOD_POST);
-			form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
-
-				@Override
-				public void onSubmitComplete(SubmitCompleteEvent event) {
-					AlertPopup.alert(event.getResults());
-				}
-				
-			});
-			
 			Button fileUploadButton = new Button("Select File", new ClickHandler() {
-
+				FormPanel form;
+				
+				TextBox fileLabel;
+				FileUpload fileUpload;
+				VerticalPanel fileTypePanel;
+				
 				@Override
 				public void onClick(ClickEvent event) {
 					final DialogBox uploadFileDialogBox = new DialogBox(Boolean.FALSE, Boolean.TRUE);
@@ -290,20 +297,45 @@ public class PathwayCanvasControls extends FlexTable {
 					
 					FlexTable uploadFileTableLayout = new FlexTable();
 					
-					TextBox fileLabel = new TextBox(); 
+					form = new FormPanel();
+					form.setAction(diagramPane.getController().getHostUrl() + "uploadInteractionFile");
+					form.setEncoding(FormPanel.ENCODING_MULTIPART);
+					form.setMethod(FormPanel.METHOD_POST);
+					
+					fileLabel = new TextBox(); 
 					fileLabel.setName("fileLabel");
-					final FileUpload fileUpload = new FileUpload();
+					
+					fileUpload = new FileUpload();
 					fileUpload.setName("file");
+					
+					fileTypePanel = createFileTypePanel();
+					
+					form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+
+						@Override
+						public void onSubmitComplete(SubmitCompleteEvent event) {
+							String userLabel = fileLabel.getText();
+							String serviceKey = event.getResults();
+							serviceKey = serviceKey.substring(serviceKey.indexOf(">") + 1, serviceKey.lastIndexOf("<"));
+							String serviceLabel = userLabel + " - " + serviceKey;
+							interactorCanvasModel.addNewPSICQUICService(serviceLabel, null);
+							interactorCanvasModel.setInteractorDatabase(serviceLabel);
+							optionsTable.setWidget(0, 1, getInteractorDBListBox());
+							uploadFileDialogBox.hide();
+						}
+						
+					});
+					
 					
 					Button submitButton = new Button("Submit", new ClickHandler() {
 
 						@Override
 						public void onClick(ClickEvent event) {
-							String fileName = fileUpload.getFilename();
-							if (fileName.length() == 0) {
-								AlertPopup.alert("Please select a file to upload");
-							} else {
+							String inputErrors = getInputErrors();
+							if (inputErrors.isEmpty()) {
 								form.submit();
+							} else {
+								AlertPopup.alert(inputErrors);
 							}
 						}
 						
@@ -318,20 +350,70 @@ public class PathwayCanvasControls extends FlexTable {
 						
 					});
 					
+					HorizontalPanel submissionPanel = new HorizontalPanel();
+					submissionPanel.add(submitButton);
+					submissionPanel.add(cancelButton);					
 					
 					uploadFileTableLayout.setText(0, 0, "Label for data set");
 					uploadFileTableLayout.setWidget(0, 1, fileLabel);
 					uploadFileTableLayout.setText(1, 0, "Select a file to upload");
 					uploadFileTableLayout.setWidget(1, 1, fileUpload);
-					uploadFileTableLayout.setWidget(2, 0, submitButton);
-					uploadFileTableLayout.setWidget(2, 1, cancelButton);
+					uploadFileTableLayout.setText(2, 0, "Choose file type");
+					uploadFileTableLayout.setWidget(2, 1, fileTypePanel);
 					
-					form.add(uploadFileTableLayout);
+					uploadFileTableLayout.setWidget(3, 0, submissionPanel);
+					//uploadFileTableLayout.setWidget(3, 1, cancelButton);
+					
+					form.setWidget(uploadFileTableLayout);
 					
 					uploadFileDialogBox.setWidget(form);
 					uploadFileDialogBox.getElement().getStyle().setZIndex(2);
 					uploadFileDialogBox.center();
-				}				
+				}
+				
+				private VerticalPanel createFileTypePanel() {
+					VerticalPanel fileTypePanel = new VerticalPanel();
+					
+					String rbGroup = "fileType";
+					RadioButton geneToGene = new RadioButton(rbGroup, "Gene pairs (tab delimited)");
+					RadioButton proteinToProtein = new RadioButton(rbGroup, "Protein pairs (tab delimited)");
+					RadioButton psimitab = new RadioButton(rbGroup, "PSI-MITAB");
+					
+					geneToGene.setFormValue("gene");
+					proteinToProtein.setFormValue("protein");
+					psimitab.setFormValue("psimitab");
+					
+					fileTypePanel.add(geneToGene);
+					fileTypePanel.add(proteinToProtein);
+					fileTypePanel.add(psimitab);
+					
+					return fileTypePanel;					
+				}
+				
+				private String getInputErrors() {
+					String errors = new String();
+					
+					if (fileLabel.getText().trim().length() == 0)
+						errors = errors.concat("Please enter a label for the file <br />");
+						
+					if (fileUpload.getFilename().length() == 0)
+						errors = errors.concat("Please select a file <br />");
+					
+					Boolean noButtonChecked = Boolean.TRUE;
+					Iterator<Widget> fileTypeIterator = fileTypePanel.iterator();
+					while (fileTypeIterator.hasNext()) {
+						RadioButton fileTypeButton = (RadioButton) fileTypeIterator.next();
+						if (fileTypeButton.getValue()) {
+							noButtonChecked = Boolean.FALSE;
+						}
+					}
+					
+					if (noButtonChecked)
+						errors = errors.concat("Please choose a file type");
+					
+					return errors;					
+				}
+				
 			});
 			
 			return fileUploadButton;		
