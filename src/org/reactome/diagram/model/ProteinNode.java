@@ -16,6 +16,7 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.xml.client.impl.DOMParseException;
 
 public class ProteinNode extends Node {
 	// Uniprot id
@@ -43,84 +44,47 @@ public class ProteinNode extends Node {
 	public void setInteractors(String xml) {		
 		interactors.clear();
 		
-		Document iDom = XMLParser.parse(xml);
-		Element iElement = iDom.getDocumentElement();
-		XMLParser.removeWhitespace(iElement);
-		
-		NodeList interactionList; 	
-		try {	
-			interactionList = ((Element) iElement.getElementsByTagName("resultList").item(0)).getElementsByTagName("interactionList").item(0).getChildNodes();
-		} catch (NullPointerException npe) {			
+		Document iDom;		
+		try {
+			iDom = XMLParser.parse(xml);
+		} catch (DOMParseException e) {
+			GWT.log("Interactors could not be parsed from xml", e);
 			return;
 		}
 		
-		InteractorNode iNode;
+		Element iElement = iDom.getDocumentElement();
+		XMLParser.removeWhitespace(iElement);
+
+		NodeList interactionList = getNodeList(iElement, "resultList", "interactionList");
+		
+		if (interactionList == null)
+			return;
+		
 		for (int i = 0; i < interactionList.getLength(); i++) {
 			com.google.gwt.xml.client.Node node = interactionList.item(i);
 			String name = node.getNodeName();
 		
 			if (name.equals("interactors")) {
 				Element interactorElement = (Element) node;
+				
+				String acc = getXMLNodeValue(interactorElement,"accession");
+									
+				String geneName = getXMLNodeValue(interactorElement, "genename");
+				if (geneName.isEmpty()) {
+					continue; // Gene name or some kind of display name is required
+				}
 			
-				
-				String acc;
-				String geneName;
-				String chemblId = null;
-				String scoreString;
-				double score;
-				
+				Double score;				
 				try {
-					com.google.gwt.xml.client.Node accNode = interactorElement.getElementsByTagName("accession").item(0);								
-					acc = accNode.getChildNodes().item(0).getNodeValue();
-				} catch (NullPointerException e) {
-					acc = "";
-				}
-					
-				try {
-					com.google.gwt.xml.client.Node genenameNode = interactorElement.getElementsByTagName("genename").item(0);
-					geneName = genenameNode.getChildNodes().item(0).getNodeValue();
-				} catch (NullPointerException e) {
-					continue;
-					//geneName = "";
-				}
-								
-				try {
-					com.google.gwt.xml.client.Node scoreNode = interactorElement.getElementsByTagName("score").item(0);
-					scoreString = scoreNode.getChildNodes().item(0).getNodeValue();
-					score = Double.parseDouble(scoreString);
-				} catch (NullPointerException e) {
-					score = 0;
+					score = Double.parseDouble(getXMLNodeValue(interactorElement, "score"));				
+				} catch (IllegalArgumentException e) {
+					score = 0d;
 				}
 
-				try {
-					com.google.gwt.xml.client.Node extraNode = interactorElement.getElementsByTagName("extraFields").item(0);
-					
-					NodeList entryNodes = ((Element) extraNode).getElementsByTagName("entry");
-					for (int j = 0; j < entryNodes.getLength(); j++) {
-						com.google.gwt.xml.client.Node entryNode = entryNodes.item(0);
-												
-						String key = entryNode.getChildNodes().item(0).getChildNodes().item(0).getNodeValue();
-						if (key.equals("chemblid")) {
-							String value = entryNode.getChildNodes().item(1).getChildNodes().item(0).getNodeValue();
-							chemblId = value;
-						}
-					}						
-				} catch (NullPointerException e) {
-					chemblId = null;
-				}
+								
+				String chemblId = getChemblId(getNodeList(interactorElement, "extraFields", "entry"));								
 				
-				iNode = new InteractorNode();
-				iNode.setAccession(acc);
-				if (acc.matches("^(C[Hh]E(BI:|MBL))?\\d+") || chemblId != null) {
-					iNode.setRefType(InteractorType.Chemical);
-				} else {
-					iNode.setRefType(InteractorType.Protein);
-				}
-				iNode.setDisplayName(geneName);
-				iNode.setScore(score);
-				iNode.setChemicalId(chemblId);
-			
-				interactors.add(iNode);
+				interactors.add(createInteractor(acc, geneName, score, chemblId));
 			}			
 		}
 		
@@ -140,31 +104,100 @@ public class ProteinNode extends Node {
 	}
 
 	public void setRefId(String xml) {
+		Document refDom;
 		try {
-			Document refDom = XMLParser.parse(xml);
-			Element refElement = refDom.getDocumentElement();
-			XMLParser.removeWhitespace(refElement);
+			refDom = XMLParser.parse(xml);
+		} catch (DOMParseException e) {
+			GWT.log("Could not parse xml to obtain reference id");
+			return;
+		}	
 			
-			NodeList nodeList = refElement.getChildNodes();
+		Element refElement = refDom.getDocumentElement();
+		XMLParser.removeWhitespace(refElement);
+		
+		NodeList nodeList = refElement.getChildNodes();
+		
+		for (int i = 0; i < nodeList.getLength(); i++) {
+				
+			String displayName = getXMLNodeValue((Element) nodeList.item(i), "displayName");
 			
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				com.google.gwt.xml.client.Node node = nodeList.item(i);
-				//String name = node.getNodeName();
-									
-				//if (name.equals("referenceEntity")) {
-					Element reElement = (Element) node;
-					
-					com.google.gwt.xml.client.Node nameNode = reElement.getElementsByTagName("displayName").item(0);
-					String displayName = nameNode.getChildNodes().item(0).getNodeValue();
-					
-					int start = displayName.indexOf(":") + 1;
-					int end = displayName.indexOf(" ");
-								
-					this.refId = displayName.substring(start, end);
-				//}
+			if (displayName != null) {
+				int start = displayName.indexOf(":") + 1;
+				int end = displayName.indexOf(" ");
+						
+				this.refId = displayName.substring(start, end);		
 			}
-		} catch (Exception e) {
-			GWT.log("Could not set reference id", e);			
 		}
 	}	
+	
+	private NodeList getNodeList(Element xmlElement, String containerTag, String desiredTag) {		
+		NodeList containerCollection = xmlElement.getElementsByTagName(containerTag); 
+		if (containerCollection == null || containerCollection.item(0) == null)
+			return null;
+		
+		NodeList desiredTagCollection = ((Element) containerCollection.item(0)).getElementsByTagName(desiredTag);
+		if (desiredTagCollection == null)
+			return null;
+		
+		com.google.gwt.xml.client.Node desiredTagNode = desiredTagCollection.item(0);
+		if (desiredTagNode == null)
+			return null;
+		
+		return desiredTagNode.getChildNodes();		
+	}
+	
+	private String getXMLNodeValue(Element xmlElement, String tagName) {
+		String nodeValue = null;
+		
+		NodeList nodes = xmlElement.getElementsByTagName(tagName);		
+		if (nodes != null && nodes.item(0) != null) { 
+			NodeList nodeChildren = nodes.item(0).getChildNodes();
+			
+			if (nodeChildren != null && nodeChildren.item(0) != null) {
+				nodeValue = nodeChildren.item(0).getNodeValue();
+			}
+		} 
+		
+		if (nodeValue == null)
+			nodeValue = ""; 
+				
+		return nodeValue;		
+	}
+	
+	private InteractorNode createInteractor(String acc, String geneName, Double score, String chemblID) {
+		InteractorNode interactor = new InteractorNode();
+		interactor.setAccession(acc);
+		interactor.setDisplayName(geneName);
+		interactor.setScore(score);
+		interactor.setChemicalId(chemblID);
+		
+		if (acc.matches("^(C[Hh]E(BI:|MBL))?\\d+") || !chemblID.isEmpty() ) {
+			interactor.setRefType(InteractorType.Chemical);
+		} else {
+			interactor.setRefType(InteractorType.Protein);
+		}
+		
+		return interactor;		
+	}
+	
+	private String getChemblId(NodeList entryNodes) {
+		if (entryNodes == null)
+			return "";
+		
+		com.google.gwt.xml.client.Node keyNode = entryNodes.item(0);
+		com.google.gwt.xml.client.Node valueNode = entryNodes.item(1);
+			
+		if (keyNode != null) {			
+			com.google.gwt.xml.client.Node keyNodeValue = keyNode.getChildNodes().item(0);
+			if (keyNodeValue != null && keyNodeValue.getNodeValue().equals("chemblid")) {
+				com.google.gwt.xml.client.Node valueNodeValue = valueNode.getChildNodes().item(0);
+				if (valueNodeValue != null) {
+					return valueNodeValue.getNodeValue();
+				}
+			}
+		}
+	
+		return "";
+	}
 }
+

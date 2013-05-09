@@ -29,13 +29,16 @@ import com.google.gwt.xml.client.XMLParser;
  */
 public class InteractorCanvasModel {
     private final String defaultInteractorDatabase = "IntAct";    
-    private String interactorDatabase;    
-   	private Map<String, String> psicquicMap;   	
-	private Map<String, String> interactorDBMap; 
-	private InteractorCanvas interactorCanvas;
+    private String interactorDatabase; // The currently selected interaction database   
+   	private Map<String, String> psicquicMap; // PSICQUIC service names mapped to urls obtained from the online registry  	
+	private Map<String, String> userFileMap; // User file uploads mapping a label provided by the user to the file id on the server
+   	private Map<String, String> interactorDBMap; // Represents the psicquicMap with some values overridden from a configuration file  
+	private InteractorCanvas interactorCanvas; // The canvas using the interaction database info provided here
 	
 	public InteractorCanvasModel() {
 		interactorDatabase = defaultInteractorDatabase;
+		psicquicMap = new HashMap<String, String>();
+		userFileMap = new HashMap<String, String>();
 	}
 		
     public InteractorCanvasModel(InteractorCanvas interactorCanvas) {
@@ -49,19 +52,9 @@ public class InteractorCanvasModel {
     
     public void setInteractorDatabase(String interactorDatabase, Boolean initializing) {
     	// Already set to the chosen interactor database
-    	if (this.interactorDatabase == interactorDatabase)
+    	if (this.interactorDatabase.equals(interactorDatabase))
     		return;
-    	
-    	// if the interactor database contains 'Interaction File', this is a user
-    	// uploaded file id to be used as the interactorDatabase name
-    	String uploadIdFlag = "Interaction_File";
-    	if (interactorDatabase.contains(uploadIdFlag)) {
-    		Integer uploadIdStart = interactorDatabase.indexOf(uploadIdFlag); 
-    		String uploadId = interactorDatabase.substring(uploadIdStart);
-    		interactorDatabase = new String(uploadId);
-    	}
-    	
-    	
+    	    	
     	this.interactorDatabase = interactorDatabase;
     	InteractorEdge.setUrl(interactorDBMap, interactorDatabase);
     	if (interactorCanvas != null) {
@@ -78,7 +71,7 @@ public class InteractorCanvasModel {
 	}
 	
 	public void setPSICQUICMap(String xml) {
-		psicquicMap = new HashMap<String, String>();
+		psicquicMap.clear();
 		
 		Document psicquicDom = XMLParser.parse(xml);
 		Element psicquicElement = psicquicDom.getDocumentElement();
@@ -119,8 +112,13 @@ public class InteractorCanvasModel {
 	}
 
 	public void addNewPSICQUICService(String serviceName, String serviceUrl) {
-		if (!interactorDBMap.containsKey(serviceName))
-			interactorDBMap.put(serviceName, serviceUrl);
+		if (!psicquicMap.containsKey(serviceName))
+			psicquicMap.put(serviceName, serviceUrl);
+	}
+	
+	public void addNewUploadedUserFile(String labelName, String fileId) {
+		labelName = labelName + " (file upload)";
+		userFileMap.put(labelName, fileId);
 	}
 	
 	public void addToInteractorDBMap(Map<String, String> map) {
@@ -136,28 +134,42 @@ public class InteractorCanvasModel {
 	
 	public ListBox getInteractorDBListBox() {
 		final ListBox interactorDBList = new ListBox();	
+		//final String separator = "--------------------";
 		
-		List<String> dbs = new ArrayList<String>(interactorDBMap.keySet());
-		Collections.sort(dbs);
-		for (int i = 0; i < dbs.size(); i++) {
-			String db = dbs.get(i);
-			
-			interactorDBList.addItem(db, interactorDBMap.get(db));
-			if (db.equals(defaultInteractorDatabase)) {
-				interactorDBList.setSelectedIndex(i);
-				//setInteractorDatabase(db, true);				
-			}
-		}
+		addMapToListBox(userFileMap, interactorDBList);
+		//interactorDBList.addItem(separator);
+		addMapToListBox(psicquicMap, interactorDBList);
 		
 		interactorDBList.addChangeHandler(new ChangeHandler() {
 
 			@Override
 			public void onChange(ChangeEvent event) {				
-				setInteractorDatabase(interactorDBList.getItemText(interactorDBList.getSelectedIndex()));				
+				String selection = interactorDBList.getItemText(interactorDBList.getSelectedIndex());
+				
+				//if (selection.equals(separator))
+								
+				if (userFileMap.containsKey(selection)) 
+					setInteractorDatabase(userFileMap.get(selection));
+				else
+					setInteractorDatabase(selection);
 			}
 			
 		});
+				
+		return interactorDBList;						
+	}
+
+	private void addMapToListBox(Map<String, String> map, ListBox interactorDBList) {
+		List<String> dbs = new ArrayList<String>(map.keySet());
+		Collections.sort(dbs);
 		
-		return interactorDBList;				
+		for (int i = 0; i < dbs.size(); i++) {
+			String db = dbs.get(i);
+			
+			interactorDBList.addItem(db, map.get(db));
+			if (db.equals(defaultInteractorDatabase))
+				interactorDBList.setSelectedIndex(interactorDBList.getItemCount() - 1);
+		}
+			
 	}
 }

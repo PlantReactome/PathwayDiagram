@@ -29,7 +29,7 @@ public class InteractorRenderer extends NodeRenderer {
     }
     
     protected void drawNode(Context2d c2d, Node node) { 
-    	if (((InteractorNode) node).getChemicalId() != null) {
+    	if (((InteractorNode) node).getChemicalId() != null && !((InteractorNode) node).getChemicalId().isEmpty()) {
     	   	drawRectangle(node.getBounds(), c2d, node);
     		drawImage(c2d, (InteractorNode) node);
     	} else {

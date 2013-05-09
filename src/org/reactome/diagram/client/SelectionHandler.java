@@ -160,7 +160,7 @@ public abstract class SelectionHandler {
     
     protected void fireSelectionEvent() {
         selectionEvent = new SelectionEvent();
-        selectionEvent.setDoCentring(false);
+        selectionEvent.setDoCentring(doCentring());
         selectionEvent.setSelectedObjects(selectedObjects);
         //OverviewCanvas overview = diagramPanel.getOverview();
         //overview.setSelectedObjects(selectedObjects);
@@ -168,7 +168,14 @@ public abstract class SelectionHandler {
         diagramPanel.fireSelectionEvent(selectionEvent);        
     }
     
-    private void deSelectAllExcept(GraphObject selected) {
+    private boolean doCentring() {
+    	if (selectedObjects.isEmpty())
+    		return false;
+    	
+		return !diagramPanel.getPathwayCanvas().currentViewContainsGraphObject(selectedObjects.get(0));		
+	}
+
+	private void deSelectAllExcept(GraphObject selected) {
     	for (GraphObject obj : selectedObjects) {
     		if (obj != selected) {
     			obj.setIsSelected(false);

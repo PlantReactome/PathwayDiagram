@@ -17,7 +17,13 @@ import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.TextMetrics;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.ImageElement;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * This customized Renderer is use to render Protein. 
@@ -27,11 +33,24 @@ import com.google.gwt.touch.client.Point;
 //TODO: Make sure text names are correctly encapsulated as in the curator tool. Work on display name for compartments.
 //display pathway icons.
 public class NodeRenderer extends AbstractRenderer<Node> {
-    
+    //private static Resources resources;
+	
     public NodeRenderer() {
         defaultLineColor = Parameters.defaultstrokeColor;
         defaultLineWidth = 1.0d;
     }
+    
+    //interface Resources extends ClientBundle {
+    //	@Source("Down.png")
+    //	ImageResource down();    	
+    //}
+    
+    //private static Resources getResource() {
+    //	if (resources == null)
+    //		resources = GWT.create(Resources.class);
+	//	
+    //	return resources;    	
+    //}
     
     /* (non-Javadoc)
      * @see org.reactome.diagram.view.GraphObjectRenderer#render(com.google.gwt.canvas.dom.client.Context2d)
@@ -64,6 +83,20 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                  node);
         drawNodeAttachments(c2d,
                             node);
+        
+      //  Image down = new Image(getResource().down());
+        
+       // ImageElement downElement = ImageElement.as(down.getElement());
+        
+        //Integer x = bounds.getX();
+        //Integer w = bounds.getWidth();
+
+        //downElement.setWidth(20);
+        //downElement.setHeight(20);
+        
+       // Integer imageX = x + w - downElement.getWidth();
+        
+        //c2d.drawImage(downElement, imageX, bounds.getY());
     }
 
     private void drawNodeAttachments(Context2d context,

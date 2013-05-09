@@ -236,7 +236,7 @@ public class InteractorCanvas extends DiagramCanvas {
     	int width;
     	int height;
     	
-    	if (interactor.getChemicalId() != null) {
+    	if (interactor.getChemicalId() != null && !interactor.getChemicalId().isEmpty()) {
     		width = Parameters.IMAGE_WIDTH;
     		height = Parameters.IMAGE_HEIGHT;
     		interactorX = (int) (interactorCentreX - (width / 2));

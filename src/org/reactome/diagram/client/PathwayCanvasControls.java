@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.view.Parameters;
 
@@ -21,6 +22,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
@@ -64,7 +66,17 @@ public class PathwayCanvasControls extends FlexTable {
         ImageResource up();
         @Source("Down.png")
         ImageResource down();
+        
+//        @Source("DialogBox.css")
+ //       DialogCssResource DialogBoxCss();        
     }
+    
+    //interface DialogCssResource extends CssResource {
+    //	@ClassName("gwt-DialogBox")
+    //	String gwtDialogBox();
+    	
+    	//String Caption();
+   // }
     
     private PathwayDiagramPanel diagramPane;
     private static Resources resources;
@@ -82,6 +94,8 @@ public class PathwayCanvasControls extends FlexTable {
     
     private void init() {
         Resources resources = getResource();
+   //     resources.DialogBoxCss().ensureInjected();
+        
         Image refresh = new Image(resources.reset());
         refresh.setAltText("reset");
         refresh.setTitle("reset");
@@ -232,6 +246,7 @@ public class PathwayCanvasControls extends FlexTable {
     }
     
 	private class InteractionOverlayOptionsPopup extends DialogBox {
+		private final String FILEIDPREFIX = "Interaction_File";
 		private InteractorCanvasModel interactorCanvasModel;
 		private FlexTable optionsTable;
 		
@@ -264,7 +279,11 @@ public class PathwayCanvasControls extends FlexTable {
 			
 			optionsTable.getFlexCellFormatter().setColSpan(4, 0, 2);
 			optionsTable.getFlexCellFormatter().setHorizontalAlignment(4, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+
 			getElement().getStyle().setZIndex(2);
+	//		addStyleName(resources.DialogBoxCss().gwtDialogBox());
+			//addStyleDependentName(resources.DialogBoxCss().Caption());
+			
 			setWidget(optionsTable);
 		}
 		
@@ -273,7 +292,14 @@ public class PathwayCanvasControls extends FlexTable {
 			String currentDBSelection = interactorCanvasModel.getInteractorDatabase();
 			
 			for (Integer i = 0; i < interactorDBListBox.getItemCount(); i++) {
-				if (interactorDBListBox.getItemText(i).endsWith(currentDBSelection)) {
+				String selection;
+				
+				if (currentDBSelection.contains(FILEIDPREFIX))
+					selection = interactorDBListBox.getValue(i);
+				else
+					selection = interactorDBListBox.getItemText(i);
+					
+				if (selection.equals(currentDBSelection)) {
 					interactorDBListBox.setSelectedIndex(i);
 					break;
 				}	
@@ -284,11 +310,11 @@ public class PathwayCanvasControls extends FlexTable {
 		
 		private Button getFileUploadButton() {
 			Button fileUploadButton = new Button("Select File", new ClickHandler() {
-				FormPanel form;
+				private FormPanel form;
 				
-				TextBox fileLabel;
-				FileUpload fileUpload;
-				VerticalPanel fileTypePanel;
+				private TextBox fileLabel;
+				private FileUpload fileUpload;
+				private VerticalPanel fileTypePanel;
 				
 				@Override
 				public void onClick(ClickEvent event) {
@@ -315,11 +341,18 @@ public class PathwayCanvasControls extends FlexTable {
 						@Override
 						public void onSubmitComplete(SubmitCompleteEvent event) {
 							String userLabel = fileLabel.getText();
-							String serviceKey = event.getResults();
-							serviceKey = serviceKey.substring(serviceKey.indexOf(">") + 1, serviceKey.lastIndexOf("<"));
-							String serviceLabel = userLabel + " - " + serviceKey;
-							interactorCanvasModel.addNewPSICQUICService(serviceLabel, null);
-							interactorCanvasModel.setInteractorDatabase(serviceLabel);
+							String results = event.getResults();
+							
+							if (!results.contains(FILEIDPREFIX)) {
+								AlertPopup.alert("Our service could not process your file -- please check the format and try again");
+								GWT.log(results);
+								return;
+							}
+						
+							String serviceKey = results.substring(results.indexOf(">") + 1, results.lastIndexOf("<"));
+							
+							interactorCanvasModel.addNewUploadedUserFile(userLabel, serviceKey);
+							interactorCanvasModel.setInteractorDatabase(serviceKey);
 							optionsTable.setWidget(0, 1, getInteractorDBListBox());
 							uploadFileDialogBox.hide();
 						}
@@ -351,6 +384,7 @@ public class PathwayCanvasControls extends FlexTable {
 					});
 					
 					HorizontalPanel submissionPanel = new HorizontalPanel();
+					submissionPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 					submissionPanel.add(submitButton);
 					submissionPanel.add(cancelButton);					
 					
@@ -362,7 +396,6 @@ public class PathwayCanvasControls extends FlexTable {
 					uploadFileTableLayout.setWidget(2, 1, fileTypePanel);
 					
 					uploadFileTableLayout.setWidget(3, 0, submissionPanel);
-					//uploadFileTableLayout.setWidget(3, 1, cancelButton);
 					
 					form.setWidget(uploadFileTableLayout);
 					
@@ -375,8 +408,8 @@ public class PathwayCanvasControls extends FlexTable {
 					VerticalPanel fileTypePanel = new VerticalPanel();
 					
 					String rbGroup = "fileType";
-					RadioButton geneToGene = new RadioButton(rbGroup, "Gene pairs (tab delimited)");
-					RadioButton proteinToProtein = new RadioButton(rbGroup, "Protein pairs (tab delimited)");
+					RadioButton geneToGene = new RadioButton(rbGroup, "Gene pairs (tab delimited gene names)");
+					RadioButton proteinToProtein = new RadioButton(rbGroup, "Protein pairs (tab delimited uniprot accessions)");
 					RadioButton psimitab = new RadioButton(rbGroup, "PSI-MITAB");
 					
 					geneToGene.setFormValue("gene");
@@ -580,7 +613,7 @@ public class PathwayCanvasControls extends FlexTable {
 			
 				List<GraphObject> pathwayObjects = diagramPane.getPathway().getGraphObjects(); 			
 				for (GraphObject pathwayObject: pathwayObjects) {
-					if (pathwayObject.getDisplayName() == null)
+					if (pathwayObject.getDisplayName() == null || pathwayObject.getType() == GraphObjectType.RenderableCompartment)
 						continue;
 					
 					if (pathwayObject.getDisplayName().toLowerCase().contains(query.toLowerCase()))

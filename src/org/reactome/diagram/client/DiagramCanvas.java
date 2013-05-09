@@ -7,7 +7,9 @@ package org.reactome.diagram.client;
 import java.util.List;
 
 import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
@@ -144,6 +146,21 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	c2d.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
     	c2d.translate(translateX, translateY);
     	c2d.scale(scale, scale);
+    }
+
+    public Boolean currentViewContainsGraphObject(GraphObject object) {		
+		Integer x = (int) (-translateX / scale); 
+    	Integer y = (int) (-translateY / scale);
+    	Integer width = (int) (getCoordinateSpaceWidth() / scale); 
+    	Integer height = (int) (getCoordinateSpaceHeight() / scale);
+		
+    	Bounds diagramBounds = new Bounds(x, y, width, height);
+    	
+    	
+    	if (object instanceof Node)
+    		return diagramBounds.isColliding(((Node) object).getBounds());
+    	
+    	return diagramBounds.contains(object.getPosition());    	
     }
     
     /**
