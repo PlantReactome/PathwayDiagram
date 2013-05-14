@@ -34,7 +34,8 @@ public class InteractorCanvas extends DiagramCanvas {
     private Context2d c2d;
     private PathwayDiagramPanel diagramPanel;
     private String userMessage;
-    private Boolean displayUserMessage = true;
+    private Integer reObtainedProteinCount;
+    private Integer previousProteinCount;
     
     // Proteins mapped to their list of interactors
 	private Map<ProteinNode, List<InteractorNode>> proteinsToInteractors;
@@ -42,11 +43,14 @@ public class InteractorCanvas extends DiagramCanvas {
 	private Map<String, InteractorNode> uniqueInteractors; 
 	private boolean loadingInteractors;
 	
+	
     public InteractorCanvas(PathwayDiagramPanel dPane) {
     	super(dPane);
        	c2d = getContext2d();
        	diagramPanel = dPane;
        	userMessage = new String();
+       	previousProteinCount = 0;
+       	reObtainedProteinCount = 0;
        	hoverHandler = new InteractorCanvasHoverHandler(diagramPanel, this);
        	selectionHandler = new InteractorCanvasSelectionHandler(diagramPanel, this);
        	
@@ -144,9 +148,11 @@ public class InteractorCanvas extends DiagramCanvas {
         drawInteractors(c2d);
         //drawInteractors(diagramPanel.getOverview().getContext2d());
         
-        if (displayUserMessage)
+        if (reObtainedProteinCount == previousProteinCount) {
         	displayUserMessage();
-        
+        	reObtainedProteinCount = 0;
+        }
+        	
         c2d.restore();
     }
         
@@ -431,28 +437,18 @@ public class InteractorCanvas extends DiagramCanvas {
 	protected void updateOthers(Context2d c2d) {
 		
 	}
-
-	public void setInteractorDatabase(String interactorDatabase) {
-		setInteractorDatabase(interactorDatabase, false);
-	}
 	
-	public void setInteractorDatabase(String interactorDatabase, boolean initializing) {
+	public void reObtainProteinsForNewInteractorDatabase() {
 		// Cache proteins before removing them from the canvas
 		List<ProteinNode> proteinList = new ArrayList<ProteinNode>(getProteins());
+		previousProteinCount = proteinList.size();
 		removeAllProteins();
-		
-		if (!initializing && !proteinList.isEmpty())
-			setGreyOutCanvas(true);
 		
 		clearUserMessage();
 		
 		// Re-obtain proteins for the new interactor database
-		for (ProteinNode protein: proteinList) {
-			// Display accumulated warning messages, if any, to the user if this is the last protein
-			// whose interactors are being obtained and rendered
-			Boolean displayMessages = (protein == proteinList.get(proteinList.size() - 1));
-						
-			this.diagramPanel.getController().getInteractors(protein, displayMessages);
+		for (Integer i = 0; i < proteinList.size(); i++) {
+			this.diagramPanel.getController().getInteractors(proteinList.get(i));
 		}
 	}
 
@@ -488,12 +484,12 @@ public class InteractorCanvas extends DiagramCanvas {
 		userMessage = new String();
 	}
 	
-	public Boolean getDisplayUserMessage() {
-		return displayUserMessage;
+	public Integer getReObtainedProteinCount() {
+		return reObtainedProteinCount;
 	}
 
 
-	public void setDisplayUserMessage(Boolean displayUserMessage) {
-		this.displayUserMessage = displayUserMessage;
+	public void setReObtainedProteinCount(Integer reObtained) {
+		this.reObtainedProteinCount = reObtained;
 	}
 }

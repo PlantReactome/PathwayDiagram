@@ -215,7 +215,7 @@ public class PathwayDiagramController {
 
     
     
-    public void getInteractors(final ProteinNode selected, final Boolean displayUserMessage) {
+    public void getInteractors(final ProteinNode selected) {
         selected.getInteractors().clear(); // Clear existing interactors
     	
     	Long dbId = selected.getReactomeId();
@@ -245,10 +245,12 @@ public class PathwayDiagramController {
                         	if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
                         		ic.addToUserMessage(selected.getDisplayName() + " has no interactors for the selected interaction database");
                         		selected.setDisplayingInteractors(false);  
+                        	} else {
+                        		selected.setDisplayingInteractors(true);
                         	}
                         }
                         
-                        ic.setDisplayUserMessage(displayUserMessage);
+                        ic.setReObtainedProteinCount(ic.getReObtainedProteinCount() + 1);
                         ic.addProtein(selected);                        
                     } else {
                         requestFailed("Failed to get interactors - " + response.getStatusText());

@@ -47,10 +47,6 @@ public class InteractorCanvasModel {
     }
     
     public void setInteractorDatabase(String interactorDatabase) {
-    	setInteractorDatabase(interactorDatabase, Boolean.FALSE);
-    }
-    
-    public void setInteractorDatabase(String interactorDatabase, Boolean initializing) {
     	// Already set to the chosen interactor database
     	if (this.interactorDatabase.equals(interactorDatabase))
     		return;
@@ -58,7 +54,7 @@ public class InteractorCanvasModel {
     	this.interactorDatabase = interactorDatabase;
     	InteractorEdge.setUrl(interactorDBMap, interactorDatabase);
     	if (interactorCanvas != null) {
-    		interactorCanvas.setInteractorDatabase(interactorDatabase, initializing);
+    		interactorCanvas.reObtainProteinsForNewInteractorDatabase();
     	}
     }
     

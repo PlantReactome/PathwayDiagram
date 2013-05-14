@@ -197,7 +197,7 @@ public class CanvasPopupMenu extends PopupPanel {
     					diagramPane.getInteractorCanvas().removeProtein(pSelected);
     					pSelected.setDisplayingInteractors(false);
     				} else {	
-    					diagramPane.getController().getInteractors(pSelected, Boolean.TRUE);
+    					diagramPane.getController().getInteractors(pSelected);
     					pSelected.setDisplayingInteractors(true);
     				}
     				hide();
