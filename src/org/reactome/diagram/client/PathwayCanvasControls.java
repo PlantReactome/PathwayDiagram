@@ -609,7 +609,7 @@ public class PathwayCanvasControls extends FlexTable {
 		private List<Long> searchDiagram(String query) {
 			List<Long> matchingObjectIds = new ArrayList<Long>();
 			
-			if (!query.isEmpty()) {
+			if (!query.isEmpty() && diagramPane.getPathway() != null) {
 			
 				List<GraphObject> pathwayObjects = diagramPane.getPathway().getGraphObjects(); 			
 				for (GraphObject pathwayObject: pathwayObjects) {
@@ -624,19 +624,19 @@ public class PathwayCanvasControls extends FlexTable {
 			return matchingObjectIds;			
 		}
 
-		private void doSearch(String query) {
-			if (query.isEmpty() || diagramPane.getPathway() == null) {
-				resultsLabel.setText(null);
-				matchingEntityIds.clear();
-				enableButtons(Boolean.FALSE);
-				return;
-			}
-			
+		private void doSearch(String query) {			
 			matchingEntityIds = searchDiagram(query);
 			
 			if (matchingEntityIds.isEmpty()) {
 				enableButtons(Boolean.FALSE);
-				resultsLabel.setText("No matches found for " + searchBox.getText());
+				
+				String labelText = null;				
+				if (!query.isEmpty())
+					labelText = "No matches found for " + query;
+				resultsLabel.setText(labelText);
+				
+				diagramPane.setSelectionId(null);
+				
 				return;
 			} else {
 				enableButtons(Boolean.TRUE);
