@@ -4,17 +4,18 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
 
+import org.reactome.diagram.view.ExpressionComplexRenderer;
 import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.NodeRenderer;
 
@@ -94,19 +95,27 @@ public class ExpressionCanvas extends DiagramCanvas {
             		String oldBgColor = ((Node) entity).getBgColor();
             		String oldFgColor = ((Node) entity).getFgColor();
             		
+            		GraphObjectRendererFactory factory = GraphObjectRendererFactory.getFactory();
+            		NodeRenderer renderer;
+            		
             		if (entity.getType() == GraphObjectType.RenderableComplex) {
-            			((Node) entity).setBgColor("rgb(0,0,0)"); // Black background
-            			((Node) entity).setFgColor("rgb(255,255,255)"); // White Text
+            			((Node) entity).setFgColor("rgb(0,0,0)"); // Black text
+            		//	((Node) entity).setFgColor("rgb(255,255,255)");
+            			
+            			List<Long> componentIds = physicalToReferenceEntityMap.get(entity.getReactomeId());
+            			addComplexComponents((ComplexNode) entity, componentIds);
+            			
+            			//renderer = factory.getNodeRenderer((Node) entity); 
+            			renderer = new ExpressionComplexRenderer();
             		} 
             		else {
             			Long refEntityId = getReferenceEntityId(physicalToReferenceEntityMap.get(entity.getReactomeId()));            			
             			String nodeColor = getEntityColor(refEntityId, entity.getType());            
             			
-            			((Node) entity).setBgColor(nodeColor); 
+            			((Node) entity).setBgColor(nodeColor);             		
+            			renderer = factory.getNodeRenderer((Node) entity);
             		}
-            			
-            		GraphObjectRendererFactory factory = GraphObjectRendererFactory.getFactory();
-            		NodeRenderer renderer = factory.getNodeRenderer((Node) entity);
+            		
             		renderer.render(c2d, (Node) entity);
             		
             		((Node) entity).setBgColor(oldBgColor);
@@ -126,6 +135,15 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return null;
 	}
 
+	public Double getEntityExpressionLevel(Long refEntityId) {
+		Double level = null;
+		
+		if (expressionCanvasModel.getEntityExpressionLevelMap() != null)
+			level = expressionCanvasModel.getEntityExpressionLevelMap().get(refEntityId);
+		
+		return level;				
+	}
+	
 	public String getEntityColor(Long refEntityId, GraphObjectType entityType) {		
 		String color = null;		
 		if (expressionCanvasModel.getEntityColorMap() != null) {            					
@@ -156,6 +174,15 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 	}
  
+	private void addComplexComponents(ComplexNode complex, List<Long> componentIds) {
+		for (Long refId : componentIds) {
+			String componentExpressionColor = getEntityColor(refId, complex.getType());
+			Double componentExpressionLevel = getEntityExpressionLevel(refId);
+			
+			complex.addComponent(refId, componentExpressionLevel, componentExpressionColor);		
+		}
+	}
+	
     /**
      * A template method so that other kinds of things can be updated. Nothing
      * has been done in this class.

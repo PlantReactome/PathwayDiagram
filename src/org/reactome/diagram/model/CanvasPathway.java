@@ -166,6 +166,9 @@ public class CanvasPathway extends Node {
         if (node.getType() == GraphObjectType.RenderableProtein) {
         	node = new ProteinNode();
         	parseGraphObjectProperties(nodeElm, node);
+        } else if (node.getType() == GraphObjectType.RenderableComplex) {
+        	node = new ComplexNode();
+        	parseGraphObjectProperties(nodeElm, node);
         }
         
         // Some node specific properties

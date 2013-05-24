@@ -24,10 +24,20 @@ public class ComplexRenderer extends NodeRenderer {
                                  Context2d context,
                                  Node node) {
         setStroke(context, node);
+        createPath(bounds, context);
+        
+        Double oldLineWidth = context.getLineWidth();
+        context.fill();
+        context.stroke();
+        context.setLineWidth(oldLineWidth);
+    }
+    
+    protected void createPath(Bounds bounds, Context2d context) {
         int x = bounds.getX();
         int y = bounds.getY();
         int w = bounds.getWidth();
         int h = bounds.getHeight();
+        
         context.beginPath();
         int x1 = x + COMPLEX_RECT_ARC_WIDTH;
         int y1 = y;
@@ -50,10 +60,6 @@ public class ComplexRenderer extends NodeRenderer {
         y1 = y + COMPLEX_RECT_ARC_WIDTH;
         context.lineTo(x1, y1);
         context.closePath();
-        double oldLineWidth = context.getLineWidth();
-        context.fill();
-        context.stroke();
-        context.setLineWidth(oldLineWidth);
     }
     
 }

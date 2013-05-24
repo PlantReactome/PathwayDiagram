@@ -61,7 +61,7 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     	if (ecm.getEntityExpressionIdMap() != null)
     		expressionId = ecm.getEntityExpressionIdMap().get(refId);
     	
-    	if (ecm.getEntityExpressionLevelMap() != null)
+    	if (ecm.getEntityExpressionLevelMap() != null && ecm.getEntityExpressionLevelMap().get(refId) != null)
     		expressionLevel = ecm.getEntityExpressionLevelMap().get(refId).toString();
     	
     	label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
