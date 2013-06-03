@@ -35,6 +35,8 @@ import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -80,17 +82,20 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private PathwayDiagramController controller;
     // To show popup menu
     private CanvasPopupMenu popupMenu;
+    // Options Menu 
+    private OptionsMenu optionsMenu;
     // Loading icon
     private Image loadingIcon;
 
     private PathwayCanvasControls controls;
+
+    private SearchPopup searchBar;
     
     private Style style; 
     
     interface ImageResources extends ClientBundle {
     	@Source("ajax-loader.gif")
     	ImageResource loading();
-
     }
     
     public static final ImageResources IMAGES = GWT.create(ImageResources.class);
@@ -142,13 +147,26 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         controls.setStyleName(style.controlPane());
         contentPane.add(controls, 4, 4);
         
+        // Search Bar
+        searchBar = new SearchPopup(this);
+        searchBar.setVisible(Boolean.FALSE);
+        contentPane.add(searchBar);
+        
+        // Options Menu Icon
+        optionsMenu = new OptionsMenu(this);
+        contentPane.add(optionsMenu.getOptionsIcon());
+                
         // Loading Icon
         loadingIcon = new Image(IMAGES.loading());
         loadingIcon.setVisible(false);
         contentPane.add(loadingIcon, 725, 340);
+                
         
         initWidget(contentPane);        
         
+        optionsMenu.updateIconPosition();
+        searchBar.updatePosition();
+                
         popupMenu = new CanvasPopupMenu();
         popupMenu.setPathwayDiagramPanel(this);
         popupMenu.setStyleName(style.canvasPopup());
@@ -290,11 +308,17 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         if (!overview.isVisible())
             overview.setVisible(true);
         overview.updatePosition();
+                
+        searchBar.updatePosition();
+        optionsMenu.updateIconPosition();
+        
         update();
         LocalResizeEvent event = new LocalResizeEvent(width, height);
+        
+        
         contentPane.fireEvent(event);
     }
-    
+
     protected void setCanvasPathway(CanvasPathway pathway) {
         // Get the old displayed pathway
     	CanvasPathway old = pathwayCanvas.getPathway();
@@ -700,6 +724,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         String canvasPopup();
         
         String subMenu();
+
+        String searchPopup();
         
         String tooltip();
         
@@ -764,5 +790,18 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			expressionCanvas.scale(pathwayCanvas.getScale());
 			onResize();
 		}
+	}
+	
+	public void showSearchPopup() {
+		searchBar.setVisible(Boolean.TRUE);
+		searchBar.updatePosition();
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				searchBar.getTextBox().setFocus(Boolean.TRUE);
+			}
+			
+		});
 	}
 }

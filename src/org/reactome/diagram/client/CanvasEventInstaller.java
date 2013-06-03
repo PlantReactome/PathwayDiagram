@@ -282,11 +282,26 @@ public class CanvasEventInstaller {
     }
     
     protected void addKeyHandlers() {
+    	KeyDownHandler keyDownHandler = new KeyDownHandler() {
+    		private final Integer KEY_F = 70;
+    		
+    		@Override
+    		public void onKeyDown(KeyDownEvent event) {
+    			event.stopPropagation();
+    			event.preventDefault();
+    			
+    			if (event.isControlKeyDown() && event.getNativeEvent().getKeyCode() == KEY_F) {
+    				diagramPane.showSearchPopup();
+    			}
+    		}
+    	};
+    	
     	KeyUpHandler keyUpHandler = new KeyUpHandler() {
 
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				event.stopPropagation();
+				event.preventDefault();
 				
 				if (KeyCodeEvent.isArrow(event.getNativeKeyCode())) {
 					arrowKeyUp(event);
@@ -295,6 +310,7 @@ public class CanvasEventInstaller {
     		
     	};
     	
+    	canvas.addKeyDownHandler(keyDownHandler);
     	canvas.addKeyUpHandler(keyUpHandler);
     }
     

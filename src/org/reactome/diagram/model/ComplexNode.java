@@ -34,8 +34,8 @@ public class ComplexNode extends Node {
 		return componentList;		
 	}
 
-	public void addComponent(Long refId, Double exprLevel, String exprColor) {
-		components.put(refId, new Component(exprLevel, exprColor));
+	public void addComponent(Long refId, String exprId, Double exprLevel, String exprColor) {
+		components.put(refId, new Component(exprId, exprLevel, exprColor));
 	}
 
 	public void removeComponent(Long refId) {
@@ -56,13 +56,23 @@ public class ComplexNode extends Node {
 	}
 	
 
-	private class Component extends ReactomeObject implements Comparable<Component> {
+	public class Component extends ReactomeObject implements Comparable<Component> {
+		private String expressionId;
 		private Double expressionLevel;
 		private String expressionColor;
 			
-		public Component(Double exprLevel, String exprColor) {			
+		public Component(String exprId, Double exprLevel, String exprColor) {			
+			setExpressionId(exprId);
 			setExpressionLevel(exprLevel);
 			setExpressionColor(exprColor);
+		}
+
+		public String getExpressionId() {
+			return expressionId;
+		}
+
+		public void setExpressionId(String expressionId) {
+			this.expressionId = expressionId;
 		}
 
 		public Double getExpressionLevel() {

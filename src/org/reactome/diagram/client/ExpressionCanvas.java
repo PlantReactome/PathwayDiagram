@@ -134,6 +134,15 @@ public class ExpressionCanvas extends DiagramCanvas {
 		}
 		return null;
 	}
+	
+	public String getEntityExpressionId(Long refEntityId) {
+		String id = null;
+		
+		if (expressionCanvasModel.getEntityExpressionIdMap() != null)
+			id = expressionCanvasModel.getEntityExpressionIdMap().get(refEntityId);
+		
+		return id;
+	}
 
 	public Double getEntityExpressionLevel(Long refEntityId) {
 		Double level = null;
@@ -176,10 +185,11 @@ public class ExpressionCanvas extends DiagramCanvas {
  
 	private void addComplexComponents(ComplexNode complex, List<Long> componentIds) {
 		for (Long refId : componentIds) {
+			String componentExpressionId = getEntityExpressionId(refId);
 			String componentExpressionColor = getEntityColor(refId, complex.getType());
 			Double componentExpressionLevel = getEntityExpressionLevel(refId);
 			
-			complex.addComponent(refId, componentExpressionLevel, componentExpressionColor);		
+			complex.addComponent(refId, componentExpressionId, componentExpressionLevel, componentExpressionColor);		
 		}
 	}
 	

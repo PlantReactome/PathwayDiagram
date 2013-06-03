@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
@@ -144,7 +145,7 @@ public class CanvasPopupMenu extends PopupPanel {
     			menuBar.addItem("Display Participating Molecules", new Command() {
 					@Override
 					public void execute() {
-						diagramPane.getComplexComponentPopup().showPopup(selected, molecules);
+						diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected, molecules);
 						hide();							
 					}    					
     			})

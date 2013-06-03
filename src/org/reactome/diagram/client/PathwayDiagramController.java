@@ -121,7 +121,7 @@ public class PathwayDiagramController {
                     if (response.getStatusCode() == 200) {
                         interactorCanvasModel.addToInteractorDBMap(getInteractionDBMap(response.getText()));                        
                         addPSICQUICList(interactorCanvasModel);
-                        diagramPane.getControls().addInteractionOverlayButton();
+                        //diagramPane.getControls().addInteractionOverlayButton();
                     } else {
                         requestFailed("Could not retrieve InteractorEdgeUrls.txt");
                     }

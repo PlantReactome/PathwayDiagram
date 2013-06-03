@@ -8,11 +8,11 @@ package org.reactome.diagram.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
-import org.reactome.diagram.model.GraphObjectType;
-import org.reactome.diagram.model.Node;
+import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.ReactomeObject;
 
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -74,28 +74,28 @@ public class ComplexComponentPopup extends PopupPanel {
      * Show popup menu
      * @param panel
      */
-    public void showPopup(Node selectedComplex, List<ReactomeObject> components) {
+    public void showPopup(ComplexNode selectedComplex, List<ReactomeObject> components) {
         hide();
         
-        String labelText = selectedComplex.getDisplayName();
+        String complexName = selectedComplex.getDisplayName();
                	
-        addComplexComponentsToFlexTable(components);
+        addComplexComponentsToFlexTable(selectedComplex, components);
         if (this.complexComponents == null || this.complexComponents.isEmpty()) {   	
-        	labelText = labelText + " has no components with data";
-        } else {
-        	labelText = labelText + " components: ";
-        }
+        	AlertPopup.alert(complexName + " has no genome encoded components with data");        	
+        	return;
+        } 
         
-        setComplexLabel(labelText);
+        setComplexLabel("Components for " + complexName + ": ");
+        
         expressionCanvas.setGreyOutCanvas(true);
         center();
     }
     
-    private void addComplexComponentsToFlexTable(List<ReactomeObject> components) {
-    	this.componentTable.clear();
+    private void addComplexComponentsToFlexTable(ComplexNode complex, List<ReactomeObject> components) {
+    	this.componentTable.removeAllRows();
     	this.componentTable.setBorderWidth(1);
     	
-    	this.complexComponents = createComplexComponents(components);
+    	this.complexComponents = createComplexComponents(complex, components);
     	
     	for (int i = 0; i < this.complexComponents.size(); i++) {
     		ComplexComponent component = this.complexComponents.get(i);
@@ -120,10 +120,10 @@ public class ComplexComponentPopup extends PopupPanel {
     		
     		this.componentTable.setWidget(i, 0, componentName);    		
     		this.componentTable.getFlexCellFormatter().setColSpan(i, 0, 1);
-    	}
+    	}    	
     }
     	
-    private List<ComplexComponent> createComplexComponents(List<ReactomeObject> components) {
+    private List<ComplexComponent> createComplexComponents(ComplexNode complex, List<ReactomeObject> components) {
     	List<ComplexComponent> complexComponents = new ArrayList<ComplexComponent>();
     	
     	ExpressionCanvasModel expressionCanvasModel = expressionCanvas.getExpressionCanvasModel();
@@ -131,30 +131,21 @@ public class ComplexComponentPopup extends PopupPanel {
     		ComplexComponent complexComponent = new ComplexComponent();
     		
     		Long dbId = component.getReactomeId();
-    		Long refId = expressionCanvasModel.getPhysicalToReferenceEntityMap().get(dbId).get(0);
+    		List<Long> refIds = expressionCanvasModel.getPhysicalToReferenceEntityMap().get(dbId);
+    		if (refIds == null)
+    			continue;
+    		Long refId = refIds.get(0);
+    		
     		complexComponent.setDbId(refId);
     		complexComponent.setDisplayName(component.getDisplayName());
     		
-    		String color = null;
-    		if (expressionCanvasModel.getEntityColorMap() != null) {  
-    			color = expressionCanvasModel.getEntityColorMap().get(refId);
-    		} else {
-    			if (expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison && 
-    				component.getSchemaClass().equals("EntityWithAccessionedSequence")) {
-    				color = expressionCanvas.getEntityColor(refId, GraphObjectType.RenderableProtein);
-    			}
-    		}
+    		String color = complex.getComponent(refId).getExpressionColor();
     		
-    		if (color == null)
-    			continue;
+   // 		if (color == null)
+  //  			continue;
     		
-    		String expressionId = null;
-    		if (expressionCanvasModel.getEntityExpressionIdMap() != null)     		
-    			expressionId = expressionCanvasModel.getEntityExpressionIdMap().get(refId);
-    		
-    		Double expressionLevel = null;
-    		if (expressionCanvasModel.getEntityExpressionLevelMap() != null)
-    			expressionLevel = expressionCanvasModel.getEntityExpressionLevelMap().get(refId);
+    		String expressionId = complex.getComponent(refId).getExpressionId();    		
+    		Double expressionLevel = complex.getComponent(refId).getExpressionLevel();
     		
     		complexComponent.setExpressionId(expressionId);
     		complexComponent.setExpressionLevel(expressionLevel);
