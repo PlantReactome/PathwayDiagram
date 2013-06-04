@@ -170,7 +170,7 @@ public class OptionsMenu extends PopupPanel {
     }
         
     interface Resources extends ClientBundle {
-    	@Source("options.png")
+    	@Source("Options.png")
     	ImageResource options();
     }
     
