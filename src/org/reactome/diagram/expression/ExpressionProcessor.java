@@ -77,7 +77,7 @@ public class ExpressionProcessor {
 			return;
 		
 		// Create a simple URL call
-		String url = "ReactomeGWT/service/analysis/results/" + analysisId + "/" + analysisName;
+		String url = "/ReactomeGWT/service/analysis/results/" + analysisId + "/" + analysisName;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
         try {
