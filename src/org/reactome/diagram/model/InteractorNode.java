@@ -22,6 +22,7 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 	private String chemicalId;
 	private Image image;
 	private boolean isDragging;
+	private String defaultColour;
 	
 	/**
 	 * Default constructor.
@@ -31,6 +32,7 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		edges = new ArrayList<InteractorEdge>();
 		setType(GraphObjectType.RenderableInteractor); 
 		setFont("12px Lucida Console");
+		defaultColour = getBgColor();
 	}
 
 	public int getCount() {
@@ -140,5 +142,9 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 
 	public void setImage(String url) {
 		this.image = new Image(url);
+	}
+
+	public String getDefaultColour() {
+		return defaultColour;
 	}
 }

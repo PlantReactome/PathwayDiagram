@@ -34,11 +34,13 @@ public class InteractorCanvasModel {
 	private Map<String, String> userFileMap; // User file uploads mapping a label provided by the user to the file id on the server
    	private Map<String, String> interactorDBMap; // Represents the psicquicMap with some values overridden from a configuration file  
 	private InteractorCanvas interactorCanvas; // The canvas using the interaction database info provided here
+	private InteractorConfidenceScoreColourModel confidenceScoreColourModel;
 	
 	public InteractorCanvasModel() {
 		interactorDatabase = defaultInteractorDatabase;
 		psicquicMap = new HashMap<String, String>();
 		userFileMap = new HashMap<String, String>();
+		confidenceScoreColourModel = new InteractorConfidenceScoreColourModel();
 	}
 		
     public InteractorCanvasModel(InteractorCanvas interactorCanvas) {
@@ -106,6 +108,10 @@ public class InteractorCanvasModel {
 	public void setInteractorCanvas(InteractorCanvas interactorCanvas) {
 		this.interactorCanvas = interactorCanvas;
 	}
+	
+	public InteractorConfidenceScoreColourModel getConfidenceScoreColourModel() {
+		return confidenceScoreColourModel;		
+	}
 
 	public void addNewPSICQUICService(String serviceName, String serviceUrl) {
 		if (!psicquicMap.containsKey(serviceName))
@@ -167,5 +173,75 @@ public class InteractorCanvasModel {
 				interactorDBList.setSelectedIndex(interactorDBList.getItemCount() - 1);
 		}
 			
+	}
+	
+	public class InteractorConfidenceScoreColourModel {
+		private Double confidenceLevelThreshold;
+		private String colourAboveThreshold;
+		private String colourBelowThreshold;
+		private Boolean coloringModeOn;
+		
+		public InteractorConfidenceScoreColourModel() {
+			this(0.5, // Default threshold
+				 "rgb(0, 255, 0)", // Green default color for above threshold
+				 "rgb(255, 0, 0)"); // Red default color for below threshold
+		}
+		
+		public InteractorConfidenceScoreColourModel(Double confidenceLevelThreshold, 
+													String colourAboveThreshold,
+													String colourBelowThreshold) {
+			this.confidenceLevelThreshold = confidenceLevelThreshold;
+			this.colourAboveThreshold = colourAboveThreshold;
+			this.colourBelowThreshold = colourBelowThreshold;
+			
+			this.coloringModeOn = false;
+		}
+
+		public Double getConfidenceLevelThreshold() {
+			return confidenceLevelThreshold;
+		}
+		
+		public void setConfidenceLevelThreshold(Double confidenceLevelThreshold) {
+			this.confidenceLevelThreshold = confidenceLevelThreshold;
+			sendUpdateToCanvasIfColoringOn();
+		}
+		
+		public String getColourAboveThreshold() {
+			return colourAboveThreshold;
+		}
+		
+		public void setColourAboveThreshold(String colourAboveThreshold) {
+			this.colourAboveThreshold = colourAboveThreshold;
+			sendUpdateToCanvasIfColoringOn();
+		}
+		
+		public String getColourBelowThreshold() {
+			return colourBelowThreshold;
+		}
+		
+		public void setColourBelowThreshold(String colourBelowThreshold) {
+			this.colourBelowThreshold = colourBelowThreshold;
+			sendUpdateToCanvasIfColoringOn();
+		}
+
+		public Boolean getColoringModeOn() {
+			return coloringModeOn;
+		}
+
+		public void setColoringModeOn(Boolean coloringModeOn) {
+			this.coloringModeOn = coloringModeOn;
+			sendUpdateToCanvas();
+		}
+		
+		private void sendUpdateToCanvasIfColoringOn() {
+			if (coloringModeOn)
+				sendUpdateToCanvas();
+		}
+		
+		private void sendUpdateToCanvas() {
+			if (interactorCanvas != null)
+				InteractorCanvasModel.this.interactorCanvas.setInteractorColouring(this);
+		}
+		
 	}
 }

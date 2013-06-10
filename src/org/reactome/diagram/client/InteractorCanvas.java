@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.InteractorCanvasModel.InteractorConfidenceScoreColourModel;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.ProteinNode;
@@ -42,7 +43,8 @@ public class InteractorCanvas extends DiagramCanvas {
     // Interactor objects mapped to their accession ids or display name if no accession is available 
 	private Map<String, InteractorNode> uniqueInteractors; 
 	private boolean loadingInteractors;
-	
+
+	private InteractorConfidenceScoreColourModel interactorColouring;
 	
     public InteractorCanvas(PathwayDiagramPanel dPane) {
     	super(dPane);
@@ -221,7 +223,7 @@ public class InteractorCanvas extends DiagramCanvas {
         	
     			InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
     			if (renderer != null) {
-    				renderer.render(c2d, interactor);
+    				renderer.render(c2d, interactor, interactorColouring);
     			}
     		}
         }     
@@ -491,5 +493,16 @@ public class InteractorCanvas extends DiagramCanvas {
 
 	public void setReObtainedProteinCount(Integer reObtained) {
 		this.reObtainedProteinCount = reObtained;
+	}
+
+
+	public InteractorConfidenceScoreColourModel getInteractorColouring() {
+		return interactorColouring;
+	}
+
+
+	public void setInteractorColouring(InteractorConfidenceScoreColourModel interactorColouring) {
+		this.interactorColouring = interactorColouring;
+		update();
 	}
 }

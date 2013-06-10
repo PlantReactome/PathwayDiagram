@@ -5,6 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.InteractorCanvasModel.InteractorConfidenceScoreColourModel;
 import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
 
@@ -24,7 +25,8 @@ public class InteractorRenderer extends NodeRenderer {
         defaultLineColor = CssColor.make("rgba(0, 0, 255, 1)");
     }
 
-    public void render(Context2d c2d, InteractorNode node) {
+    public void render(Context2d c2d, InteractorNode node, InteractorConfidenceScoreColourModel colouring) {
+    	setNodeColour(node, colouring);
     	super.render(c2d, node); 
     }
     
@@ -73,5 +75,17 @@ public class InteractorRenderer extends NodeRenderer {
     	Image image = new Image("http://www.ebi.ac.uk/chembldb/index.php/compound/displayimage/" + interactor.getChemicalId());
     	ImageElement imgElement = ImageElement.as(image.getElement());
     	c2d.drawImage(imgElement, bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+    }
+    
+    private void setNodeColour(InteractorNode node, InteractorConfidenceScoreColourModel colouring) {
+    	String color;
+    	
+    	if (colouring != null && colouring.getColoringModeOn()) 
+    		color = node.getScore() < colouring.getConfidenceLevelThreshold() ?
+    				   colouring.getColourBelowThreshold() : colouring.getColourAboveThreshold();    
+    	else
+    		color = node.getDefaultColour();
+    		
+    	node.setBgColor(color);
     }
 }
