@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -105,10 +106,13 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		}
 	}		
 
-	private class InteractionDBOptions extends FlexTable {
-	
+	private class InteractionDBOptions extends DecoratorPanel {
+		private FlexTable optionsTable;
+		
 		public InteractionDBOptions() {
-			setTableRows(this, getRows());
+			optionsTable = new FlexTable();
+			setTableRows(optionsTable, getRows());
+			setWidget(optionsTable);
 		}
 		
 		private Map<String, Widget> getRows() {
@@ -189,7 +193,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 						
 							interactorCanvasModel.addNewUploadedUserFile(userLabel, serviceKey);
 							interactorCanvasModel.setInteractorDatabase(serviceKey);
-							setWidget(0, 1, getInteractorDBListBox());
+							optionsTable.setWidget(0, 1, getInteractorDBListBox());
 							uploadFileDialogBox.hide();
 						}						
 					});
@@ -331,7 +335,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 							
 							url = SafeHtmlUtils.fromString(url).asString();
 							interactorCanvasModel.addNewPSICQUICService(name, url);
-							setWidget(0, 1, getInteractorDBListBox());
+							optionsTable.setWidget(0, 1, getInteractorDBListBox());
 							newService.hide();							
 						}						
 					}));
@@ -354,7 +358,9 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		}
 	}
 	
-	private class InteractorColorOptions extends FlexTable {		
+	private class InteractorColorOptions extends DecoratorPanel {		
+		private FlexTable optionsTable;
+		
 		private InteractorConfidenceScoreColourModel confidenceLevelScoreModel;
 		private TextBox confidenceLevelThreshold;
 		private Label aboveThresholdColor;
@@ -364,8 +370,10 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		public InteractorColorOptions() {
 			confidenceLevelScoreModel = interactorCanvasModel.getConfidenceScoreColourModel();
 			
+			optionsTable = new FlexTable();
 			initWidgets();
-			setTableRows(this, getRows());
+			setTableRows(optionsTable, getRows());
+			setWidget(optionsTable);
 		}
 		
 		private void initWidgets() {
