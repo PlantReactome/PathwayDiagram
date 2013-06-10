@@ -27,7 +27,7 @@ public class AlertPopup {
     }
     
     private static void init(String labelText) { 
-        popUp = new PopupPanel(false, true);
+        popUp = new PopupPanel(false);
     	VerticalPanel vPane = new VerticalPanel();
         HTML alertLabel = new HTML(labelText);        
         Button button = new Button("Ok", new ClickHandler() {
