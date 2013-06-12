@@ -41,7 +41,7 @@ public class ProteinNode extends Node {
 		this.interactors = interactors;
 	}
 	
-	public void setInteractors(String xml) {		
+	public void setInteractors(String xml) {
 		interactors.clear();
 		
 		Document iDom;		

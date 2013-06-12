@@ -75,12 +75,12 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
     			pastArc = segmentEnd - innerRectStartX;
     		
     		drawSegmentInArc(width, leftHeight, rightHeight, pastArc, true, context);
-    	} else if (segmentEnd > innerRectEndX) {
-    		rightHeight = leftHeight - (2 * Math.min(width, COMPLEX_RECT_ARC_WIDTH));
-    		
+    	} else if (segmentEnd > innerRectEndX) {    		
     		Double pastArc = (double) 0;
     		if (segmentStart < innerRectEndX)
     			pastArc = innerRectEndX - segmentStart;
+    		
+    		rightHeight = leftHeight - (2 * (width - pastArc));
     		
     		drawSegmentInArc(width, leftHeight, rightHeight, pastArc, false, context);
     	} else {
