@@ -30,17 +30,24 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 public class ExpressionProcessor {
+	private static final String BASEURL = "/ReactomeGWT/service/analysis/";
+	
 	private String analysisName = "expression_analysis_with_levels";
     private String analysisId;
+    private Boolean resultsReady;
 	private ReactomeExpressionValue expressionData; 
     
+		
     public ExpressionProcessor(String analysisString) {
     	String[] analysisParams = analysisString.split("\\.");    	
     	//this.analysisName = analysisParams[0];
     	this.analysisId = analysisParams[1];
+    	
+    	this.resultsReady = false;
     }	
     	
 	
@@ -71,13 +78,54 @@ public class ExpressionProcessor {
 	}
 
 	public void createDataController(final PathwayDiagramPanel diagramPane,
-	                                 AbsolutePanel contentPane, 
+	                                 final AbsolutePanel contentPane, 
 	                                 final ExpressionCanvas expressionCanvas) {
 		if (analysisId == null)
 			return;
+					
+		Timer timer = new Timer() {
+			@Override
+			public void run() {
+				if (resultsReady) {
+					cancel(); // Timer repeat is cancelled
+					makeDataController(diagramPane, contentPane, expressionCanvas);
+					return;
+				}
+				checkIfResultsReady();
+			}			
+		};
 		
+		timer.scheduleRepeating(200);
+	}
+	
+	private void checkIfResultsReady() {
+		String url = BASEURL + "status/" + analysisId + "/" + analysisName;
+		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		requestBuilder.setHeader("Accept", "application/json");
+		try {
+			requestBuilder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					if (response.getStatusCode() == 200) {
+						resultsReady = response.getText().contains("Finished");
+					}
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					AlertPopup.alert("Error in retrieving expression result status: " + exception);					
+				}
+				
+			});
+		} catch (RequestException ex) {
+			AlertPopup.alert("Error in sending request for expression result status: " + ex);
+		}
+	}
+	
+	private void makeDataController(final PathwayDiagramPanel diagramPane, AbsolutePanel contentPane, final ExpressionCanvas expressionCanvas) {
 		// Create a simple URL call
-		String url = "/ReactomeGWT/service/analysis/results/" + analysisId + "/" + analysisName;
+		String url = BASEURL + "results/" + analysisId + "/" + analysisName;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
         try {
@@ -272,4 +320,6 @@ public class ExpressionProcessor {
 		for (String key : o.keySet())
 				System.out.println(key);	
 	}
+	
+	
 }
