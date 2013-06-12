@@ -63,7 +63,9 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     		} else {	
     			return;
     		}	
-    		label =  super.getLabel() + "<br />" + description + ((InteractorNode) hoveredObject).getAccession();
+    		label =  super.getLabel() + "<br />" +
+    				 description + ((InteractorNode) hoveredObject).getAccession() + "<br />" +
+    				 "Confidence Level Score: " + ((InteractorNode) hoveredObject).getScore();    			
     	} else if (hoveredObject instanceof InteractorEdge) {
     		label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
     				((InteractorEdge) hoveredObject).getInteractor().getDisplayName();     		
