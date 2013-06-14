@@ -531,7 +531,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		}
 			
 		private CheckBox getColoringModeCheckBox() {			
-			final CheckBox coloringMode = new CheckBox("Turn on colouring mode");
+			final CheckBox coloringMode = new CheckBox("Turn on colouring");
 			
 			coloringMode.setValue(confidenceLevelScoreModel.getColoringModeOn()); // Off by default
 			coloringMode.addClickHandler(new ClickHandler() {

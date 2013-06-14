@@ -11,29 +11,28 @@ import java.util.List;
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.expression.model.AnalysisType;
-import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.ComplexNode;
-import org.reactome.diagram.model.ReactomeObject;
 
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
 /**
  * This customized PopupPanel is used to hold a list of popup menu.
  * @author gwu
  *
  */
-public class ComplexComponentPopup extends PopupPanel {
+public class ComplexComponentPopup extends DialogBox {
     private ExpressionCanvas expressionCanvas;
-	private VerticalPanel vPanel;
+	private ScrollPanel scrollPanel;
     private List<ComplexComponent> complexComponents;
 	private FlexTable componentTable;
-	private Label complexLabel;
+	
+	private final Integer tableWidth = 300;
     
     public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
         super(true);
@@ -48,20 +47,13 @@ public class ComplexComponentPopup extends PopupPanel {
     }
     
     private void init() {
-    	this.vPanel = new VerticalPanel();
+    	this.scrollPanel = new ScrollPanel();
     	this.componentTable = new FlexTable();
-    	this.complexLabel = new Label();
     	
-    	this.vPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-    	this.vPanel.add(this.complexLabel);
-    	this.vPanel.add(this.componentTable);
-        setWidget(this.vPanel);
+    	this.scrollPanel.add(this.componentTable);
+        setWidget(this.scrollPanel);
     }
    
-    private void setComplexLabel(String text) {
-    	this.complexLabel.setText(text);
-    }
-
     /**
      * Override to remove any popup menu.
      */
@@ -74,29 +66,31 @@ public class ComplexComponentPopup extends PopupPanel {
      * Show popup menu
      * @param panel
      */
-    public void showPopup(ComplexNode selectedComplex, List<ReactomeObject> components) {
+    public void showPopup(ComplexNode selectedComplex) {
         hide();
         
         String complexName = selectedComplex.getDisplayName();
                	
-        addComplexComponentsToFlexTable(selectedComplex, components);
+        addComplexComponentsToFlexTable(selectedComplex);
         if (this.complexComponents == null || this.complexComponents.isEmpty()) {   	
         	AlertPopup.alert(complexName + " has no genome encoded components with data");        	
         	return;
         } 
         
-        setComplexLabel("Components for " + complexName + ": ");
+        setText("Components for " + complexName + ": ");
         
         expressionCanvas.setGreyOutCanvas(true);
+        bringToFront();
         center();
+        setScrollPanelSize();
     }
     
-    private void addComplexComponentsToFlexTable(ComplexNode complex, List<ReactomeObject> components) {
+    private void addComplexComponentsToFlexTable(ComplexNode complex) {
     	this.componentTable.removeAllRows();
     	this.componentTable.setBorderWidth(1);
     	
-    	this.complexComponents = createComplexComponents(complex, components);
-    	
+    	this.complexComponents = getComplexComponents(complex);
+    	    	
     	for (int i = 0; i < this.complexComponents.size(); i++) {
     		ComplexComponent component = this.complexComponents.get(i);
     		
@@ -116,36 +110,31 @@ public class ComplexComponentPopup extends PopupPanel {
     			label = label + ")";
     		}			   
     		Label componentName = new Label(label);
+    		componentName.setWidth(tableWidth + "px");
     		componentName.getElement().getStyle().setBackgroundColor(component.getExpressionColor());
     		
     		this.componentTable.setWidget(i, 0, componentName);    		
     		this.componentTable.getFlexCellFormatter().setColSpan(i, 0, 1);
-    	}    	
+    		
+    	}  
     }
     	
-    private List<ComplexComponent> createComplexComponents(ComplexNode complex, List<ReactomeObject> components) {
+    private List<ComplexComponent> getComplexComponents(ComplexNode complex) {
     	List<ComplexComponent> complexComponents = new ArrayList<ComplexComponent>();
     	
-    	ExpressionCanvasModel expressionCanvasModel = expressionCanvas.getExpressionCanvasModel();
-    	for (ReactomeObject component : components) {
+    	for (ComplexNode.Component component : complex.getComponents()) {
     		ComplexComponent complexComponent = new ComplexComponent();
     		
-    		Long dbId = component.getReactomeId();
-    		List<Long> refIds = expressionCanvasModel.getPhysicalToReferenceEntityMap().get(dbId);
-    		if (refIds == null)
+    		Long refId = component.getRefEntityId();
+    		if (refId == null)
     			continue;
-    		Long refId = refIds.get(0);
-    		
+    		    		
     		complexComponent.setDbId(refId);
     		complexComponent.setDisplayName(component.getDisplayName());
     		
-    		String color = complex.getComponent(refId).getExpressionColor();
-    		
-   // 		if (color == null)
-  //  			continue;
-    		
-    		String expressionId = complex.getComponent(refId).getExpressionId();    		
-    		Double expressionLevel = complex.getComponent(refId).getExpressionLevel();
+    		String color = component.getExpressionColor();	
+    		String expressionId = component.getExpressionId();
+    		Double expressionLevel = component.getExpressionLevel();
     		
     		complexComponent.setExpressionId(expressionId);
     		complexComponent.setExpressionLevel(expressionLevel);
@@ -157,6 +146,23 @@ public class ComplexComponentPopup extends PopupPanel {
     		
     	
     	return complexComponents;
+    }
+    
+    private void bringToFront() {
+    	getElement().getStyle().setZIndex(2);
+    }
+    
+    private void setScrollPanelSize() {    	
+    	final Integer numberOfComponentsToShow = Math.min(complexComponents.size(), 10);
+    	final Integer componentHeight = 25;
+    	final Integer buffer = 5;
+    	
+    	Integer width = tableWidth + 40;
+    	Integer height = numberOfComponentsToShow * componentHeight + buffer;
+    	
+    	scrollPanel.setPixelSize(width, height);
+    	
+    	setPixelSize(width, height);
     }
     
     private class ComplexComponent {

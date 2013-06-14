@@ -643,7 +643,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	expressionProcessor.createDataController(this, contentPane, expressionCanvas);
     	
     	complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
-    	complexComponentPopup.setStyleName(style.expressionComplexPopup());
+    	//complexComponentPopup.setStyleName(style.expressionComplexPopup());
     }
     
     public void setDataController(DataController dataController) {

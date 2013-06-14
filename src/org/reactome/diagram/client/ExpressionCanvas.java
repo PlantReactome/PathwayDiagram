@@ -11,6 +11,7 @@ import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.ComplexNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
@@ -103,7 +104,7 @@ public class ExpressionCanvas extends DiagramCanvas {
             		//	((Node) entity).setFgColor("rgb(255,255,255)");
             			
             			List<Long> componentIds = physicalToReferenceEntityMap.get(entity.getReactomeId());
-            			addComplexComponents((ComplexNode) entity, componentIds);
+            			addExpressionInfoToComplexComponents((ComplexNode) entity, componentIds);
             			
             			//renderer = factory.getNodeRenderer((Node) entity); 
             			renderer = new ExpressionComplexRenderer();
@@ -183,13 +184,25 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 	}
  
-	private void addComplexComponents(ComplexNode complex, List<Long> componentIds) {
-		for (Long refId : componentIds) {
-			String componentExpressionId = getEntityExpressionId(refId);
-			String componentExpressionColor = getEntityColor(refId, complex.getType());
-			Double componentExpressionLevel = getEntityExpressionLevel(refId);
+	private void addExpressionInfoToComplexComponents(ComplexNode complex, List<Long> componentIds) {
+		for (Long refId : componentIds)
+			complex.addComponent(refId);
+		
+		for (Component component : complex.getComponents()) {
+			Long refId = component.getRefEntityId();
+			String componentExpressionId = null;			
+			String componentExpressionColor = null;
+			Double componentExpressionLevel = null;
 			
-			complex.addComponent(refId, componentExpressionId, componentExpressionLevel, componentExpressionColor);		
+			if (refId != null) {
+				componentExpressionId = getEntityExpressionId(refId);
+				componentExpressionColor = getEntityColor(refId, null);
+				componentExpressionLevel = getEntityExpressionLevel(refId);
+			}
+						
+			component.setExpressionId(componentExpressionId);
+			component.setExpressionColor(componentExpressionColor);
+			component.setExpressionLevel(componentExpressionLevel);
 		}
 	}
 	

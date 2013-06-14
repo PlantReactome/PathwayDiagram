@@ -10,6 +10,7 @@ import java.util.List;
 import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.ComplexNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
@@ -100,7 +101,6 @@ public class CanvasPopupMenu extends PopupPanel {
 						
 						NodeList nodeList = pmElement.getChildNodes();
 						
-						List<ReactomeObject> molecules = new ArrayList<ReactomeObject>();
 						for (int i = 0; i < nodeList.getLength(); i++) {
 							Node node = nodeList.item(i);
 							
@@ -115,15 +115,27 @@ public class CanvasPopupMenu extends PopupPanel {
 							Node schemaClassNode = peElement.getElementsByTagName("schemaClass").item(0);
 							String molSchemaClass = schemaClassNode.getChildNodes().item(0).getNodeValue();
 							
-							ReactomeObject molecule = new ReactomeObject();
-							molecule.setDisplayName(molName);
-							molecule.setReactomeId(molId);
-							molecule.setSchemaClass(molSchemaClass);
-							molecules.add(molecule);
+							Component component;
+							
+							Long refId = null;
+							Node refEntityNode = peElement.getElementsByTagName("referenceEntity").item(0);							
+							if (refEntityNode != null) {
+								Node refIdNode = ((Element) refEntityNode).getElementsByTagName("dbId").item(0);
+								refId = Long.parseLong(refIdNode.getChildNodes().item(0).getNodeValue());
+								component = ((ComplexNode) selected).addComponent(refId);
+								component.setRefEntityId(refId);
+							} else {
+								component = ((ComplexNode) selected).addComponentByDBId(molId);
+							}
+								
+							component.setDisplayName(molName);
+							component.setReactomeId(molId);
+							component.setSchemaClass(molSchemaClass);
 						}
-						setPMMenu(molecules, expressionData);
+						setPMMenu(expressionData);
 					} catch (Exception e) {
 						e.printStackTrace();
+						System.out.println(response.getText());
 					}
 				} else {
 					controller.requestFailed("Could not get participating molecules");					
@@ -139,13 +151,13 @@ public class CanvasPopupMenu extends PopupPanel {
     }
     
     // Set participating molecules menu
-    private void setPMMenu(final List<ReactomeObject> molecules, boolean expressionData) {
+    private void setPMMenu(boolean expressionData) {
     	if (expressionData) {
     		menuItems.add(
     			menuBar.addItem("Display Participating Molecules", new Command() {
 					@Override
 					public void execute() {
-						diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected, molecules);
+						diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected);
 						hide();							
 					}    					
     			})
@@ -154,12 +166,12 @@ public class CanvasPopupMenu extends PopupPanel {
     		MenuBar pmMenu = new MenuBar(true);
     		pmMenu.setAutoOpen(true);
     				    				
-    		for (final ReactomeObject molecule : molecules) {			
-    			pmMenu.addItem(molecule.getDisplayName(), new Command() {
+    		for (final Component component : ((ComplexNode) selected).getComponents()) {			
+    			pmMenu.addItem(component.getDisplayName(), new Command() {
     				@Override
     				public void execute() {
     					ParticipatingMoleculeSelectionEvent pmSelectionEvent = new ParticipatingMoleculeSelectionEvent();
-    					pmSelectionEvent.setSelectedParticipatingMoleculeId(molecule.getReactomeId());
+    					pmSelectionEvent.setSelectedParticipatingMoleculeId(component.getReactomeId());
     					diagramPane.fireEvent(pmSelectionEvent);
     					
     					hide();

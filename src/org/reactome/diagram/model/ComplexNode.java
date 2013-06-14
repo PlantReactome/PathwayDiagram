@@ -14,36 +14,118 @@ import java.util.List;
 import java.util.Map;
 
 public class ComplexNode extends Node {
-    private Map<Long, Component> components; 
+    private ArrayList<Component> components;
+	private Map<Long, Component> refIdToComponentsMap; 
 		
 	/**
 	 * Default constructor.
 	 */
 	public ComplexNode() {		
 		super();
-		components = new HashMap<Long, Component>();
+		components = new ArrayList<Component>();
+		refIdToComponentsMap = new HashMap<Long, Component>();		
 	}
-
+	
+	/**
+	 * Get a component in the complex by the component's reference entity id
+	 * 
+	 * @param refId Component's reference entity id
+	 * @return Component with the given reference entity id or null if no component matches the id
+	 */
 	public Component getComponent(Long refId) {
-		return components.get(refId);
+		return refIdToComponentsMap.get(refId);		
 	}
 	
+	/**
+	 * Get a component in the complex by the component's reactome internal id
+	 * 
+	 * @param dbId Component's reactome internal id
+	 * @return Component with the given reactome internal id or null if no component matches the id
+	 */	
+	public Component getComponentByDBId(Long dbId) {
+		for (Component component : components) {
+			if (component.getReactomeId() == dbId)
+				return component;
+		}		
+		
+		return null;
+	}
+	
+	/**
+	 * Get all components for the complex	
+	 * 
+	 * @return List of all complex components sorted ascendingly by gene expression levels, if present
+	 */
 	public List<Component> getComponents() {
-		List<Component> componentList = new ArrayList<Component>(components.values());
-		Collections.sort(componentList);
-		return componentList;		
-	}
-
-	public void addComponent(Long refId, String exprId, Double exprLevel, String exprColor) {
-		components.put(refId, new Component(exprId, exprLevel, exprColor));
-	}
-
-	public void removeComponent(Long refId) {
-		components.remove(refId);
+		//List<Component> componentList = new ArrayList<Component>(components);
+		Collections.sort(components);
+		return components;		
 	}
 	
+	/**
+	 * Adds a new component object with the reference id given, 
+	 * if no component object with the reference id already exists
+	 * 
+	 * @param refId Reference id of the component 
+	 * @return A component object with the reference id given, either newly created or
+	 * returned from the existing components in the complex 
+	 */
+	public Component addComponent(Long refId) {
+		if (refIdToComponentsMap.get(refId) == null) {
+			Component component = new Component();
+			component.setRefEntityId(refId);
+			components.add(component);
+			refIdToComponentsMap.put(refId, component);
+		}
+		
+		return refIdToComponentsMap.get(refId);
+	}
+
+	/**
+	 * Adds a new component object with the reactome internal id given,
+	 * if no component object with the reactome internal id already exists
+	 * 
+	 * @param dbId Reactome internal id of the component
+	 * @return A component object with the reference id given, either newly created or
+	 * returned from the existing components in the complex
+	 */
+	public Component addComponentByDBId(Long dbId) {
+		if (getComponentByDBId(dbId) != null)
+			return getComponentByDBId(dbId);
+		
+		Component component = new Component();
+		component.setReactomeId(dbId);
+		components.add(component);
+		
+		return component;				
+	}
+	
+	/**
+	 * Remove component from the complex node by its reference entity id
+	 * 
+	 * @param refId Reference entity id of the component
+	 */
+	public void removeComponent(Long refId) {
+		Component component = refIdToComponentsMap.remove(refId);
+		components.remove(component);
+	}
+
+	/**
+	 * Remove component from the complex node by its reactome internal id 
+	 * 	
+	 * @param dbId Reactome internal id of the component
+	 */
+	public void removeComponentByDBId(Long dbId) {
+		if (getComponentByDBId(dbId) != null)
+			components.remove(getComponentByDBId(dbId));
+	}
+	
+	/**
+	 * Remove all components from the complex
+	 */
 	public void removeComponents() {
 		components.clear();
+		refIdToComponentsMap.clear();
 	}
 	
 	public List<String> getComponentColors() {
@@ -57,14 +139,21 @@ public class ComplexNode extends Node {
 	
 
 	public class Component extends ReactomeObject implements Comparable<Component> {
+		private Long referenceEntityId;
 		private String expressionId;
 		private Double expressionLevel;
 		private String expressionColor;
 			
-		public Component(String exprId, Double exprLevel, String exprColor) {			
-			setExpressionId(exprId);
-			setExpressionLevel(exprLevel);
-			setExpressionColor(exprColor);
+		public Component() {			
+			
+		}
+
+		public Long getRefEntityId() {
+			return referenceEntityId;
+		}
+
+		public void setRefEntityId(Long referenceEntityId) {
+			this.referenceEntityId = referenceEntityId;
 		}
 
 		public String getExpressionId() {
