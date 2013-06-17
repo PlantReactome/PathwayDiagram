@@ -13,9 +13,11 @@ import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -34,6 +36,7 @@ import com.google.gwt.user.client.ui.TextBox;
 public class SearchPopup extends HorizontalPanel {
 	private PathwayDiagramPanel diagramPane;
 	private List<Long> matchingEntityIds;
+	private SearchTimer searchTimer;
 	private TextBox searchBox;
 	private Label resultsLabel;
 	private HorizontalPanel navigationButtons;
@@ -59,17 +62,24 @@ public class SearchPopup extends HorizontalPanel {
 		
 		Label searchLabel = new Label("Find Reaction/Entity:");
 		
+		searchTimer = new SearchTimer();			
+		
 		searchBox = new TextBox();
 		searchBox.addKeyUpHandler(new KeyUpHandler() {
 
 			@Override
-			public void onKeyUp(KeyUpEvent event) {	
+			public void onKeyUp(KeyUpEvent event) {					
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && searchTimer.isActive()) {
+					searchTimer.cancel();
+					doSearch(searchString);
+					return;
+				} 
+				
 				String newSearchString = searchBox.getText();
-				
-				if (!newSearchString.equalsIgnoreCase(searchString))
-					doSearch(newSearchString);
-				
-				searchString = newSearchString;
+				if (!newSearchString.equalsIgnoreCase(searchString)) {
+					searchString = newSearchString;
+					searchTimer.schedule(500);
+				}
 			}
 		});
 			
@@ -210,6 +220,30 @@ public class SearchPopup extends HorizontalPanel {
 		Integer top = container.getOffsetHeight() - getOffsetHeight() - buffer;
 		Integer left = overviewLeft + overviewWidth + buffer;
 		container.setWidgetPosition(this, left, top);
+	}
+	
+	private class SearchTimer extends Timer {
+		private Boolean active;
+		
+		@Override
+		public void run() {
+			doSearch(SearchPopup.this.searchString);
+			active = false;
+		}
+		
+		public void schedule(int milliSeconds) {
+			super.schedule(milliSeconds);
+			active = true;
+		}
+		
+		public void cancel() {
+			super.cancel();
+			active = false;
+		}		
+		
+		public Boolean isActive() {
+			return active;
+		}		
 	}
 }
     
