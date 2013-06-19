@@ -44,7 +44,7 @@ public class ComplexNode extends Node {
 	 */	
 	public Component getComponentByDBId(Long dbId) {
 		for (Component component : components) {
-			if (component.getReactomeId() == dbId)
+			if (component.getReactomeId().equals(dbId))
 				return component;
 		}		
 		
@@ -71,7 +71,7 @@ public class ComplexNode extends Node {
 	 * returned from the existing components in the complex 
 	 */
 	public Component addComponent(Long refId) {
-		if (refIdToComponentsMap.get(refId) == null) {
+		if (!refIdToComponentsMap.containsKey(refId)) {
 			Component component = new Component();
 			component.setRefEntityId(refId);
 			components.add(component);
@@ -127,16 +127,23 @@ public class ComplexNode extends Node {
 		components.clear();
 		refIdToComponentsMap.clear();
 	}
-	
+
+	/**
+	 * Get list of expression colors for all complex components ordered by expression level
+	 * from lowest to highest
+	 * 
+	 * @return List of expression colors as RGB values
+	 */
 	public List<String> getComponentColors() {
 		List<String> colors = new ArrayList<String>();
 	
-		for (Component component : getComponents())
-			colors.add(component.getExpressionColor());
+		for (Component component : getComponents()) {
+			if (component.getExpressionColor() != null)
+				colors.add(component.getExpressionColor());
+		}
 		
 		return colors;
 	}
-	
 
 	public class Component extends ReactomeObject implements Comparable<Component> {
 		private Long referenceEntityId;
@@ -196,6 +203,11 @@ public class ComplexNode extends Node {
 			return 0;
 		}		
 		
+		public String toString() {
+			return "Name - " + getDisplayName() + "\n DB ID - " + getReactomeId() + 
+					"\n Expression Level - " + getExpressionLevel() + "\n Expression Color - " +
+					getExpressionColor();
+		}
 	}
 	
 }

@@ -34,7 +34,7 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
                                  Context2d context,
                                  Node node) {
     	List<String> componentColors = ((ComplexNode) node).getComponentColors();
-     	
+    	
     	Set<String> uniqueColors = new HashSet<String>(componentColors);
     	if (uniqueColors.size() == 1) {
     		context.setFillStyle(componentColors.get(0));
