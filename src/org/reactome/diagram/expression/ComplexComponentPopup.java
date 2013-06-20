@@ -5,13 +5,11 @@
  */
 package org.reactome.diagram.expression;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.ComplexNode.Component;
 
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -29,10 +27,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 public class ComplexComponentPopup extends DialogBox {
     private ExpressionCanvas expressionCanvas;
 	private ScrollPanel scrollPanel;
-    private List<ComplexComponent> complexComponents;
 	private FlexTable componentTable;
-	
-	private final Integer tableWidth = 300;
     
     public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
         super(true);
@@ -69,15 +64,13 @@ public class ComplexComponentPopup extends DialogBox {
     public void showPopup(ComplexNode selectedComplex) {
         hide();
         
-        String complexName = selectedComplex.getDisplayName();
-               	
-        addComplexComponentsToFlexTable(selectedComplex);
-        if (this.complexComponents == null || this.complexComponents.isEmpty()) {   	
-        	AlertPopup.alert(complexName + " has no genome encoded components with data");        	
+        createTable(selectedComplex);
+        if (tableIsEmpty()) {   	
+        	AlertPopup.alert(selectedComplex.getDisplayName() + " has no genome encoded components with data");        	
         	return;
         } 
         
-        setText("Components for " + complexName + ": ");
+        setText("Components for " + selectedComplex.getDisplayName() + ": ");
         
         expressionCanvas.setGreyOutCanvas(true);
         bringToFront();
@@ -85,122 +78,100 @@ public class ComplexComponentPopup extends DialogBox {
         setScrollPanelSize();
     }
     
-    private void addComplexComponentsToFlexTable(ComplexNode complex) {
+    private boolean tableIsEmpty() {		
+		return componentTable.getRowCount() == 0;
+	}
+
+	private void createTable(ComplexNode complex) {
     	this.componentTable.removeAllRows();
     	this.componentTable.setBorderWidth(1);
+    	        	    
+    	addHeader();
     	
-    	this.complexComponents = getComplexComponents(complex);
-    	    	
-    	for (int i = 0; i < this.complexComponents.size(); i++) {
-    		ComplexComponent component = this.complexComponents.get(i);
+    	for (Component component : complex.getComponents()) {     		
+    		if (component.getRefEntityId() != null)
+    			addRow(component);
+    	}
+    }	
     		
-    		String label = component.getDisplayName();
-    		
-    		if (expressionCanvas.getAnalysisType() == AnalysisType.Expression && (component.getExpressionId() != null || component.getExpressionLevel() != null)) {		
-    			label = label + " (";
-    			
-    			if (component.getExpressionId() != null) {
-    				label = label + "ID: " + component.getExpressionId();
-    			}
-    			
-    			if (component.getExpressionLevel() != null) {	
-    				label = label + " Level: " + component.getExpressionLevel();
-    			}
-    				
-    			label = label + ")";
-    		}			   
-    		Label componentName = new Label(label);
-    		componentName.setWidth(tableWidth + "px");
-    		componentName.getElement().getStyle().setBackgroundColor(component.getExpressionColor());
-    		
-    		this.componentTable.setWidget(i, 0, componentName);    		
-    		this.componentTable.getFlexCellFormatter().setColSpan(i, 0, 1);
-    		
-    	}  
+    private void addHeader() {
+    	final String BLUE = "rgb(0, 0, 255)";
+    	final String WHITE = "rgb(255, 255, 255)";
+    	
+    	addLabel("Component Name", 0, 0, WHITE, BLUE);
+    	
+    	if (isExpressionAnalysis()) {
+    		addLabel("Expression ID", 0, 1, WHITE, BLUE);
+    		addLabel("Expression Level", 0, 2, WHITE, BLUE);
+    	}
     }
     	
-    private List<ComplexComponent> getComplexComponents(ComplexNode complex) {
-    	List<ComplexComponent> complexComponents = new ArrayList<ComplexComponent>();
+	private void addRow(Component component) {
+    	final Integer rowIndex = componentTable.getRowCount();	
+    	final String bgColor = component.getExpressionColor();
     	
-    	for (ComplexNode.Component component : complex.getComponents()) {
-    		ComplexComponent complexComponent = new ComplexComponent();
+    	addLabel(component.getDisplayName(), rowIndex, 0, bgColor);
     		
-    		Long refId = component.getRefEntityId();
-    		if (refId == null)
-    			continue;
-    		    		
-    		complexComponent.setDbId(refId);
-    		complexComponent.setDisplayName(component.getDisplayName());
-    		
-    		String color = component.getExpressionColor();	
-    		String expressionId = component.getExpressionId();
-    		Double expressionLevel = component.getExpressionLevel();
-    		
-    		complexComponent.setExpressionId(expressionId);
-    		complexComponent.setExpressionLevel(expressionLevel);
-    		complexComponent.setExpressionColor(color);
-    		
-    		complexComponents.add(complexComponent);
-    	}
-    		
-    		
+    	if (isExpressionAnalysis()) {    		   			
+    		addLabel(getText(component.getExpressionId()), rowIndex, 1, bgColor);
+    		addLabel(getText(component.getExpressionLevel()), rowIndex, 2, bgColor);
+    	}		
+    }
+       
+    private Boolean isExpressionAnalysis() {
+    	return expressionCanvas.getAnalysisType() == AnalysisType.Expression;
+    }
+	
+	private String getText(Object object) {
+		return ((object != null) ? object.toString() : "N/A");
+	}
+    
+	private Label addLabel(String text, Integer row, Integer column, String bgColor) {
+		final String BLACK = "rgb(0, 0, 0)";
+		
+		return addLabel(text, row, column, bgColor, BLACK);				
+	}
+	
+    private Label addLabel(String text, Integer row, Integer column, String bgColor, String textColor) {
+    	Label label = new Label(text);
+
+    	label.setWordWrap(false);
+    	label.getElement().getStyle().setColor(textColor);
+    	label.getElement().getStyle().setBackgroundColor(bgColor);    	
+    	this.componentTable.setWidget(row, column, label);
     	
-    	return complexComponents;
+    	return label;
     }
     
     private void bringToFront() {
     	getElement().getStyle().setZIndex(2);
     }
     
-    private void setScrollPanelSize() {    	
-    	final Integer numberOfComponentsToShow = Math.min(complexComponents.size(), 10);
-    	final Integer componentHeight = 25;
-    	final Integer buffer = 5;
+    private void setScrollPanelSize() {
+    	final Integer COLUMNBUFFER = 17;
     	
-    	Integer width = tableWidth + 40;
-    	Integer height = numberOfComponentsToShow * componentHeight + buffer;
+    	Integer width = componentTable.getOffsetWidth() + COLUMNBUFFER;
+    	Integer height = getHeightOfFirstTenComponents();
     	
     	scrollPanel.setPixelSize(width, height);
     	
     	setPixelSize(width, height);
     }
+
+	private Integer getHeightOfFirstTenComponents() {
+		final Integer ROWBUFFER = 8;
+		
+		Integer height = 0;		
+		for (Integer rowIndex = 0; rowIndex < numberOfRows(); rowIndex++) {
+			Integer rowHeight = componentTable.getWidget(rowIndex, 0).getOffsetHeight() + ROWBUFFER;
+			height += rowHeight;
+		}
+		
+		return height;
+	}
     
-    private class ComplexComponent {
-    	private Long dbId;
-    	private String displayName;
-    	private String expressionId;
-    	private Double expressionLevel;
-    	private String expressionColor;
-    	
-		public Long getDbId() {
-			return dbId;
-		}
-		public void setDbId(Long dbId) {
-			this.dbId = dbId;
-		}
-		public String getDisplayName() {
-			return displayName;
-		}
-		public void setDisplayName(String displayName) {
-			this.displayName = displayName;
-		}
-		public String getExpressionId() {
-			return expressionId;
-		}
-		public void setExpressionId(String expressionId) {
-			this.expressionId = expressionId;
-		}
-		public Double getExpressionLevel() {
-			return expressionLevel;
-		}
-		public void setExpressionLevel(Double expressionLevel) {
-			this.expressionLevel = expressionLevel;
-		}
-		public String getExpressionColor() {
-			return expressionColor;
-		}
-		public void setExpressionColor(String expressionColor) {
-			this.expressionColor = expressionColor;
-		}
-    }
+	private Integer numberOfRows() {
+		return Math.min(10, componentTable.getRowCount());
+	}
+    
 }

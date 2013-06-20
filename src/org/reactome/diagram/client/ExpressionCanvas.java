@@ -185,7 +185,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 	}
  
 	private void addExpressionInfoToComplexComponents(ComplexNode complex, List<Long> componentIds) {
-		for (Long refId : componentIds)
+		for (Long refId : componentIds) 
 			complex.addComponent(refId);
 		
 		for (Component component : complex.getComponents()) {

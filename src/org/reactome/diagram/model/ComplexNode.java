@@ -44,7 +44,7 @@ public class ComplexNode extends Node {
 	 */	
 	public Component getComponentByDBId(Long dbId) {
 		for (Component component : components) {
-			if (component.getReactomeId().equals(dbId))
+			if (dbId.equals(component.getReactomeId()))
 				return component;
 		}		
 		
