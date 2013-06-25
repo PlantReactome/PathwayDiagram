@@ -1,4 +1,5 @@
 /*
+
  * Created on Oct 27, 2011
  *
  */
@@ -26,6 +27,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected double translateY;
     // This is for scale
     protected double scale;
+    protected double previousScale;
     // For view change
     protected ViewChangeEvent viewEvent;
     protected PathwayDiagramPanel diagramPane;
@@ -48,12 +50,14 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     public void translate(double dx, double dy) {
         this.translateX += dx;
         this.translateY += dy;
+        
         fireViewChangeEvent();
     }
     
     protected void fireViewChangeEvent() {
         if (viewEvent == null)
-            viewEvent = new ViewChangeEvent();        
+            viewEvent = new ViewChangeEvent();
+        
         viewEvent.setScale(scale);
         viewEvent.setTranslateX(translateX);
         viewEvent.setTranslateY(translateY);
@@ -75,15 +79,35 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
     
     public void scale(double scale) {
+        Double previousScale = this.scale;
         Double newScale = this.scale * scale;
         
         if (newScale > Parameters.ZOOMMAX || newScale < Parameters.ZOOMMIN)
         	return;
+    	
+        this.scale = newScale;
         
-    	this.scale *= scale;
+    	translateX = -(centreX(previousScale) - (0.5 * newWidth())) * newScale;
+    	translateY = -(centreY(previousScale) - (0.5 * newHeight())) * newScale;
+    	
         fireViewChangeEvent();
     }
     
+    private Double centreX(Double previousScale) {
+    	return ((-translateX / previousScale) + (getCoordinateSpaceWidth() / previousScale / 2));
+    }
+    
+    private Double centreY(Double previousScale) {
+    	return ((-translateY / previousScale) + (getCoordinateSpaceHeight() / previousScale / 2));
+    }
+    
+    private Double newWidth() {
+    	return getCoordinateSpaceWidth() / scale;
+    }
+    
+    private Double newHeight() {
+    	return getCoordinateSpaceHeight() / scale;
+    }
     public HoverHandler getHoverHandler() {
 		return hoverHandler;    	
     }
