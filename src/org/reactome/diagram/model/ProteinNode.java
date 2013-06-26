@@ -42,8 +42,6 @@ public class ProteinNode extends Node {
 	}
 	
 	public void setInteractors(String xml) {
-		interactors.clear();
-		
 		Document iDom;		
 		try {
 			iDom = XMLParser.parse(xml);
@@ -54,11 +52,21 @@ public class ProteinNode extends Node {
 		
 		Element iElement = iDom.getDocumentElement();
 		XMLParser.removeWhitespace(iElement);
-
+	
 		NodeList interactionList = getNodeList(iElement, "resultList", "interactionList");
+	
+		interactors = parseInteractorList(interactionList);
+	}
+	
+	public void setInteractors(NodeList interactionList) {
+		interactors = parseInteractorList(interactionList);
+	}
 		
+	private List<InteractorNode> parseInteractorList(NodeList interactionList) {	
 		if (interactionList == null)
-			return;
+			return null;
+			
+		List<InteractorNode> interactorNodes = new ArrayList<InteractorNode>();
 		
 		for (int i = 0; i < interactionList.getLength(); i++) {
 			com.google.gwt.xml.client.Node node = interactionList.item(i);
@@ -84,11 +92,13 @@ public class ProteinNode extends Node {
 								
 				String chemblId = getChemblId(getNodeList(interactorElement, "extraFields", "entry"));								
 				
-				interactors.add(createInteractor(acc, geneName, score, chemblId));
+				interactorNodes.add(createInteractor(acc, geneName, score, chemblId));
 			}			
 		}
 		
-		Collections.sort(interactors);
+		Collections.sort(interactorNodes);
+		
+		return interactorNodes;
 	}
 
 	public boolean isDisplayingInteractors() {

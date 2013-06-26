@@ -21,6 +21,9 @@ import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -35,7 +38,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
     	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
-    	expressionCanvasModel = new ExpressionCanvasModel(this);
+    	expressionCanvasModel = new ExpressionCanvasModel();
     }
    
     public AnalysisType getAnalysisType() {
@@ -62,12 +65,36 @@ public class ExpressionCanvas extends DiagramCanvas {
 		this.pathway = pathway;
 
 		if (pathway != null) {	
-			diagramPane.getController().getPhysicalToReferenceEntityMap(pathway.getReactomeId(), updateCanvas);
+			diagramPane.getController().getPhysicalToReferenceEntityMap(pathway, drawOverlayForNewPathway(updateCanvas));
 		} 
 		else {
 			if (updateCanvas)
 				update();
 		}
+	}
+	
+	private RequestCallback drawOverlayForNewPathway(final Boolean updateCanvas) {
+		RequestCallback drawOverlayForNewPathway = new RequestCallback() {
+
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() == 200) {
+					pathway.setDbIdToRefEntityId(response.getText());
+					if (updateCanvas)
+						update();
+				} else {
+					diagramPane.getController().requestFailed(
+						"Unable to obtain pathway mapping of physical to reference entity ids - " +
+						response.getStatusText()
+					);
+				}
+			}
+
+			public void onError(Request request, Throwable exception) {
+				diagramPane.getController().requestFailed(exception);
+			}			
+		};
+		
+		return drawOverlayForNewPathway;
 	}
 
 	public List<GraphObject> getGraphObjects() {
@@ -86,9 +113,9 @@ public class ExpressionCanvas extends DiagramCanvas {
 
         clean(c2d);
         
-        Map<Long, List<Long>> physicalToReferenceEntityMap = expressionCanvasModel.getPhysicalToReferenceEntityMap();
-        if (pathway != null && physicalToReferenceEntityMap != null) {
-            for (GraphObject entity : getGraphObjects()) {
+        if (pathway != null && pathway.getDbIdToRefEntityId() != null) {
+            Map<Long, List<Long>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntityId();
+        	for (GraphObject entity : getGraphObjects()) {
             	if (entity instanceof Node) {
             		if (entity.getType() == GraphObjectType.RenderableCompartment)
             			continue;
@@ -170,7 +197,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 
 	private String getDefaultColor(GraphObjectType entityType) {
 		String defaultColor = null;
-		if (AnalysisType.contains(analysisType.name())) {
+		if (AnalysisType.contains(
+				analysisType.name())) {
 			defaultColor = "rgb(192,192,192)"; // Grey by default
 			
 			if (analysisType == AnalysisType.SpeciesComparison && entityType == GraphObjectType.RenderableProtein) {

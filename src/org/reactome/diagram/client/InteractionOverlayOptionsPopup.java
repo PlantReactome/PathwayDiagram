@@ -4,13 +4,18 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.model.InteractorCanvasModel.InteractorConfidenceScoreColourModel;
+import org.reactome.diagram.model.InteractorNode;
+import org.reactome.diagram.model.ProteinNode;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -23,6 +28,9 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Button;
@@ -43,6 +51,11 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.mogaleaf.client.common.widgets.ColorHandler;
 import com.mogaleaf.client.common.widgets.SimpleColorPicker;
 
@@ -72,12 +85,19 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 	}
 	
 	private VerticalPanel optionsPanel() {		
-		VerticalPanel optionsPanel = new VerticalPanel();
-		optionsPanel.add(new InteractionDBOptions());
-		optionsPanel.add(new InteractorColorOptions());
-		optionsPanel.add(getClosePopupButton());
+		VerticalPanel container = new VerticalPanel();
 		
-		return optionsPanel;
+		VerticalPanel optionsPanel = new VerticalPanel();		
+		optionsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);		
+		optionsPanel.add(new InteractionDBOptions());
+		optionsPanel.add(new InteractorColorOptions());		
+		optionsPanel.add(new PathwayInteractorsPanel(diagramPane.getPathway(), diagramPane.getController()));
+		optionsPanel.add(getExportPathwayInteractorsButton());
+		
+		container.add(optionsPanel);
+		container.add(getClosePopupButton());
+		
+		return container;
 	}
 		
 	private void bringToFront(Widget widget) {
@@ -94,6 +114,20 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		return closeButton;				
 	}
 		
+	private Button getExportPathwayInteractorsButton() {
+		Button exportPathwayInteractors = new Button("Export all interactors for pathway", new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				CanvasPathway pathway = diagramPane.getPathway();
+				
+				if (pathway != null) {
+					diagramPane.getController().openInteractionExportPage(pathway.getReactomeId());
+				}
+			}			
+		});
+		
+		return exportPathwayInteractors;
+	}
+	
 	private void setTableRows(FlexTable table, Map<String, Widget> rows) {
 		for (Entry<String, Widget> row : rows.entrySet()) {
 			String text = row.getKey();
@@ -545,5 +579,175 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			
 			return coloringMode;
 		}	    
-	}	
+	}
+	
+	private class PathwayInteractorsPanel extends VerticalPanel {
+		private FlexTable pathwayInteractorsTable;
+		private PathwayInteractorsTableToggle toggleTableButton;
+		private CanvasPathway pathway;
+		private PathwayDiagramController controller;
+		
+		public PathwayInteractorsPanel(CanvasPathway pathway, PathwayDiagramController controller) {
+			this.pathway = pathway;
+			this.controller = controller;
+			
+			this.pathwayInteractorsTable = new FlexTable();
+			this.toggleTableButton = new PathwayInteractorsTableToggle();						
+			
+			add(toggleTableButton);
+			add(pathwayInteractorsTable);
+		}
+		
+		public void setPathway(CanvasPathway pathway) {
+			this.pathway = pathway;
+			if (toggleTableButton.isTableDisplaying()) {
+				pathwayInteractorsTable.removeAllRows();
+				createTable();
+			}
+		}
+		
+		private Boolean tableIsEmpty() {
+			return pathwayInteractorsTable.getRowCount() == 0;
+		}
+		
+		private void createTable() {
+			controller.getPhysicalToReferenceEntityMap(pathway, setIdMapAndGetPathwayInteractors(interactorCanvasModel.getInteractorDatabase()));
+		}
+		
+		private RequestCallback setIdMapAndGetPathwayInteractors(final String interactorDatabase) {
+			RequestCallback obtainPathwayInteractors = new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					if (pathway.getDbIdToRefEntityId() == null) 	
+						pathway.setDbIdToRefEntityId(response.getText());
+					
+					controller.getPathwayInteractors(pathway, interactorDatabase, populateTable());
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					controller.requestFailed(exception);
+				}
+				
+			};
+			
+			return obtainPathwayInteractors;
+		}
+		
+		private RequestCallback populateTable() {
+			RequestCallback populateTable = new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,	Response response) {
+					List<ProteinNode> pathwayProteins = getPathwayProteinsAndSetInteractors(response.getText()); 
+					for (ProteinNode protein : pathwayProteins) {
+						for (InteractorNode interactor : protein.getInteractors())
+							addRowToTable(protein, interactor);
+					}
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					controller.requestFailed(exception);
+				}		
+			};
+				
+			return populateTable;
+		}
+		
+		private List<ProteinNode> getPathwayProteinsAndSetInteractors(String xml) {
+			Document pathwayInteractors = XMLParser.parse(xml);
+			Element pathwayInteractorsElement = pathwayInteractors.getDocumentElement();
+		
+			XMLParser.removeWhitespace(pathwayInteractorsElement);
+			
+			NodeList resultLists = pathwayInteractorsElement.getElementsByTagName("resultList");
+			
+			List<ProteinNode> proteins = new ArrayList<ProteinNode>();
+			for (int i = 0; i < resultLists.getLength(); i++) { 
+				Node resultList = resultLists.item(i);
+				
+				final Long refEntityId = Long.parseLong(getNodeValue(resultList, "refSeqDBId"));
+				//final String uniprotId = getNodeValue(resultList, "query");		
+				final NodeList interactorList = ((Element) resultList).getElementsByTagName("interactionList")
+																	  .item(0)
+																	  .getFirstChild()
+																	  .getChildNodes();
+				
+				ProteinNode protein = pathway.getProteinByRefId(refEntityId);
+				protein.setInteractors(interactorList);
+				
+				proteins.add(protein);
+			}
+			
+			return proteins;
+		}
+		
+		private String getNodeValue(Node node, String nodeName) {
+			return ((Element) node).getElementsByTagName(nodeName).item(0).getFirstChild().getNodeValue();
+		}
+		
+		private void addRowToTable(ProteinNode protein, InteractorNode interactor) {
+			Integer rowIndex = pathwayInteractorsTable.getRowCount();
+			
+			pathwayInteractorsTable.setWidget(rowIndex, 0, getProteinLabel(protein));
+			pathwayInteractorsTable.setText(rowIndex, 1, interactor.getDisplayName());
+			pathwayInteractorsTable.setText(rowIndex, 2, Double.toString(interactor.getScore()));
+		}
+		
+		private Label getProteinLabel(final ProteinNode protein) {
+			Label proteinLabel = new Label(protein.getDisplayName());
+			
+			proteinLabel.addClickHandler(new ClickHandler() {
+				
+				public void onClick(ClickEvent event) {
+					InteractionOverlayOptionsPopup.this.diagramPane.setSelectionId(protein.getReactomeId());
+				}
+			});
+			
+			return proteinLabel;
+		}
+		
+		private class PathwayInteractorsTableToggle extends Button {
+			private final String SUFFIX = " table of all interactors for pathway";
+			private Boolean displaying;
+			
+			public PathwayInteractorsTableToggle() {
+				setDisplaying(false);
+				addClickHandler(clickHandler());
+			}
+			
+			public Boolean isTableDisplaying() {
+				return displaying;
+			}
+			
+			private ClickHandler clickHandler() {
+				return new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						setDisplaying(!displaying);
+					}					
+				};				
+			}
+			
+			private void setDisplaying(Boolean displaying) {
+				this.displaying = displaying;
+				
+				String prefix = displaying ? "Hide" : "Display";				
+				setText(prefix + SUFFIX);
+				
+				displayTable(displaying);
+			}
+			
+			private void displayTable(Boolean display) {
+				if (tableIsEmpty() && display)
+					createTable();
+				
+				pathwayInteractorsTable.setVisible(display);
+			}
+			
+		}		
+	}
 }

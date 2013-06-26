@@ -123,7 +123,6 @@ public class CanvasPopupMenu extends PopupPanel {
 								Node refIdNode = ((Element) refEntityNode).getElementsByTagName("dbId").item(0);
 								refId = Long.parseLong(refIdNode.getChildNodes().item(0).getNodeValue());
 								component = ((ComplexNode) selected).addComponent(refId);
-								component.setRefEntityId(refId);
 							} else {
 								component = ((ComplexNode) selected).addComponentByDBId(molId);
 							}
@@ -135,7 +134,6 @@ public class CanvasPopupMenu extends PopupPanel {
 						setPMMenu(expressionData);
 					} catch (Exception e) {
 						e.printStackTrace();
-						System.out.println(response.getText());
 					}
 				} else {
 					controller.requestFailed("Could not get participating molecules");					

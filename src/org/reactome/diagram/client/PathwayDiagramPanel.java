@@ -293,17 +293,18 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         onResize(width, height);
     }
     
-    private void onResize(int width, int height) {
+    private void resizeCanvases(int width, int height) {
         for (DiagramCanvas canvas : canvasList) {
         	if (canvas == null)
-        		continue;        		
+        		continue;
         	
-    	   	canvas.setSize(width - 8 + "px", height - 8 + "px");
-        	canvas.setCoordinateSpaceWidth(width - 8);
-        	canvas.setCoordinateSpaceHeight(height - 8);
-        }	
+        	canvas.resize(width, height);
+        }
+    }    
         
-        
+    private void onResize(Integer width, Integer height) {
+    	resizeCanvases(width, height);
+    	
         // Need to reset the overview position so that it stays at the bottom-left corner
         if (!overview.isVisible())
             overview.setVisible(true);
@@ -313,9 +314,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         optionsMenu.updateIconPosition();
         
         update();
-        LocalResizeEvent event = new LocalResizeEvent(width, height);
-        
-        
+                
+        LocalResizeEvent event = new LocalResizeEvent(width, height);                
         contentPane.fireEvent(event);
     }
 
@@ -642,8 +642,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	ExpressionProcessor expressionProcessor = new ExpressionProcessor(analysisString);    	
     	expressionProcessor.createDataController(this, contentPane, expressionCanvas);
     	
-    	complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
-    	//complexComponentPopup.setStyleName(style.expressionComplexPopup());
+    	complexComponentPopup = new ComplexComponentPopup(expressionCanvas);    	
     }
     
     public void setDataController(DataController dataController) {
@@ -774,7 +773,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			
 			interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 			interactorCanvas.scale(pathwayCanvas.getScale());
-			onResize();
+			interactorCanvas.resize(getOffsetWidth(), getOffsetHeight());
 		}	
 	}
 	
@@ -782,13 +781,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 		if (expressionCanvas == null) {
 			expressionCanvas = new ExpressionCanvas(this);
 			
-			contentPane.insert(expressionCanvas, 4, 4, 1);		
-			System.out.println(canvasList.indexOf(pathwayCanvas));
+			contentPane.insert(expressionCanvas, 4, 4, 1);
 			canvasList.add(canvasList.indexOf(pathwayCanvas) + 1, expressionCanvas);
 			
 			expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 			expressionCanvas.scale(pathwayCanvas.getScale());
-			onResize();
+			expressionCanvas.resize(getOffsetWidth(), getOffsetHeight());
 		}
 	}
 	

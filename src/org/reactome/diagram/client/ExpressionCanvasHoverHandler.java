@@ -49,22 +49,21 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     }
         
     protected void showTooltip() {
-    	String label;
     	
     	ExpressionCanvasModel ecm = ec.getExpressionCanvasModel();
     	
-    	Long refId = ecm.getPhysicalToReferenceEntityMap().get(hoveredObject.getReactomeId()).get(0);  	
+    	Long refId = ec.getPathway().getDbIdToRefEntityId().get(hoveredObject.getReactomeId()).get(0);  	
     	
     	String expressionId = "N/A";    	
     	String expressionLevel = "N/A";
     	
-    	if (ecm.getEntityExpressionIdMap() != null)
+    	if (ecm.getEntityExpressionIdMap() != null && ecm.getEntityExpressionIdMap().get(refId) != null)
     		expressionId = ecm.getEntityExpressionIdMap().get(refId);
     	
     	if (ecm.getEntityExpressionLevelMap() != null && ecm.getEntityExpressionLevelMap().get(refId) != null)
     		expressionLevel = ecm.getEntityExpressionLevelMap().get(refId).toString();
     	
-    	label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
+    	String label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
    
     	tooltip.setWidget(new HTML(label));
     

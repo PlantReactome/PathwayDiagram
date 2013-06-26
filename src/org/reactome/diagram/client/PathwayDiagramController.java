@@ -272,6 +272,19 @@ public class PathwayDiagramController {
         }
     }
     
+    public void getPathwayInteractors(CanvasPathway pathway, String interactionDatabase, RequestCallback callback) {
+    	String url = getHostUrl() + "psiquicInteractions/" + pathway.getReactomeId() + "/" + interactionDatabase;
+    	
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	requestBuilder.setHeader("Accept", "application/xml");
+    	
+    	try {
+    		requestBuilder.sendRequest(null, callback);
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
+    
     public void openInteractionExportPage(Long dbId) {
     	String hostUrl = getHostUrl();
     	
@@ -295,31 +308,13 @@ public class PathwayDiagramController {
         }
     }
 
-    public void getPhysicalToReferenceEntityMap(Long pathwayId, final boolean updateCanvas) {
-    	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathwayId;
+    public void getPhysicalToReferenceEntityMap(CanvasPathway pathway, RequestCallback callback) {
+    	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathway.getReactomeId();
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/json");
     	
-    	final ExpressionCanvas ec = diagramPane.getExpressionCanvas();
-    	
     	try {
-    		requestBuilder.sendRequest(null, new RequestCallback() {
-
-				@Override
-				public void onResponseReceived(Request request,	Response response) {
-					if (response.getStatusCode() == 200) {
-						ec.getExpressionCanvasModel().setPhysicalToReferenceEntityMap(response.getText(), updateCanvas);
-					} else {
-						requestFailed("Could not retrieve physical to reference entity map");
-					}
-				}
-
-				@Override
-				public void onError(Request request, Throwable exception) {
-					requestFailed(exception);					
-				}
-    			
-    		});
+    		requestBuilder.sendRequest(null, callback);
     	} catch (RequestException ex) {
     		requestFailed(ex);
     	}

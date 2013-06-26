@@ -11,6 +11,9 @@ import java.util.Map;
 
 import org.reactome.diagram.model.ConnectWidget.ConnectRole;
 
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -25,6 +28,8 @@ import com.google.gwt.xml.client.NodeList;
 public class CanvasPathway extends Node {
     // A list of edges that should be rendered
     private List<HyperEdge> edges;
+    // Mapping of each child node's internal id to reference entity id
+    private Map<Long, List<Long>> dbIdToRefEntityId;
     
     public CanvasPathway() {
     }
@@ -54,9 +59,46 @@ public class CanvasPathway extends Node {
     
     public List<HyperEdge> getEdges() {
         return this.edges;
-    }
+    }    
     
-    /**
+    public Map<Long, List<Long>> getDbIdToRefEntityId() {
+		return dbIdToRefEntityId;
+	}
+
+	public void setDbIdToRefEntityId(String json) {
+		clearDbIdToRefEntityId();
+		
+		JSONArray mapObjects = (JSONArray) JSONParser.parseStrict(json);		
+		for (int i = 0; i < mapObjects.size(); i++) {
+			JSONObject entityMap = mapObjects.get(i).isObject();
+			dbIdToRefEntityId.put(getPhysicalEntityId(entityMap), getReferenceEntityIds(entityMap));
+		}
+	}
+	
+	private void clearDbIdToRefEntityId() {
+		if (dbIdToRefEntityId == null)
+			dbIdToRefEntityId = new HashMap<Long, List<Long>>();
+		else
+			dbIdToRefEntityId.clear();
+	}
+
+	private Long getPhysicalEntityId(JSONObject entityMap) {
+		return (long) entityMap.get("peDbId").isNumber().doubleValue();
+	}
+	
+	private List<Long> getReferenceEntityIds(JSONObject entityMap) {
+		List<Long> refEntityIds = new ArrayList<Long>();
+		
+		JSONArray refEntityArray = entityMap.get("refDbIds").isArray();
+		for (int i = 0; i < refEntityArray.size(); i++) {
+			Long refEntityId = (long) refEntityArray.get(i).isNumber().doubleValue();
+			refEntityIds.add(refEntityId);
+		}
+		
+		return refEntityIds;
+	}
+	
+	/**
      * Get all contained GraphObjects in this CanvasPathway, which include both 
      * nodes and edges.
      * @return
@@ -69,6 +111,44 @@ public class CanvasPathway extends Node {
         if (edges != null)
             objects.addAll(edges);
         return objects;
+    }
+
+    public List<ProteinNode> getProteins() {
+    	List<ProteinNode> proteins = new ArrayList<ProteinNode>();
+    	
+    	List<Node> nodes = getChildren();    	
+    	if (nodes != null) {
+    		for (Node node : nodes) {
+    			if (node.getType() == GraphObjectType.RenderableProtein) {
+    				proteins.add((ProteinNode) node);
+    			}
+    		}
+    	}
+    	
+    	return proteins;
+    }
+    
+    public ProteinNode getProteinNodeByDBId(Long dbId) {
+    	for (ProteinNode protein : getProteins()) {
+    		if (dbId.equals(protein.getReactomeId()))
+    			return protein;
+    	}
+    	
+    	return null;
+    }
+    
+    public ProteinNode getProteinByRefId(Long refId) {
+    	if (dbIdToRefEntityId == null || refId == null)
+    		return null;
+    	
+    	for (ProteinNode protein : getProteins()) {
+    		List<Long> proteinRefIdList = dbIdToRefEntityId.get(protein.getReactomeId());
+    		
+    		if (!proteinRefIdList.isEmpty() && proteinRefIdList.get(0).equals(refId))
+    			return protein;
+    	}
+    	
+    	return null;
     }
     
     private void parseDisplayName(com.google.gwt.xml.client.Node node,

@@ -46,7 +46,18 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         eventInstaller = new CanvasEventInstaller(diagramPane, this);
         eventInstaller.installEventHandlersForCanvas();
     }
-        
+
+    public void resize(Integer width, Integer height) {
+    	final Integer BUFFER = 8;
+    	
+    	Integer adjustedWidth = width - BUFFER;
+    	Integer adjustedHeight = height - BUFFER;
+    	
+    	setSize(adjustedWidth + "px", adjustedHeight + "px");
+    	setCoordinateSpaceWidth(adjustedWidth);
+    	setCoordinateSpaceHeight(adjustedHeight);
+    }
+    
     public void translate(double dx, double dy) {
         this.translateX += dx;
         this.translateY += dy;
