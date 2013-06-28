@@ -85,6 +85,14 @@ public abstract class GraphObject extends ReactomeObject {
         return this.type;
     }
 
+    public String getObjectType() {
+    	final String PREFIX = "Renderable";
+    	
+    	String type = this.type.toString();
+    	
+    	return (type.startsWith(PREFIX) ? type.substring(PREFIX.length()) : type);
+    }
+    
     public double getLineWidth() {
         return lineWidth;
     }

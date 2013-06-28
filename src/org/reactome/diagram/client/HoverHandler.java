@@ -1,4 +1,5 @@
 /*
+
  * Created on Oct 11, 2012
  *
  */
@@ -139,16 +140,8 @@ public abstract class HoverHandler {
     }
     
     protected String getLabel() {
-    	return getObjType() + ": " + hoveredObject.getDisplayName();  
+    	return hoveredObject.getObjectType() + ": " + hoveredObject.getDisplayName();  
     }	
-    	
-    private String getObjType() {    	
-    	String type = hoveredObject.getType().toString();
-    	if (type.startsWith("Renderable")) {
-    		return type.substring("Renderable".length());
-    	}
-    	return type;
-    }
     
     protected void fireHoverEvent() {
         HoverEvent event = new HoverEvent();
