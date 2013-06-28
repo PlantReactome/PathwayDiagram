@@ -19,7 +19,11 @@ import org.reactome.diagram.model.ProteinNode;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style.Unit;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -44,6 +48,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -68,7 +73,11 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 	private final String FILEIDPREFIX = "Interaction_File";
 	
 	private PathwayDiagramPanel diagramPane;
-	private InteractorCanvasModel interactorCanvasModel;		
+	private InteractorCanvasModel interactorCanvasModel;
+	
+	private InteractionDBOptions interactionDBOptions;
+	private InteractorColorOptions interactorColorOptions;
+	private PathwayInteractorsPanel pathwayInteractorsPanel;
 	
 	public InteractionOverlayOptionsPopup(PathwayDiagramPanel dPane) {
 		super(Boolean.FALSE, Boolean.TRUE);
@@ -78,10 +87,19 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		init();
 	}
 	
-	public void init() { 		
+	public void init() {
 		setText("Interaction Overlay Options");
+		initPanelWidgets();
 		setWidget(optionsPanel());
 		bringToFront(this);
+	}
+	
+	private void initPanelWidgets() {
+		interactionDBOptions = new InteractionDBOptions();
+		interactorColorOptions = new InteractorColorOptions();
+		pathwayInteractorsPanel = new PathwayInteractorsPanel(interactorCanvasModel.getInteractorDatabase(),
+															  diagramPane.getPathway(),
+															  diagramPane.getController());
 	}
 	
 	private VerticalPanel optionsPanel() {		
@@ -89,9 +107,10 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		
 		VerticalPanel optionsPanel = new VerticalPanel();		
 		optionsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);		
-		optionsPanel.add(new InteractionDBOptions());
-		optionsPanel.add(new InteractorColorOptions());		
-		optionsPanel.add(new PathwayInteractorsPanel(diagramPane.getPathway(), diagramPane.getController()));
+		
+		optionsPanel.add(interactionDBOptions);
+		optionsPanel.add(interactorColorOptions);
+		optionsPanel.add(pathwayInteractorsPanel);
 		optionsPanel.add(getExportPathwayInteractorsButton());
 		
 		container.add(optionsPanel);
@@ -142,33 +161,64 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 
 	private class InteractionDBOptions extends DecoratorPanel {
 		private FlexTable optionsTable;
+		private ListBox interactorDBListBox;
+		private Button fileUploadButton;
+		private Button clearOverlayButton;
+		private Button psicquicServiceButton;		
 		
 		public InteractionDBOptions() {
 			optionsTable = new FlexTable();
-			setTableRows(optionsTable, getRows());
+			initWidgets();
+			makeTable();
 			setWidget(optionsTable);
+		}
+		
+		private void initWidgets() {
+			setInteractorDBListBox();
+			setFileUploadButton();
+			setClearOverlayButton();
+			setPSICQUICServiceButton();
+		}
+		
+		private void makeTable() {
+			setTableRows(optionsTable, getRows());
 		}
 		
 		private Map<String, Widget> getRows() {
 			Map<String, Widget> rows = new LinkedHashMap<String, Widget>();
 			
-			rows.put("Interaction Database", getInteractorDBListBox());
-			rows.put("Upload a file", getFileUploadButton());
-			rows.put("Clear Overlay", getClearOverlayButton());
-			rows.put("Submit a new PSICQUIC Service", getPSICQUICServiceButton());
+			rows.put("Interaction Database", interactorDBListBox);
+			rows.put("Upload a file", fileUploadButton);
+			rows.put("Clear Overlay", clearOverlayButton);
+			rows.put("Submit a new PSICQUIC Service", psicquicServiceButton);
 			
 			return rows;
 		}
 		
-		private ListBox getInteractorDBListBox() {
-			ListBox interactorDBListBox = interactorCanvasModel.getInteractorDBListBox();
-			String currentDBSelection = interactorCanvasModel.getInteractorDatabase();
+		public ListBox getInteractorDBListBox() {
+			return interactorDBListBox;
+		}
 		
-			setSelectedItem(interactorDBListBox, currentDBSelection);
-		
-			return interactorDBListBox;			
+		private void setInteractorDBListBox() {
+			if (interactorDBListBox == null)
+				interactorDBListBox = interactorCanvasModel.getInteractorDBListBox();
+			else
+				resetInteractorDBListBox();
+			
+			setSelectedItem(interactorDBListBox, interactorCanvasModel.getInteractorDatabase());		
 		}	
 			
+		private void resetInteractorDBListBox() {
+			ListBox newInteractorDBListBox = interactorCanvasModel.getInteractorDBListBox();
+			
+			interactorDBListBox.clear();
+			
+			for (Integer i = 0; i < newInteractorDBListBox.getItemCount(); i++) {
+				interactorDBListBox.addItem(newInteractorDBListBox.getItemText(i), 
+											newInteractorDBListBox.getValue(i));
+			}
+		}
+		
 		private void setSelectedItem(ListBox interactorDBListBox, String currentDBSelection) {			
 			for (Integer i = 0; i < interactorDBListBox.getItemCount(); i++) {
 				// User uploaded files need the file id stored previously in the list box value, but all other list box items have 
@@ -182,8 +232,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			}										
 		}
 		
-		private Button getFileUploadButton() {
-			Button fileUploadButton = new Button("Select File", new ClickHandler() {
+		private void setFileUploadButton() {
+			fileUploadButton = new Button("Select File", new ClickHandler() {
 				private FormPanel form;
 			
 				private TextBox fileLabel;
@@ -227,7 +277,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 						
 							interactorCanvasModel.addNewUploadedUserFile(userLabel, serviceKey);
 							interactorCanvasModel.setInteractorDatabase(serviceKey);
-							optionsTable.setWidget(0, 1, getInteractorDBListBox());
+							makeTable(); // Update listbox to include user uploaded file as a selectable option
 							uploadFileDialogBox.hide();
 						}						
 					});
@@ -319,13 +369,11 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				
 					return errors;					
 				}				
-			});
-			
-			return fileUploadButton;		
+			});					
 		}
 
-		private Button getClearOverlayButton() {
-			Button clearButton = new Button("Clear", new ClickHandler() {
+		private void setClearOverlayButton() {
+			clearOverlayButton = new Button("Clear", new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
@@ -335,12 +383,10 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 					}
 				}
 			});
-			
-			return clearButton;
 		}
 		
-		private Button getPSICQUICServiceButton() {
-			Button serviceButton = new Button("New Service", new ClickHandler() {
+		private void setPSICQUICServiceButton() {
+			psicquicServiceButton = new Button("New Service", new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
@@ -369,7 +415,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 							
 							url = SafeHtmlUtils.fromString(url).asString();
 							interactorCanvasModel.addNewPSICQUICService(name, url);
-							optionsTable.setWidget(0, 1, getInteractorDBListBox());
+							makeTable(); // Re-make table to update list-box which now includes the added service
 							newService.hide();							
 						}						
 					}));
@@ -387,8 +433,6 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 					newService.center();
 				}				
 			});
-		
-			return serviceButton;
 		}
 	}
 	
@@ -582,144 +626,278 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 	}
 	
 	private class PathwayInteractorsPanel extends VerticalPanel {
-		private FlexTable pathwayInteractorsTable;
+		private PathwayInteractorsTable pathwayInteractorsTable;
 		private PathwayInteractorsTableToggle toggleTableButton;
-		private CanvasPathway pathway;
-		private PathwayDiagramController controller;
 		
-		public PathwayInteractorsPanel(CanvasPathway pathway, PathwayDiagramController controller) {
-			this.pathway = pathway;
-			this.controller = controller;
+		public PathwayInteractorsPanel(String interactorDatabase, CanvasPathway pathway, PathwayDiagramController controller) {			
+			final Integer VISIBLE_ROWS = 7;
 			
-			this.pathwayInteractorsTable = new FlexTable();
-			this.toggleTableButton = new PathwayInteractorsTableToggle();						
+			this.pathwayInteractorsTable = new PathwayInteractorsTable(interactorDatabase, 
+																	   pathway,
+																	   controller,
+																	   VISIBLE_ROWS);
+			this.toggleTableButton = new PathwayInteractorsTableToggle(pathwayInteractorsTable);
 			
 			add(toggleTableButton);
 			add(pathwayInteractorsTable);
 		}
-		
-		public void setPathway(CanvasPathway pathway) {
-			this.pathway = pathway;
-			if (toggleTableButton.isTableDisplaying()) {
-				pathwayInteractorsTable.removeAllRows();
-				createTable();
-			}
-		}
-		
-		private Boolean tableIsEmpty() {
-			return pathwayInteractorsTable.getRowCount() == 0;
-		}
-		
-		private void createTable() {
-			controller.getPhysicalToReferenceEntityMap(pathway, setIdMapAndGetPathwayInteractors(interactorCanvasModel.getInteractorDatabase()));
-		}
-		
-		private RequestCallback setIdMapAndGetPathwayInteractors(final String interactorDatabase) {
-			RequestCallback obtainPathwayInteractors = new RequestCallback() {
+				
+		private class PathwayInteractorsTable extends ScrollPanel {
+			private String interactorDatabase;
+			private CanvasPathway pathway;
+			private PathwayDiagramController controller;
+			
+			private FlexTable table;
+			private Boolean tableDisplaying;
+			private Integer rowsInView;
+			private Integer panelWidth;
+			
+			public PathwayInteractorsTable(String interactorDatabase,
+										   CanvasPathway pathway,
+										   PathwayDiagramController controller,
+										   Integer visibleRows) {
+				this.interactorDatabase = interactorDatabase;
+				this.pathway = pathway;
+				this.controller = controller;
+								
+				table = new FlexTable();
+				
+				rowsInView = visibleRows;
+				panelWidth = InteractionOverlayOptionsPopup.this.getOffsetWidth();
 
-				@Override
-				public void onResponseReceived(Request request,	Response response) {
-					if (pathway.getDbIdToRefEntityId() == null) 	
-						pathway.setDbIdToRefEntityId(response.getText());
+				styleTable();				
+				add(table);
+				
+				addChangedInteractionDatabaseHandler();
+			}
+			
+			public Boolean isDisplaying() {
+				return tableDisplaying;
+			}
+			
+			public void setDisplaying(Boolean displaying) {
+				tableDisplaying = displaying;
+			}
+			
+			public void removeAllRows() {
+				table.removeAllRows();
+			}
+			
+			public Boolean tableIsEmpty() {
+				return table.getRowCount() == 0;
+			}
+		
+			public void createTable() {
+				controller.getPhysicalToReferenceEntityMap(pathway, setIdMapAndGetPathwayInteractors(interactorDatabase));
+			}
+			
+			private RequestCallback setIdMapAndGetPathwayInteractors(final String interactorDatabase) {
+				RequestCallback obtainPathwayInteractors = new RequestCallback() {
+
+					@Override
+					public void onResponseReceived(Request request,	Response response) {
+						if (pathway.getDbIdToRefEntityId() == null) 	
+							pathway.setDbIdToRefEntityId(response.getText());
 					
-					controller.getPathwayInteractors(pathway, interactorDatabase, populateTable());
-				}
-
-				@Override
-				public void onError(Request request, Throwable exception) {
-					controller.requestFailed(exception);
-				}
-				
-			};
-			
-			return obtainPathwayInteractors;
-		}
-		
-		private RequestCallback populateTable() {
-			RequestCallback populateTable = new RequestCallback() {
-
-				@Override
-				public void onResponseReceived(Request request,	Response response) {
-					List<ProteinNode> pathwayProteins = getPathwayProteinsAndSetInteractors(response.getText()); 
-					for (ProteinNode protein : pathwayProteins) {
-						for (InteractorNode interactor : protein.getInteractors())
-							addRowToTable(protein, interactor);
+						controller.getPathwayInteractors(pathway, interactorDatabase, populateTable());
 					}
-				}
 
-				@Override
-				public void onError(Request request, Throwable exception) {
-					controller.requestFailed(exception);
-				}		
-			};
+					@Override
+					public void onError(Request request, Throwable exception) {
+						controller.requestFailed(exception);
+					}
 				
-			return populateTable;
-		}
-		
-		private List<ProteinNode> getPathwayProteinsAndSetInteractors(String xml) {
-			Document pathwayInteractors = XMLParser.parse(xml);
-			Element pathwayInteractorsElement = pathwayInteractors.getDocumentElement();
-		
-			XMLParser.removeWhitespace(pathwayInteractorsElement);
+				};
 			
-			NodeList resultLists = pathwayInteractorsElement.getElementsByTagName("resultList");
+				return obtainPathwayInteractors;
+			}
+		
+			private RequestCallback populateTable() {
+				RequestCallback populateTable = new RequestCallback() {
+
+					@Override
+					public void onResponseReceived(Request request,	Response response) {
+						addHeaderToTable();						
+						List<ProteinNode> pathwayProteins = getPathwayProteinsAndSetInteractors(response.getText()); 
+						for (ProteinNode protein : pathwayProteins) {
+							for (InteractorNode interactor : protein.getInteractors())
+								addRowToTable(protein, interactor);
+						}
+						sizeScrollPanel();
+					}
+
+					@Override
+					public void onError(Request request, Throwable exception) {
+						controller.requestFailed(exception);
+					}		
+				};
+				
+				return populateTable;
+			}
+		
+			private List<ProteinNode> getPathwayProteinsAndSetInteractors(String xml) {
+				Document pathwayInteractors = XMLParser.parse(xml);
+				Element pathwayInteractorsElement = pathwayInteractors.getDocumentElement();
+		
+				XMLParser.removeWhitespace(pathwayInteractorsElement);
 			
-			List<ProteinNode> proteins = new ArrayList<ProteinNode>();
-			for (int i = 0; i < resultLists.getLength(); i++) { 
-				Node resultList = resultLists.item(i);
+				NodeList resultLists = pathwayInteractorsElement.getElementsByTagName("resultList");
+			
+				List<ProteinNode> proteins = new ArrayList<ProteinNode>();
+				for (int i = 0; i < resultLists.getLength(); i++) { 
+					Node resultList = resultLists.item(i);
+					
+					final Long refEntityId = Long.parseLong(getNodeValue(resultList, "refSeqDBId"));
+					//final String uniprotId = getNodeValue(resultList, "query");		
+					final NodeList interactorList = ((Element) resultList).getElementsByTagName("interactionList")
+																		  .item(0)
+																		  .getChildNodes();
 				
-				final Long refEntityId = Long.parseLong(getNodeValue(resultList, "refSeqDBId"));
-				//final String uniprotId = getNodeValue(resultList, "query");		
-				final NodeList interactorList = ((Element) resultList).getElementsByTagName("interactionList")
-																	  .item(0)
-																	  .getFirstChild()
-																	  .getChildNodes();
+					ProteinNode protein = pathway.getProteinByRefId(refEntityId);
+					protein.setInteractors(interactorList);
 				
-				ProteinNode protein = pathway.getProteinByRefId(refEntityId);
-				protein.setInteractors(interactorList);
-				
-				proteins.add(protein);
+					proteins.add(protein);
+				}
+			
+				return proteins;
+			}
+		
+			private String getNodeValue(Node node, String nodeName) {
+				return ((Element) node).getElementsByTagName(nodeName).item(0).getFirstChild().getNodeValue();
 			}
 			
-			return proteins;
-		}
-		
-		private String getNodeValue(Node node, String nodeName) {
-			return ((Element) node).getElementsByTagName(nodeName).item(0).getFirstChild().getNodeValue();
-		}
-		
-		private void addRowToTable(ProteinNode protein, InteractorNode interactor) {
-			Integer rowIndex = pathwayInteractorsTable.getRowCount();
-			
-			pathwayInteractorsTable.setWidget(rowIndex, 0, getProteinLabel(protein));
-			pathwayInteractorsTable.setText(rowIndex, 1, interactor.getDisplayName());
-			pathwayInteractorsTable.setText(rowIndex, 2, Double.toString(interactor.getScore()));
-		}
-		
-		private Label getProteinLabel(final ProteinNode protein) {
-			Label proteinLabel = new Label(protein.getDisplayName());
-			
-			proteinLabel.addClickHandler(new ClickHandler() {
+			private void addHeaderToTable() {
+				final Integer FIRSTROW = 0;				
+				String [] headerTitles = {"Protein Name", "Interactor Name", "Score"};
+				Integer [] columnWidthPercentage = {50, 30, 20};
 				
-				public void onClick(ClickEvent event) {
-					InteractionOverlayOptionsPopup.this.diagramPane.setSelectionId(protein.getReactomeId());
+				for (Integer column = 0; column < headerTitles.length; column++) {
+					String headerTitle = headerTitles[column];
+					//table.insertCell(FIRSTROW, column);
+					table.setText(FIRSTROW, column, headerTitle);
+					setColumnWidth(column, columnWidthPercentage[column]);
 				}
-			});
+				
+			}
 			
-			return proteinLabel;
-		}
+			private void setColumnWidth(Integer column, Integer percentOfParentPanel) {
+				final Integer panelBuffer = 5;
+				
+				Double width = (panelWidth - panelBuffer) * (percentOfParentPanel / 100.0);
+				table.getColumnFormatter().setWidth(column, width + "px");
+			}
+			
+			private void addRowToTable(ProteinNode protein, InteractorNode interactor) {
+				Integer rowIndex = table.getRowCount();
+			
+				table.setWidget(rowIndex, 0, getProteinLabel(protein));
+				table.setText(rowIndex, 1, interactor.getDisplayName());
+				table.setText(rowIndex, 2, Double.toString(interactor.getScore()));
+			}
+		
+			private Link getProteinLabel(final ProteinNode protein) {
+				Link proteinLabel = new Link(protein.getDisplayName());
+				
+				proteinLabel.addClickHandler(new ClickHandler() {
+				
+					public void onClick(ClickEvent event) {
+						InteractionOverlayOptionsPopup.this.diagramPane.setSelectionId(protein.getReactomeId());
+					}
+				});
+			
+				return proteinLabel;
+			}
+			
+			private class Link extends Label {
+				
+				public Link(String text) {
+					super(text);
+					styleAsLink();
+				}
+				
+				private void styleAsLink() {
+					final String BLUE = "rgb(0, 0, 255)";
+				
+					Style style = getElement().getStyle();
+								
+					style.setColor(BLUE);
+					style.setTextDecoration(Style.TextDecoration.UNDERLINE);
+				
+					setCursorToPointerOnMouseOver(style);
+					setCursorToDefaultOnMouseOut(style);
+				}
+				
+				private void setCursorToPointerOnMouseOver(final Style style) {
+					addDomHandler(new MouseOverHandler() {
+
+						public void onMouseOver(MouseOverEvent event) {
+							style.setCursor(Cursor.POINTER);
+						}
+						
+					}, MouseOverEvent.getType());
+				}
+				
+				private void setCursorToDefaultOnMouseOut(final Style style) {
+					addDomHandler(new MouseOutHandler() {
+						
+						public void onMouseOut(MouseOutEvent event) {
+							style.setCursor(Cursor.DEFAULT);
+						}
+						
+					}, MouseOutEvent.getType());
+				}
+			}
+			
+			private void styleTable() {
+				Style tableStyle = table.getElement().getStyle();
+				
+				tableStyle.setBorderWidth(1, Unit.PX);
+			}
+			
+			private void sizeScrollPanel() {
+				Integer viewHeight = 0;
+				
+				for (Integer i = 0; i < Math.min(rowsInView, table.getRowCount()); i++) {
+					Integer rowHeight = table.getRowFormatter().getElement(i).getOffsetHeight();
+					viewHeight += rowHeight;
+				}
+				
+				setHeight(viewHeight + "px");
+				//setWidth(panelWidth + "px");
+			}
+			
+			private void addChangedInteractionDatabaseHandler() {
+				interactionDBOptions.getInteractorDBListBox().addChangeHandler(new ChangeHandler() {
+
+					@Override
+					public void onChange(ChangeEvent event) {
+						setInteractorDatabase(interactorCanvasModel.getInteractorDatabase());						
+					}
+					
+				});
+			}
+			
+			private void setInteractorDatabase(String interactorDatabase) {
+				this.interactorDatabase = interactorDatabase;
+				
+				if (tableDisplaying) {
+					removeAllRows();
+					createTable();
+				}
+			}
+			
+		}			
 		
 		private class PathwayInteractorsTableToggle extends Button {
 			private final String SUFFIX = " table of all interactors for pathway";
-			private Boolean displaying;
 			
-			public PathwayInteractorsTableToggle() {
+			private PathwayInteractorsTable table;
+			
+			public PathwayInteractorsTableToggle(PathwayInteractorsTable table) {
+				this.table = table;
+				
 				setDisplaying(false);
 				addClickHandler(clickHandler());
-			}
-			
-			public Boolean isTableDisplaying() {
-				return displaying;
 			}
 			
 			private ClickHandler clickHandler() {
@@ -727,13 +905,13 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 
 					@Override
 					public void onClick(ClickEvent event) {
-						setDisplaying(!displaying);
+						setDisplaying(!table.isDisplaying());
 					}					
 				};				
 			}
 			
 			private void setDisplaying(Boolean displaying) {
-				this.displaying = displaying;
+				table.setDisplaying(displaying);
 				
 				String prefix = displaying ? "Hide" : "Display";				
 				setText(prefix + SUFFIX);
@@ -742,12 +920,11 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			}
 			
 			private void displayTable(Boolean display) {
-				if (tableIsEmpty() && display)
-					createTable();
+				if (table.tableIsEmpty() && display)
+					table.createTable();
 				
-				pathwayInteractorsTable.setVisible(display);
-			}
-			
+				table.setVisible(display);
+			}			
 		}		
 	}
 }
