@@ -11,6 +11,8 @@ import org.junit.Test;
  * of this class is adapted from Java source code java.awt.MultipleGradientPaintContext by considering
  * three colors only: blue (min) - green (mean) - red (max). Two arrays of colors are pre-generated, 
  * each of which has 255 colors in int.
+ * 
+ * As of June 28, 2013, two colors scheme (YELLOW for highest and BLUE for lowest) have been used.
  * @author gwu
  *
  */
@@ -18,20 +20,22 @@ public class ExpressionColorHelper {
     private final int GRADIENT_SIZE = 255;
     private int[] lowColors;
     private int[] upColors;
+    //For two colors system
+    private int[] colors;
     // These anchor colors used
-    private int minColor;
-    private int maxColor;
-    private int meanColor;
+    private Integer minColor;
+    private Integer maxColor;
+    private Integer meanColor;
     
     public ExpressionColorHelper() {
-        this(0x0000FF,
-             0x00FF00,
-             0xFF0000);
+        this(0x0000FF, // blue
+             null,
+             0xFFFF00); // yellow
     }
     
-    public ExpressionColorHelper(int minColor,
-                                 int meanColor,
-                                 int maxColor) {
+    public ExpressionColorHelper(Integer minColor,
+                                 Integer meanColor,
+                                 Integer maxColor) {
         this.minColor = minColor;
         this.maxColor = maxColor;
         this.meanColor = meanColor;
@@ -43,10 +47,16 @@ public class ExpressionColorHelper {
      * java.awt.MultipleGradientPaintContext.
      */
     private void initColors() {
-        lowColors = new int[GRADIENT_SIZE];
-        initColors(minColor, meanColor, lowColors);
-        upColors = new int[GRADIENT_SIZE];
-        initColors(meanColor, maxColor, upColors);
+        if (meanColor == null) {
+            colors = new int[GRADIENT_SIZE * 2];
+            initColors(minColor, maxColor, colors);
+        }
+        else {
+            lowColors = new int[GRADIENT_SIZE];
+            initColors(minColor, meanColor, lowColors);
+            upColors = new int[GRADIENT_SIZE];
+            initColors(meanColor, maxColor, upColors);
+        }
     }
     
     private void initColors(int color1, int color2, int[] colors) {
@@ -76,6 +86,39 @@ public class ExpressionColorHelper {
         return colors[index];
     }
     
+    /**
+     * Get a color from a two-color system.
+     * @param value
+     * @param min
+     * @param max
+     * @return
+     */
+    public String convertValueToColor(double value,
+                                      double min,
+                                      double max) {
+        // A special case
+        if ((max - min) < 1.0e-4) // minimum 0.0001 // This is rather arbitrary
+            return Integer.toHexString(0x00FF00); // Use green
+        // Check if value is in the lower or upper half
+        int color = searchColor(value, min, max, colors);
+        String rtn = Integer.toHexString(color);
+        // Make sure it has six digits
+        if (rtn.length() < 6) {
+            for (int i = rtn.length(); i < 6; i++) {
+                rtn = "0" + rtn;
+            }
+        }
+        return "#" + rtn.toUpperCase(); // This should be a valid CSS color
+    }
+    
+    /**
+     * Get a color from a three-color system.
+     * @param value
+     * @param min
+     * @param middle
+     * @param max
+     * @return
+     */
     public String convertValueToColor(double value, 
                                       double min,
                                       double middle,
@@ -106,12 +149,14 @@ public class ExpressionColorHelper {
     
     @Test
     public void testConvertValueToColor() {
-        System.out.println("Red: " + 0xFF0000);
-        maxColor = 0xFF0000;
-        System.out.println("Red: " + Integer.toHexString(0xFF0000));
-        System.out.println("Green: " + 0x00FF00);
-        meanColor = 0x00FF00;
-        System.out.println("Green: " + Integer.toHexString(0x00FF00));
+        System.out.println("Yellow: " + 0xFFFF00);
+        maxColor = 0xFFFF00;
+//        System.out.println("Red: " + 0xFF0000);
+//        maxColor = 0xFF0000;
+//        System.out.println("Red: " + Integer.toHexString(0xFF0000));
+//        System.out.println("Green: " + 0x00FF00);
+//        meanColor = 0x00FF00;
+//        System.out.println("Green: " + Integer.toHexString(0x00FF00));
         System.out.println("Blue: " + 0x0000FF);
         minColor = 0x0000FF;
         System.out.println("Blue: " + Integer.toHexString(0x0000FF));
@@ -120,6 +165,7 @@ public class ExpressionColorHelper {
         double min = 3.50;
         double max = 10.00;
         double middle = (min + max) / 2.0d;
+        System.out.println("Mean: " + middle);
         double[] values = new double[] {
                 3.50d,
                 5.17d,
@@ -128,9 +174,14 @@ public class ExpressionColorHelper {
                 10.00d
         };
         for (double value : values) {
-            String color = convertValueToColor(value, min, middle, max);
+//            String color = convertValueToColor(value, min, middle, max);
+            String color = convertValueToColor(value, min, max);
             System.out.println(value + ": " + color);
         }
+    }
+    
+    public static void main(String[] args) {
+        new ExpressionColorHelper().testConvertValueToColor();
     }
     
 }

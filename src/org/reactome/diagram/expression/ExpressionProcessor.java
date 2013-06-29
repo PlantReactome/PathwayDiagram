@@ -42,13 +42,19 @@ public class ExpressionProcessor {
 	private ReactomeExpressionValue expressionData; 
     
 		
-    public ExpressionProcessor(String analysisString) {
-    	String[] analysisParams = analysisString.split("\\.");    	
-    	//this.analysisName = analysisParams[0];
-    	this.analysisId = analysisParams[1];
-    	
-    	this.resultsReady = false;
-    }	
+	public ExpressionProcessor(String analysisString) {
+	    if (analysisString.startsWith("http:")) {
+	        analysisId = analysisString;
+	        resultsReady = true;
+	    }
+	    else {
+	        String[] analysisParams = analysisString.split("\\.");    	
+	        //this.analysisName = analysisParams[0];
+	        this.analysisId = analysisParams[1];
+	        
+	        this.resultsReady = false;
+	    }
+	}	
     	
 	
 	public String getAnalysisName() {
@@ -124,8 +130,12 @@ public class ExpressionProcessor {
 	}
 	
 	private void makeDataController(final PathwayDiagramPanel diagramPane, AbsolutePanel contentPane, final ExpressionCanvas expressionCanvas) {
-		// Create a simple URL call
-		String url = BASEURL + "results/" + analysisId + "/" + analysisName;
+	    String url = null;
+	    if (analysisId.startsWith("http:"))
+	        url = analysisId; // For local test
+	    else
+	        // Create a simple URL call
+	        url = BASEURL + "results/" + analysisId + "/" + analysisName;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
         try {

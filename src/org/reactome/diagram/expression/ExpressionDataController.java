@@ -157,13 +157,13 @@ public class ExpressionDataController extends DataController implements ResizeHa
     	Map<Long, String> idToColor = new HashMap<Long, String>();
         double min = dataModel.getMinExpression();
         double max = dataModel.getMaxExpression();
-        double middle = (min + max) / 2.0d;
+//        double middle = (min + max) / 2.0d;
         ExpressionColorHelper colorHelper = new ExpressionColorHelper();
         for (Long dbId : compIdToValue.keySet()) {
             Double value = compIdToValue.get(dbId);
             if (value == null)
                 continue;
-            String color = colorHelper.convertValueToColor(value, min, middle, max);
+            String color = colorHelper.convertValueToColor(value, min, max);
             idToColor.put(dbId, 
                           color);
         }
