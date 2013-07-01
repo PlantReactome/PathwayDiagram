@@ -17,13 +17,7 @@ import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.TextMetrics;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.ImageElement;
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * This customized Renderer is use to render Protein. 
