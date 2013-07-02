@@ -41,6 +41,10 @@ public class CompartmentRenderer extends NodeRenderer {
         if (isInsetsNeeded(node)) {
             Bounds insets = node.getInsets();
             super.drawRectangle(insets, context, false);
+            if (node.getFillColor() != null) {
+                context.setFillStyle(node.getFillColor());
+                super.drawRectangle(insets, context, true, false);
+            }
         }
     }
     

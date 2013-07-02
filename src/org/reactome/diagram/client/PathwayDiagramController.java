@@ -13,6 +13,7 @@ import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ProteinNode;
+import org.reactome.diagram.view.DefaultColorScheme;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -412,7 +413,7 @@ public class PathwayDiagramController {
      * @param xmlText The XML Text to be parsed
      */
     private void renderXML(String xmlText, Long dbId) {
-        //System.out.println(xmlText);
+//        System.out.println(xmlText);
         //Image loadingIcon = diagramPane.getLoadingIcon();
         //loadingIcon.setVisible(true);
 
@@ -428,6 +429,11 @@ public class PathwayDiagramController {
             // So reactomeId in the XML text is not reliable at all if it is
             // there. An external dbId for pathway is needed to set the correct
             // pathway id.
+            
+            // Apply the default color schemes
+            DefaultColorScheme colorScheme = new DefaultColorScheme();
+            colorScheme.applyScheme(pathway);
+            
             pathway.setReactomeId(dbId);
             diagramPane.setCanvasPathway(pathway);
         } catch (DOMParseException e) {

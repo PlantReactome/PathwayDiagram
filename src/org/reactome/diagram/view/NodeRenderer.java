@@ -158,7 +158,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
-                                 boolean needFill) {
+                                 boolean needFill,
+                                 boolean needStroke) {
         int coX = bounds.getX();
         int coY = bounds.getY();
         int radius = getRadius();
@@ -177,7 +178,17 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.closePath();
         if (needFill)
             context.fill();
-        context.stroke();
+        if (needStroke)
+            context.stroke();
+    }
+    
+    protected void drawRectangle(Bounds bounds,
+                                 Context2d context,
+                                 boolean needFill) {
+        drawRectangle(bounds, 
+                      context, 
+                      needFill, 
+                      true);
     }
     
     private void drawDashedRectangle(Bounds bounds,

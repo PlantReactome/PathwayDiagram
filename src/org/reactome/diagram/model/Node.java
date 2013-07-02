@@ -34,6 +34,8 @@ public class Node extends GraphObject {
     // Some colors in the format: rgbr(?, ?, ?, ?)
     private String bgColor;
     private String fgColor;
+    // For compartment filling
+    private String fillColor;
     // Text font
     private String font;
     // For NodeAttachment
@@ -171,5 +173,14 @@ public class Node extends GraphObject {
 
 	public void setInsets(Bounds insets) {
 		this.insets = insets;
-	}	
+	}
+
+    public String getFillColor() {
+        return fillColor;
+    }
+
+    public void setFillColor(String fillColor) {
+        this.fillColor = fillColor;
+    }	
+	
 }
