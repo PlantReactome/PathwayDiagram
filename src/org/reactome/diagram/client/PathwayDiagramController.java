@@ -321,7 +321,7 @@ public class PathwayDiagramController {
     	}
     }
     
-    public void getOtherPathways(final Long dbId) {
+    public void getOtherPathways(Long dbId, RequestCallback callback) {
     	String hostUrl = getHostUrl();
     	
     	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
@@ -336,23 +336,7 @@ public class PathwayDiagramController {
     	//requestBuilder.setHeader("Content-type", "application/x-www-form-urlencoded");
     	
     	try {
-    		requestBuilder.sendRequest(postData.toString(), new RequestCallback() {
-
-				@Override
-				public void onResponseReceived(Request request,	Response response) {
-					if (response.getStatusCode() == 200) {
-						diagramPane.getPopupMenu().setPathwayMenu(response.getText());
-					} else {
-						requestFailed("Could not retrieve other pathways");
-					}
-				}
-
-				@Override
-				public void onError(Request request, Throwable exception) {
-					requestFailed(exception);
-				}
-    			
-    		});
+    		requestBuilder.sendRequest(postData.toString(), callback);
     	} catch (RequestException ex) {
     		requestFailed(ex);
     	}

@@ -167,9 +167,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         optionsMenu.updateIconPosition();
         searchBar.updatePosition();
                 
-        popupMenu = new CanvasPopupMenu();
-        popupMenu.setPathwayDiagramPanel(this);
-        popupMenu.setStyleName(style.canvasPopup());
+        popupMenu = new CanvasPopupMenu(this);
+        //popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
         addTestCode();
