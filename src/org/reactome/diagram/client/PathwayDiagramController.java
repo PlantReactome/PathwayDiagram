@@ -341,15 +341,23 @@ public class PathwayDiagramController {
     		requestFailed(ex);
     	}
     }
+
+    public void getCanvasPathwayXML(Long dbId, RequestCallback callback) {
+    	RequestBuilder requestBuilder = getPathwayDiagramRequestBuilder(dbId);
+    	
+    	try {
+    		requestBuilder.sendRequest(null, callback);
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
     
     /**
      * Load a pathway diagram for a specified Pathway DB_ID.
      * @param dbId db_id for a pathway.
      */
     public void loadDiagramForDBId(final Long dbId) {
-        String url = this.getHostUrl() + "pathwayDiagram/" + dbId + "/xml";
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-
+        RequestBuilder requestBuilder = getPathwayDiagramRequestBuilder(dbId);
 
         try {
             requestBuilder.sendRequest(null, new RequestCallback() {
@@ -375,6 +383,11 @@ public class PathwayDiagramController {
         renderXML(xml, dbId);
     }
 
+    private RequestBuilder getPathwayDiagramRequestBuilder(Long dbId) {
+    	String url = this.getHostUrl() + "pathwayDiagram/" + dbId + "/xml";
+    	return new RequestBuilder(RequestBuilder.GET, url);
+    }
+    
     /**
      *
      * @param exception Exception whenever the XML file is not load
