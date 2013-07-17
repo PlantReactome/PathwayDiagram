@@ -164,6 +164,7 @@ public class ExpressionProcessor {
                         }
                         
                         dataController.setDataModel(expressionData);
+                        expressionCanvas.setDataController(dataController);
                         diagramPane.setDataController(dataController);
                     }
                 }
