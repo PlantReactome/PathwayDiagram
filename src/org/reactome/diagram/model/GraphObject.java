@@ -90,6 +90,9 @@ public abstract class GraphObject extends ReactomeObject {
     	
     	String type = this.type.toString();
     	
+    	if (type.equals("ProcessNode"))
+    		return "Pathway";
+    	
     	return (type.startsWith(PREFIX) ? type.substring(PREFIX.length()) : type);
     }
     
