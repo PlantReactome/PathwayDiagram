@@ -638,6 +638,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 																	   VISIBLE_ROWS);
 			this.toggleTableButton = new PathwayInteractorsTableToggle(pathwayInteractorsTable);
 			
+			setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			
 			add(toggleTableButton);
 			add(pathwayInteractorsTable);
 		}
