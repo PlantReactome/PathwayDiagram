@@ -18,6 +18,7 @@ import org.reactome.diagram.model.ReactomeObject;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -287,7 +288,8 @@ public class NodeOptionsMenu extends MenuBar  {
     private List<MenuItem> getOtherPathwayMenuItems(String xml) {
     	List<MenuItem> pathwaySubMenuItems = new ArrayList<MenuItem>();
     	final CanvasPathway currentPathway = diagramPane.getPathway();
-    	    
+    	List<String> processedPathways = new ArrayList<String>();
+    	
     	try {
     		Document pathwayDom = XMLParser.parse(xml);
     		Element otherPathwayElement = pathwayDom.getDocumentElement();
@@ -319,10 +321,12 @@ public class NodeOptionsMenu extends MenuBar  {
     					}
     				}
     				
-    				if (pathway.getDisplayName() == null || pathway.getReactomeId() == null	
-    					|| pathway.getReactomeId().longValue() == currentPathway.getReactomeId().longValue())
+    				if (pathway.getDisplayName() == null ||
+    					pathway.getReactomeId() == null	||
+    					pathway.getReactomeId().longValue() == currentPathway.getReactomeId().longValue() ||
+    					processedPathways.contains(pathway))
     					continue;
-    			
+    				
     				MenuItem pathwaySubMenuItem = new MenuItem(pathway.getDisplayName(), new Command() {
 
     					@Override
@@ -334,6 +338,7 @@ public class NodeOptionsMenu extends MenuBar  {
     				});
     				
     				pathwaySubMenuItems.add(pathwaySubMenuItem);
+    				processedPathways.add(pathway.getDisplayName());
     			}
     		}    			
     	} catch (Exception e) {
@@ -409,6 +414,6 @@ public class NodeOptionsMenu extends MenuBar  {
     	subMenuStyle.setZIndex(2);
     	subMenuStyle.setLeft(-1, Unit.PX);
     	subMenuStyle.setTop(-1, Unit.PX);
-    	//subMenuStyle.setWhiteSpace(WhiteSpace.NOWRAP);    	
+    	subMenuStyle.setWhiteSpace(WhiteSpace.NOWRAP);
     }
 }
