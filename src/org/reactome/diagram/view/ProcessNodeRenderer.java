@@ -45,18 +45,6 @@ public class ProcessNodeRenderer extends NodeRenderer {
         }
     }
 
-    private void drawRectangle(Context2d context, int x, int y, int w, int h) {
-        context.beginPath();
-        context.moveTo(x, y);
-        context.lineTo(x + w, y);
-        context.lineTo(x + w, y + h);
-        context.lineTo(x, y + h);
-        context.lineTo(x, y);
-        context.closePath();
-        context.fill();
-        context.stroke();
-    }
-    
     /**
      * This method is copied from java.awt.Color.brighter() method.
      * @param color

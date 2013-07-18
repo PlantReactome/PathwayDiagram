@@ -34,7 +34,7 @@ public class GraphObjectRendererFactory {
         typeToRenderer.put(GraphObjectType.Note,
                            new NoteRenderer());
         typeToRenderer.put(GraphObjectType.RenderableProtein, 
-                           new NodeRenderer());
+                           new ProteinRenderer());
         typeToRenderer.put(GraphObjectType.RenderableInteractor,
         				   new InteractorRenderer());
         typeToRenderer.put(GraphObjectType.RenderableComplex, 
