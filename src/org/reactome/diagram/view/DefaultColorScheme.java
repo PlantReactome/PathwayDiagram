@@ -16,7 +16,7 @@ import org.reactome.diagram.model.Node;
  *
  */
 public class DefaultColorScheme {
-    private final String defaultColor = ModelHelper.makeColor("255 255 153".split(" "), 1.0d);
+    private final String defaultColor = ModelHelper.makeColor("245 240 160".split(" "), 1.0d);
     private final String defaultProteinColor = ModelHelper.makeColor("165 215 145".split(" "), 1.0d);
     private final String oldComplexColor = ModelHelper.makeColor("204 255 255".split(" "), 1.0d);
     private final String defaultComplexColor = ModelHelper.makeColor("139 213 228".split(" "), 1.0d);
