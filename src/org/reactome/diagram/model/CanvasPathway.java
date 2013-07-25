@@ -150,6 +150,33 @@ public class CanvasPathway extends Node {
     	
     	return null;
     }
+
+    public Long getReferenceIdForProtein(ProteinNode protein) {
+    	if (protein == null) return null;
+    	
+    	return getReferenceIdForProtein(protein.getReactomeId());
+    }	
+    	
+    public Long getReferenceIdForProtein(Long dbId){
+    	if (dbIdToRefEntityId == null) return null;
+    	if (getProteinNodeByDBId(dbId) == null) return null;
+    	if (dbIdToRefEntityId.get(dbId).isEmpty()) return null;
+    	
+    	return dbIdToRefEntityId.get(dbId).get(0);    	
+    }
+    
+    public List<Long> getReferenceIds(List<ProteinNode> proteins) {
+    	List<Long> referenceIds = new ArrayList<Long>();
+    	
+    	for (ProteinNode protein : proteins) {
+    		Long refId = getReferenceIdForProtein(protein);
+    		
+    		if (refId != null)
+    			referenceIds.add(refId);
+    	}
+    	
+    	return referenceIds;
+    }
     
     private void parseDisplayName(com.google.gwt.xml.client.Node node,
                                   GraphObject obj) {
