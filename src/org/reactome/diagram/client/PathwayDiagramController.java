@@ -11,7 +11,6 @@ import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.InteractorCanvasModel;
-import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.view.DefaultColorScheme;
 
@@ -182,38 +181,17 @@ public class PathwayDiagramController {
     }
 
 
-    public void openInteractionPage(final InteractorEdge selected) {
-        final ProteinNode protein = selected.getProtein();
-
-        String url = this.getHostUrl() + "referenceEntity/" + protein.getReactomeId();
+    public void getReferenceEntity(final Long dbId, RequestCallback callback) {
+        String url = this.getHostUrl() + "referenceEntity/" + dbId;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
         try {
-            requestBuilder.sendRequest(null, new RequestCallback() {
-
-                @Override
-                public void onResponseReceived(Request request,	Response response) {
-                    if (response.getStatusCode() == 200) {
-                        protein.setRefId(response.getText());
-                        Window.open(selected.getUrl(), null, null);
-                    } else {
-                        requestFailed("Failed to get protein's uniprot id");
-                    }
-                }
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    requestFailed(exception);
-                }
-
-
-            });
+            requestBuilder.sendRequest(null, callback);
         } catch (RequestException ex) 	{
             requestFailed(ex);
         }
     }
-
     
     
     public void getInteractors(final ProteinNode selected) {
@@ -310,7 +288,11 @@ public class PathwayDiagramController {
     }
 
     public void getPhysicalToReferenceEntityMap(CanvasPathway pathway, RequestCallback callback) {
-    	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathway.getReactomeId();
+    	getPhysicalToReferenceEntityMap(pathway.getReactomeId(), callback);
+    }
+    
+    public void getPhysicalToReferenceEntityMap(Long pathwayId, RequestCallback callback) {
+    	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathwayId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/json");
     	
@@ -432,7 +414,8 @@ public class PathwayDiagramController {
             colorScheme.applyScheme(pathway);
             
             pathway.setReactomeId(dbId);
-            diagramPane.setCanvasPathway(pathway);
+            
+            getPhysicalToReferenceEntityMap(pathway, setCanvasPathway(pathway));
         } catch (DOMParseException e) {
             // Could be a subpathway with no diagram -- try to get parent pathway diagram instead
         	getDiagramPathwayId(dbId, e);
@@ -442,6 +425,26 @@ public class PathwayDiagramController {
         //loadingIcon.setVisible(false);
     }
 
+    private RequestCallback setCanvasPathway(final CanvasPathway pathway) {
+    	RequestCallback setCanvasPathway = new RequestCallback() {
+
+    		public void onResponseReceived(Request request, Response response) {
+    			if (response.getStatusCode() == 200) {
+    				pathway.setDbIdToRefEntityId(response.getText());
+    				diagramPane.setCanvasPathway(pathway);
+    			} else {
+    				requestFailed("Unable to get physical to reference entity map");
+    			}
+    		}
+    		
+    		public void onError(Request request, Throwable exception) {
+    			requestFailed(exception);
+    		}
+    	};
+    	
+    	return setCanvasPathway;
+    }
+    
     private void getDiagramPathwayId(final Long dbId, final Exception e) {
     	String url = getHostUrl() + "queryEventAncestors/" + dbId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
