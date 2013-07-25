@@ -150,7 +150,7 @@ public class ExpressionDataController extends DataController implements ResizeHa
         container = null; // Null it so that it can be displayed again.
     }
     
-    protected Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
+    public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
         if (compIdToValue == null)
         	return null;
     	
@@ -168,6 +168,10 @@ public class ExpressionDataController extends DataController implements ResizeHa
                           color);
         }
         return idToColor;
+    }
+    
+    public Integer getCurrentDataPoint() {
+    	return ((NavigationPane) navigationPane).getValue();
     }
     
     public void setNavigationPaneStyle(String style) {

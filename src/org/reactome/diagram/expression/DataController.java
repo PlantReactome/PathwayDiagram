@@ -189,7 +189,7 @@ public abstract class DataController implements ResizeHandler {
         fireDataPointChangeEvent(event);
     }
     
-    protected abstract Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue);
+    public abstract Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue);
        
     private void fireExpressionOverlayStopEvent() {
     	if (expressionOverlayStopEventHandlers == null)

@@ -41,7 +41,7 @@ public class SpeciesComparisonDataController extends DataController {
         }
     }
     
-    protected Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
+    public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
     	Map<Long, String> compIdToColor = new HashMap<Long, String>();
 	
     	for (Long dbId : compIdToValue.keySet()) {
