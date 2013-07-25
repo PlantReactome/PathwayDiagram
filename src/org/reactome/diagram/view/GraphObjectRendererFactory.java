@@ -25,7 +25,7 @@ public class GraphObjectRendererFactory {
     private NodeRenderer nodeRenderer = new NodeRenderer();
     private HyperEdgeRenderer edgeRenderer = new HyperEdgeRenderer();
     
-    private GraphObjectRendererFactory() {
+    protected GraphObjectRendererFactory() {
         registerRenderers();
     }
 
