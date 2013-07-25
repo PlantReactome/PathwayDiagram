@@ -11,7 +11,9 @@ import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
@@ -23,11 +25,15 @@ import com.google.gwt.touch.client.Point;
  */
 public class PathwayCanvasSelectionHandler extends SelectionHandler {
 	private PathwayCanvas pc;
+	private InfoPopup infoPopup;
 	
     public PathwayCanvasSelectionHandler(PathwayDiagramPanel diagramPanel, PathwayCanvas pathwayCanvas) {
         super(diagramPanel);
-    	this.diagramPanel = diagramPanel;
+    	
+        this.diagramPanel = diagramPanel;
         this.pc = pathwayCanvas;
+        this.infoPopup = new InfoPopup(diagramPanel);
+        
         selectedObjects = new ArrayList<GraphObject>();
     }
         
@@ -65,13 +71,19 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
       
     }
                 
-    private boolean isPathwayDoubleClicked(GraphObject selected, GwtEvent<? extends EventHandler> event) {
-    	return (event instanceof DoubleClickEvent && selected.getType() == GraphObjectType.ProcessNode);
+    private boolean isPathwayDoubleClicked(GraphObject selected) {
+    	return (gwtEvent instanceof DoubleClickEvent && selected.getType() == GraphObjectType.ProcessNode);
+    }
+    
+    private boolean selectedObjectLeftClicked() {
+    	return gwtEvent instanceof MouseEvent && ((MouseEvent<? extends EventHandler>) gwtEvent).getNativeButton() == NativeEvent.BUTTON_LEFT;
     }
 
 	@Override
 	protected void doAdditionalActions(GraphObject selected) {
-		if (isPathwayDoubleClicked(selected, gwtEvent))
+		if (isPathwayDoubleClicked(selected))
 			diagramPanel.setPathway(selected.getReactomeId());
+		else if (selectedObjectLeftClicked())
+			infoPopup.showPopup(selected);		
 	}
 }
