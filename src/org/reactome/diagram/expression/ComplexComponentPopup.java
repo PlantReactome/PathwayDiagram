@@ -79,13 +79,15 @@ public class ComplexComponentPopup extends DialogBox {
     }
     
     private boolean tableIsEmpty() {		
-		return componentTable.getRowCount() == 0;
+    	Integer numberOfComponents = componentTable.getRowCount() - 1; // Subtract one row for the header
+		
+    	return numberOfComponents == 0;
 	}
 
 	private void createTable(ComplexNode complex) {
     	this.componentTable.removeAllRows();
     	this.componentTable.setBorderWidth(1);
-    	        	    
+    	
     	addHeader();
     	
     	for (Component component : complex.getComponents()) {     		
