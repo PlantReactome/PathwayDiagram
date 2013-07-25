@@ -35,7 +35,7 @@ import com.google.gwt.user.client.ui.TextBox;
  */
 public class SearchPopup extends HorizontalPanel {
 	private PathwayDiagramPanel diagramPane;
-	private List<Long> matchingEntityIds;
+	private List<GraphObject> matchingEntityIds;
 	private SearchTimer searchTimer;
 	private TextBox searchBox;
 	private Label resultsLabel;
@@ -50,7 +50,7 @@ public class SearchPopup extends HorizontalPanel {
 	}
 	
 	private void init() {
-		matchingEntityIds = new ArrayList<Long>();
+		matchingEntityIds = new ArrayList<GraphObject>();
 		
 		Button closeButton = new Button("X", new ClickHandler() {
 
@@ -108,7 +108,7 @@ public class SearchPopup extends HorizontalPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				diagramPane.setSelectionIds(matchingEntityIds);
+				diagramPane.setSelectionObjects(matchingEntityIds);
 				selectedIndex = -1;
 				resultsLabel.setText("Focused on: All " + matchingEntityIds.size());
 			}
@@ -141,8 +141,8 @@ public class SearchPopup extends HorizontalPanel {
 		
 	// Returns a list of db ids for objects in the pathway diagram
 	// which match the given query
-	private List<Long> searchDiagram(String query) {
-		List<Long> matchingObjectIds = new ArrayList<Long>();
+	private List<GraphObject> searchDiagram(String query) {
+		List<GraphObject> matchingObjects = new ArrayList<GraphObject>();
 		
 		if (!query.isEmpty() && diagramPane.getPathway() != null) {
 		
@@ -152,11 +152,11 @@ public class SearchPopup extends HorizontalPanel {
 					continue;
 				
 				if (pathwayObject.getDisplayName().toLowerCase().contains(query.toLowerCase()))
-					matchingObjectIds.add(pathwayObject.getReactomeId());
+					matchingObjects.add(pathwayObject);
 			}						
 		}
 			
-		return matchingObjectIds;			
+		return matchingObjects;			
 	}
 
 	private void doSearch(String query) {			
@@ -191,7 +191,7 @@ public class SearchPopup extends HorizontalPanel {
 		
 		resultsLabel.setText("Focused on: " + (index + 1) + " of " + matchingEntityIds.size());
 		
-		diagramPane.setSelectionId(matchingEntityIds.get(index));
+		diagramPane.setSelectionObject(matchingEntityIds.get(index));
 	}
 	
 	private void enableButtons(Boolean enable) {
