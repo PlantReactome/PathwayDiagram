@@ -183,7 +183,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	c2d.scale(scale, scale);
     }
 
-    public Boolean currentViewContainsGraphObject(GraphObject object) {		
+    public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {		
 		Integer x = (int) (-translateX / scale); 
     	Integer y = (int) (-translateY / scale);
     	Integer width = (int) (getCoordinateSpaceWidth() / scale); 
@@ -191,11 +191,19 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		
     	Bounds diagramBounds = new Bounds(x, y, width, height);
     	
+    	for (GraphObject object : objects) {
+    		if (objectWithinDiagramBounds(object, diagramBounds))
+    			return true;    			
+    	}
     	
+    	return false;    	
+    }
+    
+    private Boolean objectWithinDiagramBounds(GraphObject object, Bounds diagramBounds) {
     	if (object instanceof Node)
     		return diagramBounds.isColliding(((Node) object).getBounds());
-    	
-    	return diagramBounds.contains(object.getPosition());    	
+    	else
+    		return diagramBounds.contains(object.getPosition());    	
     }
     
     /**
