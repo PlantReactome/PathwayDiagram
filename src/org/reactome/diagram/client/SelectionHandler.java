@@ -172,7 +172,7 @@ public abstract class SelectionHandler {
     	if (selectedObjects.isEmpty())
     		return false;
     	
-		return !diagramPanel.getPathwayCanvas().currentViewContainsGraphObject(selectedObjects.get(0));		
+		return !diagramPanel.getPathwayCanvas().currentViewContainsAtLeastOneGraphObject(selectedObjects);		
 	}
 
 	private void deSelectAllExcept(GraphObject selected) {
