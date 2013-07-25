@@ -10,9 +10,13 @@ import java.util.List;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
+import org.reactome.diagram.model.ProteinNode;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Window;
 
@@ -62,9 +66,35 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
 		if (selected instanceof InteractorNode && !((InteractorNode) selected).getAccession().isEmpty()) {
 			Window.open(((InteractorNode) selected).getUrl(), "_blank", "");
 		} else if (selected instanceof InteractorEdge && ((InteractorEdge) selected).getUrl() != null) {
-			diagramPanel.getController().openInteractionPage((InteractorEdge) selected);
+			ProteinNode protein = ((InteractorEdge) selected).getProtein();
+			
+			diagramPanel.getController().getReferenceEntity(protein.getReactomeId(), 
+															openInteractionPage((InteractorEdge) selected));
 		}
 		
 	}
-        
+
+	private RequestCallback openInteractionPage(final InteractorEdge selected) {
+		RequestCallback openInteractionPage = new RequestCallback() {
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() == 200) {
+					selected.getProtein().setRefId(response.getText());
+					Window.open(selected.getUrl(), null, null);
+				} else {
+					diagramPanel.getController().requestFailed("Could not open interaction page.  " +
+															   "Unable to retrieve reference entity for " +
+															   selected.getProtein().getDisplayName());
+				}
+			}
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				diagramPanel.getController().requestFailed(exception);
+			}			
+		};
+		
+		return openInteractionPage;
+	}
  }
