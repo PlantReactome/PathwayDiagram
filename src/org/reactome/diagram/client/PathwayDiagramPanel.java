@@ -7,6 +7,7 @@ package org.reactome.diagram.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.event.HoverEventHandler;
@@ -293,10 +294,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     private void resizeCanvases(int width, int height) {
-        for (DiagramCanvas canvas : canvasList) {
-        	if (canvas == null)
-        		continue;
-        	
+        for (DiagramCanvas canvas : getExistingCanvases()) {
         	canvas.resize(width, height);
         }
     }    
@@ -390,28 +388,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void translate(double dx, double dy) {
-        for (DiagramCanvas canvas : canvasList) {
-        	if (canvas == null)
-        		continue;
-        
+        for (DiagramCanvas canvas : getExistingCanvases()) {
         	canvas.translate(dx, dy);
         }	
     }
     
     public void scale(double scale) {
-        for (DiagramCanvas canvas : canvasList) {	
-    		if (canvas == null)
-    			continue;
-        
+        for (DiagramCanvas canvas : getExistingCanvases()) {        
         	canvas.scale(scale);
         }	
     }
     
     public void reset() {
-    	for (DiagramCanvas canvas : canvasList) {
-        	if (canvas == null)
-        		continue;
-    		
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.reset();
     	}
     }
@@ -546,15 +535,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public List<GraphObject> getSelectedObjects() {
         List<GraphObject> selectedObjects = null;
         
-        for (DiagramCanvas canvas : canvasList) {
-        	if (canvas == null)
-       			continue;
-        	SelectionHandler sh = canvas.getSelectionHandler();
-        	
-        	if (sh == null)
-        		continue;
-        	
-        	selectedObjects = sh.getSelectedObjects();     
+        for (SelectionHandler selectionHandler : getExistingSelectionHandlers()) {        	
+        	selectedObjects = selectionHandler.getSelectedObjects();     
         	if (!selectedObjects.isEmpty())
         		break;
         }
@@ -562,19 +544,24 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return selectedObjects;
     }
     
+    public void setSelectionObjects(List<GraphObject> objects) {
+    	for (SelectionHandler selectionHandler : getExistingSelectionHandlers())
+    		selectionHandler.setSelectionObjects(objects);
+    }
+    
+    public void setSelectionObject(GraphObject object) {
+    	List<GraphObject> objectList = new ArrayList<GraphObject>(1);
+    	objectList.add(object);
+    	setSelectionObjects(objectList);
+    }
+    
     /**
      * Set a list of objects using their DB_IDs.
      * @param dbIds
      */
     public void setSelectionIds(List<Long> dbIds) {
-        for (DiagramCanvas canvas : canvasList) {
-    		if (canvas == null)
-    			continue;
-        	
-        	SelectionHandler sh = canvas.getSelectionHandler();
-    		
-    		if (sh != null)
-    			sh.setSelectionIds(dbIds);
+        for (SelectionHandler selectionHandler : getExistingSelectionHandlers()) {
+   			selectionHandler.setSelectionIds(dbIds);
         }
         
         if (getSelectedObjects() != null) {
@@ -583,7 +570,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	
         	Boolean doCentring = Boolean.FALSE;
         	if (!getSelectedObjects().isEmpty())
-        		doCentring = !pathwayCanvas.currentViewContainsGraphObject(getSelectedObjects().get(0));
+        		doCentring = !pathwayCanvas.currentViewContainsAtLeastOneGraphObject(getSelectedObjects());
         	event.setDoCentring(doCentring);
         	
         	fireSelectionEvent(event);
@@ -604,14 +591,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Reset all selection.
      */
     public void clearSelection() {
-    	for (DiagramCanvas canvas : canvasList) {
-    		if (canvas == null)
-    			continue;
-    		
-    		SelectionHandler sh = canvas.getSelectionHandler();
-    		
-    		if (sh != null)
-    			sh.clearSelection();
+    	for (SelectionHandler selectionHandler : getExistingSelectionHandlers()) {
+   			selectionHandler.clearSelection();
     	}
     }
     
@@ -619,10 +600,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Update drawing.
      */
     public void update() {
-        for (DiagramCanvas canvas : canvasList) {
-    		if (canvas == null)
-    			continue;
-    		
+        for (DiagramCanvas canvas : getExistingCanvases()) {    		
         	canvas.update();
         }	
     }
@@ -655,9 +633,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			public void onDataPointChanged(DataPointChangeEvent e) {
 				ExpressionCanvasModel expressionCanvasModel = expressionCanvas.getExpressionCanvasModel();
 				
-				expressionCanvasModel.setEntityColorMap(e.getPathwayComponentIdToColor());
-				expressionCanvasModel.setEntityExpressionIdMap(e.getPathwayComponentIdToExpressionId());
-				expressionCanvasModel.setEntityExpressionLevelMap(e.getPathwayComponentIdToExpressionLevel());
+				Map<Long, String> color = e.getPathwayComponentIdToColor(); 
+				Map<Long, Double> level = e.getPathwayComponentIdToExpressionLevel();
+				Map<Long, String> id = e.getPathwayComponentIdToExpressionId();
+				
+				
+				expressionCanvasModel.setEntityExpressionInfoMap(id, level,	color);
 				
 				if (expressionCanvas.getPathway() == null) {
 					expressionCanvas.setPathway(getPathway());
@@ -801,4 +782,29 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			
 		});
 	}
+	
+	private List<DiagramCanvas> getExistingCanvases() {
+		List<DiagramCanvas> existingCanvases = new ArrayList<DiagramCanvas>();
+		
+		for (DiagramCanvas canvas : canvasList) {
+			if (canvas != null)
+				existingCanvases.add(canvas);
+		}
+		
+		return existingCanvases;
+	}
+	
+	private List<SelectionHandler> getExistingSelectionHandlers() {
+		List<SelectionHandler> existingSelectionHandlers = new ArrayList<SelectionHandler>();
+		
+		for (DiagramCanvas canvas : getExistingCanvases()) {
+			SelectionHandler canvasSelectionHandler = canvas.getSelectionHandler();
+			
+			if (canvasSelectionHandler != null)
+				existingSelectionHandlers.add(canvasSelectionHandler);			
+		}
+		
+		return existingSelectionHandlers;
+	}
+	
 }
