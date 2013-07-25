@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
+import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
@@ -57,13 +58,17 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     	String expressionId = "N/A";    	
     	String expressionLevel = "N/A";
     	
-    	if (ecm.getEntityExpressionIdMap() != null && ecm.getEntityExpressionIdMap().get(refId) != null)
-    		expressionId = ecm.getEntityExpressionIdMap().get(refId);
+    	if (ecm.getEntityExpressionInfoMap() != null) {
+    		ExpressionInfo expressionInfo = ecm.getEntityExpressionInfoMap().get(refId);
+    		
+    		if (expressionInfo != null && expressionInfo.getId() != null)
+    			expressionId = expressionInfo.getId();
     	
-    	if (ecm.getEntityExpressionLevelMap() != null && ecm.getEntityExpressionLevelMap().get(refId) != null)
-    		expressionLevel = ecm.getEntityExpressionLevelMap().get(refId).toString();
-    	
-    	String label = "Id: " + expressionId + "<br/> Level: " + expressionLevel;
+    		if (expressionInfo != null && expressionInfo.getLevel() != null)
+    			expressionLevel = expressionInfo.getLevel().toString();
+    	}
+    		
+    	String label = "Expression Id: " + expressionId + "<br/> Expression Level: " + expressionLevel;
    
     	tooltip.setWidget(new HTML(label));
     
