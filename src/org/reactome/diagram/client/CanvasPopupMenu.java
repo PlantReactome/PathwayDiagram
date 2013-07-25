@@ -5,7 +5,6 @@
 package org.reactome.diagram.client;
 
 import org.reactome.diagram.model.GraphObject;
-import org.reactome.diagram.model.Node;
 
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
@@ -53,18 +52,25 @@ public class CanvasPopupMenu extends PopupPanel {
         
         hide();
         
-        menuBar.createMenu((Node) getSelectedObject());
+        menuBar.createMenu(getSelectedObject());
         
         setPopupPosition(event.getNativeEvent().getClientX() + 2,
         				 event.getNativeEvent().getClientY() + 2);
         
         WidgetStyle.bringToFront(this);
         
-        show();
+        showIfMenuHasItems();
     }
         
     private GraphObject getSelectedObject() {
     	return diagramPane.getSelectedObjects().get(0);
+    }
+    
+    private void showIfMenuHasItems() {
+    	if (menuBar.getItems() == null || menuBar.getItems().isEmpty())
+    		return;
+    	
+    	show();
     }
     
 }
