@@ -223,6 +223,7 @@ public class InteractorCanvas extends DiagramCanvas {
         	
     			InteractorRenderer renderer = (InteractorRenderer) viewFactory.getNodeRenderer(interactor);
     			if (renderer != null) {
+    				renderer.setContextState(renderer.new Context2DState(getTranslateX(), getTranslateY(), getScale()));
     				renderer.render(c2d, interactor, interactorColouring);
     			}
     		}
