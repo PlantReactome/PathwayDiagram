@@ -643,6 +643,10 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			add(toggleTableButton);
 			add(pathwayInteractorsTable);
 		}
+		
+		private void setCursor(Cursor cursor) {
+			InteractionOverlayOptionsPopup.this.getElement().getStyle().setCursor(cursor);
+		}
 				
 		private class PathwayInteractorsTable extends ScrollPanel {
 			private String interactorDatabase;
@@ -694,6 +698,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			}
 			
 			private RequestCallback setIdMapAndGetPathwayInteractors(final String interactorDatabase) {
+				setCursor(Cursor.WAIT);
+				
 				RequestCallback obtainPathwayInteractors = new RequestCallback() {
 
 					@Override
@@ -707,6 +713,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 					@Override
 					public void onError(Request request, Throwable exception) {
 						controller.requestFailed(exception);
+						setCursor(Cursor.DEFAULT);
 					}
 				
 				};
@@ -726,11 +733,13 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 								addRowToTable(protein, interactor);
 						}
 						sizeScrollPanel();
+						setCursor(Cursor.DEFAULT);
 					}
 
 					@Override
 					public void onError(Request request, Throwable exception) {
 						controller.requestFailed(exception);
+						setCursor(Cursor.DEFAULT);
 					}		
 				};
 				
