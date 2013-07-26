@@ -91,7 +91,7 @@ public class OptionsMenu extends PopupPanel {
 	}
 
 	private MenuItem getSearchBarMenuItem() {
-    	MenuItem searchBar = new MenuItem("Search Diagram (Ctrl-f/\u2318-f)", new Command() {
+    	MenuItem searchBar = new MenuItem("Search Diagram (Ctrl-f)", new Command() {
     		
     		@Override
     		public void execute() {
