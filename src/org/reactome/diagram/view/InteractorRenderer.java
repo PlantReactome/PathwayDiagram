@@ -12,19 +12,27 @@ import org.reactome.diagram.model.Node;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.dom.client.ImageElement;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * @author jweiser
  *
  */
 public class InteractorRenderer extends NodeRenderer {
-    
+	private Context2DState contextState;
+	
     public InteractorRenderer() {
         defaultLineWidth = 2.0d;
         defaultLineColor = CssColor.make("rgba(0, 0, 255, 1)");
     }
 
+    public void setContextState(Context2DState contextState) {
+    	this.contextState = contextState;
+    }
+    
     public void render(Context2d c2d, InteractorNode node, InteractorConfidenceScoreColourModel colouring) {
     	setNodeColour(node, colouring);
     	super.render(c2d, node); 
@@ -69,12 +77,29 @@ public class InteractorRenderer extends NodeRenderer {
         context.setLineWidth(oldLineWidth);
     }    
     
-    protected void drawImage(Context2d c2d, InteractorNode interactor) {
-    	Bounds bounds = interactor.getBounds();
+    protected void drawImage(final Context2d c2d, InteractorNode interactor) {
+    	final Bounds bounds = interactor.getBounds();
     	
-    	Image image = new Image("http://www.ebi.ac.uk/chembldb/index.php/compound/displayimage/" + interactor.getChemicalId());
-    	ImageElement imgElement = ImageElement.as(image.getElement());
-    	c2d.drawImage(imgElement, bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+    	final Image image = new Image("http://www.ebi.ac.uk/chembldb/index.php/compound/displayimage/" + interactor.getChemicalId());
+    	
+    	image.addLoadHandler(new LoadHandler() {
+    		
+    		public void onLoad(LoadEvent event) {
+    			c2d.save();
+
+    			c2d.translate(contextState.getTranslateX(), contextState.getTranslateY());
+    			c2d.scale(contextState.getScale(), contextState.getScale());
+    			
+    			ImageElement imgElement = ImageElement.as(image.getElement());
+    			c2d.drawImage(imgElement, bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+    			RootPanel.get().remove(image);
+    			
+    			c2d.restore();
+    		}
+    	});
+    	
+    	image.setVisible(false);
+    	RootPanel.get().add(image);
     }
     
     private void setNodeColour(InteractorNode node, InteractorConfidenceScoreColourModel colouring) {
@@ -87,5 +112,29 @@ public class InteractorRenderer extends NodeRenderer {
     		color = node.getDefaultColour();
     		
     	node.setBgColor(color);
+    }
+    
+    public class Context2DState {
+    	private Double translateX;
+    	private Double translateY;
+    	private Double scale;
+    	
+    	public Context2DState(Double translateX, Double translateY, Double scale) {
+    		this.translateX = translateX;
+    		this.translateY = translateY;
+    		this.scale = scale;
+    	}
+
+		public Double getTranslateX() {
+			return translateX;
+		}
+
+		public Double getTranslateY() {
+			return translateY;
+		}
+
+		public Double getScale() {
+			return scale;
+		}    	
     }
 }
