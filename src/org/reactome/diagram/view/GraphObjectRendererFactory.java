@@ -56,6 +56,8 @@ public class GraphObjectRendererFactory {
                            new RenderableInteractionRenderer());
         typeToRenderer.put(GraphObjectType.RenderableGene,
                            new GeneRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableRNA,
+                           new RNARenderer());
     }
     
     public static GraphObjectRendererFactory getFactory() {
