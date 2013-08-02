@@ -19,7 +19,7 @@ import com.google.gwt.touch.client.Point;
 public abstract class AbstractRenderer<T extends GraphObject> implements GraphObjectRenderer<T> {
     protected double defaultLineWidth = 1.0d;
     protected CssColor defaultLineColor = Parameters.defaultstrokeColor;
-    // This will be used for overview drawing: this linewith should be used without considering
+    // This will be used for overview drawing: this lineWidth should be used without considering
     // the GraphObject one
     private Double absoluteLineWidth;
     
@@ -128,6 +128,31 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
             return Math.min(a, b);
         else
             return Math.max(a, b);
+    }
+
+    protected void drawArrow(Context2d c2d, 
+                             Point controlPoint, 
+                             Point position,
+                             boolean isOpen) {
+        // The the angle of the line segment
+        double alpha = Math.atan((double)(position.getY() - controlPoint.getY()) / (position.getX() - controlPoint.getX()));
+        if (controlPoint.getX() > position.getX())
+            alpha += Math.PI;
+        double angle = ARROW_ANGLE - alpha;
+        float x1 = (float)(position.getX() - ARROW_LENGTH * Math.cos(angle));
+        float y1 = (float)(position.getY() + ARROW_LENGTH * Math.sin(angle));
+        c2d.beginPath(); // Have to call this begin path. Otherwise, the following path will be mixed with other unknown drawings.
+        c2d.moveTo(x1, y1);
+        c2d.lineTo(position.getX(), position.getY());
+        angle = ARROW_ANGLE + alpha;
+        float x2 = (float)(position.getX() - ARROW_LENGTH * Math.cos(angle));
+        float y2 = (float)(position.getY() - ARROW_LENGTH * Math.sin(angle));
+        c2d.lineTo(x2, y2);
+        c2d.closePath();
+        if (isOpen)
+            c2d.setFillStyle(CssColor.make("rgba(255, 255, 255, 1)"));
+        c2d.fill();
+        c2d.stroke();
     }
     
     
