@@ -26,6 +26,9 @@ import com.google.gwt.canvas.dom.client.CssColor;
  *
  */
 public class Parameters {
+    // Font used to draw text
+    public static final String DEFAULT_FONT = "12px Lucida Sans";
+    
 	public static final int MOVEX = 100;
 	public static final int MOVEY = 100;
 	public static final double ZOOMMAX = 5d;

@@ -62,7 +62,7 @@ public class CompartmentRenderer extends NodeRenderer {
             fgColor = "rgba(0, 0, 0, 1)";
         CssColor strokeStyleColor = CssColor.make(fgColor);
         context.setFillStyle(strokeStyleColor);
-        String font = "12px Lucida Sans"; // This should be fixed
+        String font = Parameters.DEFAULT_FONT;
         context.setFont(font);
         context.setTextAlign(TextAlign.LEFT);
         context.setTextBaseline(TextBaseline.TOP);

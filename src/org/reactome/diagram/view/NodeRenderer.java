@@ -19,7 +19,7 @@ import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.TextMetrics;
 
 /**
- * This customized Renderer is use to render Protein. 
+ * This customized Renderer is used to render Protein. 
  * @author Maulik & Guanming
  *
  */
@@ -77,19 +77,6 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         drawNodeAttachments(c2d,
                             node);
         
-      //  Image down = new Image(getResource().down());
-        
-       // ImageElement downElement = ImageElement.as(down.getElement());
-        
-        //Integer x = bounds.getX();
-        //Integer w = bounds.getWidth();
-
-        //downElement.setWidth(20);
-        //downElement.setHeight(20);
-        
-       // Integer imageX = x + w - downElement.getWidth();
-        
-        //c2d.drawImage(downElement, imageX, bounds.getY());
     }
 
     private void drawNodeAttachments(Context2d context,
@@ -294,7 +281,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         
         String font = node.getFont();
         if (font == null)		
-        	font = "12px Lucida Sans"; // This should be pre-set as this font used in the curator tool
+        	font = Parameters.DEFAULT_FONT; // This should be pre-set as this font used in the curator tool
        	context.setFont(font);
         context.setTextAlign(TextAlign.CENTER);
         context.setTextBaseline(TextBaseline.TOP);
@@ -304,7 +291,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                                        width);
         int totalHeight = lines.size() * Parameters.LINE_HEIGHT;
         int x0 = bounds.getX() + bounds.getWidth() / 2;
-        int y0 = (bounds.getHeight() - totalHeight) / 2 + bounds.getY();
+        int y0 = getTextPositionY(bounds, totalHeight);
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             drawLine(i, 
@@ -317,6 +304,17 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.setFillStyle(oldFillStyle);
     }
 
+    /**
+     * A refactored method for getting the text position's y coordinate.
+     * @param bounds
+     * @param totalHeight
+     * @return
+     */
+    protected int getTextPositionY(Bounds bounds, int totalHeight) {
+        int y0 = (bounds.getHeight() - totalHeight) / 2 + bounds.getY();
+        return y0;
+    }
+    
     /**
      * Renders the new line formed on the canvas
      * @param linebreak The total number of lines plot before the given line
