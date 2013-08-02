@@ -54,6 +54,8 @@ public class GraphObjectRendererFactory {
                            renderer);
         typeToRenderer.put(GraphObjectType.RenderableInteraction,
                            new RenderableInteractionRenderer());
+        typeToRenderer.put(GraphObjectType.RenderableGene,
+                           new GeneRenderer());
     }
     
     public static GraphObjectRendererFactory getFactory() {
