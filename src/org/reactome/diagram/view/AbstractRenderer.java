@@ -32,19 +32,6 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
         return this.absoluteLineWidth;
     }
     
-    /**
-     * Converts the Stroke and Fill Colors to Standard CssColor Objects and sets it on the Canvas
-     * @param context Context2d object for which the Color Settings are initialized
-     */
-    public void setColors(Context2d context,
-                          String fgColor,
-                          String bgColor) {
-        CssColor strokeStyleColor = CssColor.make(fgColor);
-        context.setStrokeStyle(strokeStyleColor);
-        CssColor fillStyleColor = CssColor.make(bgColor);
-        context.setFillStyle(fillStyleColor);
-    }
-
     protected void setStroke(Context2d c2d, T obj) {
         String color;
         if (obj.isSelected() || obj.isHighlighted()) {

@@ -51,8 +51,14 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     @Override
     public void render(Context2d c2d,
                        Node node) {
-        setColors(c2d, node.getFgColor(), node.getBgColor());
+        setFillStyle(c2d, node);
         
+        setStroke(c2d,
+                  node);
+        drawNode(c2d, node);
+    }
+
+    protected void setFillStyle(Context2d c2d, Node node) {
         String color = node.getBgColor();
         if (color == null) {
             c2d.setFillStyle(Parameters.defaultbgColor);
@@ -60,10 +66,6 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         else {
             c2d.setFillStyle(CssColor.make(color));
         }
-        
-        setStroke(c2d,
-                  node);
-        drawNode(c2d, node);
     }
     
     protected void drawNode(Context2d c2d, Node node) {

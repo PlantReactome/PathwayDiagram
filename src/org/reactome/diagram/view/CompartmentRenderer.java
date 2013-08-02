@@ -34,7 +34,6 @@ public class CompartmentRenderer extends NodeRenderer {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
-        setStroke(context, node);
         super.drawRectangle(bounds, 
                             context,
                             true);

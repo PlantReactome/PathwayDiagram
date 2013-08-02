@@ -23,7 +23,6 @@ public class ComplexRenderer extends NodeRenderer {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
-        setStroke(context, node);
         createPath(bounds, context);
         
         Double oldLineWidth = context.getLineWidth();
