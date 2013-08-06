@@ -182,13 +182,13 @@ public class ExpressionProcessor {
 			JSONObject expressionJson = getJsonObject("springModel", jsonData);
 			
 			expressionData.setAnalysisId(getStringFromJson("analysisId", expressionJson));
-			JSONObject experimentData = getJsonObject("table", expressionJson);
+			//JSONObject experimentData = getJsonObject("table", expressionJson);
 
-			expressionData.setMinExpression(getDoubleFromJson("minExpression", experimentData));
-			expressionData.setMaxExpression(getDoubleFromJson("maxExpression", experimentData));
-			expressionData.setAnalysisType(getStringFromJson("analysisType", experimentData));
+			expressionData.setMinExpression(getDoubleFromJson("minExpression", expressionJson));
+			expressionData.setMaxExpression(getDoubleFromJson("maxExpression", expressionJson));
+			expressionData.setAnalysisType(getStringFromJson("analysisType", expressionJson));
 		
-			JSONArray columnNamesArray = getJsonArray("expressionColumnNames", experimentData);
+			JSONArray columnNamesArray = getJsonArray("expressionColumnNames", expressionJson);
 			List<String> expressionColumnNames = new ArrayList<String>();
 		
 			for (int i = 0; i < columnNamesArray.size(); i++) {
@@ -197,7 +197,7 @@ public class ExpressionProcessor {
 			}
 			expressionData.setExpressionColumnNames(expressionColumnNames);
 		
-			JSONArray pathways = getJsonArray("rows", experimentData);		
+			JSONArray pathways = getJsonArray("rows", expressionJson);		
 			for (int i = 0; i < pathways.size(); i++) {
 				PathwayExpressionValue pev = new PathwayExpressionValue();
 				JSONArray pathway = getJsonArray(i, pathways);
