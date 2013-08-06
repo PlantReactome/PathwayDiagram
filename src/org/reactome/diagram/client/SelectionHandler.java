@@ -91,7 +91,7 @@ public abstract class SelectionHandler {
         
         // Don't do anything if just empty click
         if (selected == null) {
-        	deSelectAllExcept(selected);        	
+        	deSelectAllExcept(selected);
         } else {        
         	// If previous object was reselected
         	// A special case to gain some performance: this should be common during selection.
@@ -104,8 +104,6 @@ public abstract class SelectionHandler {
             deSelectAllExcept(selected);
             
             selectedObjects.add(selected);
-            
-            showPopupIfRightClick(event);
 
             //if (objectReselected) { 
             //	objectReselected = false;
@@ -113,6 +111,8 @@ public abstract class SelectionHandler {
             //}	                                             
         }
         
+        showPopupIfRightClick(event);
+
         return selected;
     }
 
@@ -186,7 +186,10 @@ public abstract class SelectionHandler {
       
     private void showPopupIfRightClick(GwtEvent<? extends EventHandler> event) {
     	if (event instanceof MouseEvent && ((MouseEvent <? extends EventHandler>) event).getNativeButton() == NativeEvent.BUTTON_RIGHT) {
-    		diagramPanel.getPopupMenu().showPopupMenu((MouseEvent <? extends EventHandler>) event);
+    		if (!selectedObjects.isEmpty())	
+    			diagramPanel.getPopupMenu().showPopupMenu((MouseEvent <? extends EventHandler>) event);
+    		else
+    			diagramPanel.getOptionsMenu().showPopup((MouseEvent<? extends EventHandler>) event);
     	}
     }
 }
