@@ -66,7 +66,7 @@ public class ExpressionCanvasModel {
 		
 		Iterator<Long> proteinsWithoutExpressionColors = proteinReferenceIds.iterator();
 		while (proteinsWithoutExpressionColors.hasNext()) {
-			colorList.add("rgb(192, 192, 192)");
+			colorList.add(getDefaultColor());
 			proteinsWithoutExpressionColors.next();
 		}
 		
@@ -75,6 +75,10 @@ public class ExpressionCanvasModel {
 		}
 		
 		return colorList;
+	}
+
+	public String getDefaultColor() {
+		return "rgb(255, 255, 255)";
 	}
 	
 	public class ExpressionInfo implements Comparable<ExpressionInfo> {
