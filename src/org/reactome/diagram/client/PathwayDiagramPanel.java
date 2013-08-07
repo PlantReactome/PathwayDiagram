@@ -193,7 +193,18 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     private void addTestCode() {
+        // Just want to load a pathway diagram
         addTestDataPointDisplay();
+        PushButton testPathwayBtn = new PushButton("Load Pathway");
+        contentPane.add(testPathwayBtn, 400, 4);
+        testPathwayBtn.addClickHandler(new ClickHandler() {
+            
+            @Override
+            public void onClick(ClickEvent event) {
+                setPathway(1912422L); // Pre-Notch Expression and Processing for showing genes and miRNAs
+            }
+        });
+        
         PushButton testBtn = new PushButton("Build Tree");
         contentPane.add(testBtn, 500, 4);
     	testBtn.addClickHandler(new ClickHandler() {
