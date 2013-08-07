@@ -373,8 +373,8 @@ public class PathwayDiagramController {
             // pathway id.
             
             // Apply the default color schemes
-            DefaultColorScheme colorScheme = new DefaultColorScheme();
-            colorScheme.applyScheme(pathway);
+//            DefaultColorScheme colorScheme = new DefaultColorScheme();
+//            colorScheme.applyScheme(pathway);
             
             pathway.setReactomeId(dbId);
             
