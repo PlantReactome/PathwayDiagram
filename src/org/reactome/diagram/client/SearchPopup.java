@@ -11,6 +11,8 @@ import java.util.List;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -78,7 +80,7 @@ public class SearchPopup extends HorizontalPanel {
 				String newSearchString = searchBox.getText();
 				if (!newSearchString.equalsIgnoreCase(searchString)) {
 					searchString = newSearchString;
-					searchTimer.schedule(500);
+					searchTimer.schedule(1000);
 				}
 			}
 		});
@@ -159,7 +161,7 @@ public class SearchPopup extends HorizontalPanel {
 		return matchingObjects;			
 	}
 
-	private void doSearch(String query) {			
+	private void doSearch(String query) {		
 		matchingEntityIds = searchDiagram(query);
 		
 		if (matchingEntityIds.isEmpty()) {
@@ -178,6 +180,7 @@ public class SearchPopup extends HorizontalPanel {
 		}
 		
 		selectEntity(0);
+		focus();
 	}
 		
 	private void selectEntity(Integer index) {
@@ -204,10 +207,6 @@ public class SearchPopup extends HorizontalPanel {
 		
 	}
 	
-	public TextBox getTextBox() {
-		return searchBox;
-	}
-	
 	public void updatePosition() {
 		AbsolutePanel container = (AbsolutePanel) getParent();
 		
@@ -221,14 +220,25 @@ public class SearchPopup extends HorizontalPanel {
 		Integer left = overviewLeft + overviewWidth + buffer;
 		container.setWidgetPosition(this, left, top);
 	}
+
+	public void focus() {
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			
+			public void execute() {
+				searchBox.setFocus(true);
+			}
+		});
+	}
 	
 	private class SearchTimer extends Timer {
 		private Boolean active;
 		
 		@Override
 		public void run() {
-			doSearch(SearchPopup.this.searchString);
-			active = false;
+			final String query = SearchPopup.this.searchString;
+			
+			doSearch(query);
+			active = false;						
 		}
 		
 		public void schedule(int milliSeconds) {
