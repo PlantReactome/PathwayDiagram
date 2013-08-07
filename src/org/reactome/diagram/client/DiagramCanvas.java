@@ -27,7 +27,6 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected double translateY;
     // This is for scale
     protected double scale;
-    protected double previousScale;
     // For view change
     protected ViewChangeEvent viewEvent;
     protected PathwayDiagramPanel diagramPane;
@@ -102,6 +101,16 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	translateY = -(centreY(previousScale) - (0.5 * newHeight())) * newScale;
     	
         fireViewChangeEvent();
+    }
+    
+    public void center(Point point) {
+    	Double pointX = (point.getX() - translateX) / scale;
+    	Double pointY = (point.getY() - translateY) / scale;
+    	
+    	translate(
+    		-(pointX - centreX(scale)),
+    		-(pointY - centreY(scale))
+    	);
     }
     
     private Double centreX(Double previousScale) {
