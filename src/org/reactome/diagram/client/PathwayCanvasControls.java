@@ -86,7 +86,7 @@ public class PathwayCanvasControls extends FlexTable {
         zoomPlus.setTitle("zoom in");
         zoomPlus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                diagramPane.scale(Parameters.ZOOMFACTOR);
+                diagramPane.zoomIn();
                 diagramPane.update();
             }
         });
@@ -96,7 +96,7 @@ public class PathwayCanvasControls extends FlexTable {
         zoomMinus.setTitle("zoom out");
         zoomMinus.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                diagramPane.scale(1 / Parameters.ZOOMFACTOR);
+                diagramPane.zoomOut();
                 diagramPane.update();
             }
         });
