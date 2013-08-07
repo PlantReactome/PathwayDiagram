@@ -194,12 +194,10 @@ public class PathwayDiagramController {
     }
     
     
-    public void getInteractors(final ProteinNode selected) {
-        selected.getInteractors().clear(); // Clear existing interactors
-    	
-    	Long dbId = selected.getReactomeId();
+    public void getInteractors(final ProteinNode selected, RequestCallback callback) {
+        Long dbId = selected.getReactomeId();
         
-        diagramPane.initInteractorCanvas();
+        diagramPane.initInteractorCanvas(); // Does nothing if the canvas already exists
         final InteractorCanvas ic = diagramPane.getInteractorCanvas();
 
         String url = this.getHostUrl() + "psiquicInteractions/" + dbId + "/" + diagramPane.getInteractorCanvasModel().getInteractorDatabase();
@@ -209,42 +207,7 @@ public class PathwayDiagramController {
 
         ic.setLoadingInteractors(true);
         try {
-            requestBuilder.sendRequest(null, new RequestCallback() {
-                public void onResponseReceived(Request request,	Response response) {
-                    if (response.getStatusCode() == 200) {
-                        if (response.getText().contains("errorMessage")) {
-                        	String errorMessage = diagramPane.getInteractorCanvasModel().getInteractorDatabase() + " is currently unavailable";
-                        	if (!ic.getUserMessage().contains(errorMessage))
-                        		ic.addToUserMessage(errorMessage);
-                        		
-                        	selected.setDisplayingInteractors(false);
-                        } else {                    	
-                        	selected.setInteractors(response.getText());
-                        	
-                        	if (selected.getInteractors() == null || selected.getInteractors().isEmpty()) {
-                        		ic.addToUserMessage(selected.getDisplayName() + " has no interactors for the selected interaction database");
-                        		selected.setDisplayingInteractors(false);  
-                        	} else {
-                        		selected.setDisplayingInteractors(true);
-                        	}
-                        }
-                        
-                        ic.setReObtainedProteinCount(ic.getReObtainedProteinCount() + 1);
-                        ic.addProtein(selected);                        
-                    } else {
-                        requestFailed("Failed to get interactors - " + response.getStatusText());
-                        selected.setDisplayingInteractors(false);
-                    }
-
-                    ic.setLoadingInteractors(false);
-                }
-
-                public void onError(Request request, Throwable exception) {
-                    requestFailed(exception);
-                    ic.setLoadingInteractors(false);
-                }
-
-            });
+            requestBuilder.sendRequest(null, callback);
         } catch (RequestException ex) {
             requestFailed(ex);
             ic.setLoadingInteractors(false);
