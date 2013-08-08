@@ -4,23 +4,16 @@
  */
 package org.reactome.diagram.client;
 
-
-
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseEvent;
+import com.google.gwt.event.shared.EventHandler;
 
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.ImageResource;
-
+import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -34,30 +27,15 @@ import com.google.gwt.user.client.ui.Widget;
 public class OptionsMenu extends PopupPanel {
        
     private PathwayDiagramPanel diagramPane;
-    private Image optionsIcon;
-    private Boolean showing;
+    private Point pointClicked;
     
     public OptionsMenu(PathwayDiagramPanel diagramPane) {
         super(true); // Hide when clicking outside pop-up
     	this.diagramPane = diagramPane;
-    	this.optionsIcon = new Image (getResources().options());
-        this.showing = false;
     	init();
-    }
-    
+    }    
     private void init() {
-    	setWidget(getOptionsMenu());
-    	optionsIcon.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				if (showing) {  
-					hide();					
-				} else {
-					showMenuUnderOptionsIcon();					
-				}
-			}				
-    	});
-    	
+    	setWidget(getOptionsMenu());    	
     	bringToFront(this);
     }
     	
@@ -65,9 +43,23 @@ public class OptionsMenu extends PopupPanel {
     	widget.getElement().getStyle().setZIndex(2);
     }    	   
 
+    public void showPopup(MouseEvent<? extends EventHandler> event) {
+    	event.stopPropagation();
+    	event.preventDefault();
+    	
+    	hide();
+    	
+    	pointClicked = new Point(event.getX(), event.getY());
+    	
+    	final Integer OFFSET = 2;
+    	setPopupPosition(event.getClientX() + OFFSET,
+    					 event.getClientY() + OFFSET);
+    	
+    	show();
+    }
+    
     public void hide() {
     	super.hide();
-    	showing = false;
     }
     
     private MenuBar getOptionsMenu() {
@@ -78,6 +70,12 @@ public class OptionsMenu extends PopupPanel {
     	optionsMenu.addItem(getDownloadDiagramMenuItem());
     	optionsMenu.addSeparator();
     	optionsMenu.addItem(getInteractionOverlayMenuItem());
+    	optionsMenu.addSeparator();
+    	optionsMenu.addItem(getZoomInMenuItem());
+    	optionsMenu.addSeparator();
+    	optionsMenu.addItem(getZoomOutMenuItem());
+    	optionsMenu.addSeparator();
+    	optionsMenu.addItem(getCenterDiagramMenuItem());
     	
     	setOptionsMenuStyle(optionsMenu);
     	
@@ -143,7 +141,7 @@ public class OptionsMenu extends PopupPanel {
         
         return downloadDiagram;        
 	}
-	
+    
     private MenuItem getInteractionOverlayMenuItem() {
     	MenuItem interactionOverlay = new MenuItem("Interaction Overlay Options...", new Command() {
 
@@ -156,61 +154,50 @@ public class OptionsMenu extends PopupPanel {
 			}
     		
     	});
-		return interactionOverlay;    	
+		
+    	return interactionOverlay;    	
+    }
+     
+    private MenuItem getZoomInMenuItem() {
+    	MenuItem zoomIn = new MenuItem("Zoom In", new Command() {
+
+			@Override
+			public void execute() {
+				diagramPane.zoomIn();
+				diagramPane.update();
+				hide();
+			}    	    		
+    	});
+    	
+    	return zoomIn;
+    }
+    
+    private MenuItem getZoomOutMenuItem() {
+    	MenuItem zoomOut = new MenuItem("Zoom Out", new Command() {
+
+			@Override
+			public void execute() {
+				diagramPane.zoomOut();
+				diagramPane.update();
+				hide();
+			}    		
+    	});
+    	
+    	return zoomOut;
     }
         
-    interface Resources extends ClientBundle {
-    	@Source("Options.png")
-    	ImageResource options();
-    }
-    
-    private Resources getResources() {
-    	return GWT.create(Resources.class);
-    }
-    
-    private void showMenuUnderOptionsIcon() {
-    	
-    	setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+    private MenuItem getCenterDiagramMenuItem() {
+    	MenuItem centerDiagram = new MenuItem("Center Diagram Here", new Command() {
+
+			@Override
+			public void execute() {
+				diagramPane.center(pointClicked);
+				diagramPane.update();
+				hide();
+			}
     		
-    		@Override
-    		public void setPosition(int offsetWidth, int offsetHeight) { 
-    			// 'Right-justify' menu under the options icon
-    			Integer menuX = getOptionsIcon().getAbsoluteLeft() + getOptionsIcon().getOffsetWidth() - offsetWidth; 
-    			Integer menuY = getOptionsIcon().getAbsoluteTop() + getOptionsIcon().getOffsetHeight();
+    	});
     	
-    			setPopupPosition(menuX, menuY);
-    			
-    			showing = true;
-    		}					
-		});
-    }
-    
-	public Image getOptionsIcon() {
-		return optionsIcon;
-	}
-
-	public void setOptionsIcon(Image optionsIcon) {
-		this.optionsIcon = optionsIcon;
-	}
-
-	public void updateIconPosition() {
-		AbsolutePanel container = (AbsolutePanel) getOptionsIcon().getParent();
-		Integer buffer = 4;
-		
-		// Top-right corner
-		Integer left = container.getOffsetWidth() - getOptionsIcon().getOffsetWidth() - buffer;
-
-		// TODO This is a hack to get correct initial placement of the icon when the container width
-		// 		and icon width are unavailable making the left equal to the negative buffer.
-		// 		THIS SHOULD BE REPLACED WITH DYNAMIC CALCULATION OF INITIAL POSITION
-		final Integer CONTAINERBUFFER = 40;
-		final Integer ICONWIDTH = 30;
-		if (left == -buffer)
-			left = Window.getClientWidth() - CONTAINERBUFFER - ICONWIDTH - buffer;
-		
-		
-		Integer top = buffer;
-		
-		container.setWidgetPosition(getOptionsIcon(), left, top);
-	}
+    	return centerDiagram;
+    }   
 }
