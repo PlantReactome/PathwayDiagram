@@ -11,6 +11,7 @@ import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.InteractorCanvasModel;
+import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.view.DefaultColorScheme;
 
@@ -121,6 +122,9 @@ public class PathwayDiagramController {
                     if (response.getStatusCode() == 200) {
                         interactorCanvasModel.addToInteractorDBMap(getInteractionDBMap(response.getText()));                        
                         addPSICQUICList(interactorCanvasModel);
+
+                        InteractorEdge.setUrl(interactorCanvasModel.getInteractorDBMap(),
+                        					  interactorCanvasModel.getInteractorDatabase());
                         //diagramPane.getControls().addInteractionOverlayButton();
                     } else {
                         requestFailed("Could not retrieve InteractorEdgeUrls.txt");
