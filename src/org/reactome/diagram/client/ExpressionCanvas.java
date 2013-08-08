@@ -42,7 +42,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 	private ExpressionCanvasModel expressionCanvasModel;    
     private CanvasPathway pathway;
     private DataController dataController;
-    ExpressionPathway expressionPathway;
+    private ExpressionPathway expressionPathway;
     
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
@@ -216,7 +216,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 		String defaultColor = null;
 		if (AnalysisType.contains(
 				analysisType.name())) {
-			defaultColor = "rgb(192,192,192)"; // Grey by default
+			defaultColor = expressionCanvasModel.getDefaultColor(); // White by default
 			
 			if (analysisType == AnalysisType.SpeciesComparison && entityType == GraphObjectType.RenderableProtein) {
 				defaultColor =  "rgb(0, 0, 255)"; // Blue for protein in species comparison with no inference
