@@ -425,6 +425,11 @@ public abstract class NodeOptionsMenu {
         } else if (type == GraphObjectType.RenderableChemical) {
         	numberOfMenuItems = 1;
         	createSmallMoleculeMenu();
+        } else if (type == GraphObjectType.RenderableEntity ||
+        		   type == GraphObjectType.RenderableGene ||
+        		   type == GraphObjectType.RenderableRNA) {
+        	numberOfMenuItems = 1;
+        	createPhysicalEntityMenu();
         }
     }
     
