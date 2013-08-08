@@ -5,15 +5,19 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.ComplexNode.Component;
+import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.model.ReactomeObject;
+import org.reactome.diagram.model.ReactomeXMLParser;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Position;
@@ -26,6 +30,8 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -37,35 +43,32 @@ import com.google.gwt.xml.client.XMLParser;
  * @author gwu
  *
  */
-public class NodeOptionsMenu extends MenuBar  {
+public abstract class NodeOptionsMenu {
     private PathwayDiagramPanel diagramPane;
-    private org.reactome.diagram.model.Node selected;
+    private GraphObject selected;
     private Integer menuItemsBeingCreated; // Count of menu items waiting for a callback before they can be created
+    private Integer numberOfMenuItems;
+    private Integer currentMenuItemId;
     
-    public NodeOptionsMenu(PathwayDiagramPanel diagramPane) {
-    	this(diagramPane, false);
-    }
-    
-    public NodeOptionsMenu(PathwayDiagramPanel diagramPane, Boolean vertical) {
-        super(vertical);
+    public NodeOptionsMenu(PathwayDiagramPanel diagramPane) {  
         this.diagramPane = diagramPane;
         init();
     }
     
     private void init() {
     	menuItemsBeingCreated = 0;
-    	setAutoOpen(true);
+    	currentMenuItemId = 0; 
     }
     
     // Pathway Node Menu
     private void createProcessNodeMenu() {
-        addItem(new MenuItem("Go to Pathway", new Command() {
+    	addItem("Go to Pathway", new Command() {
         	@Override
         	public void execute() {
         		diagramPane.setPathway(selected.getReactomeId());
-        		hide();
+        		hideIfWithinPopupPanel();
         	}
-        }));
+        });
     }   
     
     // Complex Entity Menu
@@ -85,10 +88,12 @@ public class NodeOptionsMenu extends MenuBar  {
 			@Override
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() == 200) {
+									
+					//System.out.println(response.getText());
+										
 					try {
-						Document pmDom = XMLParser.parse(response.getText());
-						Element pmElement = pmDom.getDocumentElement();
-						XMLParser.removeWhitespace(pmElement);
+						ReactomeXMLParser pmXMLParser = new ReactomeXMLParser(response.getText());
+						Element pmElement = pmXMLParser.getDocumentElement();
 						
 						NodeList nodeList = pmElement.getChildNodes();
 						
@@ -143,7 +148,7 @@ public class NodeOptionsMenu extends MenuBar  {
     }
     
     // Set participating molecules menu
-    private void setPMMenu(boolean expressionData) {
+    private void setPMMenu(boolean expressionData) {    	
     	if (expressionData) {
    			addItem("Display Participating Molecules", new Command() {
 				@Override
@@ -151,7 +156,7 @@ public class NodeOptionsMenu extends MenuBar  {
 					diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected);
 					hide();							
 				}    					
-   			});
+   			});   			
     	} else {
     		MenuBar pmMenu = new MenuBar(true);
     		pmMenu.setAutoOpen(true);
@@ -191,41 +196,61 @@ public class NodeOptionsMenu extends MenuBar  {
     private void createGEEMenu() {
     	createPhysicalEntityMenu();
     	
-    	String action;
-    	final ProteinNode pSelected = (ProteinNode) selected;
-    	final boolean displaying = pSelected.isDisplayingInteractors(); 
-    	if (displaying) {
-    		action = "Hide";
-    	} else {
-    		action = "Display";
-    	}
+    	final ProteinNode pSelected = (ProteinNode) selected;     	     	
     	
-    	
-    	addItem(new MenuItem(action + " Interactors", new Command() {
+    	final MenuOption toggleInteractors = addItem(toggleInteractorsLabel(pSelected.isDisplayingInteractors()));    			
+    	toggleInteractors.setCommand(new Command() {
+    		    		
     		@Override
-    		public void execute() {
-    			if (displaying) {
+    		public void execute() {    			
+    			if (pSelected.isDisplayingInteractors()) {
     				diagramPane.getInteractorCanvas().removeProtein(pSelected);
-    				pSelected.setDisplayingInteractors(false);
+    				toggleInteractors.setLabel(toggleInteractorsLabel(pSelected.isDisplayingInteractors()));
     			} else {	
-    				diagramPane.getController().getInteractors(pSelected);
-    				pSelected.setDisplayingInteractors(true);
-    			}
+    				diagramPane.getController().getInteractors(pSelected, 
+    														   setInteractors(pSelected, toggleInteractors)
+    														  );
+    			}   			
+    		
     			hide();
-    		}	
-    	}));
-    	
-    	
-    	
-    	addItem(new MenuItem("Export Interactors", new Command() { 
+    		}    		
+    	});
+    	    	   	
+    	addItem("Export Interactors", new Command() { 
     		@Override
     		public void execute() {
     			diagramPane.getController().openInteractionExportPage(pSelected.getReactomeId());
     			hide();
     		}
-    	}));
+    	});    	
+    }
+    
+    private String toggleInteractorsLabel(Boolean interactorsDisplaying) {
+    	return (interactorsDisplaying ? "Hide" : "Display") + " interactors";
     }
 
+    private RequestCallback setInteractors(final ProteinNode protein, final MenuOption toggleInteractors) {
+    	toggleInteractors.setEnabled(false);
+    	    	
+    	RequestCallback setInteractors = new RequestCallback() {
+    		    		
+    		public void onResponseReceived(Request request, Response response) {    			
+    			diagramPane.getInteractorCanvas().setInteractors(protein)
+    							.onResponseReceived(request, response);
+    			
+    			toggleInteractors.setLabel(toggleInteractorsLabel(protein.isDisplayingInteractors()));
+    			toggleInteractors.setEnabled(true);    			
+    		}
+    		
+    		public void onError(Request request, Throwable exception) {
+    			diagramPane.getInteractorCanvas().setInteractors(protein).onError(request, exception);
+    			toggleInteractors.setEnabled(true);
+    		}
+    	};
+    	
+    	return setInteractors;
+    }
+    
     // Small Molecule Menu	
     private void createSmallMoleculeMenu() {
     	createPhysicalEntityMenu();
@@ -233,19 +258,19 @@ public class NodeOptionsMenu extends MenuBar  {
     
     // Menu items common to all physical entities
     private void createPhysicalEntityMenu() {
-   		MenuItem pathwayMenuItem = addItem(new MenuItem("Retrieving other Pathways...", new Command() {
+   		MenuOption pathwayMenuItem = addItem("Retrieving other Pathways...", new Command() {
     			
     			@Override
     			public void execute() {
 				
     			}
     	
-    	}));
+    	});
     	
     	diagramPane.getController().getOtherPathways(selected.getReactomeId(), setPathwayMenu(pathwayMenuItem));
     }
         
-    private RequestCallback setPathwayMenu(final MenuItem pathwayMenuItem) {
+    private RequestCallback setPathwayMenu(final MenuOption pathwayMenuItem) {
     	menuItemsBeingCreated += 1;
     	
     	RequestCallback setPathwayMenu = new RequestCallback() {
@@ -278,17 +303,23 @@ public class NodeOptionsMenu extends MenuBar  {
     	return setPathwayMenu;
     }
     
-    private void addItemsToMenu(MenuBar menu, List<MenuItem> items) {
+    private void addItemsToMenu(MenuBar menu, List<MenuItem> items) {    	
     	for (MenuItem item : items) {
     		menu.addItem(item);
-    		menu.addSeparator();
+    		    		
+    		if (!isLastItemInList(item, items))
+    			menu.addSeparator();
     	}
+    }
+    
+    private Boolean isLastItemInList(MenuItem item, List<MenuItem> listItems) {
+    	return item == listItems.get(listItems.size() - 1);
     }
     		
     private List<MenuItem> getOtherPathwayMenuItems(String xml) {
     	List<MenuItem> pathwaySubMenuItems = new ArrayList<MenuItem>();
     	final CanvasPathway currentPathway = diagramPane.getPathway();
-    	List<String> processedPathways = new ArrayList<String>();
+    	Set<String> processedPathways = new HashSet<String>();
     	
     	try {
     		Document pathwayDom = XMLParser.parse(xml);
@@ -324,7 +355,7 @@ public class NodeOptionsMenu extends MenuBar  {
     				if (pathway.getDisplayName() == null ||
     					pathway.getReactomeId() == null	||
     					pathway.getReactomeId().longValue() == currentPathway.getReactomeId().longValue() ||
-    					processedPathways.contains(pathway))
+    					!processedPathways.add(pathway.getDisplayName()))
     					continue;
     				
     				MenuItem pathwaySubMenuItem = new MenuItem(pathway.getDisplayName(), new Command() {
@@ -332,13 +363,12 @@ public class NodeOptionsMenu extends MenuBar  {
     					@Override
    						public void execute() {
    							diagramPane.setPathway(pathway.getReactomeId());
-    						hide();
+    						hideIfWithinPopupPanel();
     					}
     					
     				});
     				
-    				pathwaySubMenuItems.add(pathwaySubMenuItem);
-    				processedPathways.add(pathway.getDisplayName());
+    				pathwaySubMenuItems.add(pathwaySubMenuItem);    				
     			}
     		}    			
     	} catch (Exception e) {
@@ -347,27 +377,27 @@ public class NodeOptionsMenu extends MenuBar  {
     	
     	return pathwaySubMenuItems;
     }
-            	
-    private void addPathwayMenu(MenuItem oldPathwayMenuItem, MenuBar pathwaySubMenu, int numberOfOtherPathways) {	
+           
+    protected void addPathwayMenu(MenuOption oldPathwayMenuItem, MenuBar pathwaySubMenu, int numberOfOtherPathways) {	
     	Integer index = getItemIndex(oldPathwayMenuItem);
     	
     	removeItem(oldPathwayMenuItem);
     	
-    	MenuItem newPathwayMenuItem;
+    	MenuOption newPathwayMenuItem;
     	if (numberOfOtherPathways == 0) {
-    		newPathwayMenuItem = new MenuItem("No other pathways", new Command() {
+    		newPathwayMenuItem = createItem("No other pathways", new Command() {
     			public void execute() {
     				hide();
     			}
     		});
     	} else {
-    		newPathwayMenuItem = new MenuItem("Other Pathways", pathwaySubMenu);
+    		newPathwayMenuItem = createItem("Other Pathways", pathwaySubMenu);
     	}
     	
     	insertItem(newPathwayMenuItem, index);
     }
 
-    public void createMenu(org.reactome.diagram.model.Node selectedNode) {
+    public void createMenu(GraphObject selectedObject) {
         
     	// Prevents re-creating a menu that is part-way through construction
     	if (menuItemsBeingCreated > 0)
@@ -375,34 +405,58 @@ public class NodeOptionsMenu extends MenuBar  {
     	
     	clearItems();
     	
-    	selected = selectedNode;
+    	selected = selectedObject;
         
         GraphObjectType type = selected.getType();
         
         if (type == GraphObjectType.ProcessNode) {
-            createProcessNodeMenu();
+            numberOfMenuItems = 1;
+        	createProcessNodeMenu();            
         } else if (type == GraphObjectType.RenderableComplex) {
             boolean expressionData = !(
                     diagramPane.getExpressionCanvas() == null ||
                     diagramPane.getExpressionCanvas().getPathway() == null
             );
+            numberOfMenuItems = 2;
         	createComplexMenu(expressionData);
         } else if (type == GraphObjectType.RenderableProtein) {
+        	numberOfMenuItems = 3;
         	createGEEMenu();
         } else if (type == GraphObjectType.RenderableChemical) {
+        	numberOfMenuItems = 1;
         	createSmallMoleculeMenu();
         }
     }
     
     private void hide() {
-    	if (parentIsPopupPanel()) 
+    	if (parentIsPopupPanel(getParent())) 
     		((PopupPanel) getParent()).hide();
     }
     
-    private Boolean parentIsPopupPanel() {
-    	return getParent() != null && getParent() instanceof PopupPanel;
+    protected abstract void hideIfWithinPopupPanel();
+    
+    protected void hideIfWithinPopupPanel(Widget widget) {
+    	Widget currentWidget = widget;
+    	
+    	while (true) {
+    		if (currentWidget == null)
+    			break;
+    		
+    		Widget parent = currentWidget.getParent();
+    		
+    		if (parentIsPopupPanel(parent)) {
+    			((PopupPanel) parent).hide();
+    			break;
+    		}
+    		
+    		currentWidget = parent;
+    	}
     }
     
+    private Boolean parentIsPopupPanel(UIObject parent) {
+    	return parent != null && parent instanceof PopupPanel;
+    }
+       
     private void styleSubMenu(MenuBar subMenu) {
     	final String BLACK = "rgb(0, 0, 0)";
     	
@@ -416,4 +470,114 @@ public class NodeOptionsMenu extends MenuBar  {
     	subMenuStyle.setTop(-1, Unit.PX);
     	subMenuStyle.setWhiteSpace(WhiteSpace.NOWRAP);
     }
+    
+    protected MenuOption createItem(String label, Command command) {
+    	return new MenuOption(label, command);
+    }
+    
+    protected MenuOption createItem(String label, MenuBar menu) {
+    	return new MenuOption(label, menu);
+    }    
+
+    public MenuOption addItem(String label) {
+    	return addItem(label, new Command() {
+    		public void execute() {
+    			hide();
+    		}
+    	});
+    }
+    
+    protected abstract MenuOption addItem(String label, Command command);
+    
+    protected abstract MenuOption addItem(String label, MenuBar menu);
+    
+    protected abstract Widget getParent();
+    
+    protected abstract void enableItem(MenuOption item, Boolean enable);
+    
+    protected abstract Integer getItemIndex(MenuOption item);
+    
+    protected abstract void removeItem(MenuOption item);
+    
+    protected abstract void insertItem(MenuOption item, Integer index);
+    
+    protected abstract void clearItems();
+
+    protected class MenuOption {    		
+    	private Integer id;
+    	private String label;
+    	private Command command;
+    	private MenuBar subMenu;
+    	private Boolean enabled;
+    	
+    	private MenuOption(String label) {
+    		currentMenuItemId++;
+    		this.id = currentMenuItemId;
+    		this.label = label;
+    		this.enabled = true;
+    	}
+  
+    	public MenuOption() {
+    		this(null);
+    	}
+    	
+    	public MenuOption(String label, Command command) {
+    		this(label);    		
+    		this.command = command;
+    	}
+    	
+    	public MenuOption(String label, MenuBar subMenu) {
+    		this(label);
+    		this.subMenu = subMenu;
+    	}
+    	    	
+    	public Integer getId() {
+    		return id;
+    	}
+    	
+    	public String getLabel() {
+    		return label;
+    	}
+    	
+    	public void setLabel(String label) {
+    		this.label = label;    		
+    		updateItem();    		
+    	}
+    	
+    	public Command getCommand() {
+    		return command;
+    	}
+    	
+    	public void setCommand(Command command) {
+    		this.command = command;
+    		updateItem();
+    	}
+    	
+    	public MenuBar getSubMenu() {
+    		return subMenu;
+    	}
+    	
+    	public void setSubMenu(MenuBar subMenu) {
+    		this.subMenu = subMenu;
+    		updateItem();
+    	}
+
+		public Boolean getEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(Boolean enabled) {
+			enableItem(this, enabled);
+			this.enabled = enabled;
+		}
+		
+		private void updateItem() {
+			Integer index = getItemIndex(this);
+			
+			if (index >= 0) {
+				removeItem(this);
+				insertItem(this, index);
+			}
+		}
+    }    
 }
