@@ -11,8 +11,6 @@ import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
@@ -40,7 +38,14 @@ public abstract class SelectionHandler {
      * @return
      */
     public List<GraphObject> getSelectedObjects() {
-        return selectedObjects;//new ArrayList<GraphObject>(selectedObjects);
+        return selectedObjects;
+    }
+    
+    protected GraphObject getSelectedObject() {
+    	if (getSelectedObjects().isEmpty())
+    		return null;
+    	
+    	return getSelectedObjects().get(0);
     }
     
     public void addSelection(Long dbId) {
@@ -98,21 +103,19 @@ public abstract class SelectionHandler {
             if (selectedObjects.size() == 1 && selected == selectedObjects.get(0)) {
             	//objectReselected = true;
             }        
-       
-            doAdditionalActions(selected);	
 
             deSelectAllExcept(selected);
             
             selectedObjects.add(selected);
-
+          
             //if (objectReselected) { 
             //	objectReselected = false;
             	//return selected;            
             //}	                                             
         }
-        
-        showPopupIfRightClick(event);
 
+        doAdditionalActions();
+        
         return selected;
     }
 
@@ -156,7 +159,7 @@ public abstract class SelectionHandler {
         setSelectionIds(new ArrayList<Long>());
     }
     
-    protected abstract void doAdditionalActions(GraphObject selected); 
+    protected abstract void doAdditionalActions(); 
     
     protected void fireSelectionEvent() {
         selectionEvent = new SelectionEvent();
@@ -182,14 +185,5 @@ public abstract class SelectionHandler {
     		}
     	}
     	selectedObjects.clear();
-    }
-      
-    private void showPopupIfRightClick(GwtEvent<? extends EventHandler> event) {
-    	if (event instanceof MouseEvent && ((MouseEvent <? extends EventHandler>) event).getNativeButton() == NativeEvent.BUTTON_RIGHT) {
-    		if (!selectedObjects.isEmpty())	
-    			diagramPanel.getPopupMenu().showPopupMenu((MouseEvent <? extends EventHandler>) event);
-    		else
-    			diagramPanel.getOptionsMenu().showPopup((MouseEvent<? extends EventHandler>) event);
-    	}
     }
 }
