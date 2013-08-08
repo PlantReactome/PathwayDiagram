@@ -23,6 +23,9 @@ import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.touch.client.Point;
 
 
@@ -72,12 +75,14 @@ public class InteractorCanvas extends DiagramCanvas {
     	proteinsToInteractors.put(protein, iList);
     	addOrRemoveInteractors(protein, "add");
     	update();
+    	protein.setDisplayingInteractors(true);
     }
         
     public void removeProtein(ProteinNode protein) {
     	proteinsToInteractors.remove(protein);
     	addOrRemoveInteractors(protein, "remove");
     	update();
+    	protein.setDisplayingInteractors(false);
     }
     
     public void removeAllProteins() {
@@ -451,8 +456,50 @@ public class InteractorCanvas extends DiagramCanvas {
 		
 		// Re-obtain proteins for the new interactor database
 		for (Integer i = 0; i < proteinList.size(); i++) {
-			this.diagramPanel.getController().getInteractors(proteinList.get(i));
+			this.diagramPanel.getController().getInteractors(proteinList.get(i), setInteractors(proteinList.get(i)));
 		}
+	}
+	
+	public RequestCallback setInteractors(final ProteinNode protein) {
+		RequestCallback setInteractors = new RequestCallback() {
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() == 200) {
+					String interactorDatabase = diagramPanel.getInteractorCanvasModel().getInteractorDatabase();
+					
+					if (response.getText().contains("errorMessage")) {
+						String errorMessage = interactorDatabase + " is currently unavailable";
+						
+						if (!getUserMessage().contains(errorMessage))
+							addToUserMessage(errorMessage);												
+					} else {
+						protein.getInteractors().clear();
+						protein.setInteractors(response.getText());
+						
+						if (protein.getInteractors() == null || protein.getInteractors().isEmpty())
+							addToUserMessage(protein.getDisplayName() + " has no interactors for the " + 
+											 interactorDatabase + " database");
+					}
+					
+					setReObtainedProteinCount(getReObtainedProteinCount() + 1);
+					addProtein(protein);					
+				} else {
+					AlertPopup.alert("Failed to get interactors - " + response.getStatusText());
+				}
+				
+				setLoadingInteractors(false);
+			}
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				AlertPopup.alert(exception.getMessage());
+				setLoadingInteractors(false);
+			}
+			
+		};
+		
+		return setInteractors;
 	}
 
 	public boolean isLoadingInteractors() {
