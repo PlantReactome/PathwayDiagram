@@ -99,7 +99,7 @@ public class InfoPopup extends PopupPanel {
     	informationPanel.setText(0, 0, "Name");
     	informationPanel.setWidget(0, 1, getNameAnchor());
     	
-    	informationPanel.setText(1, 0, "External ID");
+    	informationPanel.setText(1, 0, "Reference ID");
     	setExternalIdWidget();
     	
     	if (expressionDataAvailable() && selectedObject instanceof ProteinNode) {

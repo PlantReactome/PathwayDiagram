@@ -174,19 +174,25 @@ public abstract class NodeOptionsMenu {
    		List<MenuItem> pmMenuItems = new ArrayList<MenuItem>();
    		
    		for (final Component component : ((ComplexNode) selected).getComponents()) {			
-   			pmMenuItems.add(new MenuItem(
-   				component.getDisplayName(), new Command() {
+   			final MenuItem pmMenuItem = new MenuItem(component.getDisplayName(), nullCommand());
+   			
+   			pmMenuItem.setScheduledCommand(new Command() {
    				
    					@Override
    					public void execute() {
    						ParticipatingMoleculeSelectionEvent pmSelectionEvent = new ParticipatingMoleculeSelectionEvent();
    						pmSelectionEvent.setSelectedParticipatingMoleculeId(component.getReactomeId());
    						diagramPane.fireEvent(pmSelectionEvent);
-   					
-   						hide();
+		   						
+   						if (pmMenuItem != null)
+   							hideIfWithinPopupPanel(pmMenuItem.getParentMenu());
+   		
+   						hideIfWithinPopupPanel();
    					}    					
    				}
-   			));
+   			);
+   			
+   			pmMenuItems.add(pmMenuItem);
    		}	
     	
    		return pmMenuItems;
@@ -258,14 +264,7 @@ public abstract class NodeOptionsMenu {
     
     // Menu items common to all physical entities
     private void createPhysicalEntityMenu() {
-   		MenuOption pathwayMenuItem = addItem("Retrieving other Pathways...", new Command() {
-    			
-    			@Override
-    			public void execute() {
-				
-    			}
-    	
-    	});
+   		MenuOption pathwayMenuItem = addItem("Retrieving other Pathways...", nullCommand());
     	
     	diagramPane.getController().getOtherPathways(selected.getReactomeId(), setPathwayMenu(pathwayMenuItem));
     }
@@ -363,7 +362,7 @@ public abstract class NodeOptionsMenu {
     					@Override
    						public void execute() {
    							diagramPane.setPathway(pathway.getReactomeId());
-    						hideIfWithinPopupPanel();
+    						hideIfWithinPopupPanel();    						
     					}
     					
     				});
@@ -390,6 +389,7 @@ public abstract class NodeOptionsMenu {
     				hide();
     			}
     		});
+    		newPathwayMenuItem.setEnabled(false);
     	} else {
     		newPathwayMenuItem = createItem("Other Pathways", pathwaySubMenu);
     	}
@@ -474,6 +474,12 @@ public abstract class NodeOptionsMenu {
     	subMenuStyle.setLeft(-1, Unit.PX);
     	subMenuStyle.setTop(-1, Unit.PX);
     	subMenuStyle.setWhiteSpace(WhiteSpace.NOWRAP);
+    }
+    
+    private Command nullCommand() {
+    	return new Command() {    		
+    		public void execute() {}    		
+    	};
     }
     
     protected MenuOption createItem(String label, Command command) {
