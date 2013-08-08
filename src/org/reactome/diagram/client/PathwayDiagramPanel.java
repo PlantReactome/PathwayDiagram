@@ -34,10 +34,9 @@ import org.reactome.diagram.model.HyperEdge;
 import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.Node;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -155,8 +154,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         // Options Menu Icon
         optionsMenu = new OptionsMenu(this);
-        contentPane.add(optionsMenu.getOptionsIcon());
-                
+                        
         // Loading Icon
         loadingIcon = new Image(IMAGES.loading());
         loadingIcon.setVisible(false);
@@ -165,7 +163,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         initWidget(contentPane);        
         
-        optionsMenu.updateIconPosition();
         searchBar.updatePosition();
                 
         popupMenu = new CanvasPopupMenu(this);
@@ -287,6 +284,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         return popupMenu;
     }
 
+	public OptionsMenu getOptionsMenu() {
+		return optionsMenu;
+	}
+	
     public PathwayCanvasControls getControls() {
     	return controls;
     }
@@ -319,8 +320,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.updatePosition();
                 
         searchBar.updatePosition();
-        optionsMenu.updateIconPosition();
-        
+                
         update();
                 
         LocalResizeEvent event = new LocalResizeEvent(width, height);                
@@ -409,6 +409,21 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	canvas.scale(scale);
         }	
     }
+
+    public void zoomIn() {
+    	scale(Parameters.ZOOMFACTOR);
+    }
+    
+    public void zoomOut() {
+    	scale(1 / Parameters.ZOOMFACTOR);
+    }
+    
+    public void center(Point point) {
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
+    		canvas.center(point);
+    	}
+    }
+    
     
     public void reset() {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
@@ -784,14 +799,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	public void showSearchPopup() {
 		searchBar.setVisible(Boolean.TRUE);
 		searchBar.updatePosition();
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-
-			@Override
-			public void execute() {
-				searchBar.getTextBox().setFocus(Boolean.TRUE);
-			}
-			
-		});
+		searchBar.focus();
 	}
 	
 	private List<DiagramCanvas> getExistingCanvases() {
