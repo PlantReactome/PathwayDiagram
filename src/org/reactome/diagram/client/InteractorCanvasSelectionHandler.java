@@ -62,10 +62,15 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
     }
 
 	@Override
-	protected void doAdditionalActions(GraphObject selected) {
+	protected void doAdditionalActions() {
+		GraphObject selected = getSelectedObject();
+		
+		if (selected == null) 
+			return;
+		
 		if (selected instanceof InteractorNode && !((InteractorNode) selected).getAccession().isEmpty()) {
 			Window.open(((InteractorNode) selected).getUrl(), "_blank", "");
-		} else if (selected instanceof InteractorEdge && ((InteractorEdge) selected).getUrl() != null) {
+		} else if (selected instanceof InteractorEdge) {
 			ProteinNode protein = ((InteractorEdge) selected).getProtein();
 			
 			diagramPanel.getController().getReferenceEntity(protein.getReactomeId(), 
@@ -81,7 +86,8 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() == 200) {
 					selected.getProtein().setRefId(response.getText());
-					Window.open(selected.getUrl(), null, null);
+					if (!selected.getUrl().isEmpty())	
+						Window.open(selected.getUrl(), null, null);
 				} else {
 					diagramPanel.getController().requestFailed("Could not open interaction page.  " +
 															   "Unable to retrieve reference entity for " +
