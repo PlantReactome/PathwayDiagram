@@ -10,10 +10,12 @@ import java.util.List;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.MouseEvent;
+import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
@@ -75,15 +77,42 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
     	return (gwtEvent instanceof DoubleClickEvent && selected.getType() == GraphObjectType.ProcessNode);
     }
     
-    private boolean selectedObjectLeftClicked() {
-    	return gwtEvent instanceof MouseEvent && ((MouseEvent<? extends EventHandler>) gwtEvent).getNativeButton() == NativeEvent.BUTTON_LEFT;
+    private boolean pathwayCanvasLeftClicked() {
+    	return pathwayCanvasClicked() && clickedButton() == NativeEvent.BUTTON_LEFT;
+    }
+    
+    private boolean pathwayCanvasRightClicked() {
+    	return pathwayCanvasClicked() && clickedButton() == NativeEvent.BUTTON_RIGHT;
+    }
+    
+    private boolean pathwayCanvasClicked() {
+    	return gwtEvent instanceof MouseUpEvent;
+    }
+    
+    private Integer clickedButton() {
+    	return ((MouseEvent<? extends EventHandler>) gwtEvent).getNativeButton();
     }
 
 	@Override
-	protected void doAdditionalActions(GraphObject selected) {
-		if (isPathwayDoubleClicked(selected))
-			diagramPanel.setPathway(selected.getReactomeId());
-		else if (selectedObjectLeftClicked())
-			infoPopup.showPopup(selected);		
+	protected void doAdditionalActions() {
+		GraphObject selected = getSelectedObject();
+		
+		if (pathwayCanvasRightClicked()) {
+			showMenu(selected);
+		} else if (selected != null) {
+			if (isPathwayDoubleClicked(selected))
+				diagramPanel.setPathway(selected.getReactomeId());
+			else if (pathwayCanvasLeftClicked())
+				infoPopup.showPopup(selected);
+		}		
 	}
+	
+	private void showMenu(GraphObject selected) {
+		if (selected != null) {
+			diagramPanel.getPopupMenu().showPopupMenu((MouseEvent<? extends EventHandler>) gwtEvent);
+		} else {
+			diagramPanel.getOptionsMenu().showPopup((MouseEvent<? extends EventHandler>) gwtEvent);
+		}
+	}
+	
 }
