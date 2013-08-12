@@ -366,6 +366,7 @@ public class PathwayDiagramController {
         diagramPane.setCursor(Cursor.WAIT);
 
         try {
+        	//System.out.println("Attempting to parse pathway diagram xml");
             Document pathwayDom = XMLParser.parse(xmlText);            
             Element pathwayElement = pathwayDom.getDocumentElement();
             XMLParser.removeWhitespace(pathwayElement);
@@ -384,7 +385,9 @@ public class PathwayDiagramController {
             
             getPhysicalToReferenceEntityMap(pathway, setCanvasPathway(pathway));
         } catch (DOMParseException e) {
-            // Could be a subpathway with no diagram -- try to get parent pathway diagram instead
+        	//System.out.println("Parse exception caught in render xml");
+        	
+            // Could be a subpathway with no diagram -- try to get parent pathway diagram instead 
         	getDiagramPathwayId(dbId, e);
         } finally {
         	diagramPane.setCursor(Cursor.DEFAULT);
@@ -415,8 +418,10 @@ public class PathwayDiagramController {
     private void getDiagramPathwayId(final Long dbId, final Exception e) {
     	String url = getHostUrl() + "queryEventAncestors/" + dbId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	requestBuilder.setHeader("Accept", "application/xml");
     	
     	try {
+    		//System.out.println("Looking for parent diagram id");
     		requestBuilder.sendRequest(null, new RequestCallback() {
 
 				@Override
@@ -455,10 +460,14 @@ public class PathwayDiagramController {
 							}
 						}	
 						
+				//		System.out.println("Pathway Id - " + dbId);
+				//		System.out.println("Diagram Id - " + pathwayDiagramId);
+						
 						if (pathwayDiagramId != null) {
 							subPathwayEvent.setDiagramPathwayId(pathwayDiagramId);
 							diagramPane.fireEvent(subPathwayEvent);
 						} else {
+					//		System.out.println("Throwing parse exception");
 							throw e;
 						}	
 					} catch (Exception e) {
