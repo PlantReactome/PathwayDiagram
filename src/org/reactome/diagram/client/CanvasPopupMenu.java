@@ -14,7 +14,6 @@ import org.reactome.diagram.model.Node;
 
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -99,11 +98,6 @@ public class CanvasPopupMenu extends PopupPanel {
 											(int) pathwayCanvas.getTranslateY(),
 											(int) pathwayCanvas.getScale()
 										   ) + pathwayCanvas.getAbsoluteTop();
-													 
-					
-					System.out.println("Mouse: " + event.getClientX() + " " + event.getClientY());
-					System.out.println("Bounds: " + ((Node) selected).getBounds());
-					
 					
 					setPopupPosition(left, bottom);
 					
