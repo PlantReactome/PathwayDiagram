@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -27,6 +29,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class CanvasPopupMenu extends PopupPanel {
     private PathwayDiagramPanel diagramPane;
     private NodeOptionsMenuBar menuBar;
+    private GraphObject selected;
     
     public CanvasPopupMenu(PathwayDiagramPanel diagramPane) {
         super(true);
@@ -59,27 +62,61 @@ public class CanvasPopupMenu extends PopupPanel {
        	event.preventDefault();
         event.stopPropagation();
         
+        selected = getSelectedObject();
+        
         hide();
         
-        menuBar.createMenu(getSelectedObject());
-        
-        setPopupPosition(event.getNativeEvent().getClientX() + 2,
-        				 event.getNativeEvent().getClientY() + 2);
-        
+        menuBar.createMenu(selected);
+                
         WidgetStyle.bringToFront(this);
         
-        showIfMenuHasItems();
+        showIfMenuHasItems(event);
     }
         
     private GraphObject getSelectedObject() {
     	return diagramPane.getSelectedObjects().get(0);
     }
     
-    private void showIfMenuHasItems() {
+    private void showIfMenuHasItems(final MouseEvent<? extends EventHandler> event) {
     	if (menuBar.getItems() == null || menuBar.getItems().isEmpty())
     		return;
     	
-    	show();
+    	setPopupPositionAndShow(new PositionCallback() {
+
+			@Override
+			public void setPosition(int offsetWidth, int offsetHeight) {
+				if (selected instanceof Node) {
+					final PathwayCanvas pathwayCanvas = diagramPane.getPathwayCanvas();
+															
+					final Integer left = adjustCoordinate(
+											((Node) selected).getBounds().getX(),
+											(int) pathwayCanvas.getTranslateX(),
+											(int) pathwayCanvas.getScale()
+										 ) + pathwayCanvas.getAbsoluteLeft();	
+											
+					final Integer bottom = adjustCoordinate(  
+											((Node) selected).getBounds().getY() + ((Node) selected).getBounds().getHeight(),
+											(int) pathwayCanvas.getTranslateY(),
+											(int) pathwayCanvas.getScale()
+										   ) + pathwayCanvas.getAbsoluteTop();
+													 
+					
+					System.out.println("Mouse: " + event.getClientX() + " " + event.getClientY());
+					System.out.println("Bounds: " + ((Node) selected).getBounds());
+					
+					
+					setPopupPosition(left, bottom);
+					
+				} else {
+					final Integer OFFSET = 2;
+					setPopupPosition(event.getClientX() + OFFSET, event.getClientY() + OFFSET);
+				}
+			}
+    					
+			private Integer adjustCoordinate(Integer coordinate, Integer translate, Integer scale) {
+				return (coordinate * scale) + translate;
+			}
+    	});
     }
     
     public class NodeOptionsMenuBar extends NodeOptionsMenu {
