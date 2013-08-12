@@ -106,9 +106,15 @@ public abstract class HoverHandler {
     }
         
     protected void showTooltip() {
-       	if (hoveredObject.getType() == GraphObjectType.FlowLine)
-    		return;
-
+       	switch (hoveredObject.getType()) {
+       		case FlowLine:
+       		case EntitySetAndMemberLink:
+       		case EntitySetAndEntitySetLink: 	
+       			return;
+       		default:
+       			break;
+       	}
+       	
     	//Point objPos = hoveredObject.getPosition();
     	
     	double scale = canvas.getScale();
