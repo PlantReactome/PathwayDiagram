@@ -183,10 +183,8 @@ public abstract class NodeOptionsMenu {
    						ParticipatingMoleculeSelectionEvent pmSelectionEvent = new ParticipatingMoleculeSelectionEvent();
    						pmSelectionEvent.setSelectedParticipatingMoleculeId(component.getReactomeId());
    						diagramPane.fireEvent(pmSelectionEvent);
-		   						
-   						if (pmMenuItem != null)
-   							hideIfWithinPopupPanel(pmMenuItem.getParentMenu());
    		
+   						hideParentMenu(pmMenuItem);
    						hideIfWithinPopupPanel();
    					}    					
    				}
@@ -357,12 +355,15 @@ public abstract class NodeOptionsMenu {
     					!processedPathways.add(pathway.getDisplayName()))
     					continue;
     				
-    				MenuItem pathwaySubMenuItem = new MenuItem(pathway.getDisplayName(), new Command() {
+    				final MenuItem pathwaySubMenuItem = new MenuItem(pathway.getDisplayName(), nullCommand());
+    						
+    				pathwaySubMenuItem.setScheduledCommand(new Command() {
 
     					@Override
    						public void execute() {
    							diagramPane.setPathway(pathway.getReactomeId());
-    						hideIfWithinPopupPanel();    						
+    						hideParentMenu(pathwaySubMenuItem);
+   							hideIfWithinPopupPanel();
     					}
     					
     				});
@@ -456,6 +457,11 @@ public abstract class NodeOptionsMenu {
     		
     		currentWidget = parent;
     	}
+    }
+    
+    private void hideParentMenu(MenuItem menuItem) {
+    	if (menuItem != null)
+    		hideIfWithinPopupPanel(menuItem.getParentMenu());
     }
     
     private Boolean parentIsPopupPanel(UIObject parent) {

@@ -10,7 +10,6 @@ import java.util.List;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
-import org.reactome.diagram.model.Node;
 
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -27,14 +26,14 @@ import com.google.gwt.touch.client.Point;
  */
 public class PathwayCanvasSelectionHandler extends SelectionHandler {
 	private PathwayCanvas pc;
-	private InfoPopup infoPopup;
+	//private InfoPopup infoPopup;
 	
     public PathwayCanvasSelectionHandler(PathwayDiagramPanel diagramPanel, PathwayCanvas pathwayCanvas) {
         super(diagramPanel);
     	
         this.diagramPanel = diagramPanel;
         this.pc = pathwayCanvas;
-        this.infoPopup = new InfoPopup(diagramPanel);
+       // this.infoPopup = new InfoPopup(diagramPanel);
         
         selectedObjects = new ArrayList<GraphObject>();
     }
@@ -97,22 +96,22 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
 	protected void doAdditionalActions() {
 		GraphObject selected = getSelectedObject();
 		
-		if (pathwayCanvasRightClicked()) {
-			showMenu(selected);
-		} else if (selected != null) {
-			if (isPathwayDoubleClicked(selected))
-				diagramPanel.setPathway(selected.getReactomeId());
-			else if (pathwayCanvasLeftClicked())
-				infoPopup.showPopup(selected);
-		}		
-	}
-	
-	private void showMenu(GraphObject selected) {
 		if (selected != null) {
-			diagramPanel.getPopupMenu().showPopupMenu((MouseEvent<? extends EventHandler>) gwtEvent);
-		} else {
-			diagramPanel.getOptionsMenu().showPopup((MouseEvent<? extends EventHandler>) gwtEvent);
-		}
+			if (isPathwayDoubleClicked(selected))	
+				diagramPanel.setPathway(selected.getReactomeId());
+			else
+				showNodeOptionsMenu();
+		} else if (pathwayCanvasRightClicked()) {
+			showDiagramOptionsMenu();
+		}	
 	}
 	
+	private void showNodeOptionsMenu() {
+		diagramPanel.getPopupMenu().showPopupMenu((MouseEvent<? extends EventHandler>) gwtEvent);
+	}
+	
+	private void showDiagramOptionsMenu() {
+		diagramPanel.getOptionsMenu().showPopup((MouseEvent<? extends EventHandler>) gwtEvent);
+	}
+		
 }
