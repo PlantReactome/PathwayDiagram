@@ -363,35 +363,34 @@ public class PathwayDiagramController {
         //Image loadingIcon = diagramPane.getLoadingIcon();
         //loadingIcon.setVisible(true);
 
-        diagramPane.setCursor(Cursor.WAIT);
-
+        Document pathwayDom; 
         try {
-        	//System.out.println("Attempting to parse pathway diagram xml");
-            Document pathwayDom = XMLParser.parse(xmlText);            
-            Element pathwayElement = pathwayDom.getDocumentElement();
-            XMLParser.removeWhitespace(pathwayElement);
-            CanvasPathway pathway = createPathway(pathwayElement);
-            pathway.buildPathway(pathwayElement);
-            // A PathwayDiagram can be shared by more than one pathway.
-            // So reactomeId in the XML text is not reliable at all if it is
-            // there. An external dbId for pathway is needed to set the correct
-            // pathway id.
+        	pathwayDom = XMLParser.parse(xmlText);            
+        } catch (DOMParseException e) {
+        	requestFailed(e);
+        	e.printStackTrace();
+        	return;
+        }        
+        
+        diagramPane.setCursor(Cursor.WAIT);
+        Element pathwayElement = pathwayDom.getDocumentElement();
+        XMLParser.removeWhitespace(pathwayElement);
+        CanvasPathway pathway = createPathway(pathwayElement);
+        pathway.buildPathway(pathwayElement);
+
+        // A PathwayDiagram can be shared by more than one pathway.
+        // So reactomeId in the XML text is not reliable at all if it is
+        // there. An external dbId for pathway is needed to set the correct
+        // pathway id.
             
-            // Apply the default color schemes
+        // Apply the default color schemes
 //            DefaultColorScheme colorScheme = new DefaultColorScheme();
 //            colorScheme.applyScheme(pathway);
             
-            pathway.setReactomeId(dbId);
-            
-            getPhysicalToReferenceEntityMap(pathway, setCanvasPathway(pathway));
-        } catch (DOMParseException e) {
-        	//System.out.println("Parse exception caught in render xml");
-        	
-            // Could be a subpathway with no diagram -- try to get parent pathway diagram instead 
-        	getDiagramPathwayId(dbId, e);
-        } finally {
-        	diagramPane.setCursor(Cursor.DEFAULT);
-        }
+        pathway.setReactomeId(dbId);
+        getPhysicalToReferenceEntityMap(pathway, setCanvasPathway(pathway));
+        diagramPane.setCursor(Cursor.DEFAULT);
+        
         //loadingIcon.setVisible(false);
     }
 
@@ -415,7 +414,7 @@ public class PathwayDiagramController {
     	return setCanvasPathway;
     }
     
-    private void getDiagramPathwayId(final Long dbId, final Exception e) {
+    public void getDiagramPathwayId(final Long dbId) {
     	String url = getHostUrl() + "queryEventAncestors/" + dbId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/xml");
@@ -426,55 +425,62 @@ public class PathwayDiagramController {
 
 				@Override
 				public void onResponseReceived(Request request,	Response response) {
+					final String ERROR = "Unable to obtain diagram for pathway " + dbId;
+					
+					if (response.getStatusCode() != 200) {
+						requestFailed(ERROR);
+						return;
+					}
+					
+					Document ancestorDom;
 					try {
-						Document ancestorDom = XMLParser.parse(response.getText());
+						ancestorDom = XMLParser.parse(response.getText());
+					} catch (DOMParseException e) {
+						requestFailed(e);
+						e.printStackTrace();
+						return;
+					}
+					
+					Element ancestorElement = ancestorDom.getDocumentElement();
+					XMLParser.removeWhitespace(ancestorElement);
+										
+					SubpathwaySelectionEvent subPathwayEvent = new SubpathwaySelectionEvent();
+					subPathwayEvent.setSubpathwayId(dbId);
+					
+					Long pathwayDiagramId = null;
+					
+					NodeList ancestorLists = ancestorElement.getElementsByTagName("DatabaseObjects"); 
+					
+					ancestorLists:
+					for (int i = 0; i < ancestorLists.getLength(); i++) { 
 						
-						Element ancestorElement = ancestorDom.getDocumentElement();
-						XMLParser.removeWhitespace(ancestorElement);
+						Node ancestorListNode = ancestorLists.item(i);
 						
-						SubpathwaySelectionEvent subPathwayEvent = new SubpathwaySelectionEvent();
-						subPathwayEvent.setSubpathwayId(dbId);
+						NodeList ancestorList = ((Element) ancestorListNode).getElementsByTagName("databaseObject");
 						
-						Long pathwayDiagramId = null;
-						
-						NodeList ancestorLists = ancestorElement.getElementsByTagName("DatabaseObjects"); 
-						
-						ancestorLists:
-						for (int i = 0; i < ancestorLists.getLength(); i++) { 
+						// Most related ancestor pathway at bottom, so counting down
+						for (int j = ancestorList.getLength() - 1; j >= 0; j--) {							
+							Node ancestor = ancestorList.item(j);
+																									
+							String diagramBoolean = ((Element) ancestor).getElementsByTagName("hasDiagram").item(0).getFirstChild().getNodeValue();								
+							Boolean hasDiagram = new Boolean(diagramBoolean);
 							
-							Node ancestorListNode = ancestorLists.item(i);
-							
-							NodeList ancestorList = ((Element) ancestorListNode).getElementsByTagName("databaseObject");
-							
-							// Most related ancestor pathway at bottom, so counting down
-							for (int j = ancestorList.getLength() - 1; j >= 0; j--) {							
-								Node ancestor = ancestorList.item(j);
-																										
-								String diagramBoolean = ((Element) ancestor).getElementsByTagName("hasDiagram").item(0).getFirstChild().getNodeValue();								
-								Boolean hasDiagram = new Boolean(diagramBoolean);
-								
-								if (hasDiagram) {
-									pathwayDiagramId = new Long(((Element) ancestor).getElementsByTagName("dbId").item(0).getFirstChild().getNodeValue());
-									break ancestorLists;
-								}
+							if (hasDiagram) {
+								pathwayDiagramId = new Long(((Element) ancestor).getElementsByTagName("dbId").item(0).getFirstChild().getNodeValue());
+								break ancestorLists;
 							}
-						}	
+						}
+					}	
 						
 				//		System.out.println("Pathway Id - " + dbId);
 				//		System.out.println("Diagram Id - " + pathwayDiagramId);
 						
-						if (pathwayDiagramId != null) {
-							subPathwayEvent.setDiagramPathwayId(pathwayDiagramId);
-							diagramPane.fireEvent(subPathwayEvent);
-						} else {
-					//		System.out.println("Throwing parse exception");
-							throw e;
-						}	
-					} catch (Exception e) {
-						AlertPopup.alert("Error in parsing XML: " + e);
-						e.printStackTrace();
-					}
-					
+					if (pathwayDiagramId != null) {
+						subPathwayEvent.setDiagramPathwayId(pathwayDiagramId);
+						diagramPane.fireEvent(subPathwayEvent);
+					} else {
+						requestFailed(ERROR);
+					}						
 				}
 
 				@Override
