@@ -332,18 +332,23 @@ public abstract class NodeOptionsMenu {
     			if (name.equals("pathway")) {
     				NodeList pathwayNodes = node.getChildNodes();
     			
-    				final ReactomeObject pathway = new ReactomeObject();
+    				final PathwayObject pathway = new PathwayObject();
     			
     				for (int j = 0; j < pathwayNodes.getLength(); j++) {
     					Node pathwayAttribute = pathwayNodes.item(j);
     					String attributeName = pathwayAttribute.getNodeName();
     				
+    					//System.out.println("Attribute Name - " + attributeName);
+    					
     					if (attributeName.equals("dbId")) {
     						Long pathwayId = Long.parseLong(pathwayAttribute.getChildNodes().item(0).getNodeValue());
     						pathway.setReactomeId(pathwayId);
     					} else if (attributeName.equals("displayName")) {	
     						String pathwayName = pathwayAttribute.getChildNodes().item(0).getNodeValue();
     						pathway.setDisplayName(pathwayName);
+    					} else if (attributeName.equals("hasDiagram")) { 
+    						String hasDiagram = pathwayAttribute.getChildNodes().item(0).getNodeValue();
+    						pathway.setHasDiagram(new Boolean(hasDiagram));
     					} else {
     						continue;
     					}
@@ -361,8 +366,12 @@ public abstract class NodeOptionsMenu {
 
     					@Override
    						public void execute() {
-   							diagramPane.setPathway(pathway.getReactomeId());
-    						hideParentMenu(pathwaySubMenuItem);
+   							if (pathway.hasDiagram())
+    							diagramPane.setPathway(pathway.getReactomeId());
+   							else
+   								diagramPane.getController().getDiagramPathwayId(pathway.getReactomeId());
+   							
+   							hideParentMenu(pathwaySubMenuItem);
    							hideIfWithinPopupPanel();
     					}
     					
@@ -597,4 +606,16 @@ public abstract class NodeOptionsMenu {
 			}
 		}
     }    
+    
+    private class PathwayObject extends ReactomeObject {
+    	private boolean hasDiagram;
+    	
+    	public boolean hasDiagram() {
+    		return hasDiagram;
+    	}
+    	
+    	public void setHasDiagram(boolean hasDiagram) {
+    		this.hasDiagram = hasDiagram;
+    	}    	    	
+    }
 }
