@@ -89,14 +89,14 @@ public class CanvasPopupMenu extends PopupPanel {
 															
 					final Integer left = adjustCoordinate(
 											((Node) selected).getBounds().getX(),
-											(int) pathwayCanvas.getTranslateX(),
-											(int) pathwayCanvas.getScale()
+											pathwayCanvas.getTranslateX(),
+											pathwayCanvas.getScale()
 										 ) + pathwayCanvas.getAbsoluteLeft();	
 											
 					final Integer bottom = adjustCoordinate(  
 											((Node) selected).getBounds().getY() + ((Node) selected).getBounds().getHeight(),
-											(int) pathwayCanvas.getTranslateY(),
-											(int) pathwayCanvas.getScale()
+											pathwayCanvas.getTranslateY(),
+											pathwayCanvas.getScale()
 										   ) + pathwayCanvas.getAbsoluteTop();
 					
 					setPopupPosition(left, bottom);
@@ -107,8 +107,8 @@ public class CanvasPopupMenu extends PopupPanel {
 				}
 			}
     					
-			private Integer adjustCoordinate(Integer coordinate, Integer translate, Integer scale) {
-				return (coordinate * scale) + translate;
+			private Integer adjustCoordinate(Integer coordinate, Double translate, Double scale) {				
+				return (int) ((coordinate * scale) + translate);
 			}
     	});
     }
