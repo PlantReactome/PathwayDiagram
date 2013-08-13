@@ -43,6 +43,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     private CanvasPathway pathway;
     private DataController dataController;
     private ExpressionPathway expressionPathway;
+    private Timer readyToRender;
     
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
@@ -99,13 +100,35 @@ public class ExpressionCanvas extends DiagramCanvas {
     	
     	ExpressionPathway oldExpressionPathway = expressionPathway;
     	
-    	if (pathway == null || pathway.getDbIdToRefEntityId() == null) {
+    	if (pathway == null) {
     		if (oldExpressionPathway != null)
     			oldExpressionPathway.getTimerCheckingIfProcessNodeInfoObtained().cancel();    			
     			
     		return;
+    	} else if (pathway.getDbIdToRefEntityId() == null) {
+    		checkIfPathwayReferenceMapExists(oldExpressionPathway, c2d);
+    	} else {
+    		getPathwayNodeDataBeforeRendering(oldExpressionPathway, c2d);
     	}
+    }
+    
+    private void checkIfPathwayReferenceMapExists(final ExpressionPathway oldExpressionPathway, final Context2d c2d) {
+    	readyToRender = new Timer() {
     		
+    		public void run() {
+    			
+    			if (pathway.getDbIdToRefEntityId() != null) {
+    				cancel();
+    				getPathwayNodeDataBeforeRendering(oldExpressionPathway, c2d);
+    			}
+    			
+    		}
+    	};
+    	
+    	readyToRender.scheduleRepeating(200);
+    }
+    
+    private void getPathwayNodeDataBeforeRendering(ExpressionPathway oldExpressionPathway, Context2d c2d) {
     	if (oldExpressionPathway == null || 
     		oldExpressionPathway.getPathway() != pathway ||
     		oldExpressionPathway.getDataPointIndex() != getDataPointIndexFromDataController()) {
@@ -121,7 +144,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	} else 
     		expressionPathway.setContext2d(c2d);
     		
-    	if (expressionPathway.allProcessNodesReady())
+    	if (expressionPathway.allProcessNodesReady()) // True if no pathway nodes to render
     		drawExpressionOverlay(c2d, expressionPathway);
     	else {
     		expressionPathway.getTimerCheckingIfProcessNodeInfoObtained().scheduleRepeating(200);
@@ -239,12 +262,11 @@ public class ExpressionCanvas extends DiagramCanvas {
 		for (Component component : complex.getComponents()) {
 			Long refId = component.getRefEntityId();
 			String componentExpressionId = null;			
-			String componentExpressionColor = null;
+			String componentExpressionColor =  getEntityColor(refId, null);
 			Double componentExpressionLevel = null;
 			
 			if (refId != null) {
 				componentExpressionId = getEntityExpressionId(refId);
-				componentExpressionColor = getEntityColor(refId, null);
 				componentExpressionLevel = getEntityExpressionLevel(refId);
 			}
 						
