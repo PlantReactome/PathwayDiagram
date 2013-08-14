@@ -102,7 +102,7 @@ public class OptionsMenu extends PopupPanel {
     }
     
     private MenuItem getDownloadDiagramMenuItem() {
-        MenuItem downloadDiagram = new MenuItem("Download Diagram", new Command() {
+        MenuItem downloadDiagram = new MenuItem("Snapshot of Diagram's Current View", new Command() {
 
 			@Override
 			public void execute() {							
