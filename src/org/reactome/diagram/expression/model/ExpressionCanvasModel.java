@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.view.Parameters;
 
 /**
  * Mappings for physical entities on the expression canvas
@@ -78,7 +79,7 @@ public class ExpressionCanvasModel {
 	}
 
 	public String getDefaultColor() {
-		return "rgb(255, 255, 255)";
+		return Parameters.defaultExpressionColor.value();
 	}
 	
 	public class ExpressionInfo implements Comparable<ExpressionInfo> {
