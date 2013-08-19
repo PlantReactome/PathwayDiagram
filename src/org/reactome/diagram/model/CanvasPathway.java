@@ -160,7 +160,7 @@ public class CanvasPathway extends Node {
     public Long getReferenceIdForProtein(Long dbId){
     	if (dbIdToRefEntityId == null) return null;
     	if (getProteinNodeByDBId(dbId) == null) return null;
-    	if (dbIdToRefEntityId.get(dbId).isEmpty()) return null;
+    	if (dbIdToRefEntityId.get(dbId) == null || dbIdToRefEntityId.get(dbId).isEmpty()) return null;
     	
     	return dbIdToRefEntityId.get(dbId).get(0);    	
     }
