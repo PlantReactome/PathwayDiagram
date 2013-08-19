@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.client;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -14,6 +16,14 @@ import com.google.gwt.user.client.ui.Widget;
 public class WidgetStyle {
     
     public static void bringToFront(Widget widget) {
-    	widget.getElement().getStyle().setZIndex(2);
+    	getStyle(widget).setZIndex(2);
+    }
+    
+    public static void removeBorder(Widget widget) {
+    	getStyle(widget).setBorderWidth(0, Unit.PX);
+    }
+    
+    private static Style getStyle(Widget widget) {
+    	return widget.getElement().getStyle();
     }
 }    
