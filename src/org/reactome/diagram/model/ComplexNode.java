@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.diagram.view.Parameters;
+
 public class ComplexNode extends Node {
     private ArrayList<Component> components;
 	private Map<Long, Component> refIdToComponentsMap; 
@@ -136,11 +138,14 @@ public class ComplexNode extends Node {
 	 */
 	public List<String> getComponentColors() {
 		List<String> colors = new ArrayList<String>();
-	
+		
 		for (Component component : getComponents()) {
 			if (component.getExpressionColor() != null)
 				colors.add(component.getExpressionColor());
 		}
+		
+		if (colors.isEmpty())  
+			colors.add(Parameters.defaultExpressionColor.value());
 		
 		return colors;
 	}
