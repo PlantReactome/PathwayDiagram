@@ -44,6 +44,8 @@ public class ExpressionCanvas extends DiagramCanvas {
     private DataController dataController;
     private ExpressionPathway expressionPathway;
     private Timer readyToRender;
+    private Context2d c2d;
+    
     
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
@@ -92,10 +94,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     /**
      * Update drawing.
      */
-    public void update() {
-    	final Context2d c2d = getContext2d();
-    	c2d.save();
-    	
+    public void update() { 
+    	c2d = getContext2d();
+    	   	    	
     	clean(c2d);
     	
     	ExpressionPathway oldExpressionPathway = expressionPathway;
@@ -106,20 +107,20 @@ public class ExpressionCanvas extends DiagramCanvas {
     			
     		return;
     	} else if (pathway.getDbIdToRefEntityId() == null) {
-    		checkIfPathwayReferenceMapExists(oldExpressionPathway, c2d);
+    		checkIfPathwayReferenceMapExists(oldExpressionPathway);
     	} else {
-    		getPathwayNodeDataBeforeRendering(oldExpressionPathway, c2d);
+    		getPathwayNodeDataBeforeRendering(oldExpressionPathway);
     	}
     }
     
-    private void checkIfPathwayReferenceMapExists(final ExpressionPathway oldExpressionPathway, final Context2d c2d) {
+    private void checkIfPathwayReferenceMapExists(final ExpressionPathway oldExpressionPathway) {
     	readyToRender = new Timer() {
     		
     		public void run() {
     			
     			if (pathway.getDbIdToRefEntityId() != null) {
     				cancel();
-    				getPathwayNodeDataBeforeRendering(oldExpressionPathway, c2d);
+    				getPathwayNodeDataBeforeRendering(oldExpressionPathway);
     			}
     			
     		}
@@ -128,7 +129,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	readyToRender.scheduleRepeating(200);
     }
     
-    private void getPathwayNodeDataBeforeRendering(ExpressionPathway oldExpressionPathway, Context2d c2d) {
+    private void getPathwayNodeDataBeforeRendering(ExpressionPathway oldExpressionPathway) {
     	if (oldExpressionPathway == null || 
     		oldExpressionPathway.getPathway() != pathway ||
     		oldExpressionPathway.getDataPointIndex() != getDataPointIndexFromDataController()) {
@@ -145,14 +146,14 @@ public class ExpressionCanvas extends DiagramCanvas {
     		expressionPathway.setContext2d(c2d);
     		
     	if (expressionPathway.allProcessNodesReady()) // True if no pathway nodes to render
-    		drawExpressionOverlay(c2d, expressionPathway);
+    		drawExpressionOverlay(expressionPathway);
     	else {
     		expressionPathway.getTimerCheckingIfProcessNodeInfoObtained().scheduleRepeating(200);
     	}    	
     	
     }	
     	
-    private void drawExpressionOverlay(Context2d c2d, ExpressionPathway expressionPathway) { 	
+    private void drawExpressionOverlay(ExpressionPathway expressionPathway) { 	
         Map<Long, List<Long>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntityId();
         	
         for (GraphObject entity : getGraphObjects()) {
@@ -189,9 +190,7 @@ public class ExpressionCanvas extends DiagramCanvas {
            		((Node) entity).setBgColor(oldBgColor);
            		((Node) entity).setFgColor(oldFgColor);
            	}
-        }           
-        
-        c2d.restore();
+        }                
     }
 
 	private Long getReferenceEntityId(List<Long> referenceEntityIds) {
@@ -428,7 +427,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			public void run() {
     				if (allProcessNodesReady()) {
     					cancel();
-    					drawExpressionOverlay(c2d, ExpressionPathway.this);
+    					drawExpressionOverlay(ExpressionPathway.this);
     				}
     			}
     			
