@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class CanvasPopupMenu extends PopupPanel {
     private PathwayDiagramPanel diagramPane;
     private NodeOptionsMenuBar menuBar;
-    private GraphObject selected;
+    private GraphObject entity;
     
     public CanvasPopupMenu(PathwayDiagramPanel diagramPane) {
         super(true);
@@ -58,14 +58,18 @@ public class CanvasPopupMenu extends PopupPanel {
      * @param event
      */
     public void showPopupMenu(MouseEvent<? extends EventHandler> event) {
+    	showPopupMenu(getSelectedObject(), event);
+    }    
+    
+    public void showPopupMenu(GraphObject entity, MouseEvent<? extends EventHandler> event) {
        	event.preventDefault();
         event.stopPropagation();
         
-        selected = getSelectedObject();
+        this.entity = entity;
         
         hide();
         
-        menuBar.createMenu(selected);
+        menuBar.createMenu(entity);
                 
         WidgetStyle.bringToFront(this);
         
@@ -84,31 +88,18 @@ public class CanvasPopupMenu extends PopupPanel {
 
 			@Override
 			public void setPosition(int offsetWidth, int offsetHeight) {
-				if (selected instanceof Node) {
+				if (entity instanceof Node) {
 					final PathwayCanvas pathwayCanvas = diagramPane.getPathwayCanvas();
 															
-					final Integer left = adjustCoordinate(
-											((Node) selected).getBounds().getX(),
-											pathwayCanvas.getTranslateX(),
-											pathwayCanvas.getScale()
-										 ) + pathwayCanvas.getAbsoluteLeft();	
+					final Integer left = pathwayCanvas.getAbsoluteXCoordinate(((Node) entity).getBounds().getX());	
 											
-					final Integer bottom = adjustCoordinate(  
-											((Node) selected).getBounds().getY() + ((Node) selected).getBounds().getHeight(),
-											pathwayCanvas.getTranslateY(),
-											pathwayCanvas.getScale()
-										   ) + pathwayCanvas.getAbsoluteTop();
+					final Integer bottom = pathwayCanvas.getAbsoluteYCoordinate(((Node) entity).getBounds().getY() + ((Node) entity).getBounds().getHeight());
 					
-					setPopupPosition(left, bottom);
-					
+					setPopupPosition(left, bottom);					
 				} else {
 					final Integer OFFSET = 2;
 					setPopupPosition(event.getClientX() + OFFSET, event.getClientY() + OFFSET);
 				}
-			}
-    					
-			private Integer adjustCoordinate(Integer coordinate, Double translate, Double scale) {				
-				return (int) ((coordinate * scale) + translate);
 			}
     	});
     }
