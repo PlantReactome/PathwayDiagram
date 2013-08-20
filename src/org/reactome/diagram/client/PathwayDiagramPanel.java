@@ -6,6 +6,7 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -183,7 +184,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onClick(ClickEvent event) {
-//                System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
+                //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
                 showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
             }
         });
@@ -251,14 +252,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         addSelectionEventHandler(selectionHandler);
 
         //Check hovered object change
-        HoverEventHandler hoverHandler = new HoverEventHandler() {
+        //HoverEventHandler hoverHandler = new HoverEventHandler() {
 
-			@Override
-        	public void onHover(HoverEvent e) {
-				System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
-			}
-        };	
-        addHoverEventHandler(hoverHandler);
+		//	@Override
+        //	public void onHover(HoverEvent e) {
+		//		System.out.println("Hovered object: " + e.getHoveredObject().getDisplayName());
+		//	}
+        //};	
+        //addHoverEventHandler(hoverHandler);
         
         
         // Check displayed pathway change
@@ -342,7 +343,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	
         if (overlayDataController != null) {
         	overlayDataController.setPathwayId(pathway.getReactomeId());
-        	expressionCanvas.setPathway(pathway);
+        	//expressionCanvas.setPathway(pathway);
         }
       
        	PathwayChangeEvent event = new PathwayChangeEvent();
@@ -446,45 +447,38 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void hover(int x, int y) {
        	Point hoveredPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
        	
-       	for (int i = canvasList.size() - 1; i >= 0; i--) {
-       		DiagramCanvas canvas = canvasList.get(i);
-       		if (canvas == null)
-       			continue;
-       		
-       		HoverHandler hh = canvas.getHoverHandler();
-       		
-       		if (hh != null && hh.hover(hoveredPoint) != null) {
-       			stopHoveringExceptFor(canvas);
+       	List<HoverHandler> hoverHandlers = getExistingHoverHandlers();
+       	Collections.reverse(hoverHandlers);
+       	
+       	for (HoverHandler hh : hoverHandlers) {
+       		if (hh.hover(hoveredPoint) != null) {       			
        			hh.fireHoverEvent();
-       			break;
+       			
+       			if (hh.overridesOtherHoverHandlers())
+       				break;
        		}	
        	}       	
     }
 
     public void hideTooltip() {
-    	for (DiagramCanvas canvas : canvasList) {
-    		if (canvas == null)
-    			continue;
-    		
-    		HoverHandler hh = canvas.getHoverHandler();
-    		
+    	for (HoverHandler hh : getExistingHoverHandlers()) {
     		if (hh != null)
     			hh.getTooltip().hide();
     	}	
     }
     
-    public void stopHoveringExceptFor(DiagramCanvas c) {
-    	for (DiagramCanvas canvas : canvasList) {
-    		if (canvas == null || canvas == c)
-    			continue;
-    		HoverHandler hh = canvas.getHoverHandler();
-    		
-    		if (hh != null) {
-    			hh.getTooltip().hide();
-    			hh.clearHoveredObject();
-    		}
-    	}
-    }
+    //public void stopHoveringExceptFor(DiagramCanvas c) {
+    //	for (DiagramCanvas canvas : canvasList) {
+    //		if (canvas == null || canvas == c)
+    //			continue;
+    //		HoverHandler hh = canvas.getHoverHandler();
+    //		
+    //		if (hh != null) {
+    //			hh.getTooltip().hide();
+    //			hh.clearHoveredObject();
+    //		}
+    //	}
+    //}
     
     
     /**
@@ -495,27 +489,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public void select(GwtEvent<? extends EventHandler> event, int x, int y) {
         // Need to consider both scale and translate
         Point correctedPoint = pathwayCanvas.getCorrectedCoordinates(x, y);
-        DiagramCanvas baseCanvas = canvasList.get(0);
                 
         // Loop through each canvas starting with the top layer and working backwards
-        for (int i = canvasList.size() - 1; i >= 0; i--) {
-        	DiagramCanvas canvas = canvasList.get(i);
-        	
-        	if (canvas == null)
-        		continue;
-        	        	        	
-        	SelectionHandler sh = canvas.getSelectionHandler();
-        	
-        	if (sh == null)
-        		continue;
-        	
+        List<SelectionHandler> selectionHandlers = getExistingSelectionHandlers();
+        Collections.reverse(selectionHandlers);
+        
+        for (SelectionHandler sh : selectionHandlers) {
         	if (sh.select(event, correctedPoint) != null) {
         		sh.fireSelectionEvent();
         		break;        		
         	}
 
         	// Nothing new has been selected, so fire an event to de-select old selections
-        	if (canvas.equals(baseCanvas)) {
+        	if (sh instanceof PathwayCanvasSelectionHandler) {
         		sh.fireSelectionEvent();
         	}        	
         }
@@ -663,14 +649,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 				Map<Long, Double> level = e.getPathwayComponentIdToExpressionLevel();
 				Map<Long, String> id = e.getPathwayComponentIdToExpressionId();
 				
-				
 				expressionCanvasModel.setEntityExpressionInfoMap(id, level,	color);
 				
-				if (expressionCanvas.getPathway() == null) {
-					expressionCanvas.setPathway(getPathway());
-				} else {
-					expressionCanvas.update();
-				}
+				expressionCanvas.setPathway(getPathway()); // Updates the view after setting/re-setting the pathway				
 			}    		
     	};
     	
@@ -686,7 +667,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		
     	};
     	
-    	overlayDataController.setPathwayId(getPathway().getReactomeId());    	
+    	//overlayDataController.setPathwayId(getPathway().getReactomeId());    	
     	overlayDataController.addDataPointChangeEventHandler(dpChangeHandler);
     	overlayDataController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);    	
     	overlayDataController.setNavigationPaneStyle(style.dataPointControl());
@@ -698,7 +679,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     			expressionCanvas.getCoordinateSpaceWidth(), 
     			expressionCanvas.getCoordinateSpaceHeight());
     	
-    	expressionCanvas.setPathway(getPathway());
+    	overlayDataController.setPathwayId(getPathway().getReactomeId());    	
+    	//expressionCanvas.setPathway(getPathway());
     }
     
     /**
@@ -777,9 +759,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			contentPane.insert(interactorCanvas, 4, 4, insertionIndex);			
 			canvasList.add(insertionIndex, interactorCanvas);
 			
-			interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
-			interactorCanvas.scale(pathwayCanvas.getScale());
 			interactorCanvas.resize(getOffsetWidth(), getOffsetHeight());
+			
+			interactorCanvas.scale(pathwayCanvas.getScale());
+			interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 		}	
 	}
 	
@@ -790,9 +773,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			contentPane.insert(expressionCanvas, 4, 4, 1);
 			canvasList.add(canvasList.indexOf(pathwayCanvas) + 1, expressionCanvas);
 			
-			expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 			expressionCanvas.scale(pathwayCanvas.getScale());
-			expressionCanvas.resize(getOffsetWidth(), getOffsetHeight());
+			expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
+			
+			expressionCanvas.resize(getOffsetWidth(), getOffsetHeight());				
 		}
 	}
 	
@@ -824,6 +808,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 		}
 		
 		return existingSelectionHandlers;
+	}
+	
+	private List<HoverHandler> getExistingHoverHandlers() {
+		List<HoverHandler> existingHoverHandlers = new ArrayList<HoverHandler>();
+		
+		for (DiagramCanvas canvas : getExistingCanvases()) {
+			HoverHandler canvasHoverHandler = canvas.getHoverHandler();
+			
+			if (canvasHoverHandler != null) 
+				existingHoverHandlers.add(canvasHoverHandler);
+		}
+		
+		return existingHoverHandlers;
 	}
 	
 }
