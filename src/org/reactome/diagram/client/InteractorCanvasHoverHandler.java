@@ -77,4 +77,8 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     
     	super.showTooltip();
     }
+    
+    protected Boolean overridesOtherHoverHandlers() {
+    	return true;
+    }
 }
