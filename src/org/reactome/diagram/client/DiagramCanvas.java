@@ -63,7 +63,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         
         fireViewChangeEvent();
     }
-    
+        
     protected void fireViewChangeEvent() {
         if (viewEvent == null)
             viewEvent = new ViewChangeEvent();
@@ -97,11 +97,13 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	
         this.scale = newScale;
         
-    	translateX = -(centreX(previousScale) - (0.5 * newWidth())) * newScale;
-    	translateY = -(centreY(previousScale) - (0.5 * newHeight())) * newScale;
+    	//translateX = -(centreX(previousScale) - (0.5 * newWidth())) * newScale;
+    	//translateY = -(centreY(previousScale) - (0.5 * newHeight())) * newScale;
     	
         fireViewChangeEvent();
     }
+    
+    
     
     public void center(Point point) {
     	Double pointX = (point.getX() - translateX) / scale;
@@ -183,13 +185,26 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	return new Point(correctedX, correctedY); 
     	
     }	
-    
-    protected void clean(Context2d c2d) {
-    	//Context2d c2d = getContext2d();
+
+    public Point getAbsoluteCoordinates(Integer diagramXCoordinate, Integer diagramYCoordinate) {
+    	final Integer x = getAbsoluteXCoordinate(diagramXCoordinate);
+    	final Integer y = getAbsoluteYCoordinate(diagramYCoordinate);
     	
-    	c2d.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
-    	c2d.translate(translateX, translateY);
-    	c2d.scale(scale, scale);
+    	return new Point(x, y);
+    }
+    
+    public Integer getAbsoluteXCoordinate(Integer diagramCoordinate) {
+    	return (int) ((diagramCoordinate * scale) + translateX + getAbsoluteLeft());
+    }
+    
+    public Integer getAbsoluteYCoordinate(Integer diagramCoordinate) {
+    	return (int) ((diagramCoordinate * scale) + translateY + getAbsoluteTop());
+    }
+    
+    protected void clean(Context2d c2d) {    	
+    	c2d.setTransform(1, 0, 0, 1, 0, 0); // Remove all transforms
+    	c2d.clearRect(0, 0, getOffsetWidth() , getOffsetHeight()); // Clear the canvas
+    	c2d.setTransform(scale, 0, 0, scale, translateX, translateY); // Set new scale and translations    	
     }
 
     public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {		
