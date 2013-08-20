@@ -291,14 +291,16 @@ public class PathwayDiagramController {
     	}
     }
 
+    public void getPathwayDiagram(Long dbId, RequestCallback callback) {
+    	getPathwayDiagramData(dbId, callback, "png");    	
+    }
+    
     public void getCanvasPathwayXML(Long dbId, RequestCallback callback) {
-    	RequestBuilder requestBuilder = getPathwayDiagramRequestBuilder(dbId);
-    	
-    	try {
-    		requestBuilder.sendRequest(null, callback);
-    	} catch (RequestException ex) {
-    		requestFailed(ex);
-    	}
+    	getPathwayDiagramData(dbId, callback, "xml");
+    }
+    
+    private void getPathwayDiagramData(Long dbId, RequestCallback callback, String format) {
+    	sendRequest(getPathwayDiagramRequestBuilder(dbId, format), callback);
     }
     
     /**
@@ -306,7 +308,7 @@ public class PathwayDiagramController {
      * @param dbId db_id for a pathway.
      */
     public void loadDiagramForDBId(final Long dbId) {
-        RequestBuilder requestBuilder = getPathwayDiagramRequestBuilder(dbId);
+        RequestBuilder requestBuilder = getPathwayDiagramRequestBuilder(dbId, "xml");
 
         try {
             requestBuilder.sendRequest(null, new RequestCallback() {
@@ -331,9 +333,9 @@ public class PathwayDiagramController {
     public void loadDiagramForXML(String xml, Long dbId){
         renderXML(xml, dbId);
     }
-
-    private RequestBuilder getPathwayDiagramRequestBuilder(Long dbId) {
-    	String url = this.getHostUrl() + "pathwayDiagram/" + dbId + "/xml";
+    
+    private RequestBuilder getPathwayDiagramRequestBuilder(Long dbId, String format) {
+       	String url = this.getHostUrl() + "pathwayDiagram/" + dbId + "/" + format;
     	return new RequestBuilder(RequestBuilder.GET, url);
     }
     
@@ -359,7 +361,7 @@ public class PathwayDiagramController {
      * @param xmlText The XML Text to be parsed
      */
     private void renderXML(String xmlText, Long dbId) {
-//        System.out.println(xmlText);
+        //System.out.println(xmlText);
         //Image loadingIcon = diagramPane.getLoadingIcon();
         //loadingIcon.setVisible(true);
 
@@ -515,6 +517,14 @@ public class PathwayDiagramController {
             this.hostUrl = aux.substring(0, lastIndex + 1) + RESTFUL_URL;
         }
         return this.hostUrl;
+    }
+    
+    private void sendRequest(RequestBuilder requestBuilder, RequestCallback callback) {
+    	try {
+    		requestBuilder.sendRequest(null, callback);
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
     }
 
 }
