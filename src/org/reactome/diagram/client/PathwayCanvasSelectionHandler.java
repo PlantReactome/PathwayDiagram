@@ -99,7 +99,7 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
 		if (selected != null) {
 			if (isPathwayDoubleClicked(selected))	
 				diagramPanel.setPathway(selected.getReactomeId());
-			else
+			else if (pathwayCanvasRightClicked())
 				showNodeOptionsMenu();
 		} else if (pathwayCanvasRightClicked()) {
 			showDiagramOptionsMenu();
