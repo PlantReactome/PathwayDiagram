@@ -17,7 +17,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.DataResource;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
@@ -68,11 +68,18 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
     private void showInfoIcon(final Node entity) {
     	infoIcon.stopHideTimer();
     	infoIcon.setEntity(entity);
+    	
+    	Image infoIconImage = infoIcon.getInfoIconImage();
+    	infoIconImage.setPixelSize((int) (infoIconImage.getWidth() * pc.getScale()), 
+    							   (int) (infoIconImage.getHeight() * pc.getScale()));
+    	
+    	
+    	
     	infoIcon.setPopupPositionAndShow(new PositionCallback(){
 			
     		@Override
 			public void setPosition(int offsetWidth, int offsetHeight) {
-				final Integer OFFSET = 2;
+				final Integer OFFSET = (int) (7 / pc.getScale());
 				
 				final Integer popupLeft = pc.getAbsoluteXCoordinate(
 											entity.getBounds().getX() + entity.getBounds().getWidth() - OFFSET
@@ -97,7 +104,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
     
     interface Resources extends ClientBundle {
 		@Source("InfoIcon.png")
-		ImageResource infoIcon();
+		DataResource infoIcon();
 	}
 	
 	protected class InfoIcon extends PopupPanel {
@@ -106,10 +113,15 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 		private HideTimer hideTimer;
 		
 		public InfoIcon() {
-			infoIcon = new Image(((Resources) GWT.create(Resources.class)).infoIcon());
+			final DataResource infoIconResource = ((Resources) GWT.create(Resources.class)).infoIcon();
+			
+			infoIcon = new Image(infoIconResource.getSafeUri());
+			
 			setWidget(infoIcon);
+			
 			WidgetStyle.bringToFront(this);
 			WidgetStyle.removeBorder(this);
+			WidgetStyle.setTransparentBackground(this);
 			
 			addHandlers();
 			addHideTimer();
