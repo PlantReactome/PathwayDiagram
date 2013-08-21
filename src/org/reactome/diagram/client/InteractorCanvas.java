@@ -93,11 +93,15 @@ public class InteractorCanvas extends DiagramCanvas {
     }
     
     private void addOrRemoveInteractors(ProteinNode protein, String action) {    	    	
-    	List<InteractorNode> iList = proteinsToInteractors.get(protein); 
-    	
+    	if (protein.getInteractors() == null || protein.getInteractors().isEmpty())
+    		return;
+    			
+    	List<InteractorNode> iList = proteinsToInteractors.get(protein);    	
     	int interactorsAdded = 0;
+    	
     	// Process each interactor for the protein
-    	for (InteractorNode i : protein.getInteractors()) {
+    	for (InteractorNode i :	protein.getInteractors()) {
+    		
     		String id = i.getAccession();
     		if (id.isEmpty())
     			id = i.getDisplayName();
@@ -466,7 +470,9 @@ public class InteractorCanvas extends DiagramCanvas {
 			@Override
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() == 200) {
-					String interactorDatabase = diagramPanel.getInteractorCanvasModel().getInteractorDatabase();
+					final String interactorDatabase = diagramPanel.getInteractorCanvasModel().getInteractorDatabase();
+					
+					protein.getInteractors().clear();
 					
 					if (response.getText().contains("errorMessage")) {
 						String errorMessage = interactorDatabase + " is currently unavailable";
@@ -474,7 +480,6 @@ public class InteractorCanvas extends DiagramCanvas {
 						if (!getUserMessage().contains(errorMessage))
 							addToUserMessage(errorMessage);												
 					} else {
-						protein.getInteractors().clear();
 						protein.setInteractors(response.getText());
 						
 						if (protein.getInteractors() == null || protein.getInteractors().isEmpty())
