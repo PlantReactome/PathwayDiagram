@@ -62,11 +62,11 @@ public class ProteinNode extends Node {
 		interactors = parseInteractorList(interactionList);
 	}
 		
-	private List<InteractorNode> parseInteractorList(NodeList interactionList) {	
-		if (interactionList == null)
-			return null;
-			
+	private List<InteractorNode> parseInteractorList(NodeList interactionList) {			
 		List<InteractorNode> interactorNodes = new ArrayList<InteractorNode>();
+		
+		if (interactionList == null)
+			return interactorNodes;
 		
 		for (int i = 0; i < interactionList.getLength(); i++) {
 			com.google.gwt.xml.client.Node node = interactionList.item(i);
