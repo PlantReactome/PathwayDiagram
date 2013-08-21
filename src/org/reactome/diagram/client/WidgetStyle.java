@@ -23,6 +23,10 @@ public class WidgetStyle {
     	getStyle(widget).setBorderWidth(0, Unit.PX);
     }
     
+    public static void setTransparentBackground(Widget widget) {
+    	getStyle(widget).setBackgroundColor("transparent");
+    }
+    
     private static Style getStyle(Widget widget) {
     	return widget.getElement().getStyle();
     }
