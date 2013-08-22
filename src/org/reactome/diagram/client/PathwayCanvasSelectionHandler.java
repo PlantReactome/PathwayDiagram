@@ -111,7 +111,8 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
 	}
 	
 	private void showDiagramOptionsMenu() {
-		diagramPanel.getOptionsMenu().showPopup((MouseEvent<? extends EventHandler>) gwtEvent);
+		OptionsMenu optionsMenu = new OptionsMenu(diagramPanel); 
+		optionsMenu.showPopup((MouseEvent<? extends EventHandler>) gwtEvent);
 	}
 		
 }
