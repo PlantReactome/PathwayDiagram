@@ -83,8 +83,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private PathwayDiagramController controller;
     // To show popup menu
     private CanvasPopupMenu popupMenu;
-    // Options Menu 
-    private OptionsMenu optionsMenu;
+    // Options Menu Icon 
+    private OptionsMenuIcon optionsMenuIcon;
     // Loading icon
     private Image loadingIcon;
 
@@ -96,7 +96,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     interface ImageResources extends ClientBundle {
     	@Source("ajax-loader.gif")
-    	ImageResource loading();
+    	ImageResource loading();    	   	
     }
     
     public static final ImageResources IMAGES = GWT.create(ImageResources.class);
@@ -150,12 +150,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         // Search Bar
         searchBar = new SearchPopup(this);
-        searchBar.setVisible(Boolean.FALSE);
+        searchBar.setVisible(false);
         contentPane.add(searchBar);
         
         // Options Menu Icon
-        optionsMenu = new OptionsMenu(this);
-                        
+        optionsMenuIcon = new OptionsMenuIcon(this);
+        optionsMenuIcon.setVisible(false);
+        contentPane.add(optionsMenuIcon);
+        
         // Loading Icon
         loadingIcon = new Image(IMAGES.loading());
         loadingIcon.setVisible(false);
@@ -163,9 +165,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                 
         
         initWidget(contentPane);        
-        
-        searchBar.updatePosition();
-                
+                        
         popupMenu = new CanvasPopupMenu(this);
         //popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
@@ -285,9 +285,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         return popupMenu;
     }
 
-	public OptionsMenu getOptionsMenu() {
-		return optionsMenu;
-	}
+	//public OptionsMenu getOptionsMenu() {
+	//	return optionsMenu;
+	//}
 	
     public PathwayCanvasControls getControls() {
     	return controls;
@@ -321,18 +321,22 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.updatePosition();
                 
         searchBar.updatePosition();
-                
+
+        optionsMenuIcon.setVisible(true);
+        optionsMenuIcon.updatePosition(width, height);
+        
         update();
                 
         LocalResizeEvent event = new LocalResizeEvent(width, height);                
-        contentPane.fireEvent(event);
+        contentPane.fireEvent(event);       
     }
 
     protected void setCanvasPathway(CanvasPathway pathway) {
         // Get the old displayed pathway
     	CanvasPathway old = pathwayCanvas.getPathway();
     	//        System.out.println("Set pathway: " + pathway.getReactomeId());
-        // Set up the overview first so that it can draw correct rectangle.
+            	    	
+    	// Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
 
         pathwayCanvas.setPathway(pathway);    
