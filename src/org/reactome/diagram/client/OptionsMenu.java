@@ -5,12 +5,8 @@
 package org.reactome.diagram.client;
 
 import com.google.gwt.canvas.client.Canvas;
-import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.dom.client.Style;
 
-import com.google.gwt.event.dom.client.LoadEvent;
-import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.http.client.Request;
@@ -20,11 +16,9 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -38,12 +32,16 @@ public class OptionsMenu extends PopupPanel {
     private Point pointClicked;
     
     public OptionsMenu(PathwayDiagramPanel diagramPane) {
+    	this(diagramPane, true);
+    }
+    
+    public OptionsMenu(PathwayDiagramPanel diagramPane, Boolean includeDiagramTransformationOptions) {
         super(true); // Hide when clicking outside pop-up
     	this.diagramPane = diagramPane;
-    	init();
+    	init(includeDiagramTransformationOptions);
     }    
-    private void init() {
-    	setWidget(getOptionsMenu());    	
+    private void init(Boolean includeDiagramTransformationOptions) {
+    	setWidget(getOptionsMenu(includeDiagramTransformationOptions));    	
     	bringToFront(this);
     }
     	
@@ -51,6 +49,16 @@ public class OptionsMenu extends PopupPanel {
     	widget.getElement().getStyle().setZIndex(2);
     }    	   
 
+    public void showPopup(Point point) {
+    	hide();
+    	
+    	pointClicked = point;
+    	
+    	setPopupPosition((int) point.getX(), (int) point.getY());
+    	
+    	show();
+    }
+    
     public void showPopup(MouseEvent<? extends EventHandler> event) {
     	event.stopPropagation();
     	event.preventDefault();
@@ -70,7 +78,7 @@ public class OptionsMenu extends PopupPanel {
     	super.hide();
     }
     
-    private MenuBar getOptionsMenu() {
+    private MenuBar getOptionsMenu(Boolean includeDiagramTransformationOptions) {
     	MenuBar optionsMenu = new MenuBar(true);
     	
     	optionsMenu.addItem(getSearchBarMenuItem());
@@ -80,13 +88,16 @@ public class OptionsMenu extends PopupPanel {
     	optionsMenu.addItem(getDownloadDiagramMenuItem());
     	optionsMenu.addSeparator();
     	optionsMenu.addItem(getInteractionOverlayMenuItem());
-    	optionsMenu.addSeparator();
-    	optionsMenu.addItem(getZoomInMenuItem());
-    	optionsMenu.addSeparator();
-    	optionsMenu.addItem(getZoomOutMenuItem());
-    	optionsMenu.addSeparator();
-    	optionsMenu.addItem(getCenterDiagramMenuItem());
     	
+    	if (includeDiagramTransformationOptions) {
+    		optionsMenu.addSeparator();
+    		optionsMenu.addItem(getZoomInMenuItem());
+    		optionsMenu.addSeparator();
+    		optionsMenu.addItem(getZoomOutMenuItem());
+    		optionsMenu.addSeparator();
+    		optionsMenu.addItem(getCenterDiagramMenuItem());
+    	}
+    		
     	setOptionsMenuStyle(optionsMenu);
     	
     	return optionsMenu;
