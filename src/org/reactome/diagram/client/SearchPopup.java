@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
+import org.reactome.diagram.model.Node;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -19,6 +20,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 
+import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
@@ -110,7 +112,8 @@ public class SearchPopup extends HorizontalPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				diagramPane.setSelectionObjects(matchingEntityIds);
+				//diagramPane.setSelectionObjects(matchingEntityIds);
+				highlightEntities(matchingEntityIds);
 				selectedIndex = -1;
 				resultsLabel.setText("Focused on: All " + matchingEntityIds.size());
 			}
@@ -172,7 +175,7 @@ public class SearchPopup extends HorizontalPanel {
 				labelText = "No matches found for " + query;
 			resultsLabel.setText(labelText);
 			
-			diagramPane.setSelectionId(null);
+			highlightEntities(matchingEntityIds);
 			
 			return;
 		} else {
@@ -194,7 +197,56 @@ public class SearchPopup extends HorizontalPanel {
 		
 		resultsLabel.setText("Focused on: " + (index + 1) + " of " + matchingEntityIds.size());
 		
-		diagramPane.setSelectionObject(matchingEntityIds.get(index));
+		highlightEntity(matchingEntityIds.get(index));
+		
+	}
+	
+	private void highlightEntities(List<GraphObject> entities) {
+		removeAllHighlighting();
+		removeAllSelections();
+		
+		for (GraphObject entity : entities) {
+			entity.setHighlighted(true);
+		}
+		
+		Boolean doCentring = !(diagramPane.getPathwayCanvas().currentViewContainsAtLeastOneGraphObject(entities));
+		
+		if (doCentring && !entities.isEmpty()) {
+			GraphObject entity = entities.get(0);
+			
+			Point entityCentre;
+			if (entity instanceof Node)
+				entityCentre = ((Node) entity).getBounds().getCentre();
+			else
+				entityCentre = entity.getPosition();
+			
+			diagramPane.center(diagramPane.getPathwayCanvas()
+										  .getAbsoluteCoordinates((int) entityCentre.getX(), (int) entityCentre.getY()));
+		}
+		
+		diagramPane.update();
+	}
+	
+	private void highlightEntity(GraphObject entity) {
+		List<GraphObject> entities = new ArrayList<GraphObject>(0);
+		entities.add(entity);
+		
+		highlightEntities(entities);
+	}
+	
+	private void removeAllHighlighting() {
+		for (GraphObject entity : getPathwayGraphObjects()) {
+			entity.setHighlighted(false);
+		}
+	}
+	
+	private void removeAllSelections() {
+		for (GraphObject entity : getPathwayGraphObjects())
+			entity.setIsSelected(false);
+	}
+	
+	private List<GraphObject> getPathwayGraphObjects() {
+		return diagramPane.getPathway().getGraphObjects();
 	}
 	
 	private void enableButtons(Boolean enable) {
