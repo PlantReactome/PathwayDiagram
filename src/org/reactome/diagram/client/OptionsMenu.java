@@ -164,9 +164,9 @@ public class OptionsMenu extends PopupPanel {
 						}
 												
 						String pathwayDiagramData = "data:image/png;base64," + response.getText();
-						
-						System.out.println(pathwayDiagramData);
-						
+						pathwayDiagramData = pathwayDiagramData.replaceAll("-", "+");
+						pathwayDiagramData = pathwayDiagramData.replaceAll("_", "/");
+																		
 						Window.open(pathwayDiagramData, null, null);
 						
 						//final Image pathwayDiagram = new Image(pathwayDiagramData);
