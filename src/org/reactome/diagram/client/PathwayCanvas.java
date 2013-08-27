@@ -23,13 +23,21 @@ public class PathwayCanvas extends DiagramCanvas {
     private PathwayCanvasDrawer drawer;
     
     public PathwayCanvas() {
+    	super();
     	drawer = new PathwayCanvasDrawer();
     }
     
     public PathwayCanvas(PathwayDiagramPanel diagramPane) {
-    	super(diagramPane);
-    	hoverHandler = new PathwayCanvasHoverHandler(diagramPane, this);
-    	selectionHandler = new PathwayCanvasSelectionHandler(diagramPane, this);
+    	this(diagramPane, true);
+    }
+    
+    public PathwayCanvas(PathwayDiagramPanel diagramPane, Boolean installEventHandlers) {
+    	super(diagramPane, installEventHandlers);
+    	
+    	if (installEventHandlers) {
+    		hoverHandler = new PathwayCanvasHoverHandler(diagramPane, this);
+    		selectionHandler = new PathwayCanvasSelectionHandler(diagramPane, this);
+    	}
     	drawer = new PathwayCanvasDrawer();
     }
     

@@ -115,7 +115,7 @@ public class ComplexComponentPopup extends DialogBox {
     	addLabel(component.getDisplayName(), rowIndex, 0, bgColor);
     		
     	if (isExpressionAnalysis()) {    		   			
-    		addLabel(getText(component.getExpressionId()), rowIndex, 1, bgColor);
+    		addLabel(getText(component.getExpressionIdentifiers()), rowIndex, 1, bgColor);
     		addLabel(getText(component.getExpressionLevel()), rowIndex, 2, bgColor);
     	}		
     }

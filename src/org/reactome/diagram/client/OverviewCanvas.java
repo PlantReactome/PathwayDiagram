@@ -41,16 +41,20 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHandler {
     private PathwayDiagramPanel diagramPane;
 	private Bounds viewRect;
-    // A flag to block an event bouncing back
+	// A flag to block an event bouncing back
     private boolean isFromOverview;
     // To re-draw selected objects so that they can be shown more apparently
     // Otherwise, it is difficult to see if an object is selected in an overview
     private List<GraphObject> selectedObjects;
 
     public OverviewCanvas(PathwayDiagramPanel diagramPanel) {
-        diagramPane = diagramPanel;
+        super(diagramPanel, false);
+    	
+    	diagramPane = diagramPanel;
     	viewRect = new Bounds();
-        EventHandlers eventHandlers = new EventHandlers();
+    	canvasTransformation = new OverviewCanvasTransformation();
+        
+    	EventHandlers eventHandlers = new EventHandlers();
         eventHandlers.installHandlers();
     }
     
@@ -83,12 +87,6 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         updatePosition();
     }
     
-    @Override
-	public void scale(double scale) {
-		this.scale *= scale;
-		super.fireViewChangeEvent();
-    }
-
 	public void updatePosition() {
         // Need to make sure it is placed at the correct position
         //TODO: This is hard-coded and should be changed soon
@@ -293,5 +291,17 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
             
         }
         
+    }
+    
+    private class OverviewCanvasTransformation extends CanvasTransformation {
+    	
+    	public OverviewCanvasTransformation() {
+    		super();
+    	}
+    	
+    	@Override
+    	public void scale(Double scaleFactor) {
+    		this.scale *= scaleFactor; 
+    	}
     }
 }

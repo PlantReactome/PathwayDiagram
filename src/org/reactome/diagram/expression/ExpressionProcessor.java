@@ -226,7 +226,7 @@ public class ExpressionProcessor {
 						pev.setSpeciesId(speciesId);
 					} else if (componentType.equals("pathway.expressionlevels")) {
 						for (int k = 0; k < componentArray.size(); k++) {
-							PathwayComponentExpressionValue pcev = new PathwayComponentExpressionValue();
+							//PathwayComponentExpressionValue pcev = new PathwayComponentExpressionValue();
 						
 							//pcev.setDataType(componentType);
 						
@@ -243,10 +243,16 @@ public class ExpressionProcessor {
 								expressionLevels.add(value);						
 							}
 						
-							pcev.setDbId(dbId);
-							pcev.setExpressionId(expressionId);
-							pcev.setValues(expressionLevels);
-							pev.getExpressionValues().put(dbId, pcev);
+							
+							PathwayComponentExpressionValue pcev = pev.getExpressionValues().get(dbId);
+							
+							if (pcev == null) {
+								pcev = new PathwayComponentExpressionValue();
+								pcev.setDbId(dbId);
+							}	
+							
+							pcev.addExpressionValues(expressionId, expressionLevels);
+							pev.getExpressionValues().put(dbId, pcev);							
 						}
 					} else {
 						AlertPopup.alert("Unknown type -- " + componentType);

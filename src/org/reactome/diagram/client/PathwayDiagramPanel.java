@@ -651,7 +651,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 				
 				Map<Long, String> color = e.getPathwayComponentIdToColor(); 
 				Map<Long, Double> level = e.getPathwayComponentIdToExpressionLevel();
-				Map<Long, String> id = e.getPathwayComponentIdToExpressionId();
+				Map<Long, List<String>> id = e.getPathwayComponentIdToExpressionId();
 				
 				expressionCanvasModel.setEntityExpressionInfoMap(id, level,	color);
 				
@@ -756,7 +756,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public void initInteractorCanvas() {
 		if (interactorCanvas == null) {
-			interactorCanvas = new InteractorCanvas(this);
+			interactorCanvas = new InteractorCanvas(this, pathwayCanvas.getCanvasTransformation());
 			interactorCanvasModel.setInteractorCanvas(interactorCanvas);
 			
 			int insertionIndex = canvasList.size(); // Above all other canvases
@@ -765,20 +765,20 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			
 			interactorCanvas.resize(getOffsetWidth(), getOffsetHeight());
 			
-			interactorCanvas.scale(pathwayCanvas.getScale());
-			interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
+			//interactorCanvas.scale(pathwayCanvas.getScale());
+			//interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 		}	
 	}
 	
 	public void initExpressionCanvas() {
 		if (expressionCanvas == null) {
-			expressionCanvas = new ExpressionCanvas(this);
+			expressionCanvas = new ExpressionCanvas(this, pathwayCanvas.getCanvasTransformation());
 			
 			contentPane.insert(expressionCanvas, 4, 4, 1);
 			canvasList.add(canvasList.indexOf(pathwayCanvas) + 1, expressionCanvas);
 			
-			expressionCanvas.scale(pathwayCanvas.getScale());
-			expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
+			//expressionCanvas.scale(pathwayCanvas.getScale());
+			//expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 			
 			expressionCanvas.resize(getOffsetWidth(), getOffsetHeight());				
 		}

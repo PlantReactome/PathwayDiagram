@@ -152,7 +152,7 @@ public class ComplexNode extends Node {
 
 	public class Component extends ReactomeObject implements Comparable<Component> {
 		private Long referenceEntityId;
-		private String expressionId;
+		private List<String> expressionIds;
 		private Double expressionLevel;
 		private String expressionColor;
 			
@@ -168,12 +168,12 @@ public class ComplexNode extends Node {
 			this.referenceEntityId = referenceEntityId;
 		}
 
-		public String getExpressionId() {
-			return expressionId;
+		public List<String> getExpressionIdentifiers() {
+			return expressionIds;
 		}
 
-		public void setExpressionId(String expressionId) {
-			this.expressionId = expressionId;
+		public void setExpressionId(List<String> componentExpressionIds) {
+			this.expressionIds = componentExpressionIds;
 		}
 
 		public Double getExpressionLevel() {

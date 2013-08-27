@@ -82,11 +82,11 @@ public class PathwayExpressionValue {
 	    return dbIdToValue;
 	}
 	
-	public Map<Long, String> getDbIdsToExpressionIds() {
-		Map<Long, String> dbIdToExpressionId = new HashMap<Long, String>();
+	public Map<Long, List<String>> getDbIdsToExpressionIds() {
+		Map<Long, List<String>> dbIdToExpressionId = new HashMap<Long, List<String>>();
 		for (Long dbId : expressionValues.keySet()) {
 			PathwayComponentExpressionValue compValue = expressionValues.get(dbId);
-			String expressionId = compValue.getExpressionId();
+			List<String> expressionId = compValue.getExpressionIds();
 			dbIdToExpressionId.put(dbId, expressionId);
 		}
 		return dbIdToExpressionId;

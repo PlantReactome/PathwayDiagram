@@ -4,6 +4,7 @@
  */
 package org.reactome.diagram.expression.event;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.event.shared.GwtEvent;
@@ -19,7 +20,7 @@ public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> 
     private Long pathwayId;
     private Map<Long, String> pathwayComponentIdToColor;
     private Map<Long, Double> pathwayComponentIdToExpressionLevel;
-    private Map<Long, String> pathwayComponentIdToExpressionId;
+    private Map<Long, List<String>> pathwayComponentIdToExpressionId;
     private Map<Long, String> pathwayComponentIdToTooltip;
     
     public DataPointChangeEvent() {
@@ -50,13 +51,13 @@ public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> 
 		this.pathwayComponentIdToExpressionLevel = pathwayComponentIdToExpressionLevel;
 	}
 
-	public Map<Long, String> getPathwayComponentIdToExpressionId() {
+	public Map<Long, List<String>> getPathwayComponentIdToExpressionId() {
 		return pathwayComponentIdToExpressionId;
 	}
 
 	public void setPathwayComponentIdToExpressionId(
-			Map<Long, String> pathwayComponentIdToExpressionId) {
-		this.pathwayComponentIdToExpressionId = pathwayComponentIdToExpressionId;
+			Map<Long, List<String>> compIdToExpressionId) {
+		this.pathwayComponentIdToExpressionId = compIdToExpressionId;
 	}
 
 	public Map<Long, String> getPathwayComponentIdToTooltip() {

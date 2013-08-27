@@ -20,6 +20,10 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -209,7 +213,7 @@ public class InfoPopup extends PopupPanel {
     private String getProbeExpressionIdText() {
     	final Long proteinReferenceId = diagramPane.getPathway().getReferenceIdForProtein(selectedObject.getReactomeId());
     	
-    	String probeId = expressionCanvas.getEntityExpressionId(proteinReferenceId);
+    	String probeId = expressionCanvas.getExpressionInfo(proteinReferenceId).getIdentifiersAsString();
     	
     	if (probeId == null)
     		probeId = "N/A";
@@ -348,23 +352,63 @@ public class InfoPopup extends PopupPanel {
     		final Button menuButton = new Button(menuOption.getLabel());
     		menuButton.getElement().getStyle().setWhiteSpace(WhiteSpace.NOWRAP);
     		
-    		
-    		menuButton.addClickHandler(new ClickHandler() {
+    		if (menuOption.getCommand() != null) {
+    			menuButton.addClickHandler(new ClickHandler() {
     			
-    			public void onClick(ClickEvent event) {
-    				if (menuOption.getCommand() != null) {
-    					menuOption.getCommand().execute();
-    				} else {    					
-    					PopupPanel subMenuPopup = new PopupPanel(true);
-    					subMenuPopup.setWidget(menuOption.getSubMenu());
-    					subMenuPopup.setPopupPosition(menuButton.getAbsoluteLeft(), 
-    												  menuButton.getAbsoluteTop() + menuButton.getOffsetHeight());
-    					subMenuPopup.show();
+    				public void onClick(ClickEvent event) {    				
+    					menuOption.getCommand().execute();   				
     				}
-    			}    			
-    		});
+    			});
+    		} else {
+    			menuButton.setText(menuButton.getText() + " \u25BC"); // Downward arrow added to indicate sub-menu
+    			
+    			addMenuButtonMouseHandlers(menuButton, createSubMenuPopup(menuOption));
+    		}
     		
     		return menuButton;
+    	}
+    	
+    	private void addMenuButtonMouseHandlers(final Button menuButton, final PopupPanel subMenuPopup) {
+    		menuButton.addDomHandler(new MouseOverHandler() {
+    		
+    			public void onMouseOver(MouseOverEvent event) {
+    				subMenuPopup.setPopupPosition(menuButton.getAbsoluteLeft(), 
+    											  menuButton.getAbsoluteTop() + menuButton.getOffsetHeight());
+    				subMenuPopup.show();
+    			}
+    			
+    		}, MouseOverEvent.getType());
+    			
+    		menuButton.addDomHandler(new MouseOutHandler() {
+    
+    			public void onMouseOut(MouseOutEvent event) {
+    				if (subMenuPopup.isShowing() && outsideSubMenu(event))
+    					subMenuPopup.hide();
+    			}
+    			
+    			private Boolean outsideSubMenu(MouseOutEvent event) {
+    				final Integer mouseX = event.getClientX();
+    				final Integer mouseY = event.getClientY();
+    				
+    				final Integer menuLeft = subMenuPopup.getAbsoluteLeft();
+    				final Integer menuRight = menuLeft + subMenuPopup.getOffsetWidth();
+    				final Integer menuTop = subMenuPopup.getAbsoluteTop() - 5;
+    				final Integer menuBottom = menuTop + subMenuPopup.getOffsetHeight();
+
+    				//System.out.println("Item width: " );
+    				System.out.println("Mouse X: " + mouseX + " Boundaries: " + menuLeft + " " + menuRight);
+    				System.out.println("Mouse Y: " + mouseY + " Boundaries: " + menuTop + " " + menuBottom);
+    				
+    				return (mouseX < menuLeft || mouseX > menuRight || mouseY < menuTop || mouseY > menuBottom);
+    			}
+    				
+    		}, MouseOutEvent.getType());    		
+    	}
+    	
+    	private PopupPanel createSubMenuPopup(MenuOption menuOption) {
+    		PopupPanel subMenuPopup = new PopupPanel(true);
+    		subMenuPopup.setWidget(menuOption.getSubMenu());    		
+    		return subMenuPopup;
     	}
     }
 }

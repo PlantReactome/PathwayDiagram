@@ -65,6 +65,10 @@ public class InteractorCanvas extends DiagramCanvas {
     	uniqueInteractors = new HashMap<String, InteractorNode>();
     }
     
+    public InteractorCanvas(PathwayDiagramPanel dPane, CanvasTransformation canvasTransformation) {
+    	this(dPane);
+    	this.canvasTransformation = canvasTransformation;
+    }
     
     public List<ProteinNode> getProteins() {
     	return new ArrayList<ProteinNode>(this.proteinsToInteractors.keySet());

@@ -62,15 +62,15 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     		if (refIdsForHoveredObject != null && !refIdsForHoveredObject.isEmpty()) {
     			ExpressionInfo expressionInfo = ecm.getEntityExpressionInfoMap().get(refIdsForHoveredObject.get(0));
     		
-    			if (expressionInfo != null && expressionInfo.getId() != null)
-    				expressionId = expressionInfo.getId();
+    			if (expressionInfo != null && expressionInfo.getIdentifiers() != null && !expressionInfo.getIdentifiers().isEmpty())
+    				expressionId = expressionInfo.getIdentifiersAsString();
     	
     			if (expressionInfo != null && expressionInfo.getLevel() != null)
     				expressionLevel = expressionInfo.getLevel().toString();
     		}
     	}
     		
-    	String label = "Expression Id: " + expressionId + "<br/> Expression Level: " + expressionLevel;
+    	String label = "Expression Identifiers: " + expressionId + "<br/> Median Expression Level: " + expressionLevel;
    
     	tooltip.setWidget(new HTML(label));
     

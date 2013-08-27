@@ -172,7 +172,7 @@ public abstract class DataController implements ResizeHandler {
         
         Map<Long, Double> compIdToValue = null;
         Map<Long, String> compIdToColor = null;
-        Map<Long, String> compIdToExpressionId = null;
+        Map<Long, List<String>> compIdToExpressionId = null;
         
         if (pathwayValues != null) {
         	compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);

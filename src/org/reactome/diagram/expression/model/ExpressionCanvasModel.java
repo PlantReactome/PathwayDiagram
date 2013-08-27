@@ -30,19 +30,19 @@ public class ExpressionCanvasModel {
 		return entityExpressionInfoMap;
 	}
 
-	public void setEntityExpressionInfoMap(Map<Long, String> entityExpressionIdMap,
+	public void setEntityExpressionInfoMap(Map<Long, List<String>> id,
 										   Map<Long, Double> entityExpressionLevelMap,
 										   Map<Long, String> entityExpressionColorMap) {
 		
-		if (entityExpressionIdMap == null) {
+		if (id == null) {
 			entityExpressionInfoMap = null;
 			return;
 		}
 		
 		entityExpressionInfoMap = new HashMap<Long, ExpressionInfo>();
 		
-		for (Long entityId : entityExpressionIdMap.keySet()) {
-			String expressionId = entityExpressionIdMap.get(entityId);
+		for (Long entityId : id.keySet()) {
+			List<String> expressionId = id.get(entityId);
 			Double expressionLevel = entityExpressionLevelMap.get(entityId);
 			String expressionColor = entityExpressionColorMap.get(entityId);
 			
@@ -57,6 +57,16 @@ public class ExpressionCanvasModel {
 		List<Long> proteinReferenceIds = pathway.getReferenceIds(pathway.getProteins());
 		
 		Set<Long> expressionEntityIds = pathwayExpression.keySet();
+
+		//System.out.println(pathway.getDisplayName() + "Pathway Proteins");
+		//for (Long proteinId : proteinReferenceIds) {
+		//	System.out.println(proteinId);
+		//}
+		
+		//System.out.println(pathway.getDisplayName() + "Expression proteins");
+		//for (Long expressionId : expressionEntityIds) {
+		//	System.out.println(expressionId);
+		//}
 		
 		proteinReferenceIds.removeAll(expressionEntityIds);
 		
@@ -83,22 +93,37 @@ public class ExpressionCanvasModel {
 	}
 	
 	public class ExpressionInfo implements Comparable<ExpressionInfo> {
-		private String id;
+		private List<String> identifiers;
 		private Double level;
 		private String color;
 				
-		public ExpressionInfo(String id, Double level, String color) {
-			this.id = id;
+		public ExpressionInfo(List<String> expressionIds, Double level, String color) {
+			this.identifiers = expressionIds;
 			this.level = level;
 			this.color = color;
 		}
 		
-		public void setId(String id) {
-			this.id = id;
+		public void setIdentifiers(List<String> identifiers) {
+			this.identifiers = identifiers;
 		}
 		
-		public String getId() {
-			return id;
+		public List<String> getIdentifiers() {
+			return identifiers;
+		}
+		
+		public String getIdentifiersAsString() {
+			String delimiter = ", ";
+			
+			String identifierString = "";
+			
+			
+			for (String identifier : getIdentifiers()) {
+				identifierString = identifierString.concat(identifier).concat(delimiter);
+			}
+			
+			identifierString = identifierString.substring(0, identifierString.length() - delimiter.length());
+			
+			return identifierString;
 		}
 		
 		public void setLevel(Double level) {

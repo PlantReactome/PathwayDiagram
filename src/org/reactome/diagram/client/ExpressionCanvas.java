@@ -45,14 +45,18 @@ public class ExpressionCanvas extends DiagramCanvas {
     private ExpressionPathway expressionPathway;
     private Timer readyToRender;
     private Context2d c2d;
-    
-    
+       
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
     	hoverHandler = new ExpressionCanvasHoverHandler(diagramPane, this);
     	expressionCanvasModel = new ExpressionCanvasModel();
     }
    
+    public ExpressionCanvas(PathwayDiagramPanel diagramPane, CanvasTransformation canvasTransformation) {
+    	this(diagramPane);
+    	this.canvasTransformation = canvasTransformation;
+    }
+    
     public AnalysisType getAnalysisType() {
 		return analysisType;
 	}
@@ -200,18 +204,18 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return null;
 	}
 	
-	private ExpressionInfo getExpressionInfo(Long refEntityId) {
+	public ExpressionInfo getExpressionInfo(Long refEntityId) {
 		if (expressionCanvasModel.getEntityExpressionInfoMap() == null)
 			return null;
 			
 		return expressionCanvasModel.getEntityExpressionInfoMap().get(refEntityId);
 	}
 	
-	public String getEntityExpressionId(Long refEntityId) {		
+	public List<String> getEntityExpressionId(Long refEntityId) {		
 		if (getExpressionInfo(refEntityId) == null) 
 			return null;
 			
-		return getExpressionInfo(refEntityId).getId();
+		return getExpressionInfo(refEntityId).getIdentifiers();
 	}
 
 	public Double getEntityExpressionLevel(Long refEntityId) {		
@@ -260,7 +264,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 		for (Component component : complex.getComponents()) {
 			Long refId = component.getRefEntityId();
-			String componentExpressionId = null;			
+			List<String> componentExpressionId = null;			
 			String componentExpressionColor =  getEntityColor(refId, null);
 			Double componentExpressionLevel = null;
 			
@@ -323,7 +327,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 				PathwayExpressionValue pathwayExpression = dataController.getDataModel().getPathwayExpressionValue(entity.getReactomeId());
 			
 				if (pathwayExpression != null) { 
-					Map<Long, String> expressionIds = pathwayExpression.getDbIdsToExpressionIds();
+					Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdsToExpressionIds();
 					Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValueForDataPoint(expressionPathway.getDataPointIndex());
 					Map<Long, String> expressionColors = dataController.convertValueToColor(expressionLevels);
 		
