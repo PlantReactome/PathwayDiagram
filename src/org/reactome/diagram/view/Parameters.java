@@ -57,9 +57,10 @@ public class Parameters {
 	public static final int LINE_HEIGHT = 14;	
 	// A grey shade used in disease pathway drawing
 	public static final CssColor defaultShadeColor = CssColor.make("rgba(204, 204, 204, 0.65)"); // Alpha value has to be double
-	// Using blue for default selection as in the curator tool
-	public static final CssColor defaultSelectionColor = CssColor.make(0, 0, 255);
-	public static final CssColor defaultHighlightColor = CssColor.make(0, 255, 0);
+	
+	// Using green for default selection as in the pathway hierarchy
+	public static final CssColor defaultSelectionColor = CssColor.make(0, 255, 0);
+	public static final CssColor defaultHighlightColor = CssColor.make(173, 255, 47);
 	public static final int defaultNodeSelectionLineWidth = 3;
 	public static final int defaultEdgeSelectionLineWidth = 2;
 	// For drawing cross
