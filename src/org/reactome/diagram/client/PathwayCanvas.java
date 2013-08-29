@@ -57,6 +57,14 @@ public class PathwayCanvas extends DiagramCanvas {
     	return getPathway().getGraphObjects();
     }	
     
+    @Override
+    protected void fireViewChangeEvent() {
+    	super.fireViewChangeEvent();
+    	
+    	if (hoverHandler != null && hoverHandler instanceof PathwayCanvasHoverHandler)
+    		((PathwayCanvasHoverHandler) hoverHandler).getInfoIconPopup().hide();
+    }    
+    
     /**
      * Update drawing.
      */
