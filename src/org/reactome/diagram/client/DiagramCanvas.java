@@ -14,6 +14,8 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.event.dom.client.MouseEvent;
+import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -104,9 +106,13 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
     
     public void scale(double scaleFactor) {
-        canvasTransformation.scale(scaleFactor);
-        //Double translateXToKeepOldCentre = -(centreX(previousScale) - (0.5 * newWidth())) * newScale;
-    	//Double translateYToKeepOldCentre = -(centreY(previousScale) - (0.5 * newHeight())) * newScale;
+    	canvasTransformation.scale(scaleFactor);
+    
+    	fireViewChangeEvent();
+    }
+    
+    public void scale(double scaleFactor, Point point) {
+        canvasTransformation.scale(scaleFactor, point);
     	    	
         fireViewChangeEvent();
     }
@@ -114,15 +120,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     public void center(Point point) {
     	canvasTransformation.center(point);
     }
-      
-    private Double newWidth() {
-    	return getCoordinateSpaceWidth() / getScale();
-    }
-    
-    private Double newHeight() {
-    	return getCoordinateSpaceHeight() / getScale();
-    }
-    
+   
     public HoverHandler getHoverHandler() {
 		return hoverHandler;    	
     }
@@ -178,19 +176,19 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	
     }	
 
-    public Point getAbsoluteCoordinates(Integer diagramXCoordinate, Integer diagramYCoordinate) {
-    	final Integer x = getAbsoluteXCoordinate(diagramXCoordinate);
-    	final Integer y = getAbsoluteYCoordinate(diagramYCoordinate);
+    public Point getAbsoluteCoordinates(Double diagramXCoordinate, Double diagramYCoordinate) {
+    	final Double x = getAbsoluteXCoordinate(diagramXCoordinate);
+    	final Double y = getAbsoluteYCoordinate(diagramYCoordinate);
     	
     	return new Point(x, y);
     }
     
-    public Integer getAbsoluteXCoordinate(Integer diagramCoordinate) {
-    	return (int) ((diagramCoordinate * getScale()) + getTranslateX() + getAbsoluteLeft());
+    public Double getAbsoluteXCoordinate(Double diagramCoordinate) {
+    	return (diagramCoordinate * getScale()) + getTranslateX() + getAbsoluteLeft();
     }
     
-    public Integer getAbsoluteYCoordinate(Integer diagramCoordinate) {
-    	return (int) ((diagramCoordinate * getScale()) + getTranslateY() + getAbsoluteTop());
+    public Double getAbsoluteYCoordinate(Double diagramCoordinate) {
+    	return (diagramCoordinate * getScale()) + getTranslateY() + getAbsoluteTop();
     }
     
     protected void clean(Context2d c2d) {    	
@@ -258,16 +256,35 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 			return scale;
 		}
 		
-		public void scale(Double scaleFactor) {
+		private Double applyScaleFactor(Double scaleFactor) {
 			final Double previousScale = getScale();
 			final Double newScale = previousScale * scaleFactor;
 			
 			if (newScale > Parameters.ZOOMMAX || newScale < Parameters.ZOOMMIN) {
-				return;
+				return previousScale;
 			}
-			
-			this.scale = newScale;
+		
+			return newScale;
 		}
+			
+		public void scale(Double scaleFactor) {	
+			scale(scaleFactor, new Point(centerX(getScale()), centerY(getScale())));
+		}
+		
+		public void scale(Double scaleFactor, Point point) {
+			zoomToPoint(scaleFactor, point);
+		}
+		
+		private void zoomToPoint(Double scaleFactor, Point point) {			
+			Point zoomPoint = getCorrectedCoordinates(point.getX(), point.getY());
+
+			this.scale = applyScaleFactor(scaleFactor);
+
+			Double deltaX = getAbsoluteXCoordinate(zoomPoint.getX()) - DiagramCanvas.this.getAbsoluteLeft() - point.getX();
+			Double deltaY = getAbsoluteYCoordinate(zoomPoint.getY()) - DiagramCanvas.this.getAbsoluteTop() - point.getY();
+						
+			translate(-deltaX, -deltaY);
+		}		
 		
 		public Double getTranslateX() {
 			return translateX;

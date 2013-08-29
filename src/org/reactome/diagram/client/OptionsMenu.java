@@ -240,7 +240,7 @@ public class OptionsMenu extends PopupPanel {
 
 			@Override
 			public void execute() {
-				diagramPane.zoomIn();
+				diagramPane.zoomIn(pointClicked);
 				diagramPane.update();
 				hide();
 			}    	    		
@@ -254,7 +254,7 @@ public class OptionsMenu extends PopupPanel {
 
 			@Override
 			public void execute() {
-				diagramPane.zoomOut();
+				diagramPane.zoomOut(pointClicked);
 				diagramPane.update();
 				hide();
 			}    		

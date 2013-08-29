@@ -221,7 +221,7 @@ public class SearchPopup extends HorizontalPanel {
 				entityCentre = entity.getPosition();
 			
 			diagramPane.center(diagramPane.getPathwayCanvas()
-										  .getAbsoluteCoordinates((int) entityCentre.getX(), (int) entityCentre.getY()));
+										  .getAbsoluteCoordinates(entityCentre.getX(), entityCentre.getY()));
 		}
 		
 		diagramPane.update();

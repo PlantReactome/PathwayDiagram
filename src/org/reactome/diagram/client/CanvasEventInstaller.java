@@ -385,10 +385,12 @@ public class CanvasEventInstaller {
     
     private void mouseWheel(MouseWheelEvent event) {
     	if (!diagramPane.getPopupMenu().isShowing()) {
+    		Point scrollPoint = new Point(event.getX(), event.getY());
+    		
     		if (event.isNorth()) {
-    			diagramPane.zoomIn();
+    			diagramPane.zoomIn(scrollPoint);
     		} else {
-    			diagramPane.zoomOut();
+    			diagramPane.zoomOut(scrollPoint);
     		}
     	
     		diagramPane.update();

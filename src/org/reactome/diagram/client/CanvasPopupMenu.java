@@ -91,9 +91,9 @@ public class CanvasPopupMenu extends PopupPanel {
 				if (entity instanceof Node) {
 					final PathwayCanvas pathwayCanvas = diagramPane.getPathwayCanvas();
 															
-					final Integer left = pathwayCanvas.getAbsoluteXCoordinate(((Node) entity).getBounds().getX());	
+					final Integer left = pathwayCanvas.getAbsoluteXCoordinate((double) ((Node) entity).getBounds().getX()).intValue();	
 											
-					final Integer bottom = pathwayCanvas.getAbsoluteYCoordinate(((Node) entity).getBounds().getY() + ((Node) entity).getBounds().getHeight());
+					final Integer bottom = pathwayCanvas.getAbsoluteYCoordinate((double) (((Node) entity).getBounds().getY() + ((Node) entity).getBounds().getHeight())).intValue();
 					
 					setPopupPosition(left, bottom);					
 				} else {

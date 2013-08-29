@@ -43,6 +43,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
+import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
@@ -409,18 +410,32 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         }	
     }
     
-    public void scale(double scale) {
+    public void scale(double scaleFactor) {
         for (DiagramCanvas canvas : getExistingCanvases()) {        
-        	canvas.scale(scale);
+        	canvas.scale(scaleFactor);
         }	
+    }
+    
+    private void scale(double scaleFactor, Point point) {
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
+    		canvas.scale(scaleFactor, point);
+    	}
     }
 
     public void zoomIn() {
     	scale(Parameters.ZOOMFACTOR);
     }
     
+    public void zoomIn(Point point) {
+    	scale(Parameters.ZOOMFACTOR, point);
+    }
+    
     public void zoomOut() {
     	scale(1 / Parameters.ZOOMFACTOR);
+    }
+    
+    public void zoomOut(Point point) {
+    	scale(1 / Parameters.ZOOMFACTOR, point);
     }
     
     public void center(Point point) {

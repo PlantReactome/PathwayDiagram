@@ -40,6 +40,10 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
         infoIcon = new InfoIcon();
     }
 
+    public InfoIcon getInfoIconPopup() {
+    	return infoIcon;
+    }
+    
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
     	
@@ -82,11 +86,11 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 				final Integer OFFSET = (int) (7 / pc.getScale());
 				
 				final Integer popupLeft = pc.getAbsoluteXCoordinate(
-											entity.getBounds().getX() + entity.getBounds().getWidth() - OFFSET
-										  );
-				final Integer popupTop = pc.getAbsoluteYCoordinate(
-											entity.getBounds().getY() + OFFSET
-										 ) - offsetHeight;
+											(double) (entity.getBounds().getX() + entity.getBounds().getWidth() - OFFSET)
+										  ).intValue();
+				final Integer popupTop = (int) (pc.getAbsoluteYCoordinate(
+											(double) (entity.getBounds().getY() + OFFSET)
+										 ) - offsetHeight);
 				infoIcon.setPopupPosition(popupLeft, popupTop);
 			}    		
     	});
