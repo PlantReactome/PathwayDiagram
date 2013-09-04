@@ -8,9 +8,9 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -19,15 +19,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  *
  */
 public class AlertPopup {
-    private static PopupPanel popUp;
     
     public static void alert(String alertText) {
-    	init(alertText);
+    	DialogBox popUp = init(alertText);
     	popUp.center();
     }
     
-    private static void init(String labelText) { 
-        popUp = new PopupPanel(false);
+    private static DialogBox init(String labelText) { 
+        final DialogBox popUp = new DialogBox(false);
     	VerticalPanel vPane = new VerticalPanel();
         HTML alertLabel = new HTML(labelText);        
         Button button = new Button("Ok", new ClickHandler() {
@@ -43,11 +42,14 @@ public class AlertPopup {
         vPane.add(alertLabel);
         vPane.add(button);
         
-        setStyle();
+        setStyle(popUp);
         popUp.setWidget(vPane);
+        popUp.setText("Alert!");
+        
+        return popUp;
     }
 
-	private static void setStyle() {
+	private static void setStyle(DialogBox popUp) {
 		Style style = popUp.getElement().getStyle();
 		
 		style.setZIndex(2);
