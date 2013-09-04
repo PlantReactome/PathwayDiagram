@@ -153,7 +153,7 @@ public abstract class NodeOptionsMenu {
    			addItem("Display Participating Molecules", new Command() {
 				@Override
 				public void execute() {
-					diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected);
+					diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected, diagramPane.getController());
 					hide();							
 				}    					
    			});   			
