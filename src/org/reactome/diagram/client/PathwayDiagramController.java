@@ -6,6 +6,7 @@
 package org.reactome.diagram.client;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
@@ -265,6 +266,26 @@ public class PathwayDiagramController {
     	
     	try {
     		requestBuilder.sendRequest(null, callback);
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
+    
+    public void queryByIds(String dbIds, String className, RequestCallback callback) {
+    	String hostUrl = getHostUrl();
+    	
+    	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "queryByIds";
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
+    	requestBuilder.setHeader("Accept", "application/xml");
+    	
+    	StringBuffer postData = new StringBuffer();
+    	postData.append(URL.encode("ID"));
+    	postData.append("=");
+    	postData.append(URL.encode(dbIds));
+    	
+    	try {
+    		requestBuilder.sendRequest(postData.toString(), callback);
     	} catch (RequestException ex) {
     		requestFailed(ex);
     	}

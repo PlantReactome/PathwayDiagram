@@ -16,6 +16,7 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventHandler;
@@ -319,7 +320,11 @@ public class CanvasEventInstaller {
     	int [] coord = getCoordinates(event);
     	previousX = coord[0];
         previousY = coord[1];
-        isMouseDown = true;        	
+        isMouseDown = true;
+        
+        if (canvas instanceof InteractorCanvas && draggableNode == null)
+        	draggableNode = ((InteractorCanvas) canvas).getDraggableNode(new Point(previousX, previousY));
+        
         diagramPane.hideTooltip();             
     }
     
@@ -333,16 +338,15 @@ public class CanvasEventInstaller {
             int dx = x - previousX;
             int dy = y - previousY;
             
-            if (canvas instanceof InteractorCanvas && draggableNode == null)
-            	draggableNode = ((InteractorCanvas) canvas).getDraggableNode(new Point(previousX, previousY));
-            
-            
-            if (draggableNode != null) {            
+            if (draggableNode != null) { 
+            	WidgetStyle.setCursor(canvas, Cursor.POINTER);
+            	
             	double scale = canvas.getScale();
             	int scaleDeltaX = (int) (dx / scale);
             	int scaleDeltaY = (int) (dy / scale);
             	diagramPane.drag(draggableNode, scaleDeltaX, scaleDeltaY);            	
             } else {
+            	WidgetStyle.setCursor(canvas, Cursor.DEFAULT);
             	diagramPane.translate(dx, dy);
             	diagramPane.update();
             }
@@ -367,6 +371,7 @@ public class CanvasEventInstaller {
        	if (isDragging) {
        		isDragging = false;
        		draggableNode = null;
+       		WidgetStyle.setCursor(canvas, Cursor.DEFAULT);
        	} else { // Do click selection
        		//TODO: selection cannot work under iPad. Need to check touchEnd event.
        		diagramPane.select(event, x, y);

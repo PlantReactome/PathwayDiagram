@@ -4,6 +4,7 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -43,7 +46,6 @@ public class ExpressionCanvas extends DiagramCanvas {
     private CanvasPathway pathway;
     private DataController dataController;
     private ExpressionPathway expressionPathway;
-    private Timer readyToRender;
     private Context2d c2d;
        
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
@@ -110,27 +112,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     			oldExpressionPathway.getTimerCheckingIfProcessNodeInfoObtained().cancel();    			
     			
     		return;
-    	} else if (pathway.getDbIdToRefEntityId() == null) {
-    		checkIfPathwayReferenceMapExists(oldExpressionPathway);
     	} else {
     		getPathwayNodeDataBeforeRendering(oldExpressionPathway);
     	}
-    }
-    
-    private void checkIfPathwayReferenceMapExists(final ExpressionPathway oldExpressionPathway) {
-    	readyToRender = new Timer() {
-    		
-    		public void run() {
-    			
-    			if (pathway.getDbIdToRefEntityId() != null) {
-    				cancel();
-    				getPathwayNodeDataBeforeRendering(oldExpressionPathway);
-    			}
-    			
-    		}
-    	};
-    	
-    	readyToRender.scheduleRepeating(200);
     }
     
     private void getPathwayNodeDataBeforeRendering(ExpressionPathway oldExpressionPathway) {
@@ -143,11 +127,10 @@ public class ExpressionCanvas extends DiagramCanvas {
     			expressionPathway = new ExpressionPathway(c2d, pathway, getDataPointIndexFromDataController());
     			for (GraphObject entity : getGraphObjects()) {    		
     				if (entity.getType() == GraphObjectType.ProcessNode) {
-    					diagramPane.getController().getCanvasPathwayXML(entity.getReactomeId(), createPathwayForProcessNodeAndColor(expressionPathway, entity));
+    					diagramPane.getController().getReferenceEntity(entity.getReactomeId(), getGenesForProcessNodeAndColor(expressionPathway, entity));
     				}
     			}
-    	} else 
-    		expressionPathway.setContext2d(c2d);
+    	}
     		
     	if (expressionPathway.allProcessNodesReady()) // True if no pathway nodes to render
     		drawExpressionOverlay(expressionPathway);
@@ -188,7 +171,7 @@ public class ExpressionCanvas extends DiagramCanvas {
            			
            			((Node) entity).setBgColor(nodeColor);             		
            		}
-            			            		            		
+           		
            		renderer.render(c2d, (Node) entity);
            		
            		((Node) entity).setBgColor(oldBgColor);
@@ -279,82 +262,90 @@ public class ExpressionCanvas extends DiagramCanvas {
 		}
 	}
 	
-	private RequestCallback createPathwayForProcessNodeAndColor(final ExpressionPathway expressionPathway, final GraphObject entity) {
+	private RequestCallback getGenesForProcessNodeAndColor(final ExpressionPathway expressionPathway, final GraphObject entity) {
 		expressionPathway.incrementCallbacksInProgress();
 		
-		RequestCallback createPathwayForProcessNodeAndColor = new RequestCallback() {
-				
+		RequestCallback getGenesForProcessNodeAndColor = new RequestCallback() {
+			final private String ERROR_MSG = "Could not retrieve pathway genes"; 
+			
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() != 200) {
-					AlertPopup.alert("Could not retrieve pathway xml for " + entity.getDisplayName());
+					AlertPopup.alert(ERROR_MSG + " for " + entity.getDisplayName());
 					expressionPathway.decrementCallbacksInProgress();
 					return;
 				}
-				
-				ReactomeXMLParser canvasPathwayXMLParser = new ReactomeXMLParser(response.getText());
-				
-				CanvasPathway pathway = new CanvasPathway();
-				pathway.buildPathway(canvasPathwayXMLParser.getDocumentElement());
-				
-				diagramPane.getController().getPhysicalToReferenceEntityMap(entity.getReactomeId(), colorProcessNode(expressionPathway, entity, pathway));
+								
+				colorProcessNode(expressionPathway, entity, getRefIdsForPathwayGenes(response.getText()));
 			}
 			
 			public void onError(Request request, Throwable exception) {
-				AlertPopup.alert("Could not retrieve pathway xml " + exception);
+				AlertPopup.alert(ERROR_MSG + exception);
 				expressionPathway.decrementCallbacksInProgress();
 			}
 		};
 		
-		return createPathwayForProcessNodeAndColor;
+		return getGenesForProcessNodeAndColor;
+	}
+	
+	private List<Long> getRefIdsForPathwayGenes(String referenceEntityXML) {
+		List<Long> geneRefIds = new ArrayList<Long>();
+		
+		ReactomeXMLParser referenceEntityParser = new ReactomeXMLParser(referenceEntityXML);
+		
+		Element referenceEntityElement = referenceEntityParser.getDocumentElement();
+		
+		NodeList referenceGeneProducts = referenceEntityElement.getElementsByTagName("referenceGeneProduct");
+		for (int i = 0; i < referenceGeneProducts.getLength(); i++) {
+			Element referenceGeneProduct = (Element) referenceGeneProducts.item(i);
+						
+			try {
+				Long refId = Long.parseLong(referenceEntityParser.getXMLNodeValue(referenceGeneProduct, "dbId"));
+				geneRefIds.add(refId);
+			} catch (NumberFormatException ex) {
+				AlertPopup.alert("Unable to parse gene product id " + ex);
+			}
+		}
+		
+		NodeList referenceIsoforms = referenceEntityElement.getElementsByTagName("referenceIsoform");
+		for (int i = 0; i < referenceIsoforms.getLength(); i++) {
+			Element referenceIsoform = (Element) referenceIsoforms.item(i);
+			
+			try {
+				Long refId = Long.parseLong(referenceEntityParser.getXMLNodeValue(referenceIsoform, "dbId"));
+				geneRefIds.add(refId);
+			} catch (NumberFormatException ex) {
+				AlertPopup.alert("Unable to parse isoform id " + ex);
+			}
+		}
+				
+		return geneRefIds;
 	}
 				
-	private RequestCallback colorProcessNode(final ExpressionPathway expressionPathway, final GraphObject entity, final CanvasPathway pathway) {
-		RequestCallback colorProcessNode = new RequestCallback() {
-			
-			private final String ERROR_MESSAGE = "Could not obtain reference entity ids for pathway " + pathway.getDisplayName(); 
-			
-			public void onResponseReceived(Request request, Response response) {
-				if (response.getStatusCode() != 200) {
-					AlertPopup.alert(ERROR_MESSAGE);
-					expressionPathway.decrementCallbacksInProgress();
-					return;
-				}
-				
-				pathway.setDbIdToRefEntityId(response.getText());
-				
-				Map<Long, ExpressionInfo> pathwayExpressionComponents = new HashMap<Long, ExpressionInfo>();
-				
-				PathwayExpressionValue pathwayExpression = dataController.getDataModel().getPathwayExpressionValue(entity.getReactomeId());
-			
-				if (pathwayExpression != null) { 
-					Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdsToExpressionIds();
-					Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValueForDataPoint(expressionPathway.getDataPointIndex());
-					Map<Long, String> expressionColors = dataController.convertValueToColor(expressionLevels);
+	private void colorProcessNode(ExpressionPathway expressionPathway, GraphObject entity, List<Long> refIdsForPathwayGenes) {
+		Map<Long, ExpressionInfo> pathwayExpressionComponents = new HashMap<Long, ExpressionInfo>();
 		
-					for (Long pathwayComponentId : expressionIds.keySet()) 
-						pathwayExpressionComponents.put(pathwayComponentId,	
-								expressionCanvasModel.new ExpressionInfo(expressionIds.get(pathwayComponentId),
-																		 expressionLevels.get(pathwayComponentId),
-																		 expressionColors.get(pathwayComponentId)
-																		)
-						);
-				}
+		PathwayExpressionValue pathwayExpression = dataController.getDataModel().getPathwayExpressionValue(entity.getReactomeId());
+			
+		if (pathwayExpression != null) { 
+			Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdsToExpressionIds();
+			Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValueForDataPoint(expressionPathway.getDataPointIndex());
+			Map<Long, String> expressionColors = dataController.convertValueToColor(expressionLevels);
+		
+			for (Long pathwayComponentId : expressionIds.keySet()) 
+				pathwayExpressionComponents.put(pathwayComponentId,	
+						expressionCanvasModel.new ExpressionInfo(expressionIds.get(pathwayComponentId),
+																 expressionLevels.get(pathwayComponentId),
+																 expressionColors.get(pathwayComponentId)
+																)
+				);			
 					
-				expressionPathway.addProcessNodeColorList(
-					entity,
-					expressionCanvasModel.getColorList(pathway, pathwayExpressionComponents)
-				);	
-				
-				expressionPathway.decrementCallbacksInProgress();
-			}
-			
-			public void onError(Request request, Throwable exception) {
-				AlertPopup.alert(ERROR_MESSAGE + " " + exception);
-				expressionPathway.decrementCallbacksInProgress();
-			}
-		};
+			expressionPathway.addProcessNodeColorList(
+				entity,
+				expressionCanvasModel.getColorList(refIdsForPathwayGenes, pathwayExpressionComponents)
+			);
+		}
 		
-		return colorProcessNode;
+		expressionPathway.decrementCallbacksInProgress();
 	}
 	
 	private Integer getDataPointIndexFromDataController() {
@@ -378,14 +369,12 @@ public class ExpressionCanvas extends DiagramCanvas {
     	private Integer processNodeCount;
     	private Map<GraphObject, List<String>> processNodeToColorList;
     	private Timer processNodeInfoObtainedTimer;
-    	private Context2d c2d;
     	
     	public ExpressionPathway(Context2d c2d, CanvasPathway pathway, Integer dataPointIndex) {
     		this.pathway = pathway;
     		this.dataPointIndex = dataPointIndex;
     		this.processNodeCount = 0;
     		this.processNodeToColorList = new HashMap<GraphObject, List<String>>();
-    		this.c2d = c2d;
     		createTimer();
     	}
     	
@@ -421,9 +410,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     		return processNodeInfoObtainedTimer;
     	}
     	
-    	public void setContext2d(Context2d c2d) {
-    		this.c2d = c2d;
-    	}
+    	//public void setContext2d(Context2d c2d) {
+    		//this.c2d = c2d;
+    	//}
     	
     	private void createTimer() {
     		processNodeInfoObtainedTimer = new Timer() {

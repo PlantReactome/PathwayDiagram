@@ -148,6 +148,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 	}
 	
 	private void setTableRows(FlexTable table, Map<String, Widget> rows) {
+		table.clear(true);
+		
 		for (Entry<String, Widget> row : rows.entrySet()) {
 			String text = row.getKey();
 			Widget widget = row.getValue();
@@ -167,6 +169,10 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		private Button psicquicServiceButton;		
 		
 		public InteractionDBOptions() {
+			initTable();
+		}
+		
+		private void initTable() {
 			optionsTable = new FlexTable();
 			initWidgets();
 			makeTable();
@@ -277,7 +283,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 						
 							interactorCanvasModel.addNewUploadedUserFile(userLabel, serviceKey);
 							interactorCanvasModel.setInteractorDatabase(serviceKey);
-							makeTable(); // Update listbox to include user uploaded file as a selectable option
+							initTable(); // Update listbox to include user uploaded file as a selectable option
 							uploadFileDialogBox.hide();
 						}						
 					});

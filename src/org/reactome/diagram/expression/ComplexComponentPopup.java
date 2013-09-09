@@ -7,17 +7,24 @@ package org.reactome.diagram.expression;
 
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
+import org.reactome.diagram.client.PathwayDiagramController;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.ComplexNode.Component;
+import org.reactome.diagram.model.ReactomeXMLParser;
 
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 
 /**
  * This customized PopupPanel is used to hold a list of popup menu.
@@ -28,7 +35,7 @@ public class ComplexComponentPopup extends DialogBox {
     private ExpressionCanvas expressionCanvas;
 	private ScrollPanel scrollPanel;
 	private FlexTable componentTable;
-    
+	
     public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
         super(true);
         this.expressionCanvas = expressionCanvas;
@@ -61,24 +68,99 @@ public class ComplexComponentPopup extends DialogBox {
      * Show popup menu
      * @param panel
      */
-    public void showPopup(ComplexNode selectedComplex) {
+    public void showPopup(ComplexNode selectedComplex, PathwayDiagramController controller) {
         hide();
         
-        createTable(selectedComplex);
-        if (tableIsEmpty()) {   	
-        	AlertPopup.alert(selectedComplex.getDisplayName() + " has no genome encoded components with data");        	
-        	return;
-        } 
+        String componentsWithoutDisplayNames = getRefIdsForComponentsWithNoDisplayName(selectedComplex);
         
-        setText("Components for " + selectedComplex.getDisplayName() + ": ");
-        
-        expressionCanvas.setGreyOutCanvas(true);
-        bringToFront();
-        center();
-        setScrollPanelSize();
+        if (!componentsWithoutDisplayNames.isEmpty()) {
+        	controller.queryByIds(componentsWithoutDisplayNames, "ReferenceEntity", setDisplayNamesAndMakePopup(selectedComplex));
+        } else {
+        	makePopup(selectedComplex);
+        }
+     }
+    
+    /*
+     * Returns a comma delimited string of complex component reference ids lacking a display name
+     */
+    private String getRefIdsForComponentsWithNoDisplayName(ComplexNode complex) {
+    	final String delimiter = ",";
+    	
+    	StringBuffer refIds = new StringBuffer();
+    	
+    	for (Component component : complex.getComponents()) {
+    		if (component.getDisplayName() == null || component.getDisplayName().isEmpty()) {
+    			refIds.append(component.getRefEntityId());
+    			refIds.append(delimiter);
+    		}
+    	}
+    	
+    	if (refIds.toString().endsWith(delimiter)) 
+    		refIds.deleteCharAt(refIds.lastIndexOf(delimiter));
+    	
+    	return refIds.toString();
     }
     
-    private boolean tableIsEmpty() {		
+    private RequestCallback setDisplayNamesAndMakePopup(final ComplexNode complex) {
+    	RequestCallback setDisplayNamesAndMakePopup = new RequestCallback() { 
+    		final private String ERROR_MSG = "Could not get display names for all components ";
+    		
+    		
+    		public void onResponseReceived(Request request,	Response response) {
+    			if (response.getStatusCode() != 200) {
+    				AlertPopup.alert(ERROR_MSG + response.getStatusCode() + ": " + response.getStatusText());
+    				return;
+    			}
+    			
+    			setDisplayNamesForComponents(complex, response.getText());
+    			makePopup(complex);
+    		}
+    		
+    		public void onError(Request request, Throwable exception) {
+    			AlertPopup.alert(ERROR_MSG);
+    		}
+    	};
+    	
+    	return setDisplayNamesAndMakePopup;
+    }			
+    
+    private void setDisplayNamesForComponents(ComplexNode complex, String componentXML) {
+    	ReactomeXMLParser complexComponentParser = new ReactomeXMLParser(componentXML);
+    	
+    	Element complexComponentElement = ((ReactomeXMLParser) complexComponentParser).getDocumentElement();
+    	
+    	NodeList componentGenes = complexComponentElement.getElementsByTagName("ReferenceGeneProduct");
+    	for (int i = 0; i < componentGenes.getLength(); i++) {
+    		Element componentGene = (Element) componentGenes.item(i);
+    		
+    		String dbId = complexComponentParser.getXMLNodeValue(componentGene, "dbId");
+    		if (dbId != null) {
+    			Component component = complex.getComponent(Long.parseLong(dbId));
+    			
+    			if (component != null) {
+    				String name = complexComponentParser.getXMLNodeValue(componentGene, "name");
+    				component.setDisplayName(name);
+    			}
+    		}
+    	}    	
+    }
+    
+    private void makePopup(ComplexNode complex) {	
+   		createTable(complex);
+    	if (tableIsEmpty()) {   	
+    		AlertPopup.alert(complex.getDisplayName() + " has no genome encoded components with data");        	
+    		return;
+    	} 
+        
+    	setText("Components for " + complex.getDisplayName() + ": ");
+        
+    	expressionCanvas.setGreyOutCanvas(true);
+    	bringToFront();
+    	center();
+    	setScrollPanelSize();    		     	
+    }
+        
+    private boolean tableIsEmpty() {
     	Integer numberOfComponents = componentTable.getRowCount() - 1; // Subtract one row for the header
 		
     	return numberOfComponents == 0;
@@ -108,11 +190,14 @@ public class ComplexComponentPopup extends DialogBox {
     	}
     }
     	
-	private void addRow(Component component) {
-    	final Integer rowIndex = componentTable.getRowCount();	
+	private void addRow(Component component) {		
+		final Integer rowIndex = componentTable.getRowCount();	
     	final String bgColor = component.getExpressionColor();
+
+    	String label = (component.getDisplayName() != null && !component.getDisplayName().isEmpty()) ? 
+    					component.getDisplayName() : component.getRefEntityId().toString();
     	
-    	addLabel(component.getDisplayName(), rowIndex, 0, bgColor);
+    	addLabel(label, rowIndex, 0, bgColor);
     		
     	if (isExpressionAnalysis()) {    		   			
     		addLabel(getText(component.getExpressionIdentifiers()), rowIndex, 1, bgColor);

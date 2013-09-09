@@ -518,9 +518,9 @@ public class InteractorCanvas extends DiagramCanvas {
 	public void setLoadingInteractors(boolean loadingInteractors) {
 		this.loadingInteractors = loadingInteractors;
 		if (loadingInteractors) {
-			diagramPanel.setCursor(Cursor.WAIT);
+			WidgetStyle.setCursor(this, Cursor.WAIT);
 		} else {
-			diagramPanel.setCursor(Cursor.DEFAULT);
+			WidgetStyle.setCursor(this, Cursor.DEFAULT);
 		}
 	}
 	

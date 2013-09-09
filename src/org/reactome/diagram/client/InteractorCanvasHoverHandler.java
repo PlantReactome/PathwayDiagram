@@ -21,26 +21,28 @@ import com.google.gwt.user.client.ui.HTML;
  *
  */
 public class InteractorCanvasHoverHandler extends HoverHandler {
-    private InteractorCanvas ic;
+    private InteractorCanvas interactorCanvas;
 	
     public InteractorCanvasHoverHandler(PathwayDiagramPanel diagramPanel, InteractorCanvas interactorCanvas) {
         super(diagramPanel, interactorCanvas);
-        ic = interactorCanvas; 
+        this.interactorCanvas = interactorCanvas; 
     }
 
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
     	
-    	if (ic.getGraphObjects() == null)
+    	if (interactorCanvas.getGraphObjects() == null)
             return null;
                 
-        List<GraphObject> objects = ic.getGraphObjects();
+        List<GraphObject> objects = interactorCanvas.getGraphObjects();
         super.hover(objects);
 
         if (hoveredObject != null) {
-        	diagramPanel.setCursor(Cursor.POINTER);
-        } else if (ic.isLoadingInteractors()) {
-        	diagramPanel.setCursor(Cursor.WAIT);
+        	WidgetStyle.setCursor(interactorCanvas, Cursor.POINTER);
+        } else if (interactorCanvas.isLoadingInteractors()) {
+        	WidgetStyle.setCursor(interactorCanvas, Cursor.WAIT);
+        } else {
+        	WidgetStyle.setCursor(interactorCanvas, Cursor.DEFAULT);
         }
 
         if (!(isOverSameObject && timeElapsed)) 

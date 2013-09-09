@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.view.Parameters;
 
 /**
@@ -53,9 +52,7 @@ public class ExpressionCanvasModel {
 		}		
 	}
 	
-	public List<String> getColorList(CanvasPathway pathway, Map<Long, ExpressionInfo> pathwayExpression) {
-		List<Long> proteinReferenceIds = pathway.getReferenceIds(pathway.getProteins());
-		
+	public List<String> getColorList(List<Long> refGeneIds, Map<Long, ExpressionInfo> pathwayExpression) {
 		Set<Long> expressionEntityIds = pathwayExpression.keySet();
 
 		//System.out.println(pathway.getDisplayName() + "Pathway Proteins");
@@ -68,14 +65,14 @@ public class ExpressionCanvasModel {
 		//	System.out.println(expressionId);
 		//}
 		
-		proteinReferenceIds.removeAll(expressionEntityIds);
+		refGeneIds.removeAll(expressionEntityIds);
 		
 		List<ExpressionInfo> expressionInfoOfEntities = new ArrayList<ExpressionInfo>(pathwayExpression.values());
 		Collections.sort(expressionInfoOfEntities);
 		
 		List<String> colorList = new ArrayList<String>();
 		
-		Iterator<Long> proteinsWithoutExpressionColors = proteinReferenceIds.iterator();
+		Iterator<Long> proteinsWithoutExpressionColors = refGeneIds.iterator();
 		while (proteinsWithoutExpressionColors.hasNext()) {
 			colorList.add(getDefaultColor());
 			proteinsWithoutExpressionColors.next();

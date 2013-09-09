@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -25,6 +26,10 @@ public class WidgetStyle {
     
     public static void setTransparentBackground(Widget widget) {
     	getStyle(widget).setBackgroundColor("transparent");
+    }
+    
+    public static void setCursor(Widget widget, Cursor cursor) {
+    	getStyle(widget).setCursor(cursor);
     }
     
     private static Style getStyle(Widget widget) {
