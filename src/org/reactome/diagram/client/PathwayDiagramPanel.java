@@ -43,7 +43,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
@@ -627,6 +626,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     }
     
+    public void clearOverlays() {    	
+    	clearInteractorOverlay();
+    	
+    	if (overlayDataController != null)
+    		overlayDataController.dispose();
+    		
+    	clearExpressionOverlay();
+    }
+    
     /**
      * Update drawing.
      */
@@ -678,9 +686,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 			@Override
 			public void onExpressionOverlayStopped(ExpressionOverlayStopEvent e) {
-				overlayDataController = null;
-				complexComponentPopup = null;
-				expressionCanvas.setPathway(null);
+				clearExpressionOverlay();
 				fireEvent(e);
 			}
     		
@@ -700,6 +706,17 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	
     	overlayDataController.setPathwayId(getPathway().getReactomeId());    	
     	//expressionCanvas.setPathway(getPathway());
+    }
+    
+    private void clearInteractorOverlay() {
+    	if (interactorCanvas != null)
+    		interactorCanvas.removeAllProteins();
+    }
+    
+    private void clearExpressionOverlay() {
+    	overlayDataController = null;
+    	complexComponentPopup = null;
+    	expressionCanvas.setPathway(null);
     }
     
     /**
