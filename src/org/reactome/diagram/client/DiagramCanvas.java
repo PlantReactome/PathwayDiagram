@@ -14,8 +14,6 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.event.dom.client.MouseEvent;
-import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -300,7 +298,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		}
 		
 		public void center(Point point) {
-			Point correctedPoint = getCorrectedCoordinates(point);
+			Point diagramPoint = new Point(point.getX() - DiagramCanvas.this.getAbsoluteLeft(),
+										   point.getY() - DiagramCanvas.this.getAbsoluteTop());
+			
+			Point correctedPoint = getCorrectedCoordinates(diagramPoint);
 			
 			translate(
 				-(correctedPoint.getX() - centerX(getScale())),
