@@ -186,6 +186,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
                 showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
+            	//showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
             }
         });
     }
@@ -716,7 +717,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private void clearExpressionOverlay() {
     	overlayDataController = null;
     	complexComponentPopup = null;
-    	expressionCanvas.setPathway(null);
+    	if (expressionCanvas != null )	
+    		expressionCanvas.setPathway(null);
     }
     
     /**
