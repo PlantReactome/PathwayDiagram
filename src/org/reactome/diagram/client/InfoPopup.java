@@ -136,7 +136,8 @@ public class InfoPopup extends PopupPanel {
     	 	identifier = diagramPane.getPathway()
     	 							.getDbIdToRefEntityId()
     	 							.get(selectedObject.getReactomeId())
-    	 							.get(0);
+    	 							.get(0)
+    	 							.getDbId();
     	} else {    		
     		cgiScript = "instancebrowser";
     		identifier = selectedObject.getReactomeId();
