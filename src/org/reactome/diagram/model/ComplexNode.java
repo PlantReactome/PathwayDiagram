@@ -140,6 +140,7 @@ public class ComplexNode extends Node {
 		List<String> colors = new ArrayList<String>();
 		
 		for (Component component : getComponents()) {
+//			System.out.println(component);
 			if (component.getExpressionColor() != null)
 				colors.add(component.getExpressionColor());
 		}
@@ -194,9 +195,19 @@ public class ComplexNode extends Node {
 
 		@Override
 		public int compareTo(Component c) {
-			if (expressionLevel == c.getExpressionLevel())
+			if (expressionLevel == c.getExpressionLevel()) {
+				if (expressionLevel == null && c.getExpressionLevel() == null) {
+					// Default expression color is always first 
+					if (expressionColor == null || expressionColor.equals(Parameters.defaultExpressionColor)) {
+						return -1;
+					} else if (c.getExpressionColor() == null || c.getExpressionColor().equals(Parameters.defaultExpressionColor))  {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
 				return 0;
-			else if (expressionLevel == null)
+			} else if (expressionLevel == null)
 				return -1;
 			else if (c.getExpressionLevel() == null)
 				return 1;
