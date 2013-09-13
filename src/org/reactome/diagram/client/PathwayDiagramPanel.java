@@ -185,8 +185,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
-                showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
-            	//showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
+                //showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
+            	showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
             }
         });
     }
@@ -350,7 +350,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	overlayDataController.setPathwayId(pathway.getReactomeId());
         	//expressionCanvas.setPathway(pathway);
         }
-      
+
+        for (DiagramCanvas canvas : getExistingCanvases()) {
+        	canvas.resetTranslate();
+        }
+        
        	PathwayChangeEvent event = new PathwayChangeEvent();
        	if (old != null)
        		event.setPreviousPathwayDBId(old.getReactomeId());
