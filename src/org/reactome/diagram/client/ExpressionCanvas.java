@@ -16,6 +16,7 @@ import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.ComplexNode.Component;
 import org.reactome.diagram.model.GraphObject;
@@ -141,7 +142,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }	
     	
     private void drawExpressionOverlay(ExpressionPathway expressionPathway) { 	
-        Map<Long, List<Long>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntityId();
+        Map<Long, List<ReferenceEntity>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntityId();
         	
         for (GraphObject entity : getGraphObjects()) {
            	if (entity instanceof Node) {
@@ -158,15 +159,15 @@ public class ExpressionCanvas extends DiagramCanvas {
            			((Node) entity).setFgColor("rgb(0,0,0)"); // Black text
            		//	((Node) entity).setFgColor("rgb(255,255,255)");
            			
-           			List<Long> componentIds = physicalToReferenceEntityMap.get(entity.getReactomeId());
-           			addExpressionInfoToComplexComponents((ComplexNode) entity, componentIds);            			
+           			List<ReferenceEntity> componentIds = physicalToReferenceEntityMap.get(entity.getReactomeId());
+           			addExpressionInfoToComplexComponents((ComplexNode) entity, componentIds);
            		} 
            		else if (entity.getType() == GraphObjectType.ProcessNode) {
            			((Node) entity).setBgColor(getDefaultColor(entity.getType()));
            			((ExpressionProcessNodeRenderer) renderer).setColorList(expressionPathway.getColorList(entity));
            		}	
            		else {
-           			Long refEntityId = getReferenceEntityId(physicalToReferenceEntityMap.get(entity.getReactomeId()));            			
+           			Long refEntityId = getReferenceEntityId((physicalToReferenceEntityMap.get(entity.getReactomeId())));            			
            			String nodeColor = getEntityColor(refEntityId, entity.getType());            
            			
            			((Node) entity).setBgColor(nodeColor);             		
@@ -180,9 +181,9 @@ public class ExpressionCanvas extends DiagramCanvas {
         }                
     }
 
-	private Long getReferenceEntityId(List<Long> referenceEntityIds) {
-		if (referenceEntityIds != null && referenceEntityIds.size() > 0) {
-		     return referenceEntityIds.get(0);
+	private Long getReferenceEntityId(List<ReferenceEntity> referenceEntities) {
+		if (referenceEntities != null && referenceEntities.size() > 0) {
+		     return referenceEntities.get(0).getDbId();
 		}
 		return null;
 	}
@@ -212,6 +213,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 		String color = null;		
 		if (getExpressionInfo(refEntityId) != null) {            					
 			color = getExpressionInfo(refEntityId).getColor();
+			
 		} 		
 							
 		if (color == null) {
@@ -238,17 +240,22 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 	}
  
-	private void addExpressionInfoToComplexComponents(ComplexNode complex, List<Long> componentIds) {
-		if (complex == null || componentIds == null)
+	private void addExpressionInfoToComplexComponents(ComplexNode complex, List<ReferenceEntity> components) {
+		if (complex == null || components == null)
 			return;
 		
-		for (Long refId : componentIds) 
-			complex.addComponent(refId);
+		for (ReferenceEntity refEntity : components) {
+			Component component = complex.addComponent(refEntity.getDbId());
+			component.setDisplayName(refEntity.getName());
+			component.setSchemaClass(refEntity.getSchemaClass());
+		}
 		
 		for (Component component : complex.getComponents()) {
 			Long refId = component.getRefEntityId();
-			List<String> componentExpressionId = null;			
-			String componentExpressionColor =  getEntityColor(refId, null);
+			GraphObjectType entityType = getEntityType(component.getSchemaClass());
+			
+			List<String> componentExpressionId = null;
+			String componentExpressionColor =  getEntityColor(refId, entityType);
 			Double componentExpressionLevel = null;
 			
 			if (refId != null) {
@@ -259,6 +266,16 @@ public class ExpressionCanvas extends DiagramCanvas {
 			component.setExpressionId(componentExpressionId);
 			component.setExpressionColor(componentExpressionColor);
 			component.setExpressionLevel(componentExpressionLevel);
+		}
+	}
+	
+	private GraphObjectType getEntityType(String schemaClass) {
+		if (schemaClass.equalsIgnoreCase("ReferenceGeneProduct")) {
+			return GraphObjectType.RenderableProtein;
+		} else if (schemaClass.equalsIgnoreCase("ReferenceMolecule")) {
+			return GraphObjectType.RenderableChemical;
+		} else {
+			return null;
 		}
 	}
 	
@@ -293,6 +310,9 @@ public class ExpressionCanvas extends DiagramCanvas {
 		ReactomeXMLParser referenceEntityParser = new ReactomeXMLParser(referenceEntityXML);
 		
 		Element referenceEntityElement = referenceEntityParser.getDocumentElement();
+		
+		if (referenceEntityElement == null)
+			return geneRefIds;
 		
 		NodeList referenceGeneProducts = referenceEntityElement.getElementsByTagName("referenceGeneProduct");
 		for (int i = 0; i < referenceGeneProducts.getLength(); i++) {
