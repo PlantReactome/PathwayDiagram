@@ -34,7 +34,9 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
                                  Context2d context,
                                  Node node) {
     	List<String> componentColors = ((ComplexNode) node).getComponentColors();
-    	
+
+    	moveSegmentsWithNoDataToBeginning(componentColors);
+     	
     	Set<String> uniqueColors = new HashSet<String>(componentColors);
     	if (uniqueColors.size() == 1) {
     		context.setFillStyle(componentColors.get(0));
@@ -57,6 +59,17 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
         
         createPath(bounds, context);
         context.stroke();
+    }
+    
+    private void moveSegmentsWithNoDataToBeginning(List<String> componentColors) {
+    	Integer noDataSegmentCount = 0;
+    	
+    	while(componentColors.remove(Parameters.defaultExpressionColor.toString())) {
+    		noDataSegmentCount++;
+    	}
+    	
+    	for (int i = 0; i < noDataSegmentCount; i++)
+    		componentColors.add(0, Parameters.defaultExpressionColor.toString());
     }
     
     private void drawSegment(Double width, Double height, Integer maxSegmentHeight, String color, Context2d context) {
