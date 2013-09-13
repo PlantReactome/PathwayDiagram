@@ -12,6 +12,7 @@ import java.util.Map;
 import org.reactome.diagram.model.ConnectWidget.ConnectRole;
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.touch.client.Point;
@@ -29,7 +30,7 @@ public class CanvasPathway extends Node {
     // A list of edges that should be rendered
     private List<HyperEdge> edges;
     // Mapping of each child node's internal id to reference entity id
-    private Map<Long, List<Long>> dbIdToRefEntityId;
+    private Map<Long, List<ReferenceEntity>> dbIdToRefEntityId;
     
     public CanvasPathway() {
     }
@@ -61,7 +62,7 @@ public class CanvasPathway extends Node {
         return this.edges;
     }    
     
-    public Map<Long, List<Long>> getDbIdToRefEntityId() {
+    public Map<Long, List<ReferenceEntity>> getDbIdToRefEntityId() {
 		return dbIdToRefEntityId;
 	}
 
@@ -71,13 +72,13 @@ public class CanvasPathway extends Node {
 		JSONArray mapObjects = (JSONArray) JSONParser.parseStrict(json);		
 		for (int i = 0; i < mapObjects.size(); i++) {
 			JSONObject entityMap = mapObjects.get(i).isObject();
-			dbIdToRefEntityId.put(getPhysicalEntityId(entityMap), getReferenceEntityIds(entityMap));
+			dbIdToRefEntityId.put(getPhysicalEntityId(entityMap), getReferenceEntities(entityMap));
 		}
 	}
 	
 	private void clearDbIdToRefEntityId() {
 		if (dbIdToRefEntityId == null)
-			dbIdToRefEntityId = new HashMap<Long, List<Long>>();
+			dbIdToRefEntityId = new HashMap<Long, List<ReferenceEntity>>();
 		else
 			dbIdToRefEntityId.clear();
 	}
@@ -86,16 +87,25 @@ public class CanvasPathway extends Node {
 		return (long) entityMap.get("peDbId").isNumber().doubleValue();
 	}
 	
-	private List<Long> getReferenceEntityIds(JSONObject entityMap) {
-		List<Long> refEntityIds = new ArrayList<Long>();
+	private List<ReferenceEntity> getReferenceEntities(JSONObject entityMap) {
+		List<ReferenceEntity> refEntities = new ArrayList<ReferenceEntity>();
 		
-		JSONArray refEntityArray = entityMap.get("refDbIds").isArray();
+		JSONArray refEntityArray = entityMap.get("refEntities").isArray();
 		for (int i = 0; i < refEntityArray.size(); i++) {
-			Long refEntityId = (long) refEntityArray.get(i).isNumber().doubleValue();
-			refEntityIds.add(refEntityId);
+			JSONObject refEntity = refEntityArray.get(i).isObject();
+			
+			if (refEntity != null) {
+				JSONNumber dbIdFromJson = refEntity.get("dbId").isNumber();
+				
+				Long dbId = (dbIdFromJson != null) ? (long) dbIdFromJson.doubleValue() : null;
+				String displayName = refEntity.get("displayName").toString().replaceAll("\"", "");
+				String schemaClass = refEntity.get("schemaClass").toString().replaceAll("\"", "");
+				
+				refEntities.add(new ReferenceEntity(dbId, displayName, schemaClass));
+			}
 		}
 		
-		return refEntityIds;
+		return refEntities;
 	}
 	
 	/**
@@ -142,7 +152,7 @@ public class CanvasPathway extends Node {
     		return null;
     	
     	for (ProteinNode protein : getProteins()) {
-    		List<Long> proteinRefIdList = dbIdToRefEntityId.get(protein.getReactomeId());
+    		List<ReferenceEntity> proteinRefIdList = dbIdToRefEntityId.get(protein.getReactomeId());
     		
     		if (!proteinRefIdList.isEmpty() && proteinRefIdList.get(0).equals(refId))
     			return protein;
@@ -162,7 +172,7 @@ public class CanvasPathway extends Node {
     	if (getProteinNodeByDBId(dbId) == null) return null;
     	if (dbIdToRefEntityId.get(dbId) == null || dbIdToRefEntityId.get(dbId).isEmpty()) return null;
     	
-    	return dbIdToRefEntityId.get(dbId).get(0);    	
+    	return dbIdToRefEntityId.get(dbId).get(0).getDbId();    	
     }
     
     public List<Long> getReferenceIds(List<ProteinNode> proteins) {
@@ -578,5 +588,29 @@ public class CanvasPathway extends Node {
             if (bounds.height < p.getY())
                 bounds.height = (int) p.getY();
         }
+    }
+    
+    public class ReferenceEntity {
+    	private Long dbId;
+    	private String name;
+    	private String schemaClass;
+    	
+    	public ReferenceEntity(Long dbId, String name, String schemaClass) {
+    		this.dbId = dbId;
+    		this.name = name;
+    		this.schemaClass = schemaClass;
+    	}
+    	
+    	public Long getDbId() {
+    		return dbId;
+    	}
+    	
+    	public String getName() {
+    		return name;
+    	}
+    	
+    	public String getSchemaClass() {
+    		return schemaClass;
+    	}
     }
 }
