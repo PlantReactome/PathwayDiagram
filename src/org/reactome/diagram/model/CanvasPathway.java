@@ -15,6 +15,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -90,21 +91,24 @@ public class CanvasPathway extends Node {
 	private List<ReferenceEntity> getReferenceEntities(JSONObject entityMap) {
 		List<ReferenceEntity> refEntities = new ArrayList<ReferenceEntity>();
 		
-		JSONArray refEntityArray = entityMap.get("refEntities").isArray();
-		for (int i = 0; i < refEntityArray.size(); i++) {
-			JSONObject refEntity = refEntityArray.get(i).isObject();
+		JSONValue refEntitiesJSON = entityMap.get("refEntities");
+		
+		if (refEntitiesJSON != null && refEntitiesJSON.isArray() != null) {
+			JSONArray refEntityArray = refEntitiesJSON.isArray();
+			for (int i = 0; i < refEntityArray.size(); i++) {
+				JSONObject refEntity = refEntityArray.get(i).isObject();
 			
-			if (refEntity != null) {
-				JSONNumber dbIdFromJson = refEntity.get("dbId").isNumber();
+				if (refEntity != null) {
+					JSONNumber dbIdFromJson = refEntity.get("dbId").isNumber();
 				
-				Long dbId = (dbIdFromJson != null) ? (long) dbIdFromJson.doubleValue() : null;
-				String displayName = refEntity.get("displayName").toString().replaceAll("\"", "");
-				String schemaClass = refEntity.get("schemaClass").toString().replaceAll("\"", "");
+					Long dbId = (dbIdFromJson != null) ? (long) dbIdFromJson.doubleValue() : null;
+					String displayName = refEntity.get("displayName").toString().replaceAll("\"", "");
+					String schemaClass = refEntity.get("schemaClass").toString().replaceAll("\"", "");
 				
-				refEntities.add(new ReferenceEntity(dbId, displayName, schemaClass));
+					refEntities.add(new ReferenceEntity(dbId, displayName, schemaClass));
+				}
 			}
 		}
-		
 		return refEntities;
 	}
 	
