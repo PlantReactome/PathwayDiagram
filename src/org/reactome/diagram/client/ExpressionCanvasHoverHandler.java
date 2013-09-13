@@ -4,11 +4,13 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
+import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
@@ -57,7 +59,12 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     	String expressionLevel = "N/A";
     	
     	if (ecm.getEntityExpressionInfoMap() != null) {
-    		List<Long> refIdsForHoveredObject = ec.getPathway().getDbIdToRefEntityId().get(hoveredObject.getReactomeId());
+    		List<Long> refIdsForHoveredObject = new ArrayList<Long>();
+    		
+    		List<ReferenceEntity> refEntitiesForHoveredObject = ec.getPathway().getDbIdToRefEntityId().get(hoveredObject.getReactomeId());
+    		for (ReferenceEntity refEntity : refEntitiesForHoveredObject) {
+    			refIdsForHoveredObject.add(refEntity.getDbId());
+    		}    		
     		
     		if (refIdsForHoveredObject != null && !refIdsForHoveredObject.isEmpty()) {
     			ExpressionInfo expressionInfo = ecm.getEntityExpressionInfoMap().get(refIdsForHoveredObject.get(0));
