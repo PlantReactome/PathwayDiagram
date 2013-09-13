@@ -162,6 +162,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 				@Override
 				public void onClick(ClickEvent event) {
 					diagramPanel.getPopupMenu().showPopupMenu(getEntity(), event);
+					diagramPanel.setSelectionObject(getEntity());
 					hide();
 				}	
 			});
