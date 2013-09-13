@@ -18,7 +18,8 @@ import com.google.gwt.user.client.ui.Label;
  *
  */
 public class SpeciesComparisonDataController extends DataController {
-
+	private String species;
+	
     public SpeciesComparisonDataController() {
         init();
     }
@@ -33,15 +34,14 @@ public class SpeciesComparisonDataController extends DataController {
     }
     
     public void setPathwayId(Long pathwayId) {
-        if (this.pathwayId == null) {
-    		this.pathwayId = pathwayId;
-        } else {
-        	this.pathwayId = pathwayId;
+   		this.pathwayId = pathwayId;
+        
+   		if (pathwayId != null) {
         	setSpecies();
         }
     }
     
-    public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
+    public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {    	
     	Map<Long, String> compIdToColor = new HashMap<Long, String>();
 	
     	for (Long dbId : compIdToValue.keySet()) {
@@ -60,9 +60,20 @@ public class SpeciesComparisonDataController extends DataController {
     	return compIdToColor;    	
     }
     
+    public void setSpecies(String species) {
+    	this.species = species;
+    }
+    
     protected void setSpecies() {
-    	((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(dataModel.getPathwayExpressionValue(pathwayId).getSpecies());
-    	onDataPointChange(0);
+    	if (pathwayId != null) {    		
+    		final String species = dataModel.getPathwayExpressionValue(pathwayId) != null && dataModel.getPathwayExpressionValue(pathwayId).getSpecies() != null ?
+    							   dataModel.getPathwayExpressionValue(pathwayId).getSpecies() : this.species;
+    		
+    		if (species != null)
+    			((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(species);
+    		
+    		onDataPointChange(0);
+    	}
     }
     
     protected class SpeciesComparisonNavigationPane extends NavigationPane {
@@ -79,7 +90,7 @@ public class SpeciesComparisonDataController extends DataController {
         	installHandlers();    
         } 
         
-        Label getDataLabel() {
+        protected Label getDataLabel() {
 			return dataLabel;
         	
         }

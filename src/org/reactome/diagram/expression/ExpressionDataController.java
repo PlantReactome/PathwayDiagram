@@ -86,7 +86,7 @@ public class ExpressionDataController extends DataController implements ResizeHa
     
     public void setPathwayId(Long pathwayId) {
         this.pathwayId = pathwayId;
-        onDataPointChange(((NavigationPane) navigationPane).getValue());                
+        onDataPointChange(((NavigationPane) navigationPane).getValue());
     }
     
     /**

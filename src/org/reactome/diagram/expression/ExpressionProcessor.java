@@ -18,6 +18,7 @@ import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -38,21 +39,21 @@ public class ExpressionProcessor {
 	
 	private String analysisName = "expression_analysis_with_levels";
     private String analysisId;
-    private Boolean resultsReady;
+    private ResultStatus resultStatus;
 	private ReactomeExpressionValue expressionData; 
-    
+	private String species;
 		
 	public ExpressionProcessor(String analysisString) {
 	    if (analysisString.startsWith("http:")) {
 	        analysisId = analysisString;
-	        resultsReady = true;
+	        resultStatus = ResultStatus.FINISHED;
 	    }
 	    else {
 	        String[] analysisParams = analysisString.split("\\.");    	
 	        //this.analysisName = analysisParams[0];
 	        this.analysisId = analysisParams[1];
 	        
-	        this.resultsReady = false;
+	        resultStatus = ResultStatus.PENDING;
 	    }
 	}	
     	
@@ -92,9 +93,14 @@ public class ExpressionProcessor {
 		Timer timer = new Timer() {
 			@Override
 			public void run() {
-				if (resultsReady) {
+				if (resultStatus != ResultStatus.PENDING) {
 					cancel(); // Timer repeat is cancelled
-					makeDataController(diagramPane, contentPane, expressionCanvas);
+					
+					if (resultStatus == ResultStatus.FINISHED)
+						makeDataController(diagramPane, contentPane, expressionCanvas);
+					else if (resultStatus == ResultStatus.ABORTED)
+						AlertPopup.alert("Unable to show expression/inference analysis");
+					
 					return;
 				}
 				checkIfResultsReady();
@@ -113,19 +119,30 @@ public class ExpressionProcessor {
 
 				@Override
 				public void onResponseReceived(Request request,	Response response) {
-					if (response.getStatusCode() == 200) {
-						resultsReady = response.getText().contains("Finished");
+					if (response.getStatusCode() != 200) {
+						resultStatus = ResultStatus.ABORTED;
+						return;
 					}
+					
+					String statusMessage = response.getText();
+					
+					if (statusMessage.contains("Finished")) {
+						resultStatus = ResultStatus.FINISHED;
+					} else if (statusMessage.contains("Warning") || statusMessage.contains("Error")) {
+						resultStatus = ResultStatus.ABORTED;
+					}					
 				}
 
 				@Override
 				public void onError(Request request, Throwable exception) {
-					AlertPopup.alert("Error in retrieving expression result status: " + exception);					
+					resultStatus = ResultStatus.ABORTED;
+					GWT.log("Error in retrieving expression result status", exception);					
 				}
 				
 			});
 		} catch (RequestException ex) {
-			AlertPopup.alert("Error in sending request for expression result status: " + ex);
+			resultStatus = ResultStatus.ABORTED;
+			GWT.log("Error in sending request for expression result status", ex);
 		}
 	}
 	
@@ -158,6 +175,7 @@ public class ExpressionProcessor {
                         } else if (analysisType.equals("species_comparison")) {
                             expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
                             dataController = new SpeciesComparisonDataController();
+                            ((SpeciesComparisonDataController) dataController).setSpecies(species);
                         } else {
                             AlertPopup.alert(analysisType + " is an unknown analysis type");
                             return;
@@ -165,7 +183,7 @@ public class ExpressionProcessor {
                         
                         dataController.setDataModel(expressionData);
                         expressionCanvas.setDataController(dataController);
-                        diagramPane.setDataController(dataController);
+                        diagramPane.setDataController(dataController);                        
                     }
                 }
             });
@@ -203,8 +221,14 @@ public class ExpressionProcessor {
 				JSONArray pathway = getJsonArray(i, pathways);
 			
 				for (int j = 0; j < pathway.size(); j++) {
-					JSONArray componentArray = getJsonArray(j, pathway);
+					JSONArray componentArray;
 					
+					try {
+						componentArray = getJsonArray(j, pathway);
+					} catch (JSONException e) {
+						continue;
+					}
+						
 					JSONObject componentObject = getJsonObject(0, componentArray);
 					String componentType = getStringFromJson("type", componentObject);
 				
@@ -224,6 +248,10 @@ public class ExpressionProcessor {
 					
 						pev.setSpecies(speciesName);
 						pev.setSpeciesId(speciesId);
+						
+						if (species == null)
+							species = speciesName;
+						
 					} else if (componentType.equals("pathway.expressionlevels")) {
 						for (int k = 0; k < componentArray.size(); k++) {
 							//PathwayComponentExpressionValue pcev = new PathwayComponentExpressionValue();
@@ -338,5 +366,9 @@ public class ExpressionProcessor {
 				System.out.println(key);	
 	}
 	
-	
+	public enum ResultStatus {
+		FINISHED,
+		PENDING,
+		ABORTED
+	}
 }
