@@ -42,17 +42,13 @@ public class SpeciesComparisonDataController extends DataController {
     }
     
     public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {    	
+    	final String YELLOW = "rgb(255, 255, 102)";
+    	final String BLUE = "rgb(0, 0, 255)";
+    	
     	Map<Long, String> compIdToColor = new HashMap<Long, String>();
 	
     	for (Long dbId : compIdToValue.keySet()) {
-    		Double value = compIdToValue.get(dbId);
-    		
-    		String color;
-    		if (value.intValue() == 100) {
-    			color = "rgb(255, 255, 0)"; // Yellow for inference
-    		} else {
-    			color = "rgb(0, 0, 255)"; // Blue for no inference
-    		}
+    		String color = (compIdToValue.get(dbId).intValue() == 100) ? YELLOW	: BLUE;
     		
     		compIdToColor.put(dbId, color);
     	}
