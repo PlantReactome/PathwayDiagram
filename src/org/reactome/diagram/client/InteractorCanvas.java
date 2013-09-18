@@ -67,7 +67,9 @@ public class InteractorCanvas extends DiagramCanvas {
     
     public InteractorCanvas(PathwayDiagramPanel dPane, CanvasTransformation canvasTransformation) {
     	this(dPane);
-    	this.canvasTransformation = canvasTransformation;
+    	this.canvasTransformation = new CanvasTransformation(canvasTransformation.getScale(),
+    														 canvasTransformation.getTranslateX(),
+    														 canvasTransformation.getTranslateY());
     }
     
     public List<ProteinNode> getProteins() {
