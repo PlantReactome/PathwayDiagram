@@ -323,7 +323,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * @param context The Context2d object where the given line would be rendered
      * @param dashLastPhrase The Line to be rendered on the canvas
      */
-    private void drawLine(int linebreak, 
+    protected void drawLine(int linebreak, 
                           Context2d context,
                           String dashLastPhrase,
                           int x0,
