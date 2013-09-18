@@ -189,7 +189,7 @@ public class PathwayDiagramController {
     public void getReferenceEntity(final Long dbId, RequestCallback callback) {
         String url = this.getHostUrl() + "referenceEntity/" + dbId;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-        requestBuilder.setHeader("Accept", "application/xml");
+        requestBuilder.setHeader("Accept", "application/json");
 
         try {
             requestBuilder.sendRequest(null, callback);
