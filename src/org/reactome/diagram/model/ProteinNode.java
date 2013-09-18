@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -113,31 +116,32 @@ public class ProteinNode extends Node {
 		return refId;
 	}
 
-	public void setRefId(String xml) {
-		Document refDom;
-		try {
-			refDom = XMLParser.parse(xml);
-		} catch (DOMParseException e) {
-			GWT.log("Could not parse xml to obtain reference id");
+	public void setRefId(String json) {		
+		JSONValue refEntityJSON = JSONParser.parseStrict(json);
+		
+		if (refEntityJSON == null || refEntityJSON.isArray() == null)
 			return;
-		}	
-			
-		Element refElement = refDom.getDocumentElement();
-		XMLParser.removeWhitespace(refElement);
 		
-		NodeList nodeList = refElement.getChildNodes();
-		
-		for (int i = 0; i < nodeList.getLength(); i++) {
-				
-			String displayName = getXMLNodeValue((Element) nodeList.item(i), "displayName");
-			
-			if (displayName != null) {
-				int start = displayName.indexOf(":") + 1;
-				int end = displayName.indexOf(" ");
+		for (int i = 0; i < refEntityJSON.isArray().size(); i++) {	
+			JSONObject refEntity = refEntityJSON.isArray().get(i).isObject(); 
 						
-				this.refId = displayName.substring(start, end);		
+			JSONValue displayNameJSONValue = refEntity.get("displayName");
+			
+			if (displayNameJSONValue != null) {			
+				String displayName = displayNameJSONValue.isString().stringValue();
+				if (displayName != null) {
+					int start = displayName.indexOf(":") + 1;
+					int end = displayName.indexOf(" ");
+						
+					String name = displayName.substring(start, end);
+				
+					if (name != null && !name.isEmpty()) {
+						this.refId = name;
+						break;
+					}
+				}
 			}
-		}
+		}		
 	}	
 	
 	private NodeList getNodeList(Element xmlElement, String containerTag, String desiredTag) {		
