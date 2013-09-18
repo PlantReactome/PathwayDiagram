@@ -26,7 +26,7 @@ public class AlertPopup {
     }
     
     private static DialogBox init(String labelText) { 
-        final DialogBox popUp = new DialogBox(false);
+        final DialogBox popUp = new DialogBox(false, false);
     	VerticalPanel vPane = new VerticalPanel();
         HTML alertLabel = new HTML(labelText);        
         Button button = new Button("Ok", new ClickHandler() {
