@@ -32,9 +32,11 @@ import com.google.gwt.xml.client.NodeList;
  *
  */
 public class ComplexComponentPopup extends DialogBox {
-    private ExpressionCanvas expressionCanvas;
+    private ComplexNode complexNode;
+	private ExpressionCanvas expressionCanvas;
 	private ScrollPanel scrollPanel;
 	private FlexTable componentTable;
+
 	
     public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
         super(true);
@@ -69,26 +71,28 @@ public class ComplexComponentPopup extends DialogBox {
      * @param panel
      */
     public void showPopup(ComplexNode selectedComplex, PathwayDiagramController controller) {
-        hide();
+        this.complexNode = selectedComplex;
+    	
+    	hide();
         
-        String componentsWithoutDisplayNames = getRefIdsForComponentsWithNoDisplayName(selectedComplex);
+        String componentsWithoutDisplayNames = getRefIdsForComponentsWithNoDisplayName();
         
         if (!componentsWithoutDisplayNames.isEmpty()) {
-        	controller.queryByIds(componentsWithoutDisplayNames, "ReferenceEntity", setDisplayNamesAndMakePopup(selectedComplex));
+        	controller.queryByIds(componentsWithoutDisplayNames, "ReferenceEntity", setDisplayNamesAndMakePopup());
         } else {
-        	makePopup(selectedComplex);
+        	makePopup();
         }
      }
     
     /*
      * Returns a comma delimited string of complex component reference ids lacking a display name
      */
-    private String getRefIdsForComponentsWithNoDisplayName(ComplexNode complex) {
+    private String getRefIdsForComponentsWithNoDisplayName() {
     	final String delimiter = ",";
     	
     	StringBuffer refIds = new StringBuffer();
     	
-    	for (Component component : complex.getComponents()) {
+    	for (Component component : complexNode.getComponents()) {
     		if (component.getDisplayName() == null || component.getDisplayName().isEmpty()) {
     			refIds.append(component.getRefEntityId());
     			refIds.append(delimiter);
@@ -101,7 +105,7 @@ public class ComplexComponentPopup extends DialogBox {
     	return refIds.toString();
     }
     
-    private RequestCallback setDisplayNamesAndMakePopup(final ComplexNode complex) {
+    private RequestCallback setDisplayNamesAndMakePopup() {
     	RequestCallback setDisplayNamesAndMakePopup = new RequestCallback() { 
     		final private String ERROR_MSG = "Could not get display names for all components ";
     		
@@ -112,8 +116,8 @@ public class ComplexComponentPopup extends DialogBox {
     				return;
     			}
     			
-    			setDisplayNamesForComponents(complex, response.getText());
-    			makePopup(complex);
+    			setDisplayNamesForComponents(response.getText());
+    			makePopup();
     		}
     		
     		public void onError(Request request, Throwable exception) {
@@ -124,7 +128,7 @@ public class ComplexComponentPopup extends DialogBox {
     	return setDisplayNamesAndMakePopup;
     }			
     
-    private void setDisplayNamesForComponents(ComplexNode complex, String componentXML) {
+    private void setDisplayNamesForComponents(String componentXML) {
     	ReactomeXMLParser complexComponentParser = new ReactomeXMLParser(componentXML);
     	
     	Element complexComponentElement = ((ReactomeXMLParser) complexComponentParser).getDocumentElement();
@@ -135,7 +139,7 @@ public class ComplexComponentPopup extends DialogBox {
     		
     		String dbId = complexComponentParser.getXMLNodeValue(componentGene, "dbId");
     		if (dbId != null) {
-    			Component component = complex.getComponent(Long.parseLong(dbId));
+    			Component component = complexNode.getComponent(Long.parseLong(dbId));
     			
     			if (component != null) {
     				String name = complexComponentParser.getXMLNodeValue(componentGene, "name");
@@ -145,14 +149,14 @@ public class ComplexComponentPopup extends DialogBox {
     	}    	
     }
     
-    private void makePopup(ComplexNode complex) {	
-   		createTable(complex);
+    private void makePopup() {	
+   		createTable();
     	if (tableIsEmpty()) {   	
-    		AlertPopup.alert(complex.getDisplayName() + " has no genome encoded components with data");        	
+    		AlertPopup.alert(complexNode.getDisplayName() + " has no genome encoded components with data");        	
     		return;
     	} 
         
-    	setText("Components for " + complex.getDisplayName() + ": ");
+    	setText("Components for " + complexNode.getDisplayName() + ": ");
         
     	expressionCanvas.setGreyOutCanvas(true);
     	bringToFront();
@@ -166,13 +170,13 @@ public class ComplexComponentPopup extends DialogBox {
     	return numberOfComponents == 0;
 	}
 
-	private void createTable(ComplexNode complex) {
+	private void createTable() {
     	this.componentTable.removeAllRows();
     	this.componentTable.setBorderWidth(1);
     	
     	addHeader();
     	
-    	for (Component component : complex.getComponents()) {     		
+    	for (Component component : complexNode.getComponents()) {
     		if (component.getRefEntityId() != null)
     			addRow(component);
     	}
@@ -213,10 +217,8 @@ public class ComplexComponentPopup extends DialogBox {
 		return ((object != null) ? object.toString() : "N/A");
 	}
     
-	private Label addLabel(String text, Integer row, Integer column, String bgColor) {
-		final String BLACK = "rgb(0, 0, 0)";
-		
-		return addLabel(text, row, column, bgColor, BLACK);				
+	private Label addLabel(String text, Integer row, Integer column, String bgColor) {		
+		return addLabel(text, row, column, bgColor, complexNode.getVisibleFgColor(bgColor));
 	}
 	
     private Label addLabel(String text, Integer row, Integer column, String bgColor, String textColor) {
