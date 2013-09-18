@@ -52,6 +52,7 @@ public class Parameters {
     public static final int catRadius = 5;
 	public static final CssColor defaultbgColor = CssColor.make(204, 255, 204);
 	public static final CssColor defaultstrokeColor = CssColor.make(0, 0, 0);
+	public static final CssColor defaultTextColorForDarkBgColor = CssColor.make(145, 145, 145);
 	
 	// Used to set the height of each line in name drawing
 	public static final int LINE_HEIGHT = 14;	
