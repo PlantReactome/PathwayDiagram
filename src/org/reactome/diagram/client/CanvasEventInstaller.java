@@ -83,7 +83,8 @@ public class CanvasEventInstaller {
     }
     
     public void installOverviewEventHandler() {
-    
+    	final OverviewCanvas overview = diagramPane.getOverview();
+    	    	
         // To catch overview dragging
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
             @Override
@@ -92,13 +93,16 @@ public class CanvasEventInstaller {
                 double dy = event.getTranslateY();
                 double scale = event.getScale();
                 double canvasScale = canvas.getScale();
-                diagramPane.translate(-dx / scale * canvasScale, 
-                                 -dy / scale * canvasScale);
-                diagramPane.update();                
+
+                //System.out.println("responding to overview click");
+                
+                diagramPane.translate(-dx / scale * canvasScale, -dy / scale * canvasScale);
+                diagramPane.update();
+                overview.setIsFromOverview(false); // Overview Canvas can now respond to ViewChangeEvent 
+                								   // now that it's own event firing has finished 
             }
-        };
-        
-        OverviewCanvas overview = diagramPane.getOverview();
+        };        
+       
         overview.addHandler(overviewEventHandler, ViewChangeEvent.TYPE);              
     }
     
