@@ -19,7 +19,7 @@ import com.google.gwt.canvas.dom.client.Context2d;
  *
  */
 public class ExpressionComplexRenderer extends ComplexRenderer {
-    private Double currentX;
+	private Double currentX;
     private Double currentY;
 	private Double innerRectStartX;
 	private Double innerRectEndX;
@@ -34,15 +34,17 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
                                  Context2d context,
                                  Node node) {
     	List<String> componentColors = ((ComplexNode) node).getComponentColors();
-
-    	moveSegmentsWithNoDataToBeginning(componentColors);
      	
     	Set<String> uniqueColors = new HashSet<String>(componentColors);
     	if (uniqueColors.size() == 1) {
+    		node.setFgColor(node.getVisibleFgColor(componentColors.get(0)));
+  
     		context.setFillStyle(componentColors.get(0));
     		super.drawRectangle(bounds, context, node);
     		return;
     	}
+    	
+    	node.setFgColor(Parameters.defaultTextColorForDarkBgColor.value()); // So text is visible for segmented complexes
     	
     	setStroke(context, node);
         currentX = (double) bounds.getX();
@@ -61,15 +63,15 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
         context.stroke();
     }
     
-    private void moveSegmentsWithNoDataToBeginning(List<String> componentColors) {
-    	Integer noDataSegmentCount = 0;
+    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {
+    	final Integer OFFSET = 1;
     	
-    	while(componentColors.remove(Parameters.defaultExpressionColor.toString())) {
-    		noDataSegmentCount++;
-    	}
+    	super.drawLine(lineBreak, context2d, dashLastPhrase, x0, y0);
     	
-    	for (int i = 0; i < noDataSegmentCount; i++)
-    		componentColors.add(0, Parameters.defaultExpressionColor.toString());
+ //   	FillStrokeStyle oldFillStyle = context2d.getFillStyle();
+//    	context2d.setFillStyle("rgb(177, 177, 177)");
+    //	super.drawLine(lineBreak, context2d, dashLastPhrase, x0 + OFFSET, y0 + OFFSET);
+   // 	context2d.setFillStyle(oldFillStyle);
     }
     
     private void drawSegment(Double width, Double height, Integer maxSegmentHeight, String color, Context2d context) {
