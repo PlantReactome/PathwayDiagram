@@ -21,6 +21,8 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.view.Parameters;
+
 import com.google.gwt.touch.client.Point;
 
 public class Node extends GraphObject {
@@ -181,6 +183,22 @@ public class Node extends GraphObject {
 
     public void setFillColor(String fillColor) {
         this.fillColor = fillColor;
-    }	
+    }
+    
+ // Implemented based on answer from stackoverflow.com/questions/4726344
+ 	public String getVisibleFgColor(String bgColor) {
+ 		assert(bgColor.startsWith("rgb("));
+ 		
+ 		final String BLACK = "rgb(0, 0, 0)";		
+ 		final Integer threshold = 105;
+ 		
+ 		String [] bgColorComponents = bgColor.substring(4, bgColor.length() - 1).split(",");
+ 		
+ 		Double bgDelta = (Double.parseDouble(bgColorComponents[0]) * 0.299) + // Red contribution
+ 						 (Double.parseDouble(bgColorComponents[1]) * 0.587) + // Green contribution
+ 						 (Double.parseDouble(bgColorComponents[2]) * 0.114); // Blue contribution
+ 		
+ 		return ((255 - bgDelta) < threshold) ? BLACK : Parameters.defaultTextColorForDarkBgColor.value();
+ 	}
 	
 }
