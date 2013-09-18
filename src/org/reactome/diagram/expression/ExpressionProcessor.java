@@ -224,10 +224,13 @@ public class ExpressionProcessor {
 					JSONArray componentArray;
 					
 					try {
-						componentArray = getJsonArray(j, pathway);
+						componentArray = getJsonArray(j, pathway);						
 					} catch (JSONException e) {
 						continue;
 					}
+					
+					if (componentArray.size() == 0)
+						continue;
 						
 					JSONObject componentObject = getJsonObject(0, componentArray);
 					String componentType = getStringFromJson("type", componentObject);
