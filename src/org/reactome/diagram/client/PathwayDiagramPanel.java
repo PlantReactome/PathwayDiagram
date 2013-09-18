@@ -185,8 +185,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
-                //showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
+//                showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
             	showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
+//            	showAnalysisData(GWT.getHostPageBaseURL() + "ProteinIds.json");
             }
         });
     }
@@ -333,7 +334,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
     protected void setCanvasPathway(CanvasPathway pathway) {
-        // Get the old displayed pathway
+        reset(); // Resets scale and translation of all canvases
+    	
+    	// Get the old displayed pathway
     	CanvasPathway old = pathwayCanvas.getPathway();
     	//        System.out.println("Set pathway: " + pathway.getReactomeId());
             	    	
@@ -349,10 +352,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         if (overlayDataController != null) {
         	overlayDataController.setPathwayId(pathway.getReactomeId());
         	//expressionCanvas.setPathway(pathway);
-        }
-
-        for (DiagramCanvas canvas : getExistingCanvases()) {
-        	canvas.resetTranslate();
         }
         
        	PathwayChangeEvent event = new PathwayChangeEvent();
@@ -401,11 +400,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public Image getLoadingIcon() {
     	return this.loadingIcon;
-    }
-    
-    public void translate(double dx, double dy, boolean fromOverview) {
-    	if (!fromOverview)
-    		translate(dx, dy);
     }
     
     public void translate(double dx, double dy) {
