@@ -58,6 +58,14 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         eventHandlers.installHandlers();
     }
     
+    public void setIsFromOverview(boolean isFromOverview) {
+    	this.isFromOverview = isFromOverview;
+    }
+    
+    public boolean isFromOverview() {
+    	return isFromOverview;
+    }
+    
     @Override
     public void setPathway(CanvasPathway pathway) {
         super.setPathway(pathway);
@@ -144,10 +152,10 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
 
     @Override
     public void onViewChange(ViewChangeEvent event) {
-        if (isFromOverview) {
-        	isFromOverview = false;
+        if (isFromOverview()) {
             return;
         }
+        
         double scale = event.getScale();
         double x = -event.getTranslateX() / scale;
         double y = -event.getTranslateY() / scale;
@@ -168,12 +176,14 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
      * @param transalteY
      */
     private void fireViewChangeEvent(double translateX, double translateY) {
-        if (viewEvent == null)
+        setIsFromOverview(true);
+    	if (viewEvent == null)
             viewEvent = new ViewChangeEvent();
         viewEvent.setTranslateX(translateX);
         viewEvent.setTranslateY(translateY);
         viewEvent.setScale(getScale());
-        isFromOverview = true;
+        
+        //isFromOverview = true;
         fireEvent(viewEvent);
     }
     
