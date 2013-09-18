@@ -59,9 +59,9 @@ public class ComplexNode extends Node {
 	 * @return List of all complex components sorted ascendingly by gene expression levels, if present
 	 */
 	public List<Component> getComponents() {
-		//List<Component> componentList = new ArrayList<Component>(components);
 		Collections.sort(components);
-		return components;		
+		Collections.reverse(components);
+		return components;
 	}
 	
 	/**
@@ -196,11 +196,11 @@ public class ComplexNode extends Node {
 		@Override
 		public int compareTo(Component c) {
 			if (expressionLevel == c.getExpressionLevel()) {
-				if (expressionLevel == null && c.getExpressionLevel() == null) {
+				if (expressionLevel == null && c.getExpressionLevel() == null) {					
 					// Default expression color is always first 
-					if (expressionColor == null || expressionColor.equals(Parameters.defaultExpressionColor)) {
+					if (expressionColor == null || expressionColor.equals(Parameters.defaultExpressionColor.value())) {
 						return -1;
-					} else if (c.getExpressionColor() == null || c.getExpressionColor().equals(Parameters.defaultExpressionColor))  {
+					} else if (c.getExpressionColor() == null || c.getExpressionColor().equals(Parameters.defaultExpressionColor.value())) {
 						return 1;
 					} else {
 						return 0;
