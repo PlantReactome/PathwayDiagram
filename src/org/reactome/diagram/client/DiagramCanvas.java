@@ -89,6 +89,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         viewEvent.setWidth(getCoordinateSpaceWidth());
         viewEvent.setHeight(getCoordinateSpaceHeight());
         super.fireEvent(viewEvent);
+        
+        //System.out.println(getClass() + " transformed");
     }
     
     public double getTranslateX() {
@@ -117,6 +119,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         
     public void center(Point point) {
     	canvasTransformation.center(point);
+    	
+    	fireViewChangeEvent();
     }
    
     public HoverHandler getHoverHandler() {
@@ -155,6 +159,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 
     public void resetTranslate() {
     	canvasTransformation.resetTranslate();
+
+    	fireViewChangeEvent();
     }
 
     public Point getCorrectedCoordinates(Point point) {
@@ -192,7 +198,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     protected void clean(Context2d c2d) {    	
     	c2d.setTransform(1, 0, 0, 1, 0, 0); // Remove all transforms
     	c2d.clearRect(0, 0, getOffsetWidth() , getOffsetHeight()); // Clear the canvas
-    	c2d.setTransform(getScale(), 0, 0, getScale(), getTranslateX(), getTranslateY()); // Set new scale and translations    	
+    	c2d.setTransform(getScale(), 0, 0, getScale(), getTranslateX(), getTranslateY()); // Set new scale and translations
+    	//System.out.println("Clean - " + getClass() + " Scale " + getScale() + " TranslateX - " + getTranslateX() + " TranslateY - " + getTranslateY());
     }
 
     public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {		
@@ -278,8 +285,12 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 
 			this.scale = applyScaleFactor(scaleFactor);
 
-			Double deltaX = getAbsoluteXCoordinate(zoomPoint.getX()) - DiagramCanvas.this.getAbsoluteLeft() - point.getX();
-			Double deltaY = getAbsoluteYCoordinate(zoomPoint.getY()) - DiagramCanvas.this.getAbsoluteTop() - point.getY();
+			Double deltaX = getAbsoluteXCoordinate(zoomPoint.getX()) - 
+							DiagramCanvas.this.getAbsoluteLeft() - 
+							point.getX();
+			Double deltaY = getAbsoluteYCoordinate(zoomPoint.getY()) - 
+							DiagramCanvas.this.getAbsoluteTop() - 
+							point.getY();
 						
 			translate(-deltaX, -deltaY);
 		}		
@@ -293,13 +304,16 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		}
 		
 		public void translate(Double deltaX, Double deltaY) {
+			//System.out.println(DiagramCanvas.this.getClass());
+			//System.out.println("Translate X - " + translateX + " Delta X - " + deltaX);
+			//System.out.println("Translate Y - " + translateY + " Delta Y - " + deltaY);
+			
 			translateX += deltaX;
-			translateY += deltaY;
+			translateY += deltaY;			
 		}
 		
 		public void center(Point point) {
-			Point diagramPoint = new Point(point.getX() - DiagramCanvas.this.getAbsoluteLeft(),
-										   point.getY() - DiagramCanvas.this.getAbsoluteTop());
+			Point diagramPoint = new Point(point.getX(), point.getY());
 			
 			Point correctedPoint = getCorrectedCoordinates(diagramPoint);
 			
