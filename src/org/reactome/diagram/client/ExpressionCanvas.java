@@ -22,19 +22,20 @@ import org.reactome.diagram.model.ComplexNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
-import org.reactome.diagram.model.ReactomeXMLParser;
 
 import org.reactome.diagram.view.GraphObjectExpressionRendererFactory;
-import org.reactome.diagram.view.NodeRenderer;
 import org.reactome.diagram.view.ExpressionProcessNodeRenderer;
+import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NodeList;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -57,7 +58,9 @@ public class ExpressionCanvas extends DiagramCanvas {
    
     public ExpressionCanvas(PathwayDiagramPanel diagramPane, CanvasTransformation canvasTransformation) {
     	this(diagramPane);
-    	this.canvasTransformation = canvasTransformation;
+    	this.canvasTransformation = new CanvasTransformation(canvasTransformation.getScale(),
+    														 canvasTransformation.getTranslateX(),
+    														 canvasTransformation.getTranslateY());
     }
     
     public AnalysisType getAnalysisType() {
@@ -133,7 +136,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			}
     	}
     		
-    	if (expressionPathway.allProcessNodesReady()) // True if no pathway nodes to render
+    	if (expressionPathway.allProcessNodesReady()) // Also true if no pathway nodes to render
     		drawExpressionOverlay(expressionPathway);
     	else {
     		expressionPathway.getTimerCheckingIfProcessNodeInfoObtained().scheduleRepeating(200);
@@ -155,10 +158,7 @@ public class ExpressionCanvas extends DiagramCanvas {
            		GraphObjectExpressionRendererFactory factory = GraphObjectExpressionRendererFactory.getFactory();
            		NodeRenderer renderer = factory.getNodeRenderer((Node) entity);
            		
-           		if (entity.getType() == GraphObjectType.RenderableComplex) {
-           			((Node) entity).setFgColor("rgb(0,0,0)"); // Black text
-           		//	((Node) entity).setFgColor("rgb(255,255,255)");
-           			
+           		if (entity.getType() == GraphObjectType.RenderableComplex) {           			
            			List<ReferenceEntity> componentIds = physicalToReferenceEntityMap.get(entity.getReactomeId());
            			addExpressionInfoToComplexComponents((ComplexNode) entity, componentIds);
            		} 
@@ -170,7 +170,8 @@ public class ExpressionCanvas extends DiagramCanvas {
            			Long refEntityId = getReferenceEntityId((physicalToReferenceEntityMap.get(entity.getReactomeId())));            			
            			String nodeColor = getEntityColor(refEntityId, entity.getType());            
            			
-           			((Node) entity).setBgColor(nodeColor);             		
+           			((Node) entity).setBgColor(nodeColor);
+           			((Node) entity).setFgColor(((Node) entity).getVisibleFgColor(nodeColor));
            		}
            		
            		renderer.render(c2d, (Node) entity);
@@ -239,7 +240,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return defaultColor;
 		
 	}
- 
+		
 	private void addExpressionInfoToComplexComponents(ComplexNode complex, List<ReferenceEntity> components) {
 		if (complex == null || components == null)
 			return;
@@ -304,40 +305,31 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return getGenesForProcessNodeAndColor;
 	}
 	
-	private List<Long> getRefIdsForPathwayGenes(String referenceEntityXML) {
+	private List<Long> getRefIdsForPathwayGenes(String referenceEntityJSON) {
 		List<Long> geneRefIds = new ArrayList<Long>();
 		
-		ReactomeXMLParser referenceEntityParser = new ReactomeXMLParser(referenceEntityXML);
-		
-		Element referenceEntityElement = referenceEntityParser.getDocumentElement();
-		
-		if (referenceEntityElement == null)
+		JSONValue referenceEntities = JSONParser.parseStrict(referenceEntityJSON);
+		if (referenceEntities == null || referenceEntities.isArray() == null)
 			return geneRefIds;
 		
-		NodeList referenceGeneProducts = referenceEntityElement.getElementsByTagName("referenceGeneProduct");
-		for (int i = 0; i < referenceGeneProducts.getLength(); i++) {
-			Element referenceGeneProduct = (Element) referenceGeneProducts.item(i);
-						
-			try {
-				Long refId = Long.parseLong(referenceEntityParser.getXMLNodeValue(referenceGeneProduct, "dbId"));
-				geneRefIds.add(refId);
-			} catch (NumberFormatException ex) {
-				AlertPopup.alert("Unable to parse gene product id " + ex);
-			}
-		}
 		
-		NodeList referenceIsoforms = referenceEntityElement.getElementsByTagName("referenceIsoform");
-		for (int i = 0; i < referenceIsoforms.getLength(); i++) {
-			Element referenceIsoform = (Element) referenceIsoforms.item(i);
+		JSONArray refEntityArray = referenceEntities.isArray();		
+		for (int i = 0; i < refEntityArray.size(); i++) {
+			JSONObject refEntity = refEntityArray.get(i).isObject();
 			
-			try {
-				Long refId = Long.parseLong(referenceEntityParser.getXMLNodeValue(referenceIsoform, "dbId"));
+			JSONValue schemaClassJSON = refEntity.get("schemaClass"); 
+			
+			String schemaClass = null;
+			if (schemaClassJSON != null) {
+				schemaClass = schemaClassJSON.isString().stringValue();
+			}
+				
+			if (schemaClass != null && (schemaClass.equalsIgnoreCase("referenceGeneProduct") || schemaClass.equalsIgnoreCase("referenceIsoform"))) {
+				Long refId = (long) refEntity.get("dbId").isNumber().doubleValue();
 				geneRefIds.add(refId);
-			} catch (NumberFormatException ex) {
-				AlertPopup.alert("Unable to parse isoform id " + ex);
 			}
 		}
-				
+			
 		return geneRefIds;
 	}
 				
