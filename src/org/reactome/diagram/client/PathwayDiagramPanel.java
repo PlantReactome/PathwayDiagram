@@ -186,7 +186,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
 //                showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
-            	showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
+            	showAnalysisData(GWT.getHostPageBaseURL() + "dataset.json");
+            	//showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
 //            	showAnalysisData(GWT.getHostPageBaseURL() + "ProteinIds.json");
             }
         });
@@ -437,11 +438,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void center(Point point) {
-    	for (DiagramCanvas canvas : getExistingCanvases()) {
-    		canvas.center(point);
-    	}
+    	center(point, false);
     }
     
+    public void center(Point point, Boolean entityCoordinates) {
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
+    		canvas.center(point, entityCoordinates);
+    	}
+    }    
     
     public void reset() {
     	for (DiagramCanvas canvas : getExistingCanvases()) {

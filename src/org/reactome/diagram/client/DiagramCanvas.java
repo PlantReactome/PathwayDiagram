@@ -117,8 +117,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         fireViewChangeEvent();
     }
         
-    public void center(Point point) {
-    	canvasTransformation.center(point);
+    public void center(Point point, Boolean entityCoordinates) {
+    	canvasTransformation.center(point, entityCoordinates);
     	
     	fireViewChangeEvent();
     }
@@ -273,14 +273,14 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		}
 			
 		public void scale(Double scaleFactor) {	
-			scale(scaleFactor, new Point(centerX(getScale()), centerY(getScale())));
+			scale(scaleFactor, new Point(getCoordinateSpaceWidth() / 2, getCoordinateSpaceHeight() / 2));
 		}
 		
 		public void scale(Double scaleFactor, Point point) {
 			zoomToPoint(scaleFactor, point);
 		}
 		
-		private void zoomToPoint(Double scaleFactor, Point point) {			
+		private void zoomToPoint(Double scaleFactor, Point point) {
 			Point zoomPoint = getCorrectedCoordinates(point.getX(), point.getY());
 
 			this.scale = applyScaleFactor(scaleFactor);
@@ -304,23 +304,26 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		}
 		
 		public void translate(Double deltaX, Double deltaY) {
-			//System.out.println(DiagramCanvas.this.getClass());
-			//System.out.println("Translate X - " + translateX + " Delta X - " + deltaX);
-			//System.out.println("Translate Y - " + translateY + " Delta Y - " + deltaY);
-			
 			translateX += deltaX;
 			translateY += deltaY;			
 		}
 		
-		public void center(Point point) {
-			Point diagramPoint = new Point(point.getX(), point.getY());
+		public void center(Point point, Boolean entityCoordinates) {
+			if (entityCoordinates) {
+				final Double oldScale = getScale();
+
+				reset();
+				translate(-point.getX(), -point.getY());
+				translate(centerX(getScale()) - point.getX(), 
+						  centerY(getScale()) - point.getY());
+				scale(oldScale);				
+			} else {
+				Point correctedPoint = getCorrectedCoordinates(point);
+				Double deltaX = (centerX(getScale()) - correctedPoint.getX()) * getScale();
+				Double deltaY = (centerY(getScale()) - correctedPoint.getY()) * getScale();
 			
-			Point correctedPoint = getCorrectedCoordinates(diagramPoint);
-			
-			translate(
-				-(correctedPoint.getX() - centerX(getScale())),
-				-(correctedPoint.getY() - centerY(getScale()))
-			);			
+				translate(deltaX, deltaY);
+			}
 		}
 		
 		private Double centerX(Double scale) {
