@@ -198,7 +198,6 @@ public class SearchPopup extends HorizontalPanel {
 		resultsLabel.setText("Focused on: " + (index + 1) + " of " + matchingEntityIds.size());
 		
 		highlightEntity(matchingEntityIds.get(index));
-		
 	}
 	
 	private void highlightEntities(List<GraphObject> entities) {
@@ -212,15 +211,11 @@ public class SearchPopup extends HorizontalPanel {
 		Boolean doCentring = !(diagramPane.getPathwayCanvas().currentViewContainsAtLeastOneGraphObject(entities));
 		
 		if (doCentring && !entities.isEmpty()) {
-			GraphObject entity = entities.get(0);
+			final GraphObject entity = entities.get(0);
 			
-			Point entityCentre;
-			if (entity instanceof Node)
-				entityCentre = ((Node) entity).getBounds().getCentre();
-			else
-				entityCentre = entity.getPosition();
+			Point entityCentre = (entity instanceof Node) ? ((Node) entity).getBounds().getCentre() : entity.getPosition();
 			
-			diagramPane.center(entityCentre);
+			diagramPane.center(entityCentre, true);
 		}
 		
 		diagramPane.update();
