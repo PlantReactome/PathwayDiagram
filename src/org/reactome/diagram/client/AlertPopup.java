@@ -20,9 +20,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class AlertPopup {
     
-    public static void alert(String alertText) {
+    public static DialogBox alert(String alertText) {
     	DialogBox popUp = init(alertText);
     	popUp.center();
+    	return popUp;
     }
     
     private static DialogBox init(String labelText) { 
