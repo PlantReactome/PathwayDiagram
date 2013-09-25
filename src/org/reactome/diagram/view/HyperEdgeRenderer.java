@@ -177,11 +177,17 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
                                      HyperEdge edge, 
                                      ReactionType reactionType) {
         String fillColor = null;
-        if (reactionType == ReactionType.DISSOCIATION)
+        if (reactionType == ReactionType.ASSOCIATION) {
+            String associationFillColor = edge.getLineColor();
+            
+            if (associationFillColor != null)
+            	fillColor = associationFillColor;
+            else	
+            	fillColor = "rgba(0, 0, 0, 1)"; // Black
+        } else  
             fillColor = "rgba(255, 255, 255, 1)"; // White
-        else
-            fillColor = "rgba(0, 0, 0, 1)"; // Black
-        context.setFillStyle(CssColor.make(fillColor));
+        
+            context.setFillStyle(CssColor.make(fillColor));
         
         context.beginPath();
         Point position = edge.getPosition();
