@@ -11,7 +11,8 @@ package org.reactome.diagram.expression.model;
  */
 public enum AnalysisType { 
 	Expression, 
-	SpeciesComparison; 
+	SpeciesComparison,
+	IdList; 
 
 	public static boolean contains(String test) {
 		for (AnalysisType analysis : AnalysisType.values()) {
