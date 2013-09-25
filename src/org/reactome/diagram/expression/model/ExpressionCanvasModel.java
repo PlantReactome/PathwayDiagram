@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.reactome.diagram.view.Parameters;
 
@@ -53,38 +52,41 @@ public class ExpressionCanvasModel {
 	}
 	
 	public List<String> getColorList(List<Long> refGeneIds, Map<Long, ExpressionInfo> pathwayExpression) {
-		Set<Long> expressionEntityIds = pathwayExpression.keySet();
-
-		//System.out.println(pathway.getDisplayName() + "Pathway Proteins");
-		//for (Long proteinId : proteinReferenceIds) {
-		//	System.out.println(proteinId);
-		//}
-		
-		//System.out.println(pathway.getDisplayName() + "Expression proteins");
-		//for (Long expressionId : expressionEntityIds) {
-		//	System.out.println(expressionId);
-		//}
-		
-		refGeneIds.removeAll(expressionEntityIds);
-		
-		List<ExpressionInfo> expressionInfoOfEntities = new ArrayList<ExpressionInfo>(pathwayExpression.values());
-		Collections.sort(expressionInfoOfEntities);
-		
 		List<String> colorList = new ArrayList<String>();
 		
-		Iterator<Long> proteinsWithoutExpressionColors = refGeneIds.iterator();
-		while (proteinsWithoutExpressionColors.hasNext()) {
-			colorList.add(getDefaultColor());
-			proteinsWithoutExpressionColors.next();
-		}
-		
-		for (ExpressionInfo entityExpressionInfo : expressionInfoOfEntities) {
-			colorList.add(entityExpressionInfo.getColor());
-		}
+		colorList.addAll(getProteinColorsFromExpressionInfo(new ArrayList<ExpressionInfo>(pathwayExpression.values())));
+		colorList.addAll(getDefaultColorList(refGeneIds, pathwayExpression));
 		
 		return colorList;
 	}
+	
+	
+	private List<String> getDefaultColorList(List<Long> refGeneIds, Map<Long, ExpressionInfo> pathwayExpression) {	
+		refGeneIds.removeAll(pathwayExpression.keySet());
+		
+		List<String> defaultColorList = new ArrayList<String>();
+		Iterator<Long> proteinsWithoutExpressionColors = refGeneIds.iterator();
+		while (proteinsWithoutExpressionColors.hasNext()) {
+			defaultColorList.add(getDefaultColor());
+			proteinsWithoutExpressionColors.next();
+		}
+		
+		return defaultColorList;
+	}
 
+	private List<String> getProteinColorsFromExpressionInfo(List<ExpressionInfo> expressionInfoOfEntities) {
+		Collections.sort(expressionInfoOfEntities);
+		Collections.reverse(expressionInfoOfEntities);
+		
+		List<String> proteinColors = new ArrayList<String>();
+		
+		for (ExpressionInfo entityExpressionInfo : expressionInfoOfEntities) {
+			proteinColors.add(entityExpressionInfo.getColor());
+		}
+		
+		return proteinColors;
+	}
+	
 	public String getDefaultColor() {
 		return Parameters.defaultExpressionColor.value();
 	}
