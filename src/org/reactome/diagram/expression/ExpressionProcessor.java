@@ -13,12 +13,14 @@ import java.util.List;
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramPanel;
+import org.reactome.diagram.client.WidgetStyle;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
 
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -33,6 +35,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.DialogBox;
 
 public class ExpressionProcessor {
 	private static final String BASEURL = "/ReactomeGWT/service/analysis/";
@@ -90,10 +93,21 @@ public class ExpressionProcessor {
 		if (analysisId == null)
 			return;
 					
+		final Integer INTERVAL = 200;
 		Timer timer = new Timer() {
+			private Integer elapsedTime = 0;
+			private DialogBox dataControllerIsLoadingAlertBox;
+			
 			@Override
 			public void run() {
+				WidgetStyle.setCursor(expressionCanvas, Cursor.WAIT);
+				
+				elapsedTime += INTERVAL;
 				if (resultStatus != ResultStatus.PENDING) {
+					WidgetStyle.setCursor(expressionCanvas, Cursor.DEFAULT);
+					if (dataControllerIsLoadingAlertBox != null && dataControllerIsLoadingAlertBox.isShowing())
+						dataControllerIsLoadingAlertBox.hide();
+					
 					cancel(); // Timer repeat is cancelled
 					
 					if (resultStatus == ResultStatus.FINISHED)
@@ -103,11 +117,15 @@ public class ExpressionProcessor {
 					
 					return;
 				}
+
+				if (elapsedTime >= INTERVAL * 15 && dataControllerIsLoadingAlertBox == null)
+					dataControllerIsLoadingAlertBox = AlertPopup.alert("The analysis information to be overlaid on this pathway is being processed.  This may take 1-2 minutes");
+				
 				checkIfResultsReady();
 			}			
 		};
 		
-		timer.scheduleRepeating(200);
+		timer.scheduleRepeating(INTERVAL);
 	}
 	
 	private void checkIfResultsReady() {
@@ -176,6 +194,9 @@ public class ExpressionProcessor {
                             expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
                             dataController = new SpeciesComparisonDataController();
                             ((SpeciesComparisonDataController) dataController).setSpecies(species);
+                        } else if (analysisType.equals("idlist")) {
+                        	expressionCanvas.setAnalysisType(AnalysisType.IdList);
+                        	dataController = new IdListDataController();
                         } else {
                             AlertPopup.alert(analysisType + " is an unknown analysis type");
                             return;
@@ -270,8 +291,13 @@ public class ExpressionProcessor {
 							List<Double> expressionLevels = new ArrayList<Double>();
 						
 							for (int l = 0; l < expressionLevelsArray.size(); l++) {
-								Double value = Double.parseDouble(getStringFromJson(l, expressionLevelsArray));
-								expressionLevels.add(value);						
+								String level = null;
+								try {
+									level = getStringFromJson(l, expressionLevelsArray);
+									expressionLevels.add(Double.parseDouble(level));
+								} catch (NumberFormatException e) {
+									AlertPopup.alert(level + " can't be parsed as a numeric expression value");
+								}
 							}
 						
 							
