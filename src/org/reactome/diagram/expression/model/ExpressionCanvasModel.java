@@ -51,40 +51,40 @@ public class ExpressionCanvasModel {
 		}		
 	}
 	
-	public List<String> getColorList(List<Long> refGeneIds, Map<Long, ExpressionInfo> pathwayExpression) {
+	public List<String> getColorList(List<Long> refIds, Map<Long, ExpressionInfo> pathwayExpression) {
 		List<String> colorList = new ArrayList<String>();
 		
-		colorList.addAll(getProteinColorsFromExpressionInfo(new ArrayList<ExpressionInfo>(pathwayExpression.values())));
-		colorList.addAll(getDefaultColorList(refGeneIds, pathwayExpression));
+		colorList.addAll(getEntityColorsFromExpressionInfo(new ArrayList<ExpressionInfo>(pathwayExpression.values())));
+		colorList.addAll(getDefaultColorList(refIds, pathwayExpression));
 		
 		return colorList;
 	}
 	
 	
-	private List<String> getDefaultColorList(List<Long> refGeneIds, Map<Long, ExpressionInfo> pathwayExpression) {	
-		refGeneIds.removeAll(pathwayExpression.keySet());
+	private List<String> getDefaultColorList(List<Long> refIds, Map<Long, ExpressionInfo> pathwayExpression) {	
+		refIds.removeAll(pathwayExpression.keySet());
 		
 		List<String> defaultColorList = new ArrayList<String>();
-		Iterator<Long> proteinsWithoutExpressionColors = refGeneIds.iterator();
-		while (proteinsWithoutExpressionColors.hasNext()) {
+		Iterator<Long> entitiesWithoutExpressionColors = refIds.iterator();
+		while (entitiesWithoutExpressionColors.hasNext()) {
 			defaultColorList.add(getDefaultColor());
-			proteinsWithoutExpressionColors.next();
+			entitiesWithoutExpressionColors.next();
 		}
 		
 		return defaultColorList;
 	}
 
-	private List<String> getProteinColorsFromExpressionInfo(List<ExpressionInfo> expressionInfoOfEntities) {
+	private List<String> getEntityColorsFromExpressionInfo(List<ExpressionInfo> expressionInfoOfEntities) {
 		Collections.sort(expressionInfoOfEntities);
 		Collections.reverse(expressionInfoOfEntities);
 		
-		List<String> proteinColors = new ArrayList<String>();
+		List<String> entityColors = new ArrayList<String>();
 		
 		for (ExpressionInfo entityExpressionInfo : expressionInfoOfEntities) {
-			proteinColors.add(entityExpressionInfo.getColor());
+			entityColors.add(entityExpressionInfo.getColor());
 		}
 		
-		return proteinColors;
+		return entityColors;
 	}
 	
 	public String getDefaultColor() {
