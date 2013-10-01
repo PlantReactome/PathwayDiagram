@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Map;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.model.AnalysisType;
+import org.reactome.diagram.expression.model.DataType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
@@ -44,7 +46,7 @@ import com.google.gwt.user.client.Timer;
  */
 public class ExpressionCanvas extends DiagramCanvas {
     private AnalysisType analysisType;
-	private ExpressionCanvasModel expressionCanvasModel;    
+	private ExpressionCanvasModel expressionCanvasModel;
     private CanvasPathway pathway;
     private DataController dataController;
     private ExpressionPathway expressionPathway;
@@ -67,8 +69,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return analysisType;
 	}
 
-	public void setAnalysisType(AnalysisType analysisType) {
-		this.analysisType = analysisType;
+	public void setAnalysisType(String analysisType) {
+		this.analysisType = AnalysisType.getAnalysisType(analysisType);
 	}
 
 	public ExpressionCanvasModel getExpressionCanvasModel() {
@@ -131,7 +133,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			expressionPathway = new ExpressionPathway(c2d, pathway, getDataPointIndexFromDataController());
     			for (GraphObject entity : getGraphObjects()) {    		
     				if (entity.getType() == GraphObjectType.ProcessNode) {
-    					diagramPane.getController().getReferenceEntity(entity.getReactomeId(), getGenesForProcessNodeAndColor(expressionPathway, entity));
+    					diagramPane.getController().getReferenceEntity(entity.getReactomeId(), getEntityInfoForProcessNodeAndColor(expressionPathway, entity));
     				}
     			}
     	}
@@ -213,8 +215,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 	public String getEntityColor(Long refEntityId, GraphObjectType entityType) {		
 		String color = null;		
 		if (getExpressionInfo(refEntityId) != null) {            					
-			color = getExpressionInfo(refEntityId).getColor();
-			
+			color = getExpressionInfo(refEntityId).getColor();			
 		} 		
 							
 		if (color == null) {
@@ -271,7 +272,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 	}
 	
 	private GraphObjectType getEntityType(String schemaClass) {
-		if (schemaClass.equalsIgnoreCase("ReferenceGeneProduct")) {
+		if (schemaClass.equalsIgnoreCase("ReferenceGeneProduct") || schemaClass.equalsIgnoreCase("ReferenceIsoform")) {
 			return GraphObjectType.RenderableProtein;
 		} else if (schemaClass.equalsIgnoreCase("ReferenceMolecule")) {
 			return GraphObjectType.RenderableChemical;
@@ -280,11 +281,11 @@ public class ExpressionCanvas extends DiagramCanvas {
 		}
 	}
 	
-	private RequestCallback getGenesForProcessNodeAndColor(final ExpressionPathway expressionPathway, final GraphObject entity) {
+	private RequestCallback getEntityInfoForProcessNodeAndColor(final ExpressionPathway expressionPathway, final GraphObject entity) {
 		expressionPathway.incrementCallbacksInProgress();
 		
 		RequestCallback getGenesForProcessNodeAndColor = new RequestCallback() {
-			final private String ERROR_MSG = "Could not retrieve pathway genes"; 
+			final private String ERROR_MSG = "Could not retrieve pathway entity information"; 
 			
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() != 200) {
@@ -293,7 +294,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 					return;
 				}
 								
-				colorProcessNode(expressionPathway, entity, getRefIdsForPathwayGenes(response.getText()));
+				final DataType dataType = DataType.getDataType(dataController.getDataModel().getDataType());				
+				colorProcessNode(expressionPathway, entity, getRefIdsForDataType(response.getText(), dataType));
 			}
 			
 			public void onError(Request request, Throwable exception) {
@@ -305,13 +307,31 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return getGenesForProcessNodeAndColor;
 	}
 	
+	private List<Long> getRefIdsForDataType(String referenceEntityJSON, DataType dataType) {
+		if (dataType == DataType.Protein) {
+			return getRefIdsForPathwayGenes(referenceEntityJSON);
+		} else if (dataType == DataType.SmallCompound) {
+			return getRefIdsForPathwaySmallMolecules(referenceEntityJSON);
+		} else {
+			return new ArrayList<Long>();
+		}
+	}
+	
 	private List<Long> getRefIdsForPathwayGenes(String referenceEntityJSON) {
-		List<Long> geneRefIds = new ArrayList<Long>();
+		return getRefIdsForPathwayForSchemaClass(referenceEntityJSON, Arrays.asList("ReferenceGeneProduct", "ReferenceIsoform"));
+	}
+	
+	private List<Long> getRefIdsForPathwaySmallMolecules(String referenceEntityJSON) {
+		return getRefIdsForPathwayForSchemaClass(referenceEntityJSON, Arrays.asList("ReferenceMolecule"));
+	}
 		
+	private List<Long> getRefIdsForPathwayForSchemaClass(String referenceEntityJSON, List<String> schemaClasses) {
 		JSONValue referenceEntities = JSONParser.parseStrict(referenceEntityJSON);
-		if (referenceEntities == null || referenceEntities.isArray() == null)
-			return geneRefIds;
+		if (referenceEntities == null || referenceEntities.isArray() == null || schemaClasses == null)
+			return new ArrayList<Long>();
+	
 		
+		List<Long> refIds = new ArrayList<Long>();
 		
 		JSONArray refEntityArray = referenceEntities.isArray();		
 		for (int i = 0; i < refEntityArray.size(); i++) {
@@ -324,16 +344,16 @@ public class ExpressionCanvas extends DiagramCanvas {
 				schemaClass = schemaClassJSON.isString().stringValue();
 			}
 				
-			if (schemaClass != null && (schemaClass.equalsIgnoreCase("referenceGeneProduct") || schemaClass.equalsIgnoreCase("referenceIsoform"))) {
+			if (schemaClasses.contains(schemaClass)) {
 				Long refId = (long) refEntity.get("dbId").isNumber().doubleValue();
-				geneRefIds.add(refId);
+				refIds.add(refId);
 			}
 		}
 			
-		return geneRefIds;
+		return refIds;
 	}
 				
-	private void colorProcessNode(ExpressionPathway expressionPathway, GraphObject entity, List<Long> refIdsForPathwayGenes) {
+	private void colorProcessNode(ExpressionPathway expressionPathway, GraphObject entity, List<Long> refIdsForPathwayEntities) {
 		Map<Long, ExpressionInfo> pathwayExpressionComponents = new HashMap<Long, ExpressionInfo>();
 		
 		PathwayExpressionValue pathwayExpression = dataController.getDataModel().getPathwayExpressionValue(entity.getReactomeId());
@@ -353,7 +373,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 					
 			expressionPathway.addProcessNodeColorList(
 				entity,
-				expressionCanvasModel.getColorList(refIdsForPathwayGenes, pathwayExpressionComponents)
+				expressionCanvasModel.getColorList(refIdsForPathwayEntities, pathwayExpressionComponents)
 			);
 		}
 		
