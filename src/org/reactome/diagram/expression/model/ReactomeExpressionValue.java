@@ -15,10 +15,11 @@ import java.util.Map;
 public class ReactomeExpressionValue {
 	private String analysisId;
 	private String analysisType;
-	private double minExpression;		
+	private double minExpression;
     private double maxExpression;
-	private List<String> expressionColumnNames;
-    private Map<Long, PathwayExpressionValue> pathwayExpressionValues; 
+	private String dataType;
+    private List<String> expressionColumnNames;
+    private Map<Long, PathwayExpressionValue> pathwayExpressionValues;
     		
 	/**
 	 * Default constructor.
@@ -57,6 +58,14 @@ public class ReactomeExpressionValue {
 
 	public void setMaxExpression(double maxExpression) {
 		this.maxExpression = maxExpression;
+	}
+
+	public String getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
 	}
 
 	public List<String> getExpressionColumnNames() {
