@@ -26,7 +26,15 @@ public class IdListDataController extends DataController {
     protected void init() {
     	navigationPane = new IdListNavigationPane();
     }
-     
+
+    public void setPathwayId(Long pathwayId) {
+    	this.pathwayId = pathwayId;
+    	
+    	if (pathwayId != null) {
+    		onDataPointChange(0);
+    	}
+    }
+    
     public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {    	
     	final String YELLOW = "rgb(255, 255, 102)";
     	
