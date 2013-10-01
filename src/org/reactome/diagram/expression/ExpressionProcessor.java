@@ -47,29 +47,31 @@ public class ExpressionProcessor {
 	private String species;
 		
 	public ExpressionProcessor(String analysisString) {
-	    if (analysisString.startsWith("http:")) {
-	        analysisId = analysisString;
-	        resultStatus = ResultStatus.FINISHED;
-	    }
-	    else {
-	        String[] analysisParams = analysisString.split("\\.");    	
-	        //this.analysisName = analysisParams[0];
-	        this.analysisId = analysisParams[1];
-	        
-	        resultStatus = ResultStatus.PENDING;
-	    }
+		initAnalysisId(analysisString);
+		initResultStatus(analysisString);
 	}	
     	
+	private void initAnalysisId(String analysisString) {		
+		final String analysisId = isLocalData(analysisString) ? analysisString : analysisString.split("\\.")[1];
+		setAnalysisId(analysisId);
+	}
+	
+	private void initResultStatus(String analysisString) {
+		final ResultStatus resultStatus = isLocalData(analysisString) ? ResultStatus.FINISHED : ResultStatus.PENDING;
+		setResultStatus(resultStatus);
+	}
+
+	private boolean isLocalData(String analysisString) {
+		return analysisString.startsWith("http:");
+	}
 	
 	public String getAnalysisName() {
 		return analysisName;
 	}
 
-
 	public void setAnalysisName(String analysisName) {
 		this.analysisName = analysisName;
 	}
-
 
 	public String getAnalysisId() {
 		return analysisId;
@@ -79,6 +81,14 @@ public class ExpressionProcessor {
 		this.analysisId = analysisId;
 	}
 
+	public ResultStatus getResultStatus() {
+		return resultStatus;
+	}
+	
+	public void setResultStatus(ResultStatus resultStatus) {
+		this.resultStatus = resultStatus;
+	}
+	
 	public ReactomeExpressionValue getExpressionData() {
 		return expressionData;
 	}
@@ -87,6 +97,14 @@ public class ExpressionProcessor {
 		this.expressionData = expressionData;
 	}
 
+	public String getSpecies() {
+		return species;
+	}
+	
+	public void setSpecies(String species) {
+		this.species = species;
+	}
+	
 	public void createDataController(final PathwayDiagramPanel diagramPane,
 	                                 final AbsolutePanel contentPane, 
 	                                 final ExpressionCanvas expressionCanvas) {
@@ -119,7 +137,7 @@ public class ExpressionProcessor {
 				}
 
 				if (elapsedTime >= INTERVAL * 15 && dataControllerIsLoadingAlertBox == null)
-					dataControllerIsLoadingAlertBox = AlertPopup.alert("The analysis information to be overlaid on this pathway is being processed.  This may take 1-2 minutes");
+					dataControllerIsLoadingAlertBox = AlertPopup.alert("The analysis information to be overlaid on this pathway is being processed.  This may take a few minutes.");
 				
 				checkIfResultsReady();
 			}			
@@ -165,12 +183,8 @@ public class ExpressionProcessor {
 	}
 	
 	private void makeDataController(final PathwayDiagramPanel diagramPane, AbsolutePanel contentPane, final ExpressionCanvas expressionCanvas) {
-	    String url = null;
-	    if (analysisId.startsWith("http:"))
-	        url = analysisId; // For local test
-	    else
-	        // Create a simple URL call
-	        url = BASEURL + "results/" + analysisId + "/" + analysisName;
+	    final String url = isLocalData(getAnalysisId()) ? getAnalysisId() : getResultsUrl(); 
+	    
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
         try {
@@ -180,31 +194,24 @@ public class ExpressionProcessor {
                 }
                 
                 public void onResponseReceived(Request request, Response response) {
-                    if (200 == response.getStatusCode()) {                	
-                        JSONValue jsonObj = JSONParser.parseStrict(response.getText());
-                        expressionData = parseExpressionData((JSONObject)jsonObj);
+                    if (response.getStatusCode() == 200) {
+                        setExpressionData(parseExpressionData((JSONObject) JSONParser.parseStrict(response.getText())));
                         
-                        DataController dataController;
-                        String analysisType = expressionData.getAnalysisType();
+                        DataController dataController = getDataController(getExpressionData().getAnalysisType());
                         
-                        if (analysisType.equals("expression")) {
-                            expressionCanvas.setAnalysisType(AnalysisType.Expression);
-                            dataController = new ExpressionDataController();
-                        } else if (analysisType.equals("species_comparison")) {
-                            expressionCanvas.setAnalysisType(AnalysisType.SpeciesComparison);
-                            dataController = new SpeciesComparisonDataController();
-                            ((SpeciesComparisonDataController) dataController).setSpecies(species);
-                        } else if (analysisType.equals("idlist")) {
-                        	expressionCanvas.setAnalysisType(AnalysisType.IdList);
-                        	dataController = new IdListDataController();
-                        } else {
-                            AlertPopup.alert(analysisType + " is an unknown analysis type");
+                        if (dataController == null) {
+                            AlertPopup.alert(expressionData + " is an unknown analysis type");
                             return;
                         }
                         
-                        dataController.setDataModel(expressionData);
+                        dataController.setDataModel(getExpressionData());
+                        expressionCanvas.setAnalysisType(getExpressionData().getAnalysisType());
                         expressionCanvas.setDataController(dataController);
-                        diagramPane.setDataController(dataController);                        
+                        
+                        if (dataController instanceof SpeciesComparisonDataController)
+                        	((SpeciesComparisonDataController) dataController).setSpecies(getSpecies());
+                        
+                        diagramPane.setDataController(dataController);
                     }
                 }
             });
@@ -214,6 +221,10 @@ public class ExpressionProcessor {
         } 
 	}
 	
+	private String getResultsUrl() {
+		return BASEURL + "results/" + analysisId + "/" + analysisName;
+	}
+		
 	private ReactomeExpressionValue parseExpressionData(JSONObject jsonData) {
 		ReactomeExpressionValue expressionData = new ReactomeExpressionValue();
 		
@@ -225,6 +236,7 @@ public class ExpressionProcessor {
 
 			expressionData.setMinExpression(getDoubleFromJson("minExpression", expressionJson));
 			expressionData.setMaxExpression(getDoubleFromJson("maxExpression", expressionJson));
+			expressionData.setDataType(getStringFromJson("dataType", expressionJson));
 			expressionData.setAnalysisType(getStringFromJson("analysisType", expressionJson));
 		
 			JSONArray columnNamesArray = getJsonArray("expressionColumnNames", expressionJson);
@@ -327,6 +339,21 @@ public class ExpressionProcessor {
 		    return null;
 		}
 		return expressionData;		
+	}
+	
+
+	private DataController getDataController(String analysisTypeString) {
+		final AnalysisType analysisType = AnalysisType.getAnalysisType(analysisTypeString);
+		
+		if (analysisType == AnalysisType.Expression) {
+			return new ExpressionDataController();
+		} else if (analysisType == AnalysisType.SpeciesComparison) {
+			return new SpeciesComparisonDataController();
+		} else if (analysisType == AnalysisType.IdList) {
+			return new IdListDataController();
+		}
+		
+		return null;
 	}
 	
 	private JSONValue getJsonValue(Object key, JSONValue json) throws JSONException {
