@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.reactome.diagram.view.Parameters;
 
+import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.touch.client.Point;
 
 public class Node extends GraphObject {
@@ -186,19 +187,35 @@ public class Node extends GraphObject {
     }
     
  // Implemented based on answer from stackoverflow.com/questions/4726344
- 	public String getVisibleFgColor(String bgColor) {
- 		assert(bgColor.startsWith("rgb("));
- 		
+ 	public String getVisibleFgColor(String bgColorString) {
  		final String BLACK = "rgb(0, 0, 0)";		
+ 		if (bgColorString == null || bgColorString.isEmpty() ||	!(bgColorString.startsWith("rgb(") || bgColorString.startsWith("#")))
+ 			return BLACK;
+ 		
+ 		
  		final Integer threshold = 105;
+ 		 		 		
+ 		String [] bgColorComponents = bgColorString.startsWith("rgb(") ? 
+ 									  splitRGBString(bgColorString) : 
+ 									  splitRGBString(hex2RGB(bgColorString));
  		
- 		String [] bgColorComponents = bgColor.substring(4, bgColor.length() - 1).split(",");
+ 		Double 	bgDelta = (Double.parseDouble(bgColorComponents[0]) * 0.299) + // Red contribution
+ 						(Double.parseDouble(bgColorComponents[1]) * 0.587) + // Green contribution
+ 						(Double.parseDouble(bgColorComponents[2]) * 0.114); // Blue contribution
  		
- 		Double bgDelta = (Double.parseDouble(bgColorComponents[0]) * 0.299) + // Red contribution
- 						 (Double.parseDouble(bgColorComponents[1]) * 0.587) + // Green contribution
- 						 (Double.parseDouble(bgColorComponents[2]) * 0.114); // Blue contribution
- 		
+ 			
  		return ((255 - bgDelta) < threshold) ? BLACK : Parameters.defaultTextColorForDarkBgColor.value();
  	}
 	
+ 	private String hex2RGB(String hexColor) {
+ 		final Integer RED = Integer.valueOf(hexColor.substring(1, 3), 16);
+ 		final Integer BLUE = Integer.valueOf(hexColor.substring(3, 5), 16);
+ 		final Integer GREEN = Integer.valueOf(hexColor.substring(5, 7), 16);
+ 		
+ 		return CssColor.make(RED, GREEN, BLUE).value();
+ 	}
+ 	
+ 	private String [] splitRGBString(String bgColorString) {
+ 		return bgColorString.substring(4, bgColorString.length() - 1).split(",");
+ 	}
 }
