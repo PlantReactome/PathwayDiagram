@@ -51,4 +51,18 @@ public class ReactomeObject {
 		this.schemaClass = schemaClass;
 	}
 	
+	public boolean equals(Object obj) {		
+		if (obj != null && 	obj instanceof ReactomeObject && hasSameReactomeId(((ReactomeObject) obj).getReactomeId()))
+			return true;
+		
+		return false;
+	}
+	
+	private boolean hasSameReactomeId(Long objReactomeId) {
+		if (getReactomeId() == null) {
+			return false;
+		}
+		
+		return getReactomeId().equals(objReactomeId);
+	}
 }
