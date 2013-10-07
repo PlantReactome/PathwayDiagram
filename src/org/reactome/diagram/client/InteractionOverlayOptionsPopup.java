@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -710,8 +711,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 
 					@Override
 					public void onResponseReceived(Request request,	Response response) {
-						if (pathway.getDbIdToRefEntityId() == null) 	
-							pathway.setDbIdToRefEntityId(response.getText());
+						if (pathway.getDbIdToRefEntity() == null) 	
+							pathway.setDbIdToRefEntity(response.getText());
 					
 						controller.getPathwayInteractors(pathway, interactorDatabase, populateTable());
 					}
@@ -734,9 +735,11 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 					public void onResponseReceived(Request request,	Response response) {
 						addHeaderToTable();						
 						List<ProteinNode> pathwayProteins = getPathwayProteinsAndSetInteractors(response.getText()); 
+						
 						for (ProteinNode protein : pathwayProteins) {
-							for (InteractorNode interactor : protein.getInteractors())
+							for (InteractorNode interactor : protein.getInteractors()) {
 								addRowToTable(protein, interactor);
+							}
 						}
 						sizeScrollPanel();
 						setCursor(Cursor.DEFAULT);
@@ -751,7 +754,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				
 				return populateTable;
 			}
-		
+			
 			private List<ProteinNode> getPathwayProteinsAndSetInteractors(String xml) {
 				Document pathwayInteractors = XMLParser.parse(xml);
 				Element pathwayInteractorsElement = pathwayInteractors.getDocumentElement();
@@ -759,8 +762,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				XMLParser.removeWhitespace(pathwayInteractorsElement);
 			
 				NodeList resultLists = pathwayInteractorsElement.getElementsByTagName("resultList");
-			
-				List<ProteinNode> proteins = new ArrayList<ProteinNode>();
+
+				Map<Long, ProteinNode> pathwayProteins = new HashMap<Long, ProteinNode>();
 				for (int i = 0; i < resultLists.getLength(); i++) { 
 					Node resultList = resultLists.item(i);
 					
@@ -770,15 +773,38 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 																		  .item(0)
 																		  .getChildNodes();
 				
-					ProteinNode protein = pathway.getProteinByRefId(refEntityId);
-					protein.setInteractors(interactorList);
-				
-					proteins.add(protein);
+					List<ProteinNode> proteinNodes = pathway.getProteinNodesByRefId(refEntityId);
+					
+					for (ProteinNode protein : proteinNodes) {
+						//System.out.println(protein.getDisplayName() + " - " + protein.getReactomeId());
+						
+						
+						ProteinNode pathwayProteinNode = pathwayProteins.containsKey(protein.getReactomeId()) ? 
+														 pathwayProteins.get(protein.getReactomeId()) :
+														 protein;
+							
+						pathwayProteinNode.addInteractors(interactorList);
+						pathwayProteins.put(pathwayProteinNode.getReactomeId(), pathwayProteinNode);
+					}
 				}
 			
-				return proteins;
+				return new ArrayList<ProteinNode>(pathwayProteins.values());
 			}
-		
+
+			/*
+			private Map<String, String> getProteinToInteractorMap(List<ProteinNode> proteins) {
+				Map<String, String> proteinToInteractorMap = new HashMap<String, String>();
+				
+				for (ProteinNode protein : proteins) {
+					for (InteractorNode interactor : protein.getInteractors()) {
+						proteinToInteractorMap.put(protein.getDisplayName(), interactor.getDisplayName());
+					}
+				}
+				
+				return proteinToInteractorMap;
+			}
+			*/
+			
 			private String getNodeValue(Node node, String nodeName) {
 				return ((Element) node).getElementsByTagName(nodeName).item(0).getFirstChild().getNodeValue();
 			}
