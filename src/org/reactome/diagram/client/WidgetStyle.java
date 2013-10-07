@@ -6,6 +6,7 @@ package org.reactome.diagram.client;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -30,6 +31,10 @@ public class WidgetStyle {
     
     public static void setCursor(Widget widget, Cursor cursor) {
     	getStyle(widget).setCursor(cursor);
+    }
+    
+    public static void setPosition(Widget widget, Position position) {
+    	getStyle(widget).setPosition(position);
     }
     
     private static Style getStyle(Widget widget) {
