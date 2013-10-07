@@ -19,7 +19,9 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.DataResource;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -112,6 +114,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 	}
 	
 	protected class InfoIcon extends PopupPanel {
+		private HTMLPanel infoIconContainer;
 		private Image infoIcon;
 		private Node entity;
 		private HideTimer hideTimer;
@@ -120,8 +123,9 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 			final DataResource infoIconResource = ((Resources) GWT.create(Resources.class)).infoIcon();
 			
 			infoIcon = new Image(infoIconResource.getSafeUri());
-			
-			setWidget(infoIcon);
+			infoIconContainer = new HTMLPanel(infoIcon.toString());
+
+			setWidget(infoIconContainer);
 			
 			WidgetStyle.bringToFront(this);
 			WidgetStyle.removeBorder(this);
@@ -157,7 +161,8 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 		}
 		
 		private void addClickHandler() {
-			infoIcon.addClickHandler(new ClickHandler() {
+			infoIconContainer.sinkEvents(Event.ONCLICK);
+			infoIconContainer.addHandler(new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
@@ -165,18 +170,19 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 					diagramPanel.setSelectionObject(getEntity());
 					hide();
 				}	
-			});
+			}, ClickEvent.getType());
 		}
 		
 		private void addMouseOverHandler() {
-			infoIcon.addMouseOverHandler(new MouseOverHandler() {
+			infoIconContainer.sinkEvents(Event.ONMOUSEOVER);
+			infoIconContainer.addHandler(new MouseOverHandler() {
 
 				@Override
 				public void onMouseOver(MouseOverEvent event) {
-					InfoIcon.this.getElement().getStyle().setCursor(Cursor.POINTER);
+					WidgetStyle.setCursor(InfoIcon.this, Cursor.POINTER);
 					stopHideTimer();
 				}				
-			});
+			}, MouseOverEvent.getType());
 		}
 		
 		private void addHideTimer() {
