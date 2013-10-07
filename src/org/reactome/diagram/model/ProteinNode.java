@@ -64,7 +64,15 @@ public class ProteinNode extends Node {
 	public void setInteractors(NodeList interactionList) {
 		interactors = parseInteractorList(interactionList);
 	}
-		
+
+	public void addInteractors(NodeList interactionList) {
+		for (InteractorNode interactor : parseInteractorList(interactionList)) {
+			if (!interactors.contains(interactor)) {
+				interactors.add(interactor);
+			}
+		}
+	}
+	
 	private List<InteractorNode> parseInteractorList(NodeList interactionList) {			
 		List<InteractorNode> interactorNodes = new ArrayList<InteractorNode>();
 		
@@ -212,6 +220,18 @@ public class ProteinNode extends Node {
 		}
 	
 		return "";
+	}
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof ProteinNode && hasSameDisplayName((ProteinNode) obj)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean hasSameDisplayName(ProteinNode protein) {
+		return protein.getDisplayName().equals(this.getDisplayName());
 	}
 }
 
