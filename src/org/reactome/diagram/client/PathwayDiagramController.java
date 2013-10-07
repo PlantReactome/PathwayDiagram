@@ -422,7 +422,7 @@ public class PathwayDiagramController {
 
     		public void onResponseReceived(Request request, Response response) {
     			if (response.getStatusCode() == 200) {
-    				pathway.setDbIdToRefEntityId(response.getText());
+    				pathway.setDbIdToRefEntity(response.getText());
     				diagramPane.setCanvasPathway(pathway);
     			} else {
     				requestFailed("Unable to get physical to reference entity map");

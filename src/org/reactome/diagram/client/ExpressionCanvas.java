@@ -147,7 +147,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }	
     	
     private void drawExpressionOverlay(ExpressionPathway expressionPathway) { 	
-        Map<Long, List<ReferenceEntity>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntityId();
+        Map<Long, List<ReferenceEntity>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntity();
         	
         for (GraphObject entity : getGraphObjects()) {
            	if (entity instanceof Node) {

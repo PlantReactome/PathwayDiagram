@@ -61,7 +61,7 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     	if (ecm.getEntityExpressionInfoMap() != null) {
     		List<Long> refIdsForHoveredObject = new ArrayList<Long>();
     		
-    		List<ReferenceEntity> refEntitiesForHoveredObject = ec.getPathway().getDbIdToRefEntityId().get(hoveredObject.getReactomeId());
+    		List<ReferenceEntity> refEntitiesForHoveredObject = ec.getPathway().getDbIdToRefEntity().get(hoveredObject.getReactomeId());
     		for (ReferenceEntity refEntity : refEntitiesForHoveredObject) {
     			refIdsForHoveredObject.add(refEntity.getDbId());
     		}    		

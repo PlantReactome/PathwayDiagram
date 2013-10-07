@@ -134,7 +134,7 @@ public class InfoPopup extends PopupPanel {
     	if (selectedObjectHasReferenceEntity()) {      	
     	 	cgiScript = "eventbrowser";
     	 	identifier = diagramPane.getPathway()
-    	 							.getDbIdToRefEntityId()
+    	 							.getDbIdToRefEntity()
     	 							.get(selectedObject.getReactomeId())
     	 							.get(0)
     	 							.getDbId();
