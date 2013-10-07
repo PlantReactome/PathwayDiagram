@@ -30,8 +30,8 @@ import com.google.gwt.xml.client.NodeList;
 public class CanvasPathway extends Node {
     // A list of edges that should be rendered
     private List<HyperEdge> edges;
-    // Mapping of each child node's internal id to reference entity id
-    private Map<Long, List<ReferenceEntity>> dbIdToRefEntityId;
+    // Mapping of each child node's internal id to reference entity 
+    private Map<Long, List<ReferenceEntity>> dbIdToRefEntity;
     
     public CanvasPathway() {
     }
@@ -63,25 +63,25 @@ public class CanvasPathway extends Node {
         return this.edges;
     }    
     
-    public Map<Long, List<ReferenceEntity>> getDbIdToRefEntityId() {
-		return dbIdToRefEntityId;
+    public Map<Long, List<ReferenceEntity>> getDbIdToRefEntity() {
+		return dbIdToRefEntity;
 	}
 
-	public void setDbIdToRefEntityId(String json) {
-		clearDbIdToRefEntityId();
+	public void setDbIdToRefEntity(String json) {
+		clearDbIdToRefEntity();
 		
 		JSONArray mapObjects = (JSONArray) JSONParser.parseStrict(json);		
 		for (int i = 0; i < mapObjects.size(); i++) {
 			JSONObject entityMap = mapObjects.get(i).isObject();
-			dbIdToRefEntityId.put(getPhysicalEntityId(entityMap), getReferenceEntities(entityMap));
+			dbIdToRefEntity.put(getPhysicalEntityId(entityMap), getReferenceEntities(entityMap));
 		}
 	}
 	
-	private void clearDbIdToRefEntityId() {
-		if (dbIdToRefEntityId == null)
-			dbIdToRefEntityId = new HashMap<Long, List<ReferenceEntity>>();
+	private void clearDbIdToRefEntity() {
+		if (dbIdToRefEntity == null)
+			dbIdToRefEntity = new HashMap<Long, List<ReferenceEntity>>();
 		else
-			dbIdToRefEntityId.clear();
+			dbIdToRefEntity.clear();
 	}
 
 	private Long getPhysicalEntityId(JSONObject entityMap) {
@@ -127,12 +127,26 @@ public class CanvasPathway extends Node {
         return objects;
     }
 
-    public List<ProteinNode> getProteins() {
+    public List<ReferenceEntity> getReferenceEntitiesForAllProteins() {
+    	List<ReferenceEntity> proteinReferenceEntities = new ArrayList<ReferenceEntity>();
+    	
+    	for (Long dbId : dbIdToRefEntity.keySet()) {
+    		for (ReferenceEntity refEntity : dbIdToRefEntity.get(dbId)) {
+    			if (refEntity.getSchemaClass().equals("ReferenceGeneProduct") || refEntity.getSchemaClass().equals("ReferenceIsoform")) {
+    				proteinReferenceEntities.add(refEntity);
+    			}
+    		}
+    	}
+    	
+    	return proteinReferenceEntities;
+    }
+    
+    public List<ProteinNode> getProteinNodes() {
     	List<ProteinNode> proteins = new ArrayList<ProteinNode>();
     	
     	List<Node> nodes = getChildren();    	
     	if (nodes != null) {
-    		for (Node node : nodes) {
+    		for (Node node : nodes) {    			
     			if (node.getType() == GraphObjectType.RenderableProtein) {
     				proteins.add((ProteinNode) node);
     			}
@@ -143,7 +157,7 @@ public class CanvasPathway extends Node {
     }
     
     public ProteinNode getProteinNodeByDBId(Long dbId) {
-    	for (ProteinNode protein : getProteins()) {
+    	for (ProteinNode protein : getProteinNodes()) {
     		if (dbId.equals(protein.getReactomeId()))
     			return protein;
     	}
@@ -151,18 +165,20 @@ public class CanvasPathway extends Node {
     	return null;
     }
     
-    public ProteinNode getProteinByRefId(Long refId) {
-    	if (dbIdToRefEntityId == null || refId == null)
+    public List<ProteinNode> getProteinNodesByRefId(Long refId) {
+    	if (dbIdToRefEntity == null || refId == null)
     		return null;
     	
-    	for (ProteinNode protein : getProteins()) {
-    		List<ReferenceEntity> proteinRefIdList = dbIdToRefEntityId.get(protein.getReactomeId());
-    		
-    		if (!proteinRefIdList.isEmpty() && proteinRefIdList.get(0).equals(refId))
-    			return protein;
+    	List<ProteinNode> proteinNodesForRefId = new ArrayList<ProteinNode>();
+    	for (ProteinNode protein : getProteinNodes()) {
+    		for (ReferenceEntity proteinRefEntity : dbIdToRefEntity.get(protein.getReactomeId())) {
+    			if (proteinRefEntity.getDbId().equals(refId) && !proteinNodesForRefId.contains(protein)) {
+    				proteinNodesForRefId.add(protein);    			
+    			}
+    		}
     	}
     	
-    	return null;
+    	return proteinNodesForRefId;
     }
 
     public Long getReferenceIdForProtein(ProteinNode protein) {
@@ -172,11 +188,11 @@ public class CanvasPathway extends Node {
     }	
     	
     public Long getReferenceIdForProtein(Long dbId){
-    	if (dbIdToRefEntityId == null) return null;
+    	if (dbIdToRefEntity == null) return null;
     	if (getProteinNodeByDBId(dbId) == null) return null;
-    	if (dbIdToRefEntityId.get(dbId) == null || dbIdToRefEntityId.get(dbId).isEmpty()) return null;
+    	if (dbIdToRefEntity.get(dbId) == null || dbIdToRefEntity.get(dbId).isEmpty()) return null;
     	
-    	return dbIdToRefEntityId.get(dbId).get(0).getDbId();    	
+    	return dbIdToRefEntity.get(dbId).get(0).getDbId();   	
     }
     
     public List<Long> getReferenceIds(List<ProteinNode> proteins) {
@@ -615,6 +631,10 @@ public class CanvasPathway extends Node {
     	
     	public String getSchemaClass() {
     		return schemaClass;
+    	}
+    	
+    	public String toString() {
+    		return "Reference Entity - " + name + "(" + dbId + ")" + ": " + schemaClass;
     	}
     }
 }
