@@ -147,4 +147,16 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 	public String getDefaultColour() {
 		return defaultColour;
 	}
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof InteractorNode && displayNameTheSame((InteractorNode) obj))
+			return true;
+		
+		return false;
+	}
+	
+	private boolean displayNameTheSame(InteractorNode interactor) {
+		return interactor.getDisplayName().equals(this.getDisplayName());
+	}
+	
 }
