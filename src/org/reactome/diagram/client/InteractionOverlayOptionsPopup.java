@@ -121,7 +121,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 	}
 		
 	private void bringToFront(Widget widget) {
-		widget.getElement().getStyle().setZIndex(2);
+		widget.getElement().getStyle().setZIndex(20);
 	}
 		
 	private Button getClosePopupButton() {
