@@ -9,33 +9,40 @@ package org.reactome.diagram.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.reactome.diagram.view.Parameters;
 
 public class ComplexNode extends Node {
     private ArrayList<Component> components;
-	private Map<Long, Component> refIdToComponentsMap; 
 		
 	/**
 	 * Default constructor.
 	 */
-	public ComplexNode() {		
+	public ComplexNode() {
 		super();
 		components = new ArrayList<Component>();
-		refIdToComponentsMap = new HashMap<Long, Component>();		
 	}
 	
 	/**
-	 * Get a component in the complex by the component's reference entity id
+	 * Get all components in the complex associated with reference entity id
 	 * 
 	 * @param refId Component's reference entity id
-	 * @return Component with the given reference entity id or null if no component matches the id
+	 * @return List of components with the given reference entity id or null if no component matches the id
 	 */
-	public Component getComponent(Long refId) {
-		return refIdToComponentsMap.get(refId);		
+	public List<Component> getComponentsByRefId(Long refId) {
+		List<Component> componentsWithRefId = new ArrayList<Component>();
+		
+		if (refId == null) 
+			return componentsWithRefId;
+		
+		for (Component component : getComponents()) {
+			if (refId.equals(component.getRefEntityId()))
+				componentsWithRefId.add(component);
+		}
+		
+		
+		return componentsWithRefId;		
 	}
 	
 	/**
@@ -65,23 +72,34 @@ public class ComplexNode extends Node {
 	}
 	
 	/**
-	 * Adds a new component object with the reference id given, 
-	 * if no component object with the reference id already exists
+	 * Adds a new component object using the reference id given.  It's reactome internal
+	 * id is undefined
 	 * 
 	 * @param refId Reference id of the component 
 	 * @return A component object with the reference id given, either newly created or
 	 * returned from the existing components in the complex 
 	 */
-	public Component addComponent(Long refId) {
-		if (!refIdToComponentsMap.containsKey(refId)) {
-			Component component = new Component();
-			component.setRefEntityId(refId);
-			components.add(component);
-			refIdToComponentsMap.put(refId, component);
-		}
+	
+	
+	//public Component addComponentByRefId(Long refId) {
+		//Component component = new Component();
+		//component.setRefEntityId(refId);
+		////components.add(component);
 		
-		return refIdToComponentsMap.get(refId);
-	}
+		//if (getComponentsByRefId(refId).isEmpty()) {
+		//	components.add(component);
+		//} else {
+			//if (getComponentsByRefId(refId).contains(component))	
+			//	refIdToComponentsMap.get(refId).add(component);
+			//else {
+			//	Integer componentIndex = refIdToComponentsMap.get(refId).indexOf(component);
+			//	component = refIdToComponentsMap.get(refId).get(componentIndex);
+			//}
+		//}
+		//
+		//return component;
+	//}
+	
 
 	/**
 	 * Adds a new component object with the reactome internal id given,
@@ -107,10 +125,10 @@ public class ComplexNode extends Node {
 	 * 
 	 * @param refId Reference entity id of the component
 	 */
-	public void removeComponent(Long refId) {
-		Component component = refIdToComponentsMap.remove(refId);
-		components.remove(component);
-	}
+	//public void removeComponent(Long refId) {
+	//	Component component = refIdToComponentsMap.remove(refId);
+	//	components.remove(component);
+	//}
 
 	/**
 	 * Remove component from the complex node by its reactome internal id 
@@ -127,7 +145,7 @@ public class ComplexNode extends Node {
 	 */
 	public void removeComponents() {
 		components.clear();
-		refIdToComponentsMap.clear();
+		//refIdToComponentsMap.clear();
 	}
 
 	/**
@@ -218,6 +236,20 @@ public class ComplexNode extends Node {
 						
 			return 0;
 		}		
+		
+		public boolean equals(Object obj) {
+			if (obj instanceof Component && reactomeIdsEqual(((Component) obj).getReactomeId()))
+				return true;
+			
+			return false;
+		}
+		
+		private boolean reactomeIdsEqual(Long reactomeId) {
+			if (reactomeId == null || this.getReactomeId() == null)
+				return false;
+			
+			return this.getReactomeId().equals(reactomeId);
+		}
 		
 		public String toString() {
 			return "Name - " + getDisplayName() + "\n DB ID - " + getReactomeId() + 

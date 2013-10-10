@@ -247,7 +247,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 			return;
 		
 		for (ReferenceEntity refEntity : components) {
-			Component component = complex.addComponent(refEntity.getDbId());
+			Component component = complex.addComponentByDBId(null);
+			component.setRefEntityId(refEntity.getDbId());
 			component.setDisplayName(refEntity.getName());
 			component.setSchemaClass(refEntity.getSchemaClass());
 		}

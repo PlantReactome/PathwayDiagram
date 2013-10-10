@@ -111,21 +111,17 @@ public abstract class NodeOptionsMenu {
 							Node schemaClassNode = peElement.getElementsByTagName("schemaClass").item(0);
 							String molSchemaClass = schemaClassNode.getChildNodes().item(0).getNodeValue();
 							
-							Component component;
-							
-							Long refId = null;
-							Node refEntityNode = peElement.getElementsByTagName("referenceEntity").item(0);							
-							if (refEntityNode != null) {
-								Node refIdNode = ((Element) refEntityNode).getElementsByTagName("dbId").item(0);
-								refId = Long.parseLong(refIdNode.getChildNodes().item(0).getNodeValue());
-								component = ((ComplexNode) selected).addComponent(refId);
-							} else {
-								component = ((ComplexNode) selected).addComponentByDBId(molId);
-							}
-								
+							Component component = ((ComplexNode) selected).addComponentByDBId(molId);
 							component.setDisplayName(molName);
 							component.setReactomeId(molId);
 							component.setSchemaClass(molSchemaClass);
+							
+							Node refEntityNode = peElement.getElementsByTagName("referenceEntity").item(0);							
+							if (refEntityNode != null) {
+								Node refIdNode = ((Element) refEntityNode).getElementsByTagName("dbId").item(0);
+								Long refId = Long.parseLong(refIdNode.getChildNodes().item(0).getNodeValue());
+								component.setRefEntityId(refId);
+							}
 						}
 						setPMMenu(expressionData);
 					} catch (Exception e) {

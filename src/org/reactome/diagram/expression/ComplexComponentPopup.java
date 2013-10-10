@@ -5,6 +5,8 @@
  */
 package org.reactome.diagram.expression;
 
+import java.util.List;
+
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramController;
@@ -139,11 +141,13 @@ public class ComplexComponentPopup extends DialogBox {
     		
     		String dbId = complexComponentParser.getXMLNodeValue(componentGene, "dbId");
     		if (dbId != null) {
-    			Component component = complexNode.getComponent(Long.parseLong(dbId));
+    			List<Component> components = complexNode.getComponentsByRefId(Long.parseLong(dbId));
     			
-    			if (component != null) {
-    				String name = complexComponentParser.getXMLNodeValue(componentGene, "name");
-    				component.setDisplayName(name);
+    			for (Component component : components) {
+    				if (component != null) {
+    					String name = complexComponentParser.getXMLNodeValue(componentGene, "name");
+    					component.setDisplayName(name);
+    				}
     			}
     		}
     	}    	
