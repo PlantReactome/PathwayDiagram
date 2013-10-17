@@ -127,9 +127,13 @@ public class OptionsMenu extends PopupPanel {
 
 			@Override
 			public void execute() {							
+				if (!compatibleBrowser()) {
+					displayIncompatibleBrowserMessage();
+					return;
+				}
+				
 				if (diagramPane.getPathway() == null) {
-					AlertPopup.alert("Please choose a pathway to download");
-					hide();
+					alertUser("Please choose a pathway to download");
 					return;
 				}
 				
@@ -145,7 +149,7 @@ public class OptionsMenu extends PopupPanel {
 			}		
         });
         
-        return snapshotDiagram;        
+        return snapshotDiagram;
 	}
 
     private MenuItem getDownloadDiagramMenuItem() {
@@ -153,6 +157,11 @@ public class OptionsMenu extends PopupPanel {
 
 			@Override
 			public void execute() {
+				if (!compatibleBrowser()) {
+					displayIncompatibleBrowserMessage();
+					return;
+				}
+				
 				final Long pathwayId = diagramPane.getPathway().getReactomeId();
 				
 				diagramPane.getController().getPathwayDiagram(pathwayId, new RequestCallback() {
@@ -168,27 +177,6 @@ public class OptionsMenu extends PopupPanel {
 						pathwayDiagramData = pathwayDiagramData.replaceAll("_", "/");
 																		
 						Window.open(pathwayDiagramData, null, null);
-						
-						//final Image pathwayDiagram = new Image(pathwayDiagramData);
-						//pathwayDiagram.addLoadHandler(new LoadHandler() {
-							
-							//public void onLoad(LoadEvent event) {
-								//System.out.println("load");
-								//Canvas diagramCanvas = createDownloadCanvas(diagramPane.getPathwayCanvas().getCoordinateSpaceWidth(),
-						//													diagramPane.getPathwayCanvas().getCoordinateSpaceHeight());
-						
-								//diagramCanvas.getContext2d().drawImage(ImageElement.as(pathwayDiagram.getElement()),
-								//													   0, 0, diagramCanvas.getOffsetWidth(), diagramCanvas.getOffsetHeight());
-						
-								//showDiagramImage(diagramCanvas);
-								
-								//RootPanel.get().remove(pathwayDiagram);
-							//}
-						//});
-						
-						//System.out.println("creating");
-						//pathwayDiagram.setVisible(false);
-						//RootPanel.get().add(pathwayDiagram);
 					}
 					
 					public void onError(Request request, Throwable exception) {
@@ -276,5 +264,19 @@ public class OptionsMenu extends PopupPanel {
     	});
     	
     	return centerDiagram;
-    }   
+    }
+    
+    // Versions of IE 10 are incompatible for some features
+    private boolean compatibleBrowser() {
+    	return Window.Navigator.getUserAgent().contains("IE 10.") ? false : true;
+    }
+    
+    private void displayIncompatibleBrowserMessage() {
+    	alertUser("This feature is not compatible with this browser version.  Please try another browser.");
+    }
+    
+    private void alertUser(String message) {
+    	AlertPopup.alert(message);
+    	hide();
+    }
 }
