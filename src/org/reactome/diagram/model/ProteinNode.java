@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
+import org.reactome.diagram.client.AlertPopup;
+
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -49,7 +50,7 @@ public class ProteinNode extends Node {
 		try {
 			iDom = XMLParser.parse(xml);
 		} catch (DOMParseException e) {
-			GWT.log("Interactors could not be parsed from xml", e);
+			AlertPopup.alert("Interactors could not be parsed from xml " + e);
 			return;
 		}
 		
@@ -71,6 +72,10 @@ public class ProteinNode extends Node {
 				interactors.add(interactor);
 			}
 		}
+	}
+	
+	public void removeAllInteractors() {
+		interactors.clear();
 	}
 	
 	private List<InteractorNode> parseInteractorList(NodeList interactionList) {			
@@ -189,7 +194,7 @@ public class ProteinNode extends Node {
 	private InteractorNode createInteractor(String acc, String geneName, Double score, String chemblID) {
 		InteractorNode interactor = new InteractorNode();
 		interactor.setAccession(acc);
-		interactor.setDisplayName(geneName);
+		interactor.setGeneName(geneName);
 		interactor.setScore(score);
 		interactor.setChemicalId(chemblID);
 		
