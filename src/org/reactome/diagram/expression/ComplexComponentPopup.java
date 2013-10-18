@@ -135,17 +135,17 @@ public class ComplexComponentPopup extends DialogBox {
     	
     	Element complexComponentElement = ((ReactomeXMLParser) complexComponentParser).getDocumentElement();
     	
-    	NodeList componentGenes = complexComponentElement.getElementsByTagName("ReferenceGeneProduct");
-    	for (int i = 0; i < componentGenes.getLength(); i++) {
-    		Element componentGene = (Element) componentGenes.item(i);
+    	NodeList componentReferenceEntities = complexComponentElement.getChildNodes();
+    	for (int i = 0; i < componentReferenceEntities.getLength(); i++) {
+    		Element componentEntity = (Element) componentReferenceEntities.item(i);
     		
-    		String dbId = complexComponentParser.getXMLNodeValue(componentGene, "dbId");
+    		String dbId = complexComponentParser.getXMLNodeValue(componentEntity, "dbId");
     		if (dbId != null) {
     			List<Component> components = complexNode.getComponentsByRefId(Long.parseLong(dbId));
     			
     			for (Component component : components) {
     				if (component != null) {
-    					String name = complexComponentParser.getXMLNodeValue(componentGene, "name");
+    					String name = complexComponentParser.getXMLNodeValue(componentEntity, "name");
     					component.setDisplayName(name);
     				}
     			}
@@ -181,7 +181,7 @@ public class ComplexComponentPopup extends DialogBox {
     	addHeader();
     	
     	for (Component component : complexNode.getComponents()) {
-    		if (component.getRefEntityId() != null)
+    		//if (component.getRefEntityId() != null)
     			addRow(component);
     	}
     }	
