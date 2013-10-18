@@ -36,17 +36,17 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
     }
    
     public GraphObject select(GwtEvent<? extends EventHandler> event, Point point) {
-        if (ic.getGraphObjects() == null)
+        if (ic.getObjectsForRendering() == null)
             return null;                
 
-        canvasObjects = ic.getGraphObjects();
+        canvasObjects = ic.getObjectsForRendering();
         gwtEvent = event;
 
         return super.select(event, point);
     }
     
     public void setSelectionObjects(List<GraphObject> objects) {
-        canvasObjects = ic.getGraphObjects();
+        canvasObjects = ic.getObjectsForRendering();
         
         super.setSelectionObjects(objects);
     }
@@ -56,9 +56,14 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
      * @param dbIds
      */
     public void setSelectionIds(List<Long> dbIds) {
-    	canvasObjects = ic.getGraphObjects();
+    	canvasObjects = ic.getObjectsForRendering();
     	
     	super.setSelectionIds(dbIds);
+    }
+
+    @Override
+    protected void fireSelectionEvent() {
+    	// Clicking interactor nodes or edges should not trigger a selection event
     }
 
 	@Override
@@ -78,7 +83,7 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
 		}
 		
 	}
-
+	
 	private RequestCallback openInteractionPage(final InteractorEdge selected) {
 		RequestCallback openInteractionPage = new RequestCallback() {
 
