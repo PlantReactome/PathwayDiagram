@@ -11,10 +11,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.view.Parameters;
+
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 
 public class ComplexNode extends Node {
     private ArrayList<Component> components;
+    private boolean participatingMoleculesObtained;
 		
 	/**
 	 * Default constructor.
@@ -22,6 +30,7 @@ public class ComplexNode extends Node {
 	public ComplexNode() {
 		super();
 		components = new ArrayList<Component>();
+		participatingMoleculesObtained = false;
 	}
 	
 	/**
@@ -52,10 +61,12 @@ public class ComplexNode extends Node {
 	 * @return Component with the given reactome internal id or null if no component matches the id
 	 */	
 	public Component getComponentByDBId(Long dbId) {
-		for (Component component : components) {
-			if (dbId.equals(component.getReactomeId()))
-				return component;
-		}		
+		if (dbId != null) {
+			for (Component component : components) {
+				if (dbId.equals(component.getReactomeId()))
+					return component;
+			}		
+		}
 		
 		return null;
 	}
@@ -120,6 +131,16 @@ public class ComplexNode extends Node {
 		return component;				
 	}
 	
+	public Component addComponentByRefId(Long refId) {
+		if (!getComponentsByRefId(refId).isEmpty())
+			return null;
+		
+		Component component = addComponentByDBId(null);
+		component.setRefEntityId(refId);
+		
+		return component;
+	}
+	
 	/**
 	 * Remove component from the complex node by its reference entity id
 	 * 
@@ -167,6 +188,84 @@ public class ComplexNode extends Node {
 			colors.add(Parameters.defaultExpressionColor.value());
 		
 		return colors;
+	}
+
+    public RequestCallback setParticipatingMolecules() {
+    	RequestCallback setParticipatingMolecules = new RequestCallback() {
+    		private final String ERROR_MSG = "Unable to get participating molecules. "; 
+    		
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() != 200) {
+					AlertPopup.alert(ERROR_MSG);
+					return;
+				}
+										
+				ReactomeXMLParser pmXMLParser = new ReactomeXMLParser(response.getText());
+				Element pmElement = pmXMLParser.getDocumentElement();
+				
+				if (pmElement == null) {
+					AlertPopup.alert(ERROR_MSG);
+					return;
+				}
+					
+				NodeList nodeList = pmElement.getChildNodes();
+				for (int i = 0; i < nodeList.getLength(); i++) {
+					parseParticipatingMoleculeNode((Element) nodeList.item(i));
+				}
+				
+				participatingMoleculesObtained = true;
+			}
+    	    
+			private void parseParticipatingMoleculeNode(Element peElement) {
+				try {
+					Component component = addComponentByDBId(getPMDbId(peElement));
+					component.setDisplayName(getPMDisplayName(peElement));
+					component.setSchemaClass(getPMSchemaClass(peElement));
+					component.setRefEntityId(getPMRefEntityId(peElement));
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+    		}
+	
+			private Long getPMDbId(Element moleculeElement) {
+				return Long.parseLong(getPMAttributeValue("dbId", moleculeElement));
+			}
+			
+			private String getPMDisplayName(Element moleculeElement) {
+				return getPMAttributeValue("displayName", moleculeElement);
+			}
+			
+			private String getPMSchemaClass(Element moleculeElement) {
+				return getPMAttributeValue("schemaClass", moleculeElement);
+			}
+			
+			private Long getPMRefEntityId(Element moleculeElement) {
+				com.google.gwt.xml.client.Node refEntityNode = moleculeElement.getElementsByTagName("referenceEntity").item(0);
+				
+				if (refEntityNode != null)
+					return getPMDbId((Element) refEntityNode);
+				
+				return null;
+			}
+			
+			private String getPMAttributeValue(String attribute, Element moleculeElement) {
+				com.google.gwt.xml.client.Node attributeNode = moleculeElement.getElementsByTagName(attribute).item(0);
+						
+				return attributeNode.getChildNodes().item(0).getNodeValue();
+			}
+			
+			@Override
+			public void onError(Request request, Throwable exception) {
+				AlertPopup.alert(ERROR_MSG + exception);
+			}
+    	};
+    	
+    	return setParticipatingMolecules;
+    }
+	
+	public boolean participatingMoleculesObtained() {
+		return participatingMoleculesObtained;
 	}
 
 	public class Component extends ReactomeObject implements Comparable<Component> {
