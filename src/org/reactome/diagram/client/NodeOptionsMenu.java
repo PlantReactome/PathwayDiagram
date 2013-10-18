@@ -74,77 +74,38 @@ public abstract class NodeOptionsMenu {
     // Complex Entity Menu
     private void createComplexMenu(boolean expressionData) {
     	createPhysicalEntityMenu();
-    	retrievePMs(expressionData); 
-    }
-
-    // Participating molecules menu	
-    private void retrievePMs(final boolean expressionData) {
+    	
     	final PathwayDiagramController controller = diagramPane.getController();
     	
-    	menuItemsBeingCreated += 1;
+    	if (((ComplexNode) selected).participatingMoleculesObtained()) {
+    		setPMMenu(expressionData);
+    	} else {
+    		controller.getParticipatingMolecules(selected.getReactomeId(), setParticipatingMolecules(expressionData));
+    	}
+    }
     	
-    	controller.getParticipatingMolecules(selected.getReactomeId(), new RequestCallback() {
-    		
+    private RequestCallback setParticipatingMolecules(final boolean expressionData) {
+    	RequestCallback setParticipatingMolecules = new RequestCallback() {
+
 			@Override
 			public void onResponseReceived(Request request, Response response) {
-				if (response.getStatusCode() == 200) {
-									
-					//System.out.println(response.getText());
-										
-					try {
-						ReactomeXMLParser pmXMLParser = new ReactomeXMLParser(response.getText());
-						Element pmElement = pmXMLParser.getDocumentElement();
-						
-						NodeList nodeList = pmElement.getChildNodes();
-						
-						for (int i = 0; i < nodeList.getLength(); i++) {
-							Node node = nodeList.item(i);
-							
-							Element peElement = (Element) node;
-							
-							Node idNode = peElement.getElementsByTagName("dbId").item(0);
-							Long molId = Long.parseLong(idNode.getChildNodes().item(0).getNodeValue());
-							
-							Node nameNode = peElement.getElementsByTagName("displayName").item(0);
-							String molName = nameNode.getChildNodes().item(0).getNodeValue();
-
-							Node schemaClassNode = peElement.getElementsByTagName("schemaClass").item(0);
-							String molSchemaClass = schemaClassNode.getChildNodes().item(0).getNodeValue();
-							
-							Component component = ((ComplexNode) selected).addComponentByDBId(molId);
-							component.setDisplayName(molName);
-							component.setReactomeId(molId);
-							component.setSchemaClass(molSchemaClass);
-							
-							Node refEntityNode = peElement.getElementsByTagName("referenceEntity").item(0);							
-							if (refEntityNode != null) {
-								Node refIdNode = ((Element) refEntityNode).getElementsByTagName("dbId").item(0);
-								Long refId = Long.parseLong(refIdNode.getChildNodes().item(0).getNodeValue());
-								component.setRefEntityId(refId);
-							}
-						}
-						setPMMenu(expressionData);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else {
-					controller.requestFailed("Could not get participating molecules");					
-				}
-				
-				menuItemsBeingCreated -= 1;
+				((ComplexNode) selected).setParticipatingMolecules().onResponseReceived(request, response);
+				setPMMenu(expressionData);
 			}
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				controller.requestFailed(exception);
-				menuItemsBeingCreated -= 1;
+				((ComplexNode) selected).setParticipatingMolecules().onError(request, exception);
 			}
     		
-    	});    	
+    	};
+    	
+		return setParticipatingMolecules;
     }
     
     // Set participating molecules menu
     private void setPMMenu(boolean expressionData) {    	
+    	menuItemsBeingCreated += 1;
     	if (expressionData) {
    			addItem("Display Participating Molecules", new Command() {
 				@Override
@@ -164,6 +125,7 @@ public abstract class NodeOptionsMenu {
     		
     		addItem("Participating Molecules", pmMenu);
     	}
+    	menuItemsBeingCreated -= 1;
     }
     
     private List<MenuItem> getParticipatingMoleculesMenuItems() {
