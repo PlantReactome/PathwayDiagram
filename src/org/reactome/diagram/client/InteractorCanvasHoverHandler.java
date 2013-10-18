@@ -31,10 +31,10 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
     	
-    	if (interactorCanvas.getGraphObjects() == null)
+    	if (interactorCanvas.getObjectsForRendering() == null)
             return null;
                 
-        List<GraphObject> objects = interactorCanvas.getGraphObjects();
+        List<GraphObject> objects = interactorCanvas.getObjectsForRendering();
         super.hover(objects);
 
         if (hoveredObject != null) {
@@ -52,32 +52,37 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     }
         
     protected void showTooltip() {
-    	String label;
+    	String tooltipHTML = getToolTipContents();
     	
-    	if (hoveredObject instanceof InteractorNode) {
-    		InteractorType type = ((InteractorNode) hoveredObject).getRefType();
-    				
-    		String description;
-    		if (type == InteractorType.Protein) {
-    			description = "Uniprot Accession:";
-    		} else if (type == InteractorType.Chemical) {
-    			description = "Chemical Id:";
-    		} else {	
-    			return;
-    		}	
-    		label =  super.getLabel() + "<br />" +
-    				 description + ((InteractorNode) hoveredObject).getAccession() + "<br />" +
-    				 "Confidence Level Score: " + ((InteractorNode) hoveredObject).getScore();    			
-    	} else if (hoveredObject instanceof InteractorEdge) {
-    		label = ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
-    				((InteractorEdge) hoveredObject).getInteractor().getDisplayName();     		
-    	} else {
-    		return;
+    	if (tooltipHTML != null) {
+    		tooltip.setWidget(new HTML(tooltipHTML));
+    		super.showTooltip();
     	}
-    	 	
-    	tooltip.setWidget(new HTML(label));
+    }
     
-    	super.showTooltip();
+    private String getToolTipContents()  {
+    	if (hoveredObject instanceof InteractorNode) {
+    		final InteractorNode hoveredInteractor = (InteractorNode) hoveredObject;
+    				
+    		String description = null;
+    		if (hoveredInteractor.getRefType() == InteractorType.Protein) {
+    			description = "Uniprot Accession: " + hoveredInteractor.getAccession();
+    		} else if (hoveredInteractor.getRefType() == InteractorType.Chemical) {
+    			description = "Chemical Id: " + hoveredInteractor.getChemicalId() != null ?
+    						  hoveredInteractor.getChemicalId() :
+    						  hoveredInteractor.getAccession();
+    		}
+    		
+    		if (description != null)
+    			return "Interactor: " + hoveredInteractor.getGeneName() + "<br />" +
+    				   description + hoveredInteractor.getAccession() + "<br />" +
+    				   "Confidence Level Score: " + hoveredInteractor.getScore();
+    	} else if (hoveredObject instanceof InteractorEdge) {
+    		 return ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
+    				((InteractorEdge) hoveredObject).getInteractor().getGeneName();
+    	}
+    	
+    	return null;
     }
     
     protected Boolean overridesOtherHoverHandlers() {
