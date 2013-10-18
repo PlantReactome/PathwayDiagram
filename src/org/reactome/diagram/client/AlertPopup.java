@@ -53,7 +53,7 @@ public class AlertPopup {
 	private static void setStyle(DialogBox popUp) {
 		Style style = popUp.getElement().getStyle();
 		
-		style.setZIndex(2);
+		style.setZIndex(30);
 		style.setBackgroundColor("rgb(255, 255, 255)");
 		style.setBorderWidth(1, Style.Unit.PX);
 		style.setBorderColor("rgb(0, 0, 0)");
