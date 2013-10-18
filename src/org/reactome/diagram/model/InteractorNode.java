@@ -17,7 +17,8 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
     private int count; 
 	private List<InteractorEdge> edges;
 	private InteractorType refType;
-	private String accession;	
+	private String accession;
+	private String geneName;
 	private double score;
 	private String chemicalId;
 	private Image image;
@@ -35,6 +36,11 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		defaultColour = getBgColor();
 	}
 
+	@Override
+	public String getDisplayName() {
+		return getRefType() == InteractorType.Protein ? getGeneName() + " (" + getAccession() + ")" : getGeneName(); 
+	}
+	
 	public int getCount() {
 		return count;
 	}
@@ -59,6 +65,13 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		this.accession = accession;
 	}
 	
+	public String getGeneName() {
+		return geneName;
+	}
+	
+	public void setGeneName(String geneName) {
+		this.geneName = geneName;
+	}
 	
 	public double getScore() {
 		return score;
@@ -96,22 +109,19 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 	public String getUrl() {
 		String url;
 		
-		if (this.refType == InteractorType.Chemical) {			
-			if (chemicalId != null || getDisplayName().matches("^\\d+$")) {
-				url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/";
-				
-				if (chemicalId != null) {				
-					url = url + chemicalId;
-				} else {
-					url = url + "CHEMBL" + getDisplayName();
-				}
+		if (getRefType() == InteractorType.Chemical) {
+			final String defaultUrl = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/";
+			if (getChemicalId() != null) {
+				url = defaultUrl + getChemicalId();
+			} else if (getChemblId() != null) {
+				url = defaultUrl + "CHEMBL" + getChemblId();
 			} else {
-				url = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=" + this.accession;
+				url = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=" + getAccession();
 			}		
-		} else if (this.refType == InteractorType.Protein) { 
-			url = "http://www.uniprot.org/uniprot/" + this.accession; 
+		} else if (getRefType() == InteractorType.Protein) {
+			url = "http://www.uniprot.org/uniprot/" + getAccession();
 		} else {
-			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/" + this.accession;
+			url = "http://www.ebi.ac.uk/chembldb/index.php/compound/inspect/" + getAccession();
 		}
 		
 		return url;
@@ -149,14 +159,55 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 	}
 	
 	public boolean equals(Object obj) {
-		if (obj instanceof InteractorNode && displayNameTheSame((InteractorNode) obj))
+		if (obj instanceof InteractorNode && sameInteractorRefType((InteractorNode) obj)) { 
+			if (proteinWithSameNameAndId((InteractorNode) obj) || chemicalWithSameNameAndId((InteractorNode) obj))
+				return true;
+		}
+		
+		return false;
+	}
+	private boolean sameInteractorRefType(InteractorNode interactor) {
+		return interactor.getRefType() == this.getRefType();
+	}
+	
+	private boolean proteinWithSameNameAndId(InteractorNode interactor) {
+		if (getRefType() == InteractorType.Protein) {
+			if (geneNameTheSame(interactor) && interactor.getAccession().equals(this.getAccession()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean chemicalWithSameNameAndId(InteractorNode interactor) {
+		if (getRefType() == InteractorType.Chemical) {
+			if (geneNameTheSame(interactor) && (chemicalIdentifierTheSame(interactor) || chemicalAccessionTheSame(interactor)))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean chemicalIdentifierTheSame(InteractorNode interactor) {
+		if (interactor.getChemicalId() != null && interactor.getChemicalId().equals(getChemicalId()))
 			return true;
 		
 		return false;
 	}
 	
-	private boolean displayNameTheSame(InteractorNode interactor) {
-		return interactor.getDisplayName().equals(this.getDisplayName());
+	private boolean chemicalAccessionTheSame(InteractorNode interactor) {
+		if (interactor.getAccession() != null && interactor.getAccession().equals(getAccession()))
+			return true;
+		
+		return false;
+	}	
+	
+	private String getChemblId() {
+		return getGeneName().matches("^\\d+$") ? getGeneName() : null;
+	}
+	
+	private boolean geneNameTheSame(InteractorNode interactor) {
+		return interactor.getGeneName().equals(this.getGeneName());
 	}
 	
 }
