@@ -756,6 +756,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			}
 			
 			private List<ProteinNode> getPathwayProteinsAndSetInteractors(String xml) {
+				removeInteractorsFromPathwayProteins();
+				
 				Document pathwayInteractors = XMLParser.parse(xml);
 				Element pathwayInteractorsElement = pathwayInteractors.getDocumentElement();
 		
@@ -791,6 +793,20 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				return new ArrayList<ProteinNode>(pathwayProteins.values());
 			}
 
+			private void removeInteractorsFromPathwayProteins() {
+				//InteractorCanvas interactorCanvas = interactorCanvasModel.getInteractorCanvas();
+				
+				//if (interactorCanvas != null && interactorDatabase.equals(interactorCanvasModel.getInteractorDatabase())) {
+					
+					
+					for (ProteinNode protein : pathway.getProteinNodes()) {
+						protein.removeAllInteractors();
+					}
+				//} else {
+					
+				//}
+			}
+			
 			/*
 			private Map<String, String> getProteinToInteractorMap(List<ProteinNode> proteins) {
 				Map<String, String> proteinToInteractorMap = new HashMap<String, String>();
