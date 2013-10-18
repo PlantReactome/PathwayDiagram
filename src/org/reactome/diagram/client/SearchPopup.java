@@ -151,7 +151,7 @@ public class SearchPopup extends HorizontalPanel {
 		
 		if (!query.isEmpty() && diagramPane.getPathway() != null) {
 		
-			List<GraphObject> pathwayObjects = diagramPane.getPathway().getGraphObjects(); 			
+			List<GraphObject> pathwayObjects = diagramPane.getPathway().getObjectsForRendering();
 			for (GraphObject pathwayObject: pathwayObjects) {
 				if (pathwayObject.getDisplayName() == null || pathwayObject.getType() == GraphObjectType.RenderableCompartment)
 					continue;
@@ -240,7 +240,7 @@ public class SearchPopup extends HorizontalPanel {
 	}
 	
 	private List<GraphObject> getPathwayGraphObjects() {
-		return diagramPane.getPathway().getGraphObjects();
+		return diagramPane.getPathway().getObjectsForRendering();
 	}
 	
 	private void enableButtons(Boolean enable) {

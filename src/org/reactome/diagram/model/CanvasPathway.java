@@ -127,6 +127,10 @@ public class CanvasPathway extends Node {
         return objects;
     }
 
+    public List<GraphObject> getObjectsForRendering() {
+		return getGraphObjects();
+    }
+    
     public List<ReferenceEntity> getReferenceEntitiesForAllProteins() {
     	List<ReferenceEntity> proteinReferenceEntities = new ArrayList<ReferenceEntity>();
     	

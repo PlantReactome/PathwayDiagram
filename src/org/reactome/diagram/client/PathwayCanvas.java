@@ -50,12 +50,12 @@ public class PathwayCanvas extends DiagramCanvas {
         return this.pathway;
     }
 
-    public List<GraphObject> getGraphObjects() {
+    public List<GraphObject> getObjectsForRendering() {
     	if (getPathway() == null)
     		return null;
     	
-    	return getPathway().getGraphObjects();
-    }	
+    	return getPathway().getObjectsForRendering();
+    }
     
     @Override
     protected void fireViewChangeEvent() {

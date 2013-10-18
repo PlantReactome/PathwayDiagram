@@ -107,10 +107,10 @@ public class CanvasEventInstaller {
     }
     
     private void hiliteAndCentreObjects(SelectionEvent e) {
-    	if (canvas.getGraphObjects() == null)
+    	if (canvas.getObjectsForRendering() == null)
             return;
         // Un-hilight objects first
-        for (GraphObject obj : canvas.getGraphObjects()) {
+        for (GraphObject obj : canvas.getObjectsForRendering()) {
             obj.setHighlighted(false);
         }
         

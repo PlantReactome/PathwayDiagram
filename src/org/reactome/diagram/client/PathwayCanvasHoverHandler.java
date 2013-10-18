@@ -49,10 +49,10 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
     	
-    	if (pc.getPathway() == null || pc.getPathway().getGraphObjects() == null)
+    	if (pc.getPathway() == null || pc.getPathway().getObjectsForRendering() == null)
             return null;
                 
-        List<GraphObject> objects = pc.getPathway().getGraphObjects();
+        List<GraphObject> objects = pc.getPathway().getObjectsForRendering();
         super.hover(objects);        
         
         if (hoveredObject != null) {

@@ -39,10 +39,10 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
     }
         
     public GraphObject select(GwtEvent<? extends EventHandler> event, Point point) {
-        if (pc.getPathway() == null || pc.getPathway().getGraphObjects() == null)
+        if (pc.getPathway() == null || pc.getPathway().getObjectsForRendering() == null)
         	return null;
         	
-    	canvasObjects = pc.getPathway().getGraphObjects();
+    	canvasObjects = pc.getPathway().getObjectsForRendering();
         gwtEvent = event;
         
         return super.select(event, point);
@@ -53,7 +53,7 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
         if (pathway == null)
             return;
         
-        canvasObjects = pathway.getGraphObjects();
+        canvasObjects = pathway.getObjectsForRendering();
         super.setSelectionObjects(objects);       
     }
     
@@ -66,7 +66,7 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
         if (pathway == null)
             return;
         
-        canvasObjects = pathway.getGraphObjects();
+        canvasObjects = pathway.getObjectsForRendering();
         
         super.setSelectionIds(dbIds);
       

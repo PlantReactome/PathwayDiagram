@@ -33,11 +33,11 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
         
-    	if (ec.getGraphObjects() == null || ec.getAnalysisType() == AnalysisType.SpeciesComparison)
+    	if (ec.getObjectsForRendering() == null || ec.getAnalysisType() == AnalysisType.SpeciesComparison)
             return null;
         
     	
-        List<GraphObject> objects = ec.getGraphObjects();
+        List<GraphObject> objects = ec.getObjectsForRendering();
         super.hover(objects);
                 
         if (hoveredObject != null && hoveredObject.getType() == GraphObjectType.RenderableProtein) {        	

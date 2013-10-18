@@ -33,9 +33,9 @@ public class DefaultColorScheme {
     }
     
     public void applyScheme(CanvasPathway pathway) {
-        if (pathway.getGraphObjects() == null)
+        if (pathway.getObjectsForRendering() == null)
             return;
-        for (GraphObject obj : pathway.getGraphObjects()) {
+        for (GraphObject obj : pathway.getObjectsForRendering()) {
             if (!(obj instanceof Node))
                 continue;
             // Right now only need to handle nodes only

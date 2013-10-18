@@ -6,8 +6,10 @@ package org.reactome.diagram.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -87,6 +89,21 @@ public class DiseaseCanvasPathway extends CanvasPathway {
         }
     }
 
+    public List<GraphObject> getObjectsForRendering() {
+    	if (isForNormalDraw()) {
+    		return getNormalObjects();
+    	} else {
+    		Set<GraphObject> objectsForRendering = new HashSet<GraphObject>();
+    		objectsForRendering.addAll(getNormalObjects());
+    		objectsForRendering.addAll(getDiseaseObjects());
+    		objectsForRendering.addAll(getCrossedObjects());
+    		objectsForRendering.addAll(getOverlaidObjects());
+    		objectsForRendering.addAll(getLofObjects());
+    		
+    		return new ArrayList<GraphObject>(objectsForRendering);
+    	}
+    }
+    
     public List<GraphObject> getNormalObjects() {
         return normalObjects;
     }

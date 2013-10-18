@@ -236,7 +236,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
      */
     protected abstract void updateOthers(Context2d c2d);
 
-	public abstract List<GraphObject> getGraphObjects();	
+	public abstract List<GraphObject> getObjectsForRendering();	
     
 	protected class CanvasTransformation {
 		protected Double scale;
