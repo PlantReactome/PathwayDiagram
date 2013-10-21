@@ -31,6 +31,11 @@ public class DiseaseCanvasPathway extends CanvasPathway {
     private boolean isForNormalDraw;
     
     public DiseaseCanvasPathway() {
+    	normalObjects = new ArrayList<GraphObject>();
+    	diseaseObjects = new ArrayList<GraphObject>();
+    	crossedObjects = new ArrayList<GraphObject>();
+    	overlaidObjects = new ArrayList<GraphObject>();
+    	lofObjects = new ArrayList<GraphObject>();
     }
 
     @Override
@@ -51,25 +56,20 @@ public class DiseaseCanvasPathway extends CanvasPathway {
             com.google.gwt.xml.client.Node node = nodeList.item(i);
             String name = node.getNodeName();
             if (name.equals("normalComponents")) {
-                normalObjects = new ArrayList<GraphObject>();
                 parseObjectIds(node,
                                normalObjects,
                                idToObject);
             }
             else if (name.equals("diseaseComponents")) {
-                diseaseObjects = new ArrayList<GraphObject>();
                 parseObjectIds(node, diseaseObjects, idToObject);
             }
             else if (name.equals("crossedComponents")) {
-                crossedObjects = new ArrayList<GraphObject>();
                 parseObjectIds(node, crossedObjects, idToObject);
             }
             else if (name.equals("overlaidComponents")) {
-                overlaidObjects = new ArrayList<GraphObject>();
                 parseObjectIds(node, overlaidObjects, idToObject);
             }
             else if (name.equals("lofNodes")) {
-                lofObjects = new ArrayList<GraphObject>();
                 parseObjectIds(node, lofObjects, idToObject);
             }
         }
@@ -94,8 +94,8 @@ public class DiseaseCanvasPathway extends CanvasPathway {
     		return getNormalObjects();
     	} else {
     		Set<GraphObject> objectsForRendering = new HashSet<GraphObject>();
-    		objectsForRendering.addAll(getNormalObjects());
     		objectsForRendering.addAll(getDiseaseObjects());
+    		objectsForRendering.addAll(getNormalObjects());
     		objectsForRendering.addAll(getCrossedObjects());
     		objectsForRendering.addAll(getOverlaidObjects());
     		objectsForRendering.addAll(getLofObjects());
