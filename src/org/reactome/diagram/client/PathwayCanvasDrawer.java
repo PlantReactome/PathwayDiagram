@@ -209,28 +209,32 @@ public class PathwayCanvasDrawer {
             if (normalObjects == null || normalObjects.size() == 0)
                 return;
             GraphObjectRendererFactory viewFactory = GraphObjectRendererFactory.getFactory();
-            List<Node> nodes = diseasePathway.getChildren();
+            if (diseasePathway.getChildren() == null)
+            	return;
+            
             // Draw normal objects
-            if (nodes != null) {
-                // Always draw compartments first
-                for (Node node : nodes) {
-                    if (node.getType() == GraphObjectType.RenderableCompartment) {
-                        NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                        if (renderer != null)
-                            renderer.render(c2d, node);
-                    }
-                }
-                for (Node node : nodes) {
-                    if (node.getType() == GraphObjectType.RenderableCompartment)
-                        continue;
-                    if (!normalObjects.contains(node))
-                        continue;
-                    NodeRenderer renderer = viewFactory.getNodeRenderer(node);
-                    if (renderer != null)
-                        renderer.render(c2d,
-                                        node);
+            
+            // Always draw compartments first
+            for (Node node : diseasePathway.getChildren()) {
+            	if (node.getType() == GraphObjectType.RenderableCompartment) {
+                   NodeRenderer renderer = viewFactory.getNodeRenderer(node);
+                   if (renderer != null)
+                      renderer.render(c2d, node);
                 }
             }
+            
+            // Draw nodes
+            for (GraphObject normalObject : normalObjects) {
+               if (normalObject.getType() == GraphObjectType.RenderableCompartment)
+                  continue;
+               
+               if (normalObject instanceof Node) {
+                  NodeRenderer renderer = viewFactory.getNodeRenderer((Node) normalObject);
+                  if (renderer != null)
+                     renderer.render(c2d, (Node) normalObject);
+               }
+            }
+            
             // Draw edges
             List<HyperEdge> edges = diseasePathway.getEdges();
             if (edges != null) {
