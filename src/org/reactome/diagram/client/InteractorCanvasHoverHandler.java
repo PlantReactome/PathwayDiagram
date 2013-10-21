@@ -10,6 +10,7 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.InteractorType;
+import org.reactome.diagram.model.ProteinNode.InteractorCountNode;
 
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.touch.client.Point;
@@ -37,7 +38,7 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
         List<GraphObject> objects = interactorCanvas.getObjectsForRendering();
         super.hover(objects);
 
-        if (hoveredObject != null) {
+        if (hoveredObject != null && !(hoveredObject instanceof InteractorCountNode)) {
         	WidgetStyle.setCursor(interactorCanvas, Cursor.POINTER);
         } else if (interactorCanvas.isLoadingInteractors()) {
         	WidgetStyle.setCursor(interactorCanvas, Cursor.WAIT);
@@ -75,11 +76,15 @@ public class InteractorCanvasHoverHandler extends HoverHandler {
     		
     		if (description != null)
     			return "Interactor: " + hoveredInteractor.getGeneName() + "<br />" +
-    				   description + hoveredInteractor.getAccession() + "<br />" +
+    				   description + "<br />" +
     				   "Confidence Level Score: " + hoveredInteractor.getScore();
     	} else if (hoveredObject instanceof InteractorEdge) {
     		 return ((InteractorEdge) hoveredObject).getProtein().getDisplayName() + " interacts with " +
     				((InteractorEdge) hoveredObject).getInteractor().getGeneName();
+    	} else if (hoveredObject instanceof InteractorCountNode) {
+    		return ((InteractorCountNode) hoveredObject).getProteinName() + " has " + 
+    			   ((InteractorCountNode) hoveredObject).getCount() + " interactors <br />" +
+    			   	"in the selected interactor database";
     	}
     	
     	return null;
