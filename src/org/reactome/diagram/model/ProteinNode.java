@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.reactome.diagram.client.AlertPopup;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -29,12 +30,15 @@ public class ProteinNode extends Node {
     private List<InteractorNode> interactors; 
     // A flag to indicate if interactors are being displayed 
     private boolean displayingInteractors;
-		
+	// A node to display the total interactor count for the protein
+    private InteractorCountNode interactorCountNode;
+    
 	/**
 	 * Default constructor.
 	 */
 	public ProteinNode() {		
-		interactors = new ArrayList<InteractorNode>();		
+		interactors = new ArrayList<InteractorNode>();
+		interactorCountNode = new InteractorCountNode();
 	}
 
 	public List<InteractorNode> getInteractors() {
@@ -125,6 +129,10 @@ public class ProteinNode extends Node {
 		this.displayingInteractors = displayingInteractors;
 	}
 
+	public InteractorCountNode getInteractorCountNode() {
+		return interactorCountNode;
+	}
+	
 	public String getRefId() {
 		return refId;
 	}
@@ -237,6 +245,60 @@ public class ProteinNode extends Node {
 	
 	private boolean hasSameDisplayName(ProteinNode protein) {
 		return protein.getDisplayName().equals(this.getDisplayName());
+	}
+	
+	public class InteractorCountNode extends Node {
+		private int interactorCount;
+		
+		public InteractorCountNode() {
+			updateCount();
+			setFont(Parameters.MONOSPACED_FONT);
+			setBgColor("rgb(255, 255, 255)"); // White background
+			setType(GraphObjectType.InteractorCountNode);
+		}
+		
+		public int getCount() {
+			return interactorCount;
+		}
+		
+		public void updateCount() {
+			int previousInteractorCount = getCount();
+			interactorCount = ProteinNode.this.getInteractors().size();
+			
+			if (previousInteractorCount != interactorCount || (getBounds() == null && ProteinNode.this.getBounds() != null)) {
+				setDisplayName(Integer.toString(interactorCount));
+				setBounds();
+			}
+		}
+		
+		public String getProteinName() {
+			return ProteinNode.this.getDisplayName();
+		}
+		
+		private void setBounds() {
+			setBounds(new Bounds(getX(), getY(), getWidth(), getHeight()));
+		}
+		
+		private int getX() {
+			final Integer proteinX = ProteinNode.this.getBounds().getX();
+			final Integer proteinWidth = ProteinNode.this.getBounds().getWidth();
+			
+			return (int) (proteinX + proteinWidth - (0.5 * getWidth()));
+		}
+		
+		private int getY() {
+			final Integer proteinY = ProteinNode.this.getBounds().getY();
+			
+			return (int) (proteinY - (0.5 * getHeight()));
+		}
+		
+		private int getWidth() {
+			return Parameters.INTERACTOR_CHAR_WIDTH * getDisplayName().length();
+		}
+		
+		private int getHeight() {
+			return Parameters.INTERACTOR_CHAR_WIDTH * 2;
+		}
 	}
 }
 
