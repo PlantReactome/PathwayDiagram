@@ -16,9 +16,11 @@ import org.reactome.diagram.model.InteractorCanvasModel.InteractorConfidenceScor
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.InteractorNode;
 import org.reactome.diagram.model.ProteinNode;
+import org.reactome.diagram.model.ProteinNode.InteractorCountNode;
 import org.reactome.diagram.view.GraphObjectRendererFactory;
 import org.reactome.diagram.view.HyperEdgeRenderer;
 import org.reactome.diagram.view.InteractorRenderer;
+import org.reactome.diagram.view.NodeRenderer;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
@@ -223,6 +225,18 @@ public class InteractorCanvas extends DiagramCanvas {
     			}
     		}
         
+    		// Draw protein interactor count node
+    		for (ProteinNode protein : proteinsToInteractors.keySet()) {
+    			protein.getInteractorCountNode().updateCount();
+    			
+    			NodeRenderer renderer = viewFactory.getNodeRenderer(protein.getInteractorCountNode());
+    			
+    			if (renderer != null) {
+    				renderer.render(c2d, protein.getInteractorCountNode());
+    			}
+    		}
+    		
+    		
     		// Draw interactors after edges (i.e. above them)        
     		for (int i = 0; i < interactorsToDraw.size(); i++) {
     			InteractorNode interactor = interactorsToDraw.get(i);
@@ -233,7 +247,7 @@ public class InteractorCanvas extends DiagramCanvas {
     				renderer.render(c2d, interactor, interactorColouring);
     			}
     		}
-        }     
+    	}
     }
         
     // Gets interactor boundaries based on protein boundaries and how many
@@ -425,17 +439,32 @@ public class InteractorCanvas extends DiagramCanvas {
     public List<InteractorNode> getUniqueInteractors() {
     	return uniqueInteractors;
     }
-    
-    public List<GraphObject> getObjectsForRendering() {
-    	List<GraphObject> edges = new ArrayList<GraphObject>();
+
+    private List<InteractorEdge> getInteractorEdges() {
+    	List<InteractorEdge> edges = new ArrayList<InteractorEdge>();
     	for (InteractorNode i : getUniqueInteractors()) {
     		for (InteractorEdge edge : i.getEdges()) 
     			edges.add(edge);
     	}
     	
+    	return edges;
+    }
+
+    public List<InteractorCountNode> getProteinInteractorCountNodes() {
+    	List<InteractorCountNode> proteinInteractorCountNodes = new ArrayList<InteractorCountNode>();
+    	
+    	for (ProteinNode protein : getProteins()) {
+    		proteinInteractorCountNodes.add(protein.getInteractorCountNode());
+    	}
+    	
+    	return proteinInteractorCountNodes;
+    }
+    
+    public List<GraphObject> getObjectsForRendering() {
     	List<GraphObject> objects = new ArrayList<GraphObject>();
-    	objects.addAll(edges);
     	objects.addAll(getUniqueInteractors());
+    	objects.addAll(getProteinInteractorCountNodes());
+    	objects.addAll(getInteractorEdges());
     	
     	return objects;
     }
