@@ -10,6 +10,8 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.reactome.diagram.view.Parameters;
+
 import com.google.gwt.user.client.ui.Image;
 
 public class InteractorNode extends Node implements Comparable<InteractorNode> {
@@ -32,7 +34,7 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		count = 1;
 		edges = new ArrayList<InteractorEdge>();
 		setType(GraphObjectType.RenderableInteractor); 
-		setFont("12px Lucida Console");
+		setFont(Parameters.MONOSPACED_FONT);
 		defaultColour = getBgColor();
 	}
 
