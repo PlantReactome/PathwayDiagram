@@ -154,6 +154,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }	
     
     private void getComplexNodeComponentDataBeforeRendering() {
+    	componentsObtainedForPathwayComplexes = false;
     	for (GraphObject entity : getObjectsForRendering()) {
     		if (entity.getType() == GraphObjectType.RenderableComplex && !((ComplexNode) entity).participatingMoleculesObtained()) {
     			diagramPane.getController().getParticipatingMolecules(entity.getReactomeId(), 
@@ -209,8 +210,7 @@ public class ExpressionCanvas extends DiagramCanvas {
            		NodeRenderer renderer = factory.getNodeRenderer((Node) entity);
            		
            		if (entity.getType() == GraphObjectType.RenderableComplex) {
-           			List<ReferenceEntity> componentIds = physicalToReferenceEntityMap.get(entity.getReactomeId());
-           			addExpressionInfoToComplexComponents((ComplexNode) entity, componentIds);
+           			addExpressionInfoToComplexComponents((ComplexNode) entity);
            		} 
            		else if (entity.getType() == GraphObjectType.ProcessNode) {
            			((Node) entity).setBgColor(getDefaultColor(entity.getType()));
@@ -290,18 +290,9 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 	}
 		
-	private void addExpressionInfoToComplexComponents(ComplexNode complex, List<ReferenceEntity> components) {
-		if (complex == null || components == null)
+	private void addExpressionInfoToComplexComponents(ComplexNode complex) {
+		if (complex == null)
 			return;
-		
-		for (ReferenceEntity refEntity : components) {
-			Component component = complex.addComponentByRefId(refEntity.getDbId());
-			
-			if (component != null) {
-				component.setDisplayName(refEntity.getName());
-				component.setSchemaClass(refEntity.getSchemaClass());
-			}
-		}
 		
 		for (Component component : complex.getComponents()) {
 			Long refId = component.getRefEntityId();
