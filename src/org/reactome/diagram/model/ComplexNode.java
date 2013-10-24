@@ -83,36 +83,6 @@ public class ComplexNode extends Node {
 	}
 	
 	/**
-	 * Adds a new component object using the reference id given.  It's reactome internal
-	 * id is undefined
-	 * 
-	 * @param refId Reference id of the component 
-	 * @return A component object with the reference id given, either newly created or
-	 * returned from the existing components in the complex 
-	 */
-	
-	
-	//public Component addComponentByRefId(Long refId) {
-		//Component component = new Component();
-		//component.setRefEntityId(refId);
-		////components.add(component);
-		
-		//if (getComponentsByRefId(refId).isEmpty()) {
-		//	components.add(component);
-		//} else {
-			//if (getComponentsByRefId(refId).contains(component))	
-			//	refIdToComponentsMap.get(refId).add(component);
-			//else {
-			//	Integer componentIndex = refIdToComponentsMap.get(refId).indexOf(component);
-			//	component = refIdToComponentsMap.get(refId).get(componentIndex);
-			//}
-		//}
-		//
-		//return component;
-	//}
-	
-
-	/**
 	 * Adds a new component object with the reactome internal id given,
 	 * if no component object with the reactome internal id already exists
 	 * 
@@ -131,6 +101,18 @@ public class ComplexNode extends Node {
 		return component;				
 	}
 	
+	/**
+	 * Adds a new component with the reference entity id given (the new component's reactome
+	 * internal id will be null).  
+	 * 
+	 * The component will NOT be added or returned if one or more components with the
+	 * same reference id already exists within the complex.
+	 * 
+	 * 
+	 * @param refId Component's reference entity id
+	 * @return The newly created component or null if one or more components with the provided 
+	 * reference id already exists
+	 */
 	public Component addComponentByRefId(Long refId) {
 		if (!getComponentsByRefId(refId).isEmpty())
 			return null;
@@ -140,16 +122,6 @@ public class ComplexNode extends Node {
 		
 		return component;
 	}
-	
-	/**
-	 * Remove component from the complex node by its reference entity id
-	 * 
-	 * @param refId Reference entity id of the component
-	 */
-	//public void removeComponent(Long refId) {
-	//	Component component = refIdToComponentsMap.remove(refId);
-	//	components.remove(component);
-	//}
 
 	/**
 	 * Remove component from the complex node by its reactome internal id 
@@ -166,7 +138,6 @@ public class ComplexNode extends Node {
 	 */
 	public void removeComponents() {
 		components.clear();
-		//refIdToComponentsMap.clear();
 	}
 
 	/**
