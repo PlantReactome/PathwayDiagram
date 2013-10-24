@@ -7,6 +7,7 @@
 
 package org.reactome.diagram.expression.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -102,9 +103,16 @@ public class PathwayComponentExpressionValue {
 		Integer medianIndex = (int) Math.ceil(values.size() / 2.0) - 1;
 		
 		if (values.size() % 2 == 0) {
-			return ((values.get(medianIndex) + values.get(medianIndex + 1)) / 2.0);
+			return roundToDecimalPlaces((values.get(medianIndex) + values.get(medianIndex + 1)) / 2.0, 2);
 		} else {
-			return values.get(medianIndex);
+			return roundToDecimalPlaces(values.get(medianIndex), 2);
 		}
+	}
+	
+	// Taken from stackoverflow.com/questions/2808535
+	private double roundToDecimalPlaces(double value, int places) {
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places >= 0 ? places : 0, BigDecimal.ROUND_HALF_UP);
+		return bd.doubleValue();
 	}
 }
