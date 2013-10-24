@@ -13,6 +13,7 @@ import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 
 /**
  * @author weiserj
@@ -24,6 +25,7 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
 	private Double innerRectStartX;
 	private Double innerRectEndX;
 	private Double segmentHeight;
+	private List<String> componentColors;
 	
     public ExpressionComplexRenderer() {
         super();
@@ -33,18 +35,20 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
-    	List<String> componentColors = ((ComplexNode) node).getComponentColors();
-     	
-    	Set<String> uniqueColors = new HashSet<String>(componentColors);
-    	if (uniqueColors.size() == 1) {
-    		node.setFgColor(node.getVisibleFgColor(componentColors.get(0)));
-  
-    		context.setFillStyle(componentColors.get(0));
+    	final ComplexNode currentComplex = (ComplexNode) node;
+    	
+    	componentColors = currentComplex.getComponentColors();
+    	
+    	if (getUniqueComponentColors().size() == 1) {
+    		final String bgColor = getComponentColors().get(0); 
+    		
+    		currentComplex.setBgColor(bgColor);
+    		currentComplex.setFgColor(currentComplex.getVisibleFgColor(bgColor));
+    		
+    		context.setFillStyle(bgColor);
     		super.drawRectangle(bounds, context, node);
     		return;
     	}
-    	
-    	node.setFgColor(Parameters.defaultTextColorForDarkBgColor.value()); // So text is visible for segmented complexes
     	
     	setStroke(context, node);
         currentX = (double) bounds.getX();
@@ -52,11 +56,11 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
         innerRectStartX = currentX + COMPLEX_RECT_ARC_WIDTH;
         innerRectEndX = currentX + bounds.getWidth() - COMPLEX_RECT_ARC_WIDTH;
         
-        Double segmentWidth = ((double) bounds.getWidth() / componentColors.size());
+        Double segmentWidth = ((double) bounds.getWidth() / getComponentColors().size());
         segmentHeight = (double) (bounds.getHeight() - 2 * COMPLEX_RECT_ARC_WIDTH);
         
-        for (Integer i = 0; i < componentColors.size(); i++) {
-        	drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), componentColors.get(i), context);        
+        for (Integer i = 0; i < getComponentColors().size(); i++) {
+        	drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), getComponentColors().get(i), context);
         }
         
         createPath(bounds, context);
@@ -64,14 +68,30 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
     }
     
     protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {
-    	final Integer OFFSET = 1;
+    	// When complex has white background, draw line as a generic node does
+    	if (getUniqueComponentColors().size() == 1 && getComponentColors().get(0).equals("rgb(255,255,255)")) {
+    		super.drawLine(lineBreak, context2d, dashLastPhrase, x0, y0);
+    		return;
+    	}
     	
-    	super.drawLine(lineBreak, context2d, dashLastPhrase, x0, y0);
+    	double wordX = x0;
+    	double wordY = y0 + lineBreak * Parameters.LINE_HEIGHT;
+    	double measure = context2d.measureText(dashLastPhrase).getWidth();
     	
- //   	FillStrokeStyle oldFillStyle = context2d.getFillStyle();
-//    	context2d.setFillStyle("rgb(177, 177, 177)");
-    //	super.drawLine(lineBreak, context2d, dashLastPhrase, x0 + OFFSET, y0 + OFFSET);
-   // 	context2d.setFillStyle(oldFillStyle);
+    	final FillStrokeStyle oldFillStyle = context2d.getFillStyle();
+    	final FillStrokeStyle oldStrokeStyle = context2d.getStrokeStyle();
+    	final double lineWidth = context2d.getLineWidth();
+    	
+    	context2d.setFillStyle("rgb(255,255,255)"); // White fill 
+    	context2d.setStrokeStyle("rgb(0, 0, 0)"); // Black stroke
+    	context2d.setLineWidth(2.5);
+    	
+    	context2d.strokeText(dashLastPhrase, wordX, wordY, measure);
+    	context2d.fillText(dashLastPhrase, wordX, wordY, measure);
+     	
+    	context2d.setFillStyle(oldFillStyle);
+    	context2d.setStrokeStyle(oldStrokeStyle);
+    	context2d.setLineWidth(lineWidth);
     }
     
     private void drawSegment(Double width, Double height, Integer maxSegmentHeight, String color, Context2d context) {
@@ -160,5 +180,11 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
     	//currentX += width;
     }
     
+    private List<String> getComponentColors() {
+    	return componentColors;
+    }
     
+    private Set<String> getUniqueComponentColors() {
+    	return new HashSet<String>(getComponentColors());
+    }
 }
