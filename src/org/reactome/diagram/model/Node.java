@@ -21,8 +21,6 @@ package org.reactome.diagram.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.reactome.diagram.view.Parameters;
-
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.touch.client.Point;
 
@@ -188,7 +186,9 @@ public class Node extends GraphObject {
     
  // Implemented based on answer from stackoverflow.com/questions/4726344
  	public String getVisibleFgColor(String bgColorString) {
- 		final String BLACK = "rgb(0, 0, 0)";		
+ 		final String BLACK = "rgb(0, 0, 0)";
+ 		final String WHITE = "rgb(255, 255, 255)";
+ 		
  		if (bgColorString == null || bgColorString.isEmpty() ||	!(bgColorString.startsWith("rgb(") || bgColorString.startsWith("#")))
  			return BLACK;
  		
@@ -204,7 +204,7 @@ public class Node extends GraphObject {
  						(Double.parseDouble(bgColorComponents[2]) * 0.114); // Blue contribution
  		
  			
- 		return ((255 - bgDelta) < threshold) ? BLACK : Parameters.defaultTextColorForDarkBgColor.value();
+ 		return ((255 - bgDelta) < threshold) ? BLACK : WHITE;
  	}
 	
  	private String hex2RGB(String hexColor) {
