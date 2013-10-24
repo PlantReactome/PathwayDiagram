@@ -50,7 +50,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     private CanvasPathway pathway;
     private DataController dataController;
     private ExpressionPathway expressionPathway;
-    private Boolean componentsObtainedForPathwayComplexes;
+    private boolean componentsObtainedForPathwayComplexes;
     private Timer readyToDrawOverlay;
     private Context2d c2d;
        
@@ -178,9 +178,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     				}
     			}
     		};
+    		
+    		readyToDrawOverlay.scheduleRepeating(200);
     	}
-    	
-    	readyToDrawOverlay.scheduleRepeating(200);
     }
     
     private void checkAllComplexNodesHaveComponentData() {
