@@ -78,7 +78,7 @@ public class InteractorCanvas extends DiagramCanvas {
     	return new ArrayList<ProteinNode>(this.proteinsToInteractors.keySet());
     }	
     
-    public void addProtein(ProteinNode protein) {    	
+    public void addProtein(ProteinNode protein) {
     	List<InteractorNode> iList = new ArrayList<InteractorNode>();
     	proteinsToInteractors.put(protein, iList);
     	addOrRemoveInteractors(protein, "add");
@@ -111,19 +111,20 @@ public class InteractorCanvas extends DiagramCanvas {
 			// If the interactor is already known by the canvas
     		// increase/decrease count for that interactor
     		if (uniqueInteractors.contains(interactor)) {
+    			InteractorNode seenInteractor = uniqueInteractors.get(uniqueInteractors.indexOf(interactor));
     			if (action.equals("add")) {
     				if (interactorsAdded < Parameters.TOTAL_INTERACTOR_NUM) {
-    					interactor.setCount(interactor.getCount() + 1);
-    					proteinsToInteractors.get(protein).add(interactor); // Add interactor to protein's list
+    					seenInteractor.setCount(interactor.getCount() + 1);
+    					proteinsToInteractors.get(protein).add(seenInteractor); // Add interactor to protein's list
     					interactorsAdded++;
     				} else {	
     					break;
     				}	
     			} else if (action.equals("remove")) {
-    				if (interactor.getCount() > 1) {
-    					interactor.setCount(interactor.getCount() - 1);
+    				if (seenInteractor.getCount() > 1) {
+    					seenInteractor.setCount(seenInteractor.getCount() - 1);
     					
-    					ListIterator<InteractorEdge> edges = interactor.getEdges().listIterator();
+    					ListIterator<InteractorEdge> edges = seenInteractor.getEdges().listIterator();
     					while (edges.hasNext()) {
     						InteractorEdge edge = edges.next();
     						
@@ -132,7 +133,7 @@ public class InteractorCanvas extends DiagramCanvas {
     						}	
     					}
     				} else {
-    					uniqueInteractors.remove(interactor); // Removed if count is zero
+    					uniqueInteractors.remove(seenInteractor); // Removed if count is zero
     				}
     			}
     		} else {
@@ -182,7 +183,7 @@ public class InteractorCanvas extends DiagramCanvas {
         			double angle = 2 * Math.PI / interactorNum * i;
         			
         			
-        			InteractorNode interactor = interactors.get(i);        			
+        			InteractorNode interactor = interactors.get(i);
            			if (!interactor.isDragging()) {
            				
            				// Add interactor to the 'to be drawn' list if not already added
@@ -191,7 +192,12 @@ public class InteractorCanvas extends DiagramCanvas {
            						interactor.setBounds(getInteractorBounds(interactor, prot.getBounds(), angle));
            						interactor.setPosition(interactor.getBounds().getX(), interactor.getBounds().getY());
            					}
-           					interactorsToDraw.add(interactor);                		
+           					interactorsToDraw.add(interactor);
+           				} else {
+           					// Set the interactor to the one contained in the drawing list which
+           					// has the boundaries set -- this is needed to create the interactor
+           					// edge connecting it to the protein
+           					interactor = interactorsToDraw.get(interactorsToDraw.indexOf(interactor));
            				}
            				
            				// Add connector between the protein and the interactor to edge drawing list 
