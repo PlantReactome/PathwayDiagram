@@ -235,16 +235,12 @@ public class ProteinNode extends Node {
 		return "";
 	}
 	
-	public boolean equals(Object obj) {
-		if (obj instanceof ProteinNode && hasSameDisplayName((ProteinNode) obj)) {
-			return true;
-		}
-		
-		return false;
+	public boolean equals(Object obj) {		
+		 return (obj instanceof ProteinNode && hasSameBoundaries((ProteinNode) obj));
 	}
 	
-	private boolean hasSameDisplayName(ProteinNode protein) {
-		return protein.getDisplayName().equals(this.getDisplayName());
+	private boolean hasSameBoundaries(ProteinNode protein) {
+		return protein.getBounds().equals(this.getBounds());
 	}
 	
 	public class InteractorCountNode extends Node {
