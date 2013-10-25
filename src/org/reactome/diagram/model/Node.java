@@ -209,8 +209,8 @@ public class Node extends GraphObject {
 	
  	private String hex2RGB(String hexColor) {
  		final Integer RED = Integer.valueOf(hexColor.substring(1, 3), 16);
- 		final Integer BLUE = Integer.valueOf(hexColor.substring(3, 5), 16);
- 		final Integer GREEN = Integer.valueOf(hexColor.substring(5, 7), 16);
+ 		final Integer GREEN = Integer.valueOf(hexColor.substring(3, 5), 16);
+ 		final Integer BLUE = Integer.valueOf(hexColor.substring(5, 7), 16);
  		
  		return CssColor.make(RED, GREEN, BLUE).value();
  	}
