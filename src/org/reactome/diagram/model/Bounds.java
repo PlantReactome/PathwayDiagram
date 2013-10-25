@@ -120,4 +120,18 @@ public class Bounds {
         return "x, y, width, height: " + x + ", " + y + ", " + width + ", " + height; 
     }
     
+    public boolean equals(Object obj) {
+    	if (obj instanceof Bounds && sameBoundaries((Bounds) obj))
+    		return true;
+    	
+    	return false;
+    }
+    
+    private boolean sameBoundaries(Bounds bounds) {
+    	if (bounds.getX() == getX() &&	bounds.getY() == getY() &&
+    		bounds.getWidth() == getWidth() && bounds.getHeight() == getHeight())
+    		return true;
+    	return false;
+    }
+    
 }
