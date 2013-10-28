@@ -19,7 +19,6 @@ import org.reactome.diagram.expression.model.PathwayComponentExpressionValue;
 import org.reactome.diagram.expression.model.PathwayExpressionValue;
 import org.reactome.diagram.expression.model.ReactomeExpressionValue;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -43,6 +42,7 @@ public class ExpressionProcessor {
 	private String analysisName = "expression_analysis_with_levels";
     private String analysisId;
     private ResultStatus resultStatus;
+    private String resultErrorMessage;
 	private ReactomeExpressionValue expressionData; 
 	private String species;
 		
@@ -54,6 +54,8 @@ public class ExpressionProcessor {
 	private void initAnalysisId(String analysisString) {		
 		final String analysisId = isLocalData(analysisString) ? analysisString : analysisString.split("\\.")[1];
 		setAnalysisId(analysisId);
+		if (analysisId == null)
+			AlertPopup.alert("No analysis id could be obtained from the analysis string \"" + analysisString + "\"");
 	}
 	
 	private void initResultStatus(String analysisString) {
@@ -118,6 +120,7 @@ public class ExpressionProcessor {
 			
 			@Override
 			public void run() {
+				//System.out.println(resultStatus);
 				WidgetStyle.setCursor(expressionCanvas, Cursor.WAIT);
 				
 				elapsedTime += INTERVAL;
@@ -131,7 +134,7 @@ public class ExpressionProcessor {
 					if (resultStatus == ResultStatus.FINISHED)
 						makeDataController(diagramPane, contentPane, expressionCanvas);
 					else if (resultStatus == ResultStatus.ABORTED)
-						AlertPopup.alert("Unable to show expression/inference analysis");
+						AlertPopup.alert("Unable to show expression/inference analysis: " + resultErrorMessage);
 					
 					return;
 				}
@@ -148,6 +151,8 @@ public class ExpressionProcessor {
 	
 	private void checkIfResultsReady() {
 		String url = BASEURL + "status/" + analysisId + "/" + analysisName;
+		
+		//System.out.println(url);
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		requestBuilder.setHeader("Accept", "application/json");
 		try {
@@ -155,8 +160,11 @@ public class ExpressionProcessor {
 
 				@Override
 				public void onResponseReceived(Request request,	Response response) {
+					//System.out.println("Response code is " + response.getStatusCode());
+					//System.out.println("Response is " + response.getText());//
 					if (response.getStatusCode() != 200) {
 						resultStatus = ResultStatus.ABORTED;
+						resultErrorMessage = response.getStatusCode() + "- " + response.getStatusText();
 						return;
 					}
 					
@@ -166,19 +174,20 @@ public class ExpressionProcessor {
 						resultStatus = ResultStatus.FINISHED;
 					} else if (statusMessage.contains("Warning") || statusMessage.contains("Error")) {
 						resultStatus = ResultStatus.ABORTED;
+						resultErrorMessage = "Error in obtaining expression results";
 					}					
 				}
 
 				@Override
 				public void onError(Request request, Throwable exception) {
 					resultStatus = ResultStatus.ABORTED;
-					GWT.log("Error in retrieving expression result status", exception);					
+					resultErrorMessage = "Error in retrieving expression result status " + exception;
 				}
 				
 			});
 		} catch (RequestException ex) {
 			resultStatus = ResultStatus.ABORTED;
-			GWT.log("Error in sending request for expression result status", ex);
+			resultErrorMessage = "Error in sending request for expression result status " + ex;
 		}
 	}
 	
