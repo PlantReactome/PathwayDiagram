@@ -115,15 +115,15 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 	
 	protected class InfoIcon extends PopupPanel {
 		private HTMLPanel infoIconContainer;
-		private Image infoIcon;
+		private Image infoIconImage;
 		private Node entity;
 		private HideTimer hideTimer;
 		
 		public InfoIcon() {
 			final DataResource infoIconResource = ((Resources) GWT.create(Resources.class)).infoIcon();
 			
-			infoIcon = new Image(infoIconResource.getSafeUri());
-			infoIconContainer = new HTMLPanel(infoIcon.toString());
+			infoIconImage = new Image(infoIconResource.getSafeUri());
+			infoIconContainer = new HTMLPanel(infoIconImage.toString());
 
 			setWidget(infoIconContainer);
 			
@@ -136,7 +136,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 		}
 		
 		public Image getInfoIconImage() {
-			return infoIcon;
+			return infoIconImage;
 		}
 		
 		public void setEntity(Node entity) {
@@ -166,8 +166,9 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					diagramPanel.getPopupMenu().showPopupMenu(getEntity(), event);
 					diagramPanel.setSelectionObject(getEntity());
+					diagramPanel.getPopupMenu().showPopupMenu(getEntity(), event);
+					//diagramPanel.setSelectionObject(getEntity());
 					hide();
 				}	
 			}, ClickEvent.getType());
