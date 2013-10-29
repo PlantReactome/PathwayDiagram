@@ -6,7 +6,7 @@ package org.reactome.diagram.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,7 +93,7 @@ public class DiseaseCanvasPathway extends CanvasPathway {
     	if (isForNormalDraw()) {
     		return getNormalObjects();
     	} else {
-    		Set<GraphObject> objectsForRendering = new HashSet<GraphObject>();
+    		Set<GraphObject> objectsForRendering = new LinkedHashSet<GraphObject>();
     		objectsForRendering.addAll(getDiseaseObjects());
     		objectsForRendering.addAll(getOverlaidObjects());
     		objectsForRendering.addAll(getCrossedObjects());
