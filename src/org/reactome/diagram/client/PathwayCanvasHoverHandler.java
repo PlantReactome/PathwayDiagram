@@ -6,6 +6,8 @@ package org.reactome.diagram.client;
 
 import java.util.List;
 
+import org.reactome.diagram.event.SelectionEvent;
+import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
@@ -118,6 +120,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 		private Image infoIconImage;
 		private Node entity;
 		private HideTimer hideTimer;
+		private ClickEvent clickEvent;
 		
 		public InfoIcon() {
 			final DataResource infoIconResource = ((Resources) GWT.create(Resources.class)).infoIcon();
@@ -166,12 +169,25 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 
 				@Override
 				public void onClick(ClickEvent event) {
+					clickEvent = event;
 					diagramPanel.setSelectionObject(getEntity());
-					diagramPanel.getPopupMenu().showPopupMenu(getEntity(), event);
+					
+					//diagramPanel.getPopupMenu().showPopupMenu(getEntity(), event);
 					//diagramPanel.setSelectionObject(getEntity());
 					hide();
 				}	
 			}, ClickEvent.getType());
+			
+			diagramPanel.addSelectionEventHandler(new SelectionEventHandler() {
+
+				@Override
+				public void onSelectionChanged(SelectionEvent e) {
+					if (clickEvent != null)
+						diagramPanel.getPopupMenu().showPopupMenu(getEntity(), clickEvent);
+					
+					clickEvent = null;
+				}
+			});
 		}
 		
 		private void addMouseOverHandler() {
