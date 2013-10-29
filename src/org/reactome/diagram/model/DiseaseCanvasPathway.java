@@ -95,10 +95,10 @@ public class DiseaseCanvasPathway extends CanvasPathway {
     	} else {
     		Set<GraphObject> objectsForRendering = new HashSet<GraphObject>();
     		objectsForRendering.addAll(getDiseaseObjects());
-    		objectsForRendering.addAll(getNormalObjects());
-    		objectsForRendering.addAll(getCrossedObjects());
     		objectsForRendering.addAll(getOverlaidObjects());
+    		objectsForRendering.addAll(getCrossedObjects());
     		objectsForRendering.addAll(getLofObjects());
+    		objectsForRendering.addAll(getNormalObjects());
     		
     		return new ArrayList<GraphObject>(objectsForRendering);
     	}
