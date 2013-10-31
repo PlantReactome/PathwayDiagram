@@ -33,6 +33,7 @@ public class CanvasPopupMenu extends PopupPanel {
     public CanvasPopupMenu(PathwayDiagramPanel diagramPane) {
         super(true);
         this.diagramPane = diagramPane;
+        this.setAutoHideOnHistoryEventsEnabled(false);
         init();
     }
     
@@ -66,8 +67,10 @@ public class CanvasPopupMenu extends PopupPanel {
         event.stopPropagation();
         
         this.entity = entity;
-        
-        hide();
+
+        if(isVisible()){
+            hide();
+        }
         
         menuBar.createMenu(entity);
                 
