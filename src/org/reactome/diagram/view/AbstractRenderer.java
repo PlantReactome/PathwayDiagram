@@ -22,7 +22,11 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
     // This will be used for overview drawing: this lineWidth should be used without considering
     // the GraphObject one
     private Double absoluteLineWidth;
+    private Double lineWidthScale;
     
+    public AbstractRenderer() {
+    	lineWidthScale = 1.0;
+    }
     
     public void setAbsoluteLineWidth(Double lineWidth) {
         this.absoluteLineWidth = lineWidth;
@@ -32,6 +36,10 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
         return this.absoluteLineWidth;
     }
     
+    public void setLineWidthScale(Double scale) {
+    	this.lineWidthScale = scale;
+    }
+    
     protected void setStroke(Context2d c2d, T obj) {
         String color;
         if (obj.isSelected() || obj.isHighlighted()) {
@@ -39,10 +47,12 @@ public abstract class AbstractRenderer<T extends GraphObject> implements GraphOb
                 c2d.setStrokeStyle(Parameters.defaultSelectionColor);
             else
                 c2d.setStrokeStyle(Parameters.defaultHighlightColor);
+            
+            Double lineWidthScale = this.lineWidthScale > 1 ? this.lineWidthScale : 1;
             if (obj instanceof HyperEdge)
-                c2d.setLineWidth(Parameters.defaultEdgeSelectionLineWidth);
+                c2d.setLineWidth(Parameters.defaultEdgeSelectionLineWidth * lineWidthScale);
             else
-                c2d.setLineWidth(Parameters.defaultNodeSelectionLineWidth);
+                c2d.setLineWidth(Parameters.defaultNodeSelectionLineWidth * lineWidthScale);
         }
         else {
             if (obj.getLineWidth() == 0.0d)
