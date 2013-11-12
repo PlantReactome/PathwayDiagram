@@ -202,27 +202,29 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	//System.out.println("Clean - " + getClass() + " Scale " + getScale() + " TranslateX - " + getTranslateX() + " TranslateY - " + getTranslateY());
     }
 
-    public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {		
-		Integer x = (int) (-getTranslateX() / getScale());
-    	Integer y = (int) (-getTranslateY() / getScale());
-    	Integer width = (int) (getCoordinateSpaceWidth() / getScale()); 
-    	Integer height = (int) (getCoordinateSpaceHeight() / getScale());
-		
-    	Bounds diagramBounds = new Bounds(x, y, width, height);
-    	
+    public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {
     	for (GraphObject object : objects) {
-    		if (objectWithinDiagramBounds(object, diagramBounds))
-    			return true;    			
+    		if (objectWithinDiagramBounds(object))
+    			return true;
     	}
     	
-    	return false;    	
+    	return false;
     }
     
-    private Boolean objectWithinDiagramBounds(GraphObject object, Bounds diagramBounds) {
+    public Bounds getViewBounds() {
+    	Integer x = (int) (-getTranslateX() / getScale());
+    	Integer y = (int) (-getTranslateY() / getScale());
+    	Integer width = (int) (getCoordinateSpaceWidth() / getScale());
+    	Integer height = (int) (getCoordinateSpaceHeight() / getScale());
+    	
+    	return new Bounds(x, y, width, height);
+    }
+    
+    private Boolean objectWithinDiagramBounds(GraphObject object) {
     	if (object instanceof Node)
-    		return diagramBounds.isColliding(((Node) object).getBounds());
+    		return getViewBounds().isColliding(((Node) object).getBounds());
     	else
-    		return diagramBounds.contains(object.getPosition());    	
+    		return getViewBounds().contains(object.getPosition());
     }
     
     /**
