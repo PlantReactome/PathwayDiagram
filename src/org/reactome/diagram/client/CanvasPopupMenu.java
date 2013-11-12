@@ -9,11 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -29,6 +31,7 @@ public class CanvasPopupMenu extends PopupPanel {
     private PathwayDiagramPanel diagramPane;
     private NodeOptionsMenuBar menuBar;
     private GraphObject entity;
+    private MenuBounds menuBounds;
     
     public CanvasPopupMenu(PathwayDiagramPanel diagramPane) {
         super(true);
@@ -41,7 +44,7 @@ public class CanvasPopupMenu extends PopupPanel {
         menuBar = new NodeOptionsMenuBar(diagramPane);    
         setWidget(menuBar.getMenuBar());
     }
-
+    
     public NodeOptionsMenuBar getNodeOptionsMenuBar() {
     	return this.menuBar;
     }
@@ -92,19 +95,45 @@ public class CanvasPopupMenu extends PopupPanel {
 			@Override
 			public void setPosition(int offsetWidth, int offsetHeight) {
 				if (entity instanceof Node) {
-					final PathwayCanvas pathwayCanvas = diagramPane.getPathwayCanvas();
-															
-					final Integer left = pathwayCanvas.getAbsoluteXCoordinate((double) ((Node) entity).getBounds().getX()).intValue();	
-											
-					final Integer bottom = pathwayCanvas.getAbsoluteYCoordinate((double) (((Node) entity).getBounds().getY() + ((Node) entity).getBounds().getHeight())).intValue();
+					final MenuBounds menuBounds = new MenuBounds(
+													getEntityBottomLeft((Node) entity, diagramPane.getPathwayCanvas()),
+													offsetWidth,
+													offsetHeight
+												  );
 					
-					setPopupPosition(left, bottom);					
+					translateDiagramIfPopupOutsideBounds(menuBounds);
+					setPopupPosition(menuBounds.getLeft(), 
+									 menuBounds.getTop());
 				} else {
 					final Integer OFFSET = 2;
 					setPopupPosition(event.getClientX() + OFFSET, event.getClientY() + OFFSET);
 				}
 			}
     	});
+    }
+    
+    private void translateDiagramIfPopupOutsideBounds(MenuBounds menuBounds) {
+    	Integer menuRight = menuBounds.getLeft() + menuBounds.getWidth() + menuBounds.getSubMenuWidth();
+    	
+    	if (menuRight > pathwayCanvasRight()) {
+    		Integer deltaX = pathwayCanvasRight() - menuRight;
+    		menuBounds.translate(deltaX, 0);
+    		diagramPane.translate(deltaX, 0);
+    		diagramPane.update();
+    	}
+    }
+    
+    private Integer pathwayCanvasRight() {
+    	final PathwayCanvas pathwayCanvas = diagramPane.getPathwayCanvas();
+    	
+    	return pathwayCanvas.getAbsoluteLeft() + pathwayCanvas.getCoordinateSpaceWidth();
+    }
+    
+    private Point getEntityBottomLeft(Node entity, PathwayCanvas pathwayCanvas) {
+    	final Integer entityLeft = entity.getBounds().getX();
+    	final Integer entityBottom = entity.getBounds().getY() + entity.getBounds().getHeight(); 
+    	
+    	return pathwayCanvas.getAbsoluteCoordinates(entityLeft.doubleValue(), entityBottom.doubleValue());
     }
     
     public class NodeOptionsMenuBar extends NodeOptionsMenu {
@@ -159,7 +188,7 @@ public class CanvasPopupMenu extends PopupPanel {
     			menuItem.setEnabled(enable);
     	}
     	
-    	public Integer getItemIndex(MenuOption menuOption) {    		
+    	public Integer getItemIndex(MenuOption menuOption) {
     		return menuBar.getItemIndex(menuItemLookup.get(menuOption.getId()));
     	}    	    	
     	
@@ -176,7 +205,7 @@ public class CanvasPopupMenu extends PopupPanel {
     		
     		menuItemLookup.put(menuOption.getId(), item);
     		menuItems.add(index, item);
-    		menuBar.insertItem(item, index);    		
+    		menuBar.insertItem(item, index);
     	}
     	
     	public void clearItems() {
@@ -195,5 +224,52 @@ public class CanvasPopupMenu extends PopupPanel {
     		else
     			return new MenuItem(menuOption.getLabel(), menuOption.getSubMenu());
     	}
-    }    
+    }
+    
+    private class MenuBounds {
+    	private Point menuCoordinates;
+    	private Integer menuWidth;
+    	private Integer menuHeight;
+    	
+    	public MenuBounds(Point menuCoordinates, Integer menuWidth, Integer menuHeight) {
+    		this.menuCoordinates = menuCoordinates;
+    		this.menuWidth = menuWidth;
+    		this.menuHeight = menuHeight;
+    	}
+    	
+    	public Integer getLeft() {
+    		return (int) menuCoordinates.getX();
+    	}
+    	
+    	public Integer getTop() {
+    		return (int) menuCoordinates.getY();
+    	}
+    	
+    	public Integer getWidth() {
+    		return menuWidth;
+    	}
+    	
+    	public Integer getSubMenuWidth() {
+    		Integer subMenuWidth = 0;
+    		
+    		for (MenuItem subMenuItem : menuBar.getItems()) {
+    			subMenuWidth = Math.max(subMenuWidth, subMenuItem.getText().length() * menuItemFontSize(subMenuItem));
+    		}
+    		
+    		return subMenuWidth;
+    	}
+    	
+    	public void translate(Integer dx, Integer dy) {
+    		menuCoordinates = menuCoordinates.plus(new Point(dx, dy));
+    	}
+    	
+    	private Integer menuItemFontSize(MenuItem menuItem) {
+    		try {
+    			return Integer.parseInt(menuItem.getElement().getStyle().getFontSize());
+    		} catch (NumberFormatException e) {
+    			System.out.println();
+    			return 0;
+    		}
+    	}
+    }
 }
