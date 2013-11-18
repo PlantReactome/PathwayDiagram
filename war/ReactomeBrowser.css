@@ -15,3 +15,16 @@
 .pathwayTree {
 	background-color:#FFFFFF;
 }
+
+.gwt-DialogBox .Caption {
+	cursor: pointer;
+}
+
+.gwt-MenuBar-vertical {
+	background: none repeat scroll 0 0 white;
+	max-height: 110px;
+	margin-left: 0;
+	margin-top: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
