@@ -17,7 +17,6 @@ import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
 import org.reactome.diagram.model.ReactomeObject;
-import org.reactome.diagram.model.ReactomeXMLParser;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Position;
@@ -47,7 +46,7 @@ public abstract class NodeOptionsMenu {
     private PathwayDiagramPanel diagramPane;
     private GraphObject selected;
     private Integer menuItemsBeingCreated; // Count of menu items waiting for a callback before they can be created
-    private Integer numberOfMenuItems;
+    //private Integer numberOfMenuItems;
     private Integer currentMenuItemId;
     
     public NodeOptionsMenu(PathwayDiagramPanel diagramPane) {  
@@ -57,7 +56,7 @@ public abstract class NodeOptionsMenu {
     
     private void init() {
     	menuItemsBeingCreated = 0;
-    	currentMenuItemId = 0; 
+    	currentMenuItemId = 0;
     }
     
     // Pathway Node Menu
@@ -115,7 +114,7 @@ public abstract class NodeOptionsMenu {
 				}    					
    			});   			
     	} else {
-    		MenuBar pmMenu = new MenuBar(true);
+    		SubMenuBar pmMenu = new SubMenuBar(true);
     		pmMenu.setAutoOpen(true);
     		pmMenu.setAnimationEnabled(true);
     		
@@ -232,7 +231,7 @@ public abstract class NodeOptionsMenu {
     		
     		public void onResponseReceived(Request request, Response response) {
     			if (response.getStatusCode() == 200) {    				
-    				MenuBar pathwaySubMenu = new MenuBar(true);
+    				SubMenuBar pathwaySubMenu = new SubMenuBar(true);
     				pathwaySubMenu.setAutoOpen(true);
     				pathwaySubMenu.setAnimationEnabled(true);
     			
@@ -345,7 +344,7 @@ public abstract class NodeOptionsMenu {
     	return pathwaySubMenuItems;
     }
            
-    protected void addPathwayMenu(MenuOption oldPathwayMenuItem, MenuBar pathwaySubMenu, int numberOfOtherPathways) {	
+    protected void addPathwayMenu(MenuOption oldPathwayMenuItem, SubMenuBar pathwaySubMenu, int numberOfOtherPathways) {	
     	Integer index = getItemIndex(oldPathwayMenuItem);
     	
     	removeItem(oldPathwayMenuItem);
@@ -368,7 +367,7 @@ public abstract class NodeOptionsMenu {
     public void createMenu(GraphObject selectedObject) {
         
     	// Prevents re-creating a menu that is part-way through construction
-    	if (menuItemsBeingCreated > 0)
+    	if (menuBeingConstructed())
     		return;
     	
     	clearItems();
@@ -378,27 +377,31 @@ public abstract class NodeOptionsMenu {
         GraphObjectType type = selected.getType();
         
         if (type == GraphObjectType.ProcessNode) {
-            numberOfMenuItems = 1;
+            //numberOfMenuItems = 1;
         	createProcessNodeMenu();            
         } else if (type == GraphObjectType.RenderableComplex) {
             boolean expressionData = !(
                     diagramPane.getExpressionCanvas() == null ||
                     diagramPane.getExpressionCanvas().getPathway() == null
             );
-            numberOfMenuItems = 2;
+            //numberOfMenuItems = 2;
         	createComplexMenu(expressionData);
         } else if (type == GraphObjectType.RenderableProtein) {
-        	numberOfMenuItems = 3;
+        	//numberOfMenuItems = 3;
         	createGEEMenu();
         } else if (type == GraphObjectType.RenderableChemical) {
-        	numberOfMenuItems = 1;
+        	//numberOfMenuItems = 1;
         	createSmallMoleculeMenu();
         } else if (type == GraphObjectType.RenderableEntity ||
         		   type == GraphObjectType.RenderableGene ||
         		   type == GraphObjectType.RenderableRNA) {
-        	numberOfMenuItems = 1;
+        	//numberOfMenuItems = 1;
         	createPhysicalEntityMenu();
         }
+    }
+
+    public boolean menuBeingConstructed() {
+    	return menuItemsBeingCreated > 0;
     }
     
     private void hide() {
@@ -459,7 +462,7 @@ public abstract class NodeOptionsMenu {
     	return new MenuOption(label, command);
     }
     
-    protected MenuOption createItem(String label, MenuBar menu) {
+    protected MenuOption createItem(String label, SubMenuBar menu) {
     	return new MenuOption(label, menu);
     }    
 
@@ -473,7 +476,7 @@ public abstract class NodeOptionsMenu {
     
     protected abstract MenuOption addItem(String label, Command command);
     
-    protected abstract MenuOption addItem(String label, MenuBar menu);
+    protected abstract MenuOption addItem(String label, SubMenuBar menu);
     
     protected abstract Widget getParent();
     
@@ -491,7 +494,7 @@ public abstract class NodeOptionsMenu {
     	private Integer id;
     	private String label;
     	private Command command;
-    	private MenuBar subMenu;
+    	private SubMenuBar subMenu;
     	private Boolean enabled;
     	
     	private MenuOption(String label) {
@@ -510,7 +513,7 @@ public abstract class NodeOptionsMenu {
     		this.command = command;
     	}
     	
-    	public MenuOption(String label, MenuBar subMenu) {
+    	public MenuOption(String label, SubMenuBar subMenu) {
     		this(label);
     		this.subMenu = subMenu;
     	}
@@ -541,7 +544,7 @@ public abstract class NodeOptionsMenu {
     		return subMenu;
     	}
     	
-    	public void setSubMenu(MenuBar subMenu) {
+    	public void setSubMenu(SubMenuBar subMenu) {
     		this.subMenu = subMenu;
     		updateItem();
     	}
@@ -564,6 +567,18 @@ public abstract class NodeOptionsMenu {
 			}
 		}
     }    
+    
+    protected class SubMenuBar extends MenuBar {
+    	
+    	public SubMenuBar(boolean vertical) {
+    		super(vertical);
+    	}
+    	
+    	@Override
+    	public List<MenuItem> getItems() {
+    		return super.getItems();
+    	}
+    }
     
     private class PathwayObject extends ReactomeObject {
     	private boolean hasDiagram;
