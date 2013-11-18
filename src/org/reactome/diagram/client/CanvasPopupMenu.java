@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.client.NodeOptionsMenu.SubMenuBar;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.Node;
 
@@ -17,6 +17,7 @@ import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -31,7 +32,6 @@ public class CanvasPopupMenu extends PopupPanel {
     private PathwayDiagramPanel diagramPane;
     private NodeOptionsMenuBar menuBar;
     private GraphObject entity;
-    private MenuBounds menuBounds;
     
     public CanvasPopupMenu(PathwayDiagramPanel diagramPane) {
         super(true);
@@ -65,7 +65,7 @@ public class CanvasPopupMenu extends PopupPanel {
     	showPopupMenu(getSelectedObject(), event);
     }    
     
-    public void showPopupMenu(GraphObject entity, MouseEvent<? extends EventHandler> event) {
+    public void showPopupMenu(GraphObject entity, final MouseEvent<? extends EventHandler> event) {
        	event.preventDefault();
         event.stopPropagation();
         
@@ -79,7 +79,17 @@ public class CanvasPopupMenu extends PopupPanel {
                 
         WidgetStyle.bringToFront(this);
         
-        showIfMenuHasItems(event);
+        Timer showMenuWhenReady = new Timer() {
+        	@Override
+        	public void run() {
+        		if (!menuBar.menuBeingConstructed()) {
+        			cancel();
+        			showIfMenuHasItems(event);
+        		}
+        	}
+        };
+        
+        showMenuWhenReady.scheduleRepeating(200);
     }
         
     private GraphObject getSelectedObject() {
@@ -163,7 +173,7 @@ public class CanvasPopupMenu extends PopupPanel {
     		return addItem(createItem(label, command));
     	}
     	
-    	public MenuOption addItem(String label, MenuBar subMenu) {
+    	public MenuOption addItem(String label, SubMenuBar subMenu) {
     		return addItem(createItem(label, subMenu));
     	}
 
@@ -250,10 +260,20 @@ public class CanvasPopupMenu extends PopupPanel {
     	}
     	
     	public Integer getSubMenuWidth() {
-    		Integer subMenuWidth = 0;
+    		final Integer menuItemCharacterSize = 7;
     		
-    		for (MenuItem subMenuItem : menuBar.getItems()) {
-    			subMenuWidth = Math.max(subMenuWidth, subMenuItem.getText().length() * menuItemFontSize(subMenuItem));
+    		
+    		Integer subMenuWidth = 0;
+    		for (MenuItem menuItem : menuBar.getItems()) {
+    			SubMenuBar subMenu = (SubMenuBar) menuItem.getSubMenu();
+    			
+    			if (subMenu == null) {
+    				continue;
+    			}
+    			
+    			for (MenuItem subMenuItem : subMenu.getItems()) {
+    				subMenuWidth = Math.max(subMenuWidth, subMenuItem.getText().length() * menuItemCharacterSize);
+    			}
     		}
     		
     		return subMenuWidth;
@@ -267,7 +287,7 @@ public class CanvasPopupMenu extends PopupPanel {
     		try {
     			return Integer.parseInt(menuItem.getElement().getStyle().getFontSize());
     		} catch (NumberFormatException e) {
-    			System.out.println();
+    			System.out.println(e);
     			return 0;
     		}
     	}
