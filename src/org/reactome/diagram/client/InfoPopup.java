@@ -294,7 +294,7 @@ public class InfoPopup extends PopupPanel {
     		return addItem(createItem(label, command));
     	}
     	
-    	public MenuOption addItem(String label, MenuBar subMenu) {
+    	public MenuOption addItem(String label, SubMenuBar subMenu) {
     		return addItem(createItem(label, subMenu));
     	}
     	
