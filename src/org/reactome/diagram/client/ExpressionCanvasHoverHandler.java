@@ -6,9 +6,10 @@ package org.reactome.diagram.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.reactome.diagram.expression.model.AnalysisType;
-import org.reactome.diagram.expression.model.ExpressionCanvasModel;
+import org.reactome.diagram.expression.model.DataType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.GraphObject;
@@ -23,25 +24,24 @@ import com.google.gwt.user.client.ui.HTML;
  *
  */
 public class ExpressionCanvasHoverHandler extends HoverHandler {
-    private ExpressionCanvas ec;
+    private ExpressionCanvas expressionCanvas;
 	
     public ExpressionCanvasHoverHandler(PathwayDiagramPanel diagramPanel, ExpressionCanvas expressionCanvas) {
         super(diagramPanel, expressionCanvas);
-        ec = expressionCanvas; 
+        this.expressionCanvas = expressionCanvas; 
     }
 
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
         
-    	if (ec.getObjectsForRendering() == null || ec.getAnalysisType() == AnalysisType.SpeciesComparison)
+    	if (expressionCanvas.getObjectsForRendering() == null || expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison)
             return null;
-        
     	
-        List<GraphObject> objects = ec.getObjectsForRendering();
+        List<GraphObject> objects = expressionCanvas.getObjectsForRendering();
         super.hover(objects);
                 
-        if (hoveredObject != null && hoveredObject.getType() == GraphObjectType.RenderableProtein) {        	
-        	if (!(isOverSameObject && timeElapsed)) {       	
+        if (hoveredObject != null && hoveredObjectTypeMatchesDataType()) {
+        	if (!(isOverSameObject && timeElapsed)) {
         		showTooltip();
         	}
         	
@@ -51,36 +51,67 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
         }	
     }
         
+    private boolean hoveredObjectTypeMatchesDataType() {
+    	return (hoveredObject.getType() == GraphObjectType.RenderableProtein && getDataType() == DataType.Protein) ||
+    	(hoveredObject.getType() == GraphObjectType.RenderableChemical && getDataType() == DataType.SmallCompound);
+    }
+    
+    private DataType getDataType() {
+    	return expressionCanvas.getDataType();
+    }
+    
     protected void showTooltip() {
-    	
-    	ExpressionCanvasModel ecm = ec.getExpressionCanvasModel();
-    	
-    	String expressionId = "N/A";    	
-    	String expressionLevel = "N/A";
-    	
-    	if (ecm.getEntityExpressionInfoMap() != null) {
-    		List<Long> refIdsForHoveredObject = new ArrayList<Long>();
-    		
-    		List<ReferenceEntity> refEntitiesForHoveredObject = ec.getPathway().getDbIdToRefEntity().get(hoveredObject.getReactomeId());
-    		for (ReferenceEntity refEntity : refEntitiesForHoveredObject) {
-    			refIdsForHoveredObject.add(refEntity.getDbId());
-    		}    		
-    		
-    		if (refIdsForHoveredObject != null && !refIdsForHoveredObject.isEmpty()) {
-    			ExpressionInfo expressionInfo = ecm.getEntityExpressionInfoMap().get(refIdsForHoveredObject.get(0));
-    		
-    			if (expressionInfo != null && expressionInfo.getIdentifiers() != null && !expressionInfo.getIdentifiers().isEmpty())
-    				expressionId = expressionInfo.getIdentifiersAsString();
-    	
-    			if (expressionInfo != null && expressionInfo.getLevel() != null)
-    				expressionLevel = expressionInfo.getLevel().toString();
-    		}
-    	}
-    		
-    	String label = "Expression Identifiers: " + expressionId + "<br/> Median Expression Level: " + expressionLevel;
+    	String text = "Expression Identifiers: " + getExpressionIdForHoveredObject() + "<br />" +
+    				  "Median Expression Level: " + getExpressionLevelForHoveredObject();
    
-    	tooltip.setWidget(new HTML(label));
+    	tooltip.setWidget(new HTML(text));
     
     	super.showTooltip();
+    }
+
+    private String getExpressionIdForHoveredObject() {
+    	final ExpressionInfo expressionInfo = getExpressionInfoForHoveredObject();
+    	
+    	if (expressionInfo == null || expressionInfo.getIdentifiers() == null || expressionInfo.getIdentifiers().isEmpty())
+    		return "N/A";
+    	
+    	return expressionInfo.getIdentifiersAsString();
+    }
+    
+    private String getExpressionLevelForHoveredObject() {
+    	final ExpressionInfo expressionInfo = getExpressionInfoForHoveredObject();
+    	
+    	if (expressionInfo == null || expressionInfo.getLevel() == null)
+    		return "N/A";
+    	
+    	return expressionInfo.getLevel().toString();
+    }
+    
+	private ExpressionInfo getExpressionInfoForHoveredObject() {
+		final List<Long> refIdsForHoveredObject = getReferenceIdsForHoveredObject();
+		final Map<Long, ExpressionInfo> entityToExpressionInfoMap = getEntityToExpressionInfoMap();
+		
+		if (refIdsForHoveredObject.isEmpty() || entityToExpressionInfoMap == null) 
+			return null;
+		
+		return entityToExpressionInfoMap.get(refIdsForHoveredObject.get(0));
+	}
+
+    private List<Long> getReferenceIdsForHoveredObject() {
+    	List<Long> refIdsForHoveredObject = new ArrayList<Long>();
+    	
+    	for (ReferenceEntity refEntity : getReferenceEntitiesForHoveredObject()) {
+    		refIdsForHoveredObject.add(refEntity.getDbId());
+    	}
+    	
+    	return refIdsForHoveredObject;
+    }
+    
+    private List<ReferenceEntity> getReferenceEntitiesForHoveredObject() {
+    	return expressionCanvas.getPathway().getDbIdToRefEntity().get(hoveredObject.getReactomeId());
+    }
+
+    private Map<Long, ExpressionInfo> getEntityToExpressionInfoMap() {
+    	return expressionCanvas.getExpressionCanvasModel().getEntityExpressionInfoMap();
     }
 }
