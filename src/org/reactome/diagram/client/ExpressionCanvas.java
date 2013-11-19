@@ -50,7 +50,6 @@ public class ExpressionCanvas extends DiagramCanvas {
     private CanvasPathway pathway;
     private DataController dataController;
     private ExpressionPathway expressionPathway;
-    private boolean componentsObtainedForPathwayComplexes;
     private Timer readyToDrawOverlay;
     private Context2d c2d;
        
@@ -161,9 +160,8 @@ public class ExpressionCanvas extends DiagramCanvas {
     }	
     
     private void getComplexNodeComponentDataBeforeRendering() {
-    	componentsObtainedForPathwayComplexes = false;
     	for (GraphObject entity : getObjectsForRendering()) {
-    		if (entity.getType() == GraphObjectType.RenderableComplex && !((ComplexNode) entity).participatingMoleculesObtained()) {
+    		if (isComplexWithoutComponentData(entity)) {
     			diagramPane.getController().getParticipatingMolecules(entity.getReactomeId(), 
     																  ((ComplexNode) entity).setParticipatingMolecules());
     		}
@@ -171,18 +169,16 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private void drawExpressionOverlayWhenReady() {
-    	if (expressionPathway.allProcessNodesReady() && componentsObtainedForPathwayComplexes) {
+    	if (expressionPathway.allProcessNodesReady() && allComplexNodesHaveComponentData()) {
     		drawExpressionOverlay();
     	} else {    	
     		readyToDrawOverlay = new Timer() {
 
     			@Override
     			public void run() {
-    				if (expressionPathway.allProcessNodesReady() && componentsObtainedForPathwayComplexes) {
+    				if (expressionPathway.allProcessNodesReady() && allComplexNodesHaveComponentData()) {
     					cancel();
     					drawExpressionOverlay();
-    				} else {
-    					checkAllComplexNodesHaveComponentData();
     				}
     			}
     		};
@@ -191,15 +187,18 @@ public class ExpressionCanvas extends DiagramCanvas {
     	}
     }
     
-    private void checkAllComplexNodesHaveComponentData() {
+    private boolean allComplexNodesHaveComponentData() {
     	for (GraphObject entity : getObjectsForRendering()) {
-    		if (entity.getType() == GraphObjectType.RenderableComplex && !((ComplexNode) entity).participatingMoleculesObtained()) {
-    			componentsObtainedForPathwayComplexes = false;
-    			return;
+    		if (isComplexWithoutComponentData(entity)) {
+    			return false;
     		}
     	}
     	
-    	componentsObtainedForPathwayComplexes = true;
+    	return true;
+    }
+    
+    private boolean isComplexWithoutComponentData(GraphObject entity) {
+    	return (entity.getType() == GraphObjectType.RenderableComplex && !((ComplexNode) entity).participatingMoleculesObtained());
     }
     
     private void drawExpressionOverlay() { 	
