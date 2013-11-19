@@ -97,7 +97,14 @@ public class ExpressionCanvas extends DiagramCanvas {
 	public void setDataController(DataController dataController) {
 		this.dataController = dataController;
 	}
+
+	public DataType getDataType() {
+		if (dataController == null || dataController.getDataModel() == null) 
+			return null;
 		
+		return DataType.getDataType(dataController.getDataModel().getDataType());
+	}
+	
 	public List<GraphObject> getObjectsForRendering() {
     	if (pathway == null)
     		return null;
