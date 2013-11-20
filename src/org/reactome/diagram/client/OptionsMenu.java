@@ -4,14 +4,13 @@
  */
 package org.reactome.diagram.client;
 
+import org.reactome.diagram.model.Bounds;
+
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.dom.client.Style;
 
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.Response;
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
@@ -83,8 +82,8 @@ public class OptionsMenu extends PopupPanel {
     	
     	optionsMenu.addItem(getSearchBarMenuItem());
     	optionsMenu.addSeparator();
-    	optionsMenu.addItem(getSnapshotDiagramMenuItem());
-    	optionsMenu.addSeparator();
+    	//optionsMenu.addItem(getSnapshotDiagramMenuItem());
+    	//optionsMenu.addSeparator();
     	optionsMenu.addItem(getDownloadDiagramMenuItem());
     	optionsMenu.addSeparator();
     	optionsMenu.addItem(getInteractionOverlayMenuItem());
@@ -122,8 +121,8 @@ public class OptionsMenu extends PopupPanel {
     	return searchBar;
     }
     
-    private MenuItem getSnapshotDiagramMenuItem() {
-        MenuItem snapshotDiagram = new MenuItem("Snapshot Current View", new Command() {
+    private MenuItem getDownloadDiagramMenuItem() {
+        MenuItem downloadDiagram = new MenuItem("Download Diagram (with overlays if present)", new Command() {
 
 			@Override
 			public void execute() {							
@@ -137,21 +136,22 @@ public class OptionsMenu extends PopupPanel {
 					return;
 				}
 				
-				Canvas downloadCanvas = createDownloadCanvas(diagramPane.getPathwayCanvas().getCoordinateSpaceWidth(),
-															 diagramPane.getPathwayCanvas().getCoordinateSpaceHeight());
-								
-				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList())					
-					downloadCanvas.getContext2d().drawImage(canvasLayer.getCanvasElement(),0,0);
+				Canvas downloadCanvas = createDownloadCanvas(diagramPane.getPathway().getPreferredSize());
 				
+				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
+					canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
+				}
+					
 				showDiagramImage(downloadCanvas);
 								
 				hide();
 			}		
         });
         
-        return snapshotDiagram;
+        return downloadDiagram;
 	}
-
+    
+    /*
     private MenuItem getDownloadDiagramMenuItem() {
     	MenuItem downloadDiagram = new MenuItem("Download Diagram", new Command() {
 
@@ -191,20 +191,21 @@ public class OptionsMenu extends PopupPanel {
     	
     	return downloadDiagram;
     }
+	*/
 
-    private Canvas createDownloadCanvas(Integer width, Integer height) {
+    private Canvas createDownloadCanvas(Bounds pathwayBounds) {
     	Canvas downloadCanvas = Canvas.createIfSupported();
     	
-    	downloadCanvas.setWidth(width + "px");
-    	downloadCanvas.setHeight(height + "px");
-    	downloadCanvas.setCoordinateSpaceWidth(width);
-    	downloadCanvas.setCoordinateSpaceHeight(height);
+    	downloadCanvas.setWidth(pathwayBounds.getWidth() + "px");
+    	downloadCanvas.setHeight(pathwayBounds.getHeight() + "px");
+    	downloadCanvas.setCoordinateSpaceWidth(pathwayBounds.getWidth());
+    	downloadCanvas.setCoordinateSpaceHeight(pathwayBounds.getHeight());
     	
     	return downloadCanvas;
     }
     
     private void showDiagramImage(Canvas downloadDiagramCanvas) {
-    	Window.open(downloadDiagramCanvas.toDataUrl("application/octet-stream"), null, null);
+    	Window.open(downloadDiagramCanvas.toDataUrl("image/png"), null, null);
     }
     
     private MenuItem getInteractionOverlayMenuItem() {
