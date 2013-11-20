@@ -50,8 +50,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     private CanvasPathway pathway;
     private DataController dataController;
     private ExpressionPathway expressionPathway;
-    private Timer readyToDrawOverlay;
-    private Context2d c2d;
+    private Timer readyToDrawOverlayChecker;
        
     public ExpressionCanvas(PathwayDiagramPanel diagramPane) {
     	super(diagramPane);
@@ -115,22 +114,25 @@ public class ExpressionCanvas extends DiagramCanvas {
      * Update drawing.
      */
     public void update() { 
-    	c2d = getContext2d();
+    	Context2d c2d = getContext2d();
     	   	    	
     	clean(c2d);
     	
+    	drawCanvasLayer(c2d);
+    }	
+    
+    public void drawCanvasLayer(Context2d c2d) {
     	ExpressionPathway oldExpressionPathway = expressionPathway;
     	
     	if (pathway == null) {
     		if (oldExpressionPathway != null)
-    			//oldExpressionPathway.getTimerCheckingIfProcessNodeInfoObtained().cancel();    			
-    			readyToDrawOverlay.cancel();
+    			readyToDrawOverlayChecker.cancel();
     			
     		return;
     	} else {
     		getPathwayNodeDataBeforeRendering(oldExpressionPathway);
     		getComplexNodeComponentDataBeforeRendering();
-    		drawExpressionOverlayWhenReady();
+    		drawExpressionOverlayWhenReady(c2d);
     	}
     }
     
@@ -138,25 +140,17 @@ public class ExpressionCanvas extends DiagramCanvas {
     	if (oldExpressionPathway == null || 
     		oldExpressionPathway.getPathway() != pathway ||
     		oldExpressionPathway.getDataPointIndex() != getDataPointIndexFromDataController()) {
-    			//if (oldExpressionPathway != null)
-    			//	oldExpressionPathway.getTimerCheckingIfProcessNodeInfoObtained().cancel();
-    			if (readyToDrawOverlay != null)
-    				readyToDrawOverlay.cancel();
+    			
+    			if (readyToDrawOverlayChecker != null)
+    				readyToDrawOverlayChecker.cancel();
     		
-    			expressionPathway = new ExpressionPathway(c2d, pathway, getDataPointIndexFromDataController());
+    			expressionPathway = new ExpressionPathway(pathway, getDataPointIndexFromDataController());
     			for (GraphObject entity : getObjectsForRendering()) {    		
     				if (entity.getType() == GraphObjectType.ProcessNode) {
     					diagramPane.getController().getReferenceEntity(entity.getReactomeId(), getEntityInfoForProcessNodeAndColor(expressionPathway, entity));
     				}
     			}
     	}
-    		
-    	//if (expressionPathway.allProcessNodesReady()) // Also true if no pathway nodes to render
-    	//	drawExpressionOverlay(expressionPathway);
-    	//else {
-    	//	expressionPathway.getTimerCheckingIfProcessNodeInfoObtained().scheduleRepeating(200);
-    	//}    	
-    	
     }	
     
     private void getComplexNodeComponentDataBeforeRendering() {
@@ -168,22 +162,22 @@ public class ExpressionCanvas extends DiagramCanvas {
     	}
     }
     
-    private void drawExpressionOverlayWhenReady() {
+    private void drawExpressionOverlayWhenReady(final Context2d c2d) {
     	if (expressionPathway.allProcessNodesReady() && allComplexNodesHaveComponentData()) {
-    		drawExpressionOverlay();
+    		drawExpressionOverlay(c2d);
     	} else {    	
-    		readyToDrawOverlay = new Timer() {
+    		readyToDrawOverlayChecker = new Timer() {
 
     			@Override
     			public void run() {
     				if (expressionPathway.allProcessNodesReady() && allComplexNodesHaveComponentData()) {
     					cancel();
-    					drawExpressionOverlay();
+    					drawExpressionOverlay(c2d);
     				}
     			}
     		};
     		
-    		readyToDrawOverlay.scheduleRepeating(200);
+    		readyToDrawOverlayChecker.scheduleRepeating(200);
     	}
     }
     
@@ -201,7 +195,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	return (entity.getType() == GraphObjectType.RenderableComplex && !((ComplexNode) entity).participatingMoleculesObtained());
     }
     
-    private void drawExpressionOverlay() { 	
+    private void drawExpressionOverlay(Context2d c2d) { 	
         Map<Long, List<ReferenceEntity>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntity();
         	
         for (GraphObject entity : getObjectsForRendering()) {
@@ -450,7 +444,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	private Map<GraphObject, List<String>> processNodeToColorList;
     	//private Timer processNodeInfoObtainedTimer;
     	
-    	public ExpressionPathway(Context2d c2d, CanvasPathway pathway, Integer dataPointIndex) {
+    	public ExpressionPathway(CanvasPathway pathway, Integer dataPointIndex) {
     		this.pathway = pathway;
     		this.dataPointIndex = dataPointIndex;
     		this.processNodeCount = 0;

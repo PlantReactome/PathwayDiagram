@@ -37,7 +37,7 @@ import com.google.gwt.touch.client.Point;
  *
  */
 public class InteractorCanvas extends DiagramCanvas {
-    private Context2d c2d;
+    //private Context2d c2d;
     private PathwayDiagramPanel diagramPanel;
     private String userMessage;
     private Integer reObtainedProteinCount;
@@ -53,7 +53,7 @@ public class InteractorCanvas extends DiagramCanvas {
 	
     public InteractorCanvas(PathwayDiagramPanel dPane) {
     	super(dPane);
-       	c2d = getContext2d();
+       //	c2d = getContext2d();
        	diagramPanel = dPane;
        	userMessage = new String();
        	previousProteinCount = 0;
@@ -150,13 +150,15 @@ public class InteractorCanvas extends DiagramCanvas {
     }
     
     public void update() {
+    	Context2d c2d = getContext2d();
+    	
     	c2d.save();
         
         clean(c2d); // Clear canvas
     	
         setGreyOutCanvas(!uniqueInteractors.isEmpty()); // Grey out if there are unique interactors to display
         
-        drawInteractors(c2d);
+        drawCanvasLayer(c2d);
         //drawInteractors(diagramPanel.getOverview().getContext2d());
         
         if (reObtainedProteinCount == previousProteinCount) {
@@ -165,6 +167,11 @@ public class InteractorCanvas extends DiagramCanvas {
         }
         	
         c2d.restore();
+    }
+    
+    @Override
+    public void drawCanvasLayer(Context2d c2d) {
+    	drawInteractors(c2d);
     }
         
     public void drawInteractors(Context2d c2d) {    
@@ -189,7 +196,7 @@ public class InteractorCanvas extends DiagramCanvas {
            				// Add interactor to the 'to be drawn' list if not already added
            				if (!interactorsToDraw.contains(interactor)) {
            					if (interactor.getBounds() == null) {
-           						interactor.setBounds(getInteractorBounds(interactor, prot.getBounds(), angle));
+           						interactor.setBounds(getInteractorBounds(interactor, prot.getBounds(), angle, c2d));
            						interactor.setPosition(interactor.getBounds().getX(), interactor.getBounds().getY());
            					}
            					interactorsToDraw.add(interactor);
@@ -259,7 +266,7 @@ public class InteractorCanvas extends DiagramCanvas {
     // Gets interactor boundaries based on protein boundaries and how many
     // interactors have already been rendered for this protein
     // (interactors drawn in a circle around the protein)
-    private Bounds getInteractorBounds(InteractorNode interactor, Bounds protBounds, double angle) {
+    private Bounds getInteractorBounds(InteractorNode interactor, Bounds protBounds, double angle, Context2d c2d) {
     	double protCentreX = protBounds.getCentre().getX();
     	double protCentreY = protBounds.getCentre().getY();
     	

@@ -233,6 +233,11 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     public abstract void update(); 
 
     /**
+     * Does the actual drawing to a specified 2D context
+     */
+    public abstract void drawCanvasLayer(Context2d c2d);
+    
+    /**
      * A template method so that other kinds of things can be updated. Nothing
      * has been done in this class.
      */

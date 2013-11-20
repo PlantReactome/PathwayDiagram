@@ -73,14 +73,19 @@ public class PathwayCanvas extends DiagramCanvas {
         c2d.save();
 
         clean(c2d);
-        if (pathway != null) {
-            drawer.drawPathway(pathway, this, c2d);
-            updateOthers(c2d);
-        }
+        drawCanvasLayer(c2d);
+        updateOthers(c2d);
         
         c2d.restore();
     }
 
+    public void drawCanvasLayer(Context2d c2d) {
+    	if (pathway == null)
+    		return;
+    		
+    	drawer.drawPathway(pathway, this, c2d);
+    }
+    
     /**
      * A template method so that other kinds of things can be updated. Nothing
      * has been done in this class.
