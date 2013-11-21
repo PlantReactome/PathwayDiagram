@@ -59,14 +59,9 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
     
     public void resize(Integer width, Integer height) {
-    	final Integer BUFFER = 8;
-    	
-    	Integer adjustedWidth = width - BUFFER;
-    	Integer adjustedHeight = height - BUFFER;
-    	
-    	setSize(adjustedWidth + "px", adjustedHeight + "px");
-    	setCoordinateSpaceWidth(adjustedWidth);
-    	setCoordinateSpaceHeight(adjustedHeight);
+    	setSize(width + "px", height + "px");
+    	setCoordinateSpaceWidth(width);
+    	setCoordinateSpaceHeight(height);
     }
     
     public CanvasTransformation getCanvasTransformation() {

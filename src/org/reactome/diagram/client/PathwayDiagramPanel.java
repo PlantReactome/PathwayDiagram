@@ -185,10 +185,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
-//                showAnalysisData(GWT.getHostPageBaseURL() + "expression_analysis.123456.json");
-            	showAnalysisData(GWT.getHostPageBaseURL() + "dataset.json");
+                showAnalysisData(GWT.getHostPageBaseURL() + "expression.json");
+            	
+            	//String analysisId = "1055761580";
+            	//showAnalysisData("expression_analysis." + analysisId);
+                //showAnalysisData(GWT.getHostPageBaseURL() + "dataset.json");
             	//showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
-//            	showAnalysisData(GWT.getHostPageBaseURL() + "ProteinIds.json");
+            	//showAnalysisData(GWT.getHostPageBaseURL() + "ProteinIds.json");
             }
         });
     }
@@ -310,8 +313,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     private void resizeCanvases(int width, int height) {
-        for (DiagramCanvas canvas : getExistingCanvases()) {
-        	canvas.resize(width, height);
+        final Integer BUFFER = 8;
+    	
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
+        	canvas.resize(width - BUFFER, height - BUFFER);
         }
     }    
         
@@ -799,7 +804,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			contentPane.insert(interactorCanvas, 4, 4, insertionIndex);			
 			canvasList.add(insertionIndex, interactorCanvas);
 			
-			interactorCanvas.resize(getOffsetWidth(), getOffsetHeight());
+			interactorCanvas.resize(pathwayCanvas.getCoordinateSpaceWidth(),
+									pathwayCanvas.getCoordinateSpaceHeight());
 			
 			//interactorCanvas.scale(pathwayCanvas.getScale());
 			//interactorCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
@@ -816,7 +822,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			//expressionCanvas.scale(pathwayCanvas.getScale());
 			//expressionCanvas.translate(pathwayCanvas.getTranslateX(), pathwayCanvas.getTranslateY());
 			
-			expressionCanvas.resize(getOffsetWidth(), getOffsetHeight());				
+			expressionCanvas.resize(pathwayCanvas.getCoordinateSpaceWidth(),
+									pathwayCanvas.getCoordinateSpaceHeight());
 		}
 	}
 	
