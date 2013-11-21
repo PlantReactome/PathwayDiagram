@@ -40,7 +40,7 @@ public class OptionsMenu extends PopupPanel {
     	init(includeDiagramTransformationOptions);
     }    
     private void init(Boolean includeDiagramTransformationOptions) {
-    	setWidget(getOptionsMenu(includeDiagramTransformationOptions));    	
+    	setWidget(getOptionsMenu(includeDiagramTransformationOptions));
     	bringToFront(this);
     }
     	
@@ -122,7 +122,7 @@ public class OptionsMenu extends PopupPanel {
     }
     
     private MenuItem getDownloadDiagramMenuItem() {
-        MenuItem downloadDiagram = new MenuItem("Download Diagram (with overlays if present)", new Command() {
+        MenuItem downloadDiagram = new MenuItem("Download Diagram (with data overlays)", new Command() {
 
 			@Override
 			public void execute() {							
