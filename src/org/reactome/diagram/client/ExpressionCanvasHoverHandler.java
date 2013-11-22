@@ -61,8 +61,10 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     }
     
     protected void showTooltip() {
-    	String text = "Expression Identifiers: " + getExpressionIdForHoveredObject() + "<br />" +
-    				  "Median Expression Level: " + getExpressionLevelForHoveredObject();
+    	String text = "Expression Identifiers: " + getExpressionIdForHoveredObject();
+    	
+    	if (expressionCanvas.getAnalysisType() == AnalysisType.Expression)
+    		text += "<br /> Median Expression Level: " + getExpressionLevelForHoveredObject();
    
     	tooltip.setWidget(new HTML(text));
     
