@@ -68,7 +68,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         
     }
 
-    private void drawNodeAttachments(Context2d context,
+    protected void drawNodeAttachments(Context2d context,
                                      Node node) {
         if (node.getNodeAttachments() == null || node.getNodeAttachments().size() == 0)
             return;
