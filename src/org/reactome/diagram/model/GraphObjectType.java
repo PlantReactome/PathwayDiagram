@@ -16,6 +16,7 @@ public enum GraphObjectType {
     InteractorCountNode,
     RenderableChemical,
     RenderableEntity,
+    RenderableEntitySet,
     RenderableCompartment,
     Note,
     ProcessNode,
