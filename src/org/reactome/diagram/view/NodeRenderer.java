@@ -26,24 +26,11 @@ import com.google.gwt.canvas.dom.client.TextMetrics;
 //TODO: Make sure text names are correctly encapsulated as in the curator tool. Work on display name for compartments.
 //display pathway icons.
 public class NodeRenderer extends AbstractRenderer<Node> {
-    //private static Resources resources;
 	
     public NodeRenderer() {
         defaultLineColor = Parameters.defaultstrokeColor;
         defaultLineWidth = 1.0d;
     }
-    
-    //interface Resources extends ClientBundle {
-    //	@Source("Down.png")
-    //	ImageResource down();    	
-    //}
-    
-    //private static Resources getResource() {
-    //	if (resources == null)
-    //		resources = GWT.create(Resources.class);
-	//	
-    //	return resources;    	
-    //}
     
     /* (non-Javadoc)
      * @see org.reactome.diagram.view.GraphObjectRenderer#render(com.google.gwt.canvas.dom.client.Context2d)
@@ -262,15 +249,21 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         }
     }
     
+    protected void drawName(Context2d context,
+    						Node node) {
+    	drawName(node.getBounds(), context, node);
+    }
+    
     /**
      * Divides the Annotation into separate arrays of Strings depending on the width of the enclosing node
      * @param context The Context2d object where the Annotation is to be rendered
      */
-    protected void drawName(Context2d context,
+    protected void drawName(Bounds bounds,
+                            Context2d context,
                             Node node) {
         if (node.getDisplayName() == null || node.getDisplayName().isEmpty())
             return;
-        Bounds bounds = node.getBounds();
+       
         String fgColor = node.getFgColor();
         if (fgColor == null)
             fgColor = "rgba(0, 0, 0, 1)";
