@@ -15,7 +15,8 @@ import com.google.gwt.canvas.dom.client.Context2d;
  *
  */
 public class EntitySetRenderer extends ProteinRenderer {
-    
+    private Integer ENTITY_SET_INSET = 2;
+	
     public EntitySetRenderer() {
     }
     
@@ -25,8 +26,22 @@ public class EntitySetRenderer extends ProteinRenderer {
      * @param context
      * @param node
      */
-    protected void drawRectangle(Bounds bounds,
-                                 Context2d context,
-                                 Node node) {
+    @Override
+    protected void drawNode(Context2d context,
+                            Node node) {
+    	
+    	
+    	Bounds bounds = node.getBounds();
+    	Bounds innerBounds = new Bounds(bounds.getX() + ENTITY_SET_INSET,
+    									bounds.getY() + ENTITY_SET_INSET,
+    									bounds.getWidth() - (2 * ENTITY_SET_INSET),
+    									bounds.getHeight() - (2 * ENTITY_SET_INSET)
+    			
+    	);
+    	
+    	drawRectangle(bounds, context, true, true);
+    	drawRectangle(innerBounds, context, true, true);
+    	drawName(innerBounds, context, node);
+    	drawNodeAttachments(context, node);
     }
 }
