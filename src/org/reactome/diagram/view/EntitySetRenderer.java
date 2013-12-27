@@ -15,33 +15,30 @@ import com.google.gwt.canvas.dom.client.Context2d;
  *
  */
 public class EntitySetRenderer extends ProteinRenderer {
-    private Integer ENTITY_SET_INSET = 2;
+    private final Integer ENTITY_SET_INSET = 3;
 	
     public EntitySetRenderer() {
     }
     
-    /**
-     * This is a template that should be implemented by a sub-class.
-     * @param bounds
-     * @param context
-     * @param node
-     */
     @Override
     protected void drawNode(Context2d context,
                             Node node) {
     	
     	
-    	Bounds bounds = node.getBounds();
-    	Bounds innerBounds = new Bounds(bounds.getX() + ENTITY_SET_INSET,
-    									bounds.getY() + ENTITY_SET_INSET,
-    									bounds.getWidth() - (2 * ENTITY_SET_INSET),
-    									bounds.getHeight() - (2 * ENTITY_SET_INSET)
+    	Bounds innerBounds = node.getBounds();
+    	Bounds outerBounds = new Bounds(innerBounds.getX() - ENTITY_SET_INSET,
+    									innerBounds.getY() - ENTITY_SET_INSET,
+    									innerBounds.getWidth() + (2 * ENTITY_SET_INSET),
+    									innerBounds.getHeight() + (2 * ENTITY_SET_INSET)
     			
     	);
     	
-    	drawRectangle(bounds, context, true, true);
+    	
+    	drawRectangle(outerBounds, context, true, true);
     	drawRectangle(innerBounds, context, true, true);
     	drawName(innerBounds, context, node);
+    	
+    	node.setBounds(outerBounds);
     	drawNodeAttachments(context, node);
     }
 }
