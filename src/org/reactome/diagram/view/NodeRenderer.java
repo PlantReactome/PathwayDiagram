@@ -68,8 +68,11 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         
     }
 
-    protected void drawNodeAttachments(Context2d context,
-                                     Node node) {
+    protected void drawNodeAttachments(Context2d context, Node node) {
+    	drawNodeAttachments(node.getBounds(), context, node);
+    }
+    
+    protected void drawNodeAttachments(Bounds bounds, Context2d context, Node node) {
         if (node.getNodeAttachments() == null || node.getNodeAttachments().size() == 0)
             return;
         double x, y, w;
@@ -90,7 +93,6 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                 w = EDGE_TYPE_WIDGET_WIDTH;
             else
                 w += 4;
-            Bounds bounds = node.getBounds();
             // Position for attachments
             x = bounds.getX() + bounds.getWidth() * attachment.getRelativeX();
             y = bounds.getY() + bounds.getHeight() * attachment.getRelativeY();
