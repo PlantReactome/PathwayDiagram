@@ -37,8 +37,6 @@ public class EntitySetRenderer extends ProteinRenderer {
     	drawRectangle(outerBounds, context, true, true);
     	drawRectangle(innerBounds, context, true, true);
     	drawName(innerBounds, context, node);
-    	
-    	node.setBounds(outerBounds);
-    	drawNodeAttachments(context, node);
+    	drawNodeAttachments(outerBounds, context, node);
     }
 }
