@@ -37,7 +37,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DialogBox;
 
 public class ExpressionProcessor {
-	private static final String BASEURL = "/ReactomeGWT/service/analysis/";
+	private static final String BASEURL = "/Analysis/service/analysis/";
 	
 	private String analysisName = "expression_analysis_with_levels";
     private String analysisId;
