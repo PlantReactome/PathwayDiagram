@@ -86,6 +86,8 @@ public class OptionsMenu extends PopupPanel {
     	//optionsMenu.addSeparator();
     	optionsMenu.addItem(getDownloadDiagramMenuItem());
     	optionsMenu.addSeparator();
+    	optionsMenu.addItem(getGenomeSpaceMenuItem());
+    	optionsMenu.addSeparator();   
     	optionsMenu.addItem(getInteractionOverlayMenuItem());
     	
     	if (includeDiagramTransformationOptions) {
@@ -150,6 +152,63 @@ public class OptionsMenu extends PopupPanel {
         
         return downloadDiagram;
 	}
+    
+    private MenuItem getGenomeSpaceMenuItem() {
+        MenuItem downloadDiagram = new MenuItem("Save Diagram to GenomeSpace", new Command() {
+
+			@Override
+			public void execute() {							
+				if (!compatibleBrowser()) {
+					displayIncompatibleBrowserMessage();
+					return;
+				}
+				
+				if (diagramPane.getPathway() == null) {
+					alertUser("Please choose a pathway to download");
+					return;
+				}
+				
+				Canvas downloadCanvas = createDownloadCanvas(diagramPane.getPathway().getPreferredSize());
+				
+				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
+					canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
+				}
+				
+				
+				Long pathwayId = diagramPane.getPathway().getReactomeId();
+				
+				// Convert the Canvas image to a base64 string
+				String mimeString = "image/png";
+				String dataURL = downloadCanvas.toDataUrl(mimeString);
+				String base64  = dataURL.split(",")[1];
+				// Convert the base64 string to a blob and send to
+				// GenomeSpace using their JavaScript API
+				uploadToGenomeSpace(base64, mimeString, pathwayId);
+				
+				hide();
+			}		
+        });
+        
+        return downloadDiagram;
+	}
+
+
+    private static native void uploadToGenomeSpace(String base64, String mimeString, Long pathwayId) /*-{    	                                                                                	    
+    	var binary = atob(base64);                 //
+    	var array  = new Array();                  // Adapted from
+    	for(var i = 0; i < binary.length; i++) {   // stackoverflow.com/questions/4998908
+        	array.push(binary.charCodeAt(i));      // and many similar discussions
+    	}                                          // 
+    	var uarray = new Uint8Array(array);        //
+    	var blob = new Blob([uarray], {type: mimeString});
+    	var formData = new FormData();
+    	var imageName = "Reactome_pathway_" + pathwayId + ".png";
+    	formData.append("webmasterfile", blob, imageName);
+    	$wnd.gsUploadByPost(formData);
+    }-*/;
+    
+    
+    
     
     /*
     private MenuItem getDownloadDiagramMenuItem() {
@@ -281,3 +340,4 @@ public class OptionsMenu extends PopupPanel {
     	hide();
     }
 }
+
