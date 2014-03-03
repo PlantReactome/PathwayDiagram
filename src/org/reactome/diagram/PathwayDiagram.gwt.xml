@@ -2,6 +2,7 @@
 <module rename-to='reactomebrowser'>
   <!-- Inherit the core Web Toolkit stuff.                        -->
   <inherits name='com.google.gwt.user.User'/>
+    <inherits name ="com.google.gwt.xml.XML"/>
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->
@@ -12,12 +13,10 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
-	<inherits name ="com.google.gwt.xml.XML"/>
-	<inherits name ="com.mogaleaf.SimpleColorPicker."/>
-    
-    <!-- inherits name ="com.google.gwt.logging.Logging" / -->
+    <inherits name="com.mogaleaf.SimpleColorPicker"/>
+    <inherits name="com.google.gwt.json.JSON"/>
 
-  <!-- Specify the paths for translatable code                    -->
+    <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
   <source path='test'/>
@@ -28,4 +27,7 @@
   <source path='expression/event' />
   <source path='expression/model' />
 
+  <!-- Scripts needed to the genomespace integration -->
+  <script src="https://gsui.genomespace.org/jsui/js/jquery-1.7.2.min.js"/>
+  <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js"/>
 </module>
