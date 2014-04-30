@@ -29,8 +29,8 @@ public class ExpressionCanvasModel {
 	}
 
 	public void setEntityExpressionInfoMap(Map<Long, List<String>> id,
-										   Map<Long, Double> entityExpressionLevelMap,
-										   Map<Long, String> entityExpressionColorMap) {
+										   Map<Long, Double> level,
+										   Map<Long, String> color) {
 		
 		if (id == null) {
 			entityExpressionInfoMap = null;
@@ -39,12 +39,12 @@ public class ExpressionCanvasModel {
 		
 		entityExpressionInfoMap = new HashMap<Long, ExpressionInfo>();
 		
-		for (Long entityId : id.keySet()) {
-			List<String> expressionId = id.get(entityId);
-			Double expressionLevel = entityExpressionLevelMap.get(entityId);
-			String expressionColor = entityExpressionColorMap.get(entityId);
+		for (Long dbId : id.keySet()) {
+			List<String> expressionId = id.get(dbId);
+			Double expressionLevel = level.get(dbId);
+			String expressionColor = color.get(dbId);
 			
-			entityExpressionInfoMap.put(entityId, 
+			entityExpressionInfoMap.put(dbId, 
 										new ExpressionInfo(expressionId, expressionLevel, expressionColor)
 									   );
 			

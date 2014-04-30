@@ -637,8 +637,22 @@ public class CanvasPathway extends Node {
     		return schemaClass;
     	}
     	
+    	public String getReferenceIdentifier() {
+    		if (getName() == null)
+    			return null;
+    		
+    		return getName().split(" ")[0].toUpperCase();
+    	}
+    	
     	public String toString() {
     		return "Reference Entity - " + name + "(" + dbId + ")" + ": " + schemaClass;
     	}
     }
+
+	public static CanvasPathway createPathway(Element pathwayElement) {
+		String isDiseaseRelated = pathwayElement.getAttribute("isDisease");
+		if (isDiseaseRelated != null && isDiseaseRelated.equals("true"))
+			return new DiseaseCanvasPathway();
+		return new CanvasPathway();
+	}
 }

@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.analysis.factory.AnalysisModelException;
+import org.reactome.analysis.factory.AnalysisModelFactory;
+import org.reactome.analysis.model.AnalysisResult;
+import org.reactome.diagram.Controller;
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.event.HoverEventHandler;
 import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
@@ -23,11 +27,13 @@ import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ComplexComponentPopup;
 import org.reactome.diagram.expression.ExpressionDataController;
-import org.reactome.diagram.expression.ExpressionProcessor;
+import org.reactome.diagram.expression.OverrepresentationDataController;
+import org.reactome.diagram.expression.SpeciesComparisonDataController;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
@@ -46,6 +52,9 @@ import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
@@ -63,6 +72,8 @@ import com.google.gwt.user.client.ui.RequiresResize;
  */
 public class PathwayDiagramPanel extends Composite implements ContextMenuHandler, RequiresResize {    // Use an AbsolutePanel so that controls can be placed onto on a canvas
     protected AbsolutePanel contentPane;
+    
+    private AnalysisResult analysisResult;
     
     private List<DiagramCanvas> canvasList;
     // Pathway diagram should be drawn here
@@ -185,7 +196,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
-                showAnalysisData(GWT.getHostPageBaseURL() + "expression.json");
+            	String token = "MDQzMDE0MTc0OV80";
+            	String resourceName = "TOTAL";
+            	
+            	showAnalysisData(token, resourceName);
             	
             	//String analysisId = "1055761580";
             	//showAnalysisData("expression_analysis." + analysisId);
@@ -356,7 +370,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	interactorCanvas.removeAllProteins();
         	
         if (overlayDataController != null) {
-        	overlayDataController.setPathwayId(pathway.getReactomeId());
+        	overlayDataController.setPathway(analysisResult.getSummary().getToken(),
+        										pathway);
         	//expressionCanvas.setPathway(pathway);
         }
         
@@ -660,16 +675,68 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return this.style;
     }
     
-    public void showAnalysisData(String analysisString) {
-    	initExpressionCanvas();    	    		
-       	
-    	ExpressionProcessor expressionProcessor = new ExpressionProcessor(analysisString);    	
-    	expressionProcessor.createDataController(this, contentPane, expressionCanvas);
+    public void showAnalysisData(String token, String resourceName) {
+    	initExpressionCanvas();
+	    complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	
-    	complexComponentPopup = new ComplexComponentPopup(expressionCanvas);    	
+    	Controller analysisController = new Controller();
+    	analysisController.retrieveAnalysisResult(token, new RequestCallback() {
+                public void onError(Request request, Throwable exception) {
+                    AlertPopup.alert("Error in retrieving expression results: " + exception);
+                }
+                
+                public void onResponseReceived(Request request, Response response) {
+                    if (response.getStatusCode() != Response.SC_OK) {
+                    	AlertPopup.alert("Error in retrieving expression results: " + response.getStatusText());
+                    	return;
+                    }
+                    
+                    createDataController(response.getText());
+                }
+        });
+    }
+
+    private void createDataController(String analysisResultText) {
+    	try {
+    		analysisResult = AnalysisModelFactory.getModelObject(AnalysisResult.class, analysisResultText);
+    	} catch (AnalysisModelException e) {
+    		e.printStackTrace();
+    		AlertPopup.alert("Unable to parse analysis results: " + e);
+    		return;
+    	}
+            
+    	DataController dataController = getDataController(analysisResult.getSummary().getType());
+            
+        if (dataController == null) {
+            AlertPopup.alert(analysisResult.getSummary().getType() + " is an unknown analysis type");
+            return;
+        }
+                      
+        expressionCanvas.setAnalysisType(analysisResult.getSummary().getType());
+        expressionCanvas.setDataController(dataController);
+        dataController.setAnalysisResult(analysisResult);
+            
+        if (dataController instanceof SpeciesComparisonDataController)
+            ((SpeciesComparisonDataController) dataController).setSpecies(analysisResultText);
+            
+        setDataController(dataController);
     }
     
-    public void setDataController(DataController dataController) {
+    private DataController getDataController(String analysisTypeString) {
+    		final AnalysisType analysisType = AnalysisType.getAnalysisType(analysisTypeString);
+    		
+    		if (analysisType == AnalysisType.Expression) {
+    			return new ExpressionDataController();
+    		} else if (analysisType == AnalysisType.SpeciesComparison) {
+    			return new SpeciesComparisonDataController();
+    		} else if (analysisType == AnalysisType.Overrepresentation) {
+    			return new OverrepresentationDataController();
+    		}
+    		
+    		return null;
+    }
+    
+   public void setDataController(DataController dataController) {
     	overlayDataController = dataController;
     	if (overlayDataController == null)
     		return;
@@ -712,7 +779,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     			expressionCanvas.getCoordinateSpaceWidth(), 
     			expressionCanvas.getCoordinateSpaceHeight());
     	
-    	overlayDataController.setPathwayId(getPathway().getReactomeId());    	
+    	
+    	overlayDataController.setPathway(analysisResult.getSummary().getToken(),
+    			getPathway());
     	//expressionCanvas.setPathway(getPathway());
     }
     

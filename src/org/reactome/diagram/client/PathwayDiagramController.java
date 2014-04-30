@@ -6,15 +6,12 @@
 package org.reactome.diagram.client;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
-import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.InteractorCanvasModel;
 import org.reactome.diagram.model.InteractorEdge;
 import org.reactome.diagram.model.ProteinNode;
-import org.reactome.diagram.view.DefaultColorScheme;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -51,6 +48,10 @@ public class PathwayDiagramController {
 
     private PathwayDiagramPanel diagramPane;
 
+    public PathwayDiagramController() {
+    	
+    }
+    
     public PathwayDiagramController(PathwayDiagramPanel pane) {
         this.diagramPane = pane;
     }
@@ -185,8 +186,19 @@ public class PathwayDiagramController {
         return map;
     }
 
+    public void getSpeciesList(RequestCallback callback) {
+    	String url = this.getHostUrl() + "speciesList";
+    	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    	requestBuilder.setHeader("Accept", "application/json");
+    	
+    	try {
+    		requestBuilder.sendRequest(null, callback);
+    	} catch (RequestException ex) {
+    		requestFailed(ex);
+    	}
+    }
 
-    public void getReferenceEntity(final Long dbId, RequestCallback callback) {
+    public void getReferenceEntity(Long dbId, RequestCallback callback) {
         String url = this.getHostUrl() + "referenceEntity/" + dbId;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
@@ -364,7 +376,7 @@ public class PathwayDiagramController {
      *
      * @param exception Exception whenever the XML file is not load
      */
-    protected void requestFailed(Throwable exception) {
+    public void requestFailed(Throwable exception) {
         AlertPopup.alert("Failed to send the message: " + exception.getMessage());
     }
 
@@ -372,7 +384,7 @@ public class PathwayDiagramController {
      *
      * @param message An error message to alert the user of problems
      */
-    protected void requestFailed(String message) {
+    public void requestFailed(String message) {
         AlertPopup.alert("WARNING: " + message);
     }    
     
@@ -398,7 +410,7 @@ public class PathwayDiagramController {
         diagramPane.setCursor(Cursor.WAIT);
         Element pathwayElement = pathwayDom.getDocumentElement();
         XMLParser.removeWhitespace(pathwayElement);
-        CanvasPathway pathway = createPathway(pathwayElement);
+        CanvasPathway pathway = CanvasPathway.createPathway(pathwayElement);
         pathway.buildPathway(pathwayElement);
 
         // A PathwayDiagram can be shared by more than one pathway.
@@ -515,16 +527,6 @@ public class PathwayDiagramController {
     	} catch (RequestException ex) {
     		requestFailed(ex);
     	}
-    }
-    
-    /**
-     * Create a CanvasPathway object based on the passed XML element.
-     */
-    private CanvasPathway createPathway(Element pathwayElm) {
-        String isDiseaseRelated = pathwayElm.getAttribute("isDisease");
-        if (isDiseaseRelated != null && isDiseaseRelated.equals("true"))
-            return new DiseaseCanvasPathway();
-        return new CanvasPathway();
     }
 
     public void setHostUrl(String hostUrl){

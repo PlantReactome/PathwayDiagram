@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.diagram.expression.model.ReactomeExpressionValue;
+import org.reactome.analysis.model.ExpressionSummary;
+import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -64,7 +65,8 @@ public class ExpressionDataController extends DataController implements ResizeHa
     }
     
     public ExpressionDataController() {
-        init();
+        initNavigationPane();
+        initColorPane();
     }
     
     static Resources getResources() {
@@ -73,19 +75,9 @@ public class ExpressionDataController extends DataController implements ResizeHa
         return resources;
     }
     
-    protected void init() {
-        initNavigationPane();
-        initColorPane();
-    }
-    
-    public void setDataModel(ReactomeExpressionValue model) {
-        this.dataModel = model;
-        ((NavigationPane) navigationPane).setDataModel(model);
-        colorPane.setDataModel(model);
-    }
-    
-    public void setPathwayId(Long pathwayId) {
-        this.pathwayId = pathwayId;
+    @Override
+    public void setPathway(String token, CanvasPathway pathway) {
+        super.setPathway(token, pathway);
         onDataPointChange(((NavigationPane) navigationPane).getValue());
     }
     
@@ -151,16 +143,21 @@ public class ExpressionDataController extends DataController implements ResizeHa
         	return null;
     	
     	Map<Long, String> idToColor = new HashMap<Long, String>();
-        double min = dataModel.getMinExpression();
-        double max = dataModel.getMaxExpression();
+        
+    	ExpressionSummary expressionSummary = getAnalysisResult().getExpression();
+    	if (expressionSummary == null)
+    		return null;
+    	
+    	double min = expressionSummary.getMin();
+        double max = expressionSummary.getMax();
 //        double middle = (min + max) / 2.0d;
         ExpressionColorHelper colorHelper = new ExpressionColorHelper();
-        for (Long dbId : compIdToValue.keySet()) {
-            Double value = compIdToValue.get(dbId);
+        for (Long refId : compIdToValue.keySet()) {
+            Double value = compIdToValue.get(refId);
             if (value == null)
                 continue;
             String color = colorHelper.convertValueToColor(value, min, max);
-            idToColor.put(dbId, 
+            idToColor.put(refId, 
                           color);
         }
         return idToColor;
@@ -217,12 +214,19 @@ public class ExpressionDataController extends DataController implements ResizeHa
             verticalPanel.add(bottomLabel);
             verticalPanel.setCellVerticalAlignment(bottomLabel, HasVerticalAlignment.ALIGN_BOTTOM);
             verticalPanel.setCellHorizontalAlignment(bottomLabel, HasHorizontalAlignment.ALIGN_CENTER);
+            setLabelText();
+            
             add(verticalPanel, 0, 0);
         }
         
-        public void setDataModel(ReactomeExpressionValue model) {
-            double min = model.getMinExpression();
-            double max = model.getMaxExpression();
+        private void setLabelText() {
+        	ExpressionSummary expressionSummary = getAnalysisResult().getExpression();
+        	
+        	if (expressionSummary == null)
+        		return;
+        	
+        	double min = expressionSummary.getMin();
+            double max = expressionSummary.getMax();
 //            // Just for test
 //            double min = 3.504d;
 //            double max = 10.58d;
@@ -292,6 +296,8 @@ public class ExpressionDataController extends DataController implements ResizeHa
             for (int i = 0; i < 5; i ++) {
                 dataPoints.add(i + " hr");
             }
+            setDataPointNames();
+            
             installHandlers();
         }
         
@@ -354,8 +360,13 @@ public class ExpressionDataController extends DataController implements ResizeHa
             setDataPoint(value);
         }
 
-        public void setDataModel(ReactomeExpressionValue dataModel) {
-            List<String> values = dataModel.getExpressionColumnNames();
+        private void setDataPointNames() {
+            ExpressionSummary expressionSummary = getAnalysisResult().getExpression();
+            
+            if (expressionSummary == null)
+            	return;
+        	
+        	List<String> values = expressionSummary.getColumnNames();
             dataPoints.clear();
             dataPoints.addAll(values);
             setDataPoint(0); // Start from the first point

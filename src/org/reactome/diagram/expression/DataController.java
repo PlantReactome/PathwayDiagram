@@ -5,15 +5,23 @@
 package org.reactome.diagram.expression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.analysis.factory.AnalysisModelException;
+import org.reactome.analysis.factory.AnalysisModelFactory;
+import org.reactome.analysis.model.AnalysisResult;
+import org.reactome.analysis.model.PathwayIdentifiers;
+import org.reactome.diagram.Controller;
+import org.reactome.diagram.client.AlertPopup;
+import org.reactome.diagram.client.PathwayDiagramController;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
-import org.reactome.diagram.expression.model.PathwayExpressionValue;
-import org.reactome.diagram.expression.model.ReactomeExpressionValue;
+import org.reactome.diagram.expression.model.PathwayOverlay;
+import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -21,6 +29,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -55,8 +66,9 @@ public abstract class DataController implements ResizeHandler {
     // For fetching icons
     private static Resources resources;
     // Data models handled by this controller
-    protected ReactomeExpressionValue dataModel;
-    protected Long pathwayId; // Displayed pathway id
+    protected Map<Long, PathwayOverlay> pathwayOverlayMap;
+    protected PathwayOverlay pathwayOverlay; // Displayed pathway
+    private AnalysisResult analysisResult;
     
     /**
      * Some icons
@@ -69,7 +81,7 @@ public abstract class DataController implements ResizeHandler {
     }
     
     public DataController() {
-        init();
+        pathwayOverlayMap = new HashMap<Long,PathwayOverlay>();
     }
     
     static Resources getDataControllerResources() {
@@ -77,29 +89,75 @@ public abstract class DataController implements ResizeHandler {
             resources = GWT.create(Resources.class);
         return resources;
     }
-    
-    protected abstract void init();
-    
-    
-    public void setDataModel(ReactomeExpressionValue model) {
-        this.dataModel = model;
-    }
-    
-    public ReactomeExpressionValue getDataModel() {
-        return this.dataModel;
-    }
-    
-    public void setPathwayId(Long pathwayId) {
-        if (this.pathwayId != null) {
-        	onDataPointChange(0);
+
+    public void setPathway(String token, CanvasPathway pathway) {
+        PathwayOverlay selectedPathwayOverlay = this.pathwayOverlayMap.get(pathway.getReactomeId());
+    	if (selectedPathwayOverlay == null) {
+        	setPathwaySummary(token, pathway);
+        } else {
+        	setPathwayOverlay(selectedPathwayOverlay);
         }
-        
-        this.pathwayId = pathwayId;
     }
     
-    public Long getPathwayId() {
-        return this.pathwayId;
+        
+    private void setPathwayOverlay(PathwayOverlay pathwayOverlay) { 
+        this.pathwayOverlay = pathwayOverlay;
     }
+    
+    public PathwayOverlay getPathwayOverlay() {
+        return this.pathwayOverlay;
+    }
+    
+    public void setPathwaySummary(final String token, final CanvasPathway pathway) {
+    	Controller analysisController = new Controller();  
+      
+    	final Long pathwayId = pathway.getReactomeId();
+    	analysisController.retrievePathwaySummary(token, pathwayId, new RequestCallback() {
+    		public void onError(Request request, Throwable exception) {
+                AlertPopup.alert("Error in retrieving pathway summary results: " + exception);
+    		}
+                
+    		public void onResponseReceived(Request request, Response response) {
+    			if (response.getStatusCode() == Response.SC_OK) {
+    				try {
+                   		PathwayIdentifiers pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
+                   		PathwayOverlay pathwayOverlay = new PathwayOverlay(pathway, pathwayIdentifiers);
+                   		
+                   		setPathwayOverlay(pathwayOverlay);
+                   		pathwayOverlayMap.put(pathwayId, pathwayOverlay);
+    				} catch (AnalysisModelException e) {
+    					e.printStackTrace();
+    					AlertPopup.alert("Could not get pathway identifiers for token " + token);
+    					return;
+    				}
+                   	
+    				if (pathway.getDbIdToRefEntity() == null || pathway.getDbIdToRefEntity().isEmpty()) {
+                   		PathwayDiagramController diagramController = new PathwayDiagramController();
+                   		diagramController.getPhysicalToReferenceEntityMap(pathway, new RequestCallback() {
+
+								@Override
+								public void onResponseReceived(Request request,	Response response) {
+									if (response.getStatusCode() == Response.SC_OK) {
+										pathway.setDbIdToRefEntity(response.getText());
+									}
+									
+								}
+
+								@Override
+								public void onError(Request request,Throwable exception) {
+									
+								}
+                   				
+                   			});
+                   		}
+                   			
+                   		//onDataPointChange(0)
+    			}
+    		}
+    	});
+    } 
+    
+    
     
     /**
      * Display this component in the specified composite.
@@ -165,23 +223,22 @@ public abstract class DataController implements ResizeHandler {
     }
     
     protected void onDataPointChange(Integer dataIndex) {
-//        System.out.println("Data index: " + dataIndex);
-        if (pathwayId == null)
+        PathwayOverlay currentPathwayOverlay = getPathwayOverlay();
+    	if (currentPathwayOverlay == null)
             return; // Nothing to do. No pathway has been displayed.
-        PathwayExpressionValue pathwayValues = dataModel.getPathwayExpressionValue(pathwayId);
         
         Map<Long, Double> compIdToValue = null;
         Map<Long, String> compIdToColor = null;
         Map<Long, List<String>> compIdToExpressionId = null;
         
-        if (pathwayValues != null) {
-        	compIdToValue = pathwayValues.getExpressionValueForDataPoint(dataIndex);
+       // if (pathwayIdentifiersMap.get(pathwayId) != null) {
+        	compIdToValue = currentPathwayOverlay.getExpressionValuesForDataPoint(dataIndex);
         	compIdToColor = convertValueToColor(compIdToValue);
-        	compIdToExpressionId = pathwayValues.getDbIdsToExpressionIds();
-        }        
+        	compIdToExpressionId = currentPathwayOverlay.getDbIdToExpressionId();
+        //}        
         
         DataPointChangeEvent event = new DataPointChangeEvent();
-        event.setPathwayId(pathwayId);
+        event.setPathwayId(currentPathwayOverlay.getPathway().getReactomeId());
         event.setPathwayComponentIdToColor(compIdToColor);
         event.setPathwayComponentIdToExpressionLevel(compIdToValue);
         event.setPathwayComponentIdToExpressionId(compIdToExpressionId);
@@ -189,8 +246,9 @@ public abstract class DataController implements ResizeHandler {
         fireDataPointChangeEvent(event);
     }
     
+
     public abstract Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue);
-       
+    
     private void fireExpressionOverlayStopEvent() {
     	if (expressionOverlayStopEventHandlers == null)
     		return;
@@ -211,7 +269,15 @@ public abstract class DataController implements ResizeHandler {
         navigationPane.setStyleName(style);
     }
     
-    protected abstract class NavigationPane extends HorizontalPanel {
+    public AnalysisResult getAnalysisResult() {
+		return analysisResult;
+	}
+
+	public void setAnalysisResult(AnalysisResult analysisResult) {
+		this.analysisResult = analysisResult;
+	}
+
+	protected abstract class NavigationPane extends HorizontalPanel {
         protected Label dataLabel;
         private Image close;
         

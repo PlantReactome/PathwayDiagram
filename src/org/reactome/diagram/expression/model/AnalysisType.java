@@ -16,14 +16,14 @@ import java.util.Map;
 public enum AnalysisType { 
 	Expression, 
 	SpeciesComparison,
-	IdList; 
+	Overrepresentation; 
 
 	private static final Map<String, AnalysisType> analysisTypeMap;
 	static {
 		Map<String, AnalysisType> analysisTypeStringToEnum = new HashMap<String, AnalysisType>();
-		analysisTypeStringToEnum.put("expression", Expression);
-		analysisTypeStringToEnum.put("species_comparison", SpeciesComparison);
-		analysisTypeStringToEnum.put("idlist", IdList);
+		analysisTypeStringToEnum.put("EXPRESSION", Expression);
+		analysisTypeStringToEnum.put("SPECIES_COMPARISON", SpeciesComparison);
+		analysisTypeStringToEnum.put("OVERREPRESENTATION", Overrepresentation);
 	
 		analysisTypeMap = Collections.unmodifiableMap(analysisTypeStringToEnum);
 	}

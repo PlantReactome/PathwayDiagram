@@ -9,11 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.reactome.diagram.expression.model.AnalysisType;
-import org.reactome.diagram.expression.model.DataType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.GraphObject;
-import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.HTML;
@@ -40,7 +38,7 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
         List<GraphObject> objects = expressionCanvas.getObjectsForRendering();
         super.hover(objects);
                 
-        if (hoveredObject != null && hoveredObjectTypeMatchesDataType()) {
+        if (hoveredObject != null) {
         	if (!(isOverSameObject && timeElapsed)) {
         		showTooltip();
         	}
@@ -50,16 +48,7 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
         	return null;
         }	
     }
-        
-    private boolean hoveredObjectTypeMatchesDataType() {
-    	return (hoveredObject.getType() == GraphObjectType.RenderableProtein && getDataType() == DataType.Protein) ||
-    	(hoveredObject.getType() == GraphObjectType.RenderableChemical && getDataType() == DataType.SmallCompound);
-    }
-    
-    private DataType getDataType() {
-    	return expressionCanvas.getDataType();
-    }
-    
+
     protected void showTooltip() {
     	String text = "Expression Identifiers: " + getExpressionIdForHoveredObject();
     	

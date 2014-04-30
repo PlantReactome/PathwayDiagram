@@ -38,8 +38,8 @@ public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> 
         return pathwayComponentIdToColor;
     }
 
-    public void setPathwayComponentIdToColor(Map<Long, String> pathwayComponentIdToColor) {
-        this.pathwayComponentIdToColor = pathwayComponentIdToColor;
+    public void setPathwayComponentIdToColor(Map<Long, String> compIdToColor) {
+        this.pathwayComponentIdToColor = compIdToColor;
     }
 
     public Map<Long, Double> getPathwayComponentIdToExpressionLevel() {
@@ -47,8 +47,8 @@ public class DataPointChangeEvent extends GwtEvent<DataPointChangeEventHandler> 
 	}
 
 	public void setPathwayComponentIdToExpressionLevel(
-			Map<Long, Double> pathwayComponentIdToExpressionLevel) {
-		this.pathwayComponentIdToExpressionLevel = pathwayComponentIdToExpressionLevel;
+			Map<Long, Double> compIdToValue) {
+		this.pathwayComponentIdToExpressionLevel = compIdToValue;
 	}
 
 	public Map<Long, List<String>> getPathwayComponentIdToExpressionId() {

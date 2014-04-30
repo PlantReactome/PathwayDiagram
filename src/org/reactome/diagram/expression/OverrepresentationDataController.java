@@ -7,7 +7,7 @@ package org.reactome.diagram.expression;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.reactome.diagram.view.Parameters;
+import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.user.client.ui.Label;
 
@@ -17,20 +17,17 @@ import com.google.gwt.user.client.ui.Label;
  * @author weiserj
  *
  */
-public class IdListDataController extends DataController {
+public class OverrepresentationDataController extends DataController {
 	
-    public IdListDataController() {
-        init();
-    }
-       
-    protected void init() {
-    	navigationPane = new IdListNavigationPane();
+    public OverrepresentationDataController() {
+    	navigationPane = new OverrepresentationNavigationPane();
     }
 
-    public void setPathwayId(Long pathwayId) {
-    	this.pathwayId = pathwayId;
+    @Override
+    public void setPathway(String token, CanvasPathway pathway) {
+    	super.setPathway(token, pathway);
     	
-    	if (pathwayId != null) {
+    	if (pathway != null) {
     		onDataPointChange(0);
     	}
     }
@@ -41,17 +38,17 @@ public class IdListDataController extends DataController {
     	Map<Long, String> compIdToColor = new HashMap<Long, String>();
 	
     	for (Long dbId : compIdToValue.keySet()) {
-    		String color = (compIdToValue.get(dbId).intValue() == 100) ? YELLOW	: Parameters.defaultExpressionColor.value();
+    		//String color = (compIdToValue.get(dbId).intValue() == 100) ? YELLOW	: Parameters.defaultExpressionColor.value();
     		
-    		compIdToColor.put(dbId, color);
+    		compIdToColor.put(dbId, YELLOW);
     	}
     	
     	return compIdToColor;
     }
     
-    protected class IdListNavigationPane extends NavigationPane {
+    protected class OverrepresentationNavigationPane extends NavigationPane {
                 
-        public IdListNavigationPane() {
+        public OverrepresentationNavigationPane() {
             super();
             init();
         }

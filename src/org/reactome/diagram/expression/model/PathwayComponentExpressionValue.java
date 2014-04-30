@@ -22,9 +22,7 @@ public class PathwayComponentExpressionValue {
     
     //  
     private List<Double> medianExpressionValues;
-    
-    private String dataType;
-		
+    		
 	/**
 	 * Default constructor.
 	 */
@@ -73,15 +71,6 @@ public class PathwayComponentExpressionValue {
 		}
 		
 		return medianExpressionValues;
-	}
-
-
-	public String getDataType() {
-		return dataType;
-	}
-
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
 	}
 	
 	private Integer numberOfTimePoints() {

@@ -27,7 +27,7 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>AnalysisExpression</servlet-name>
+        <servlet-name>ReactomeAnalysis</servlet-name>
         <servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
         <init-param>
             <param-name>proxyHost</param-name>
@@ -35,16 +35,16 @@
         </init-param>
         <init-param>
             <param-name>proxyPort</param-name>
-            <param-value>80</param-value>
+            <param-value>7080</param-value>
         </init-param>
         <init-param>
             <param-name>proxyPath</param-name>
-            <param-value>/ReactomeGWT</param-value>
+            <param-value>/AnalysisService</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AnalysisExpression</servlet-name>
-        <url-pattern>/ReactomeGWT/*</url-pattern>
+        <servlet-name>ReactomeAnalysis</servlet-name>
+        <url-pattern>/AnalysisService/*</url-pattern>
     </servlet-mapping>
 
     <!-- Default page to serve -->

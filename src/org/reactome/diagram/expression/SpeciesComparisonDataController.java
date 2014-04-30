@@ -7,71 +7,122 @@ package org.reactome.diagram.expression;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.reactome.diagram.expression.model.ReactomeExpressionValue;
+import org.reactome.analysis.factory.AnalysisModelException;
+import org.reactome.analysis.factory.AnalysisModelFactory;
+import org.reactome.analysis.model.SpeciesSummary;
+import org.reactome.diagram.client.AlertPopup;
+import org.reactome.diagram.client.PathwayDiagramController;
+import org.reactome.diagram.model.CanvasPathway;
 
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.ui.Label;
 
 /**
- * This customized GUI is used to present the user a way to select a data point, and
- * show a color bars for expression values. 
- * @author gwu
+ * This customized GUI is used to control species comparison overlay. 
+ * @author 
  *
  */
 public class SpeciesComparisonDataController extends DataController {
+	private static Map<Long, String> speciesList = new HashMap<Long, String>();
 	private String species;
 	
     public SpeciesComparisonDataController() {
-        init();
-    }
-       
-    protected void init() {
     	navigationPane = new SpeciesComparisonNavigationPane();
     }
     
-    public void setDataModel(ReactomeExpressionValue dataModel) {
-    	super.setDataModel(dataModel);
-    	((SpeciesComparisonNavigationPane) navigationPane).setDataModel(dataModel);
-    }
-    
-    public void setPathwayId(Long pathwayId) {
-   		this.pathwayId = pathwayId;
+    @Override
+    public void setPathway(String token, CanvasPathway pathway) {
+   		super.setPathway(token, pathway);
         
-   		if (pathwayId != null) {
-        	setSpecies();
+   		if (pathway != null) {
+        	onDataPointChange(0);
         }
     }
     
     public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {    	
     	final String YELLOW = "rgb(255, 255, 102)";
-    	final String BLUE = "rgb(0, 0, 255)";
+    	//final String BLUE = "rgb(0, 0, 255)";
     	
     	Map<Long, String> compIdToColor = new HashMap<Long, String>();
 	
-    	for (Long dbId : compIdToValue.keySet()) {
-    		String color = (compIdToValue.get(dbId).intValue() == 100) ? YELLOW	: BLUE;
+    	for (Long refId : compIdToValue.keySet()) {
+    		//String color = (compIdToValue.get(Id).intValue() == 100) ? YELLOW	: BLUE;
     		
-    		compIdToColor.put(dbId, color);
+    		compIdToColor.put(refId, YELLOW);
     	}
     	
     	return compIdToColor;    	
     }
     
-    public void setSpecies(String species) {
+    public void setSpecies(String analysisResultText) {
+    	final Long speciesDbId;
+    	try {
+    		SpeciesSummary speciesSummary = AnalysisModelFactory.getModelObject(SpeciesSummary.class, analysisResultText);
+    		speciesDbId = speciesSummary.getDbId();
+    	} catch (AnalysisModelException e) {
+    		AlertPopup.alert("Unable to obtain species summary: " + e);
+    		return;
+    	}
+    	
+    	if (! getSpeciesList().isEmpty()) {
+    		setSpecies(speciesDbId);
+    	} else {
+    	
+    		final PathwayDiagramController diagramController = new PathwayDiagramController();
+    		diagramController.getSpeciesList(new RequestCallback() {
+
+    			@Override
+    			public void onResponseReceived(Request request, Response response) {
+    				if (response.getStatusCode() != Response.SC_OK) {
+    					diagramController.requestFailed("Unable to retrieve species list: " + response.getStatusText());
+    					return;
+    				}
+    				setSpeciesList(response.getText());
+    				setSpecies(speciesDbId);
+    			}
+
+    			@Override
+    			public void onError(Request request, Throwable exception) {
+    				diagramController.requestFailed(exception);
+    			} 
+    		});
+    	}
+    }
+    	
+    private void setSpecies(Long speciesDbId) {    
+    	String species = getSpeciesList().get(speciesDbId);
+    			
+    	((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(species);
     	this.species = species;
     }
     
-    protected void setSpecies() {
-    	if (pathwayId != null) {    		
-    		final String species = dataModel.getPathwayExpressionValue(pathwayId) != null && dataModel.getPathwayExpressionValue(pathwayId).getSpecies() != null ?
-    							   dataModel.getPathwayExpressionValue(pathwayId).getSpecies() : this.species;
+    public String getSpecies() {
+		return species;    	
+    }
+    
+    private void setSpeciesList(String speciesJSON) {
+    	JSONArray speciesArray = JSONParser.parseStrict(speciesJSON).isArray();
+    	
+    	speciesList.clear();
+    	for (int index = 0; index < speciesArray.size(); index++) {
+    		JSONObject speciesObject = speciesArray.get(index).isObject();
     		
-    		if (species != null)
-    			((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(species);
+    		Long dbId = Long.parseLong(speciesObject.get("dbId").isString().stringValue()); 
+    		String speciesName = speciesObject.get("displayName").isString().stringValue();
     		
-    		onDataPointChange(0);
+    		speciesList.put(dbId, speciesName);
     	}
     }
     
+    private Map<Long, String> getSpeciesList() {
+		return speciesList;    	
+    }
+   
     protected class SpeciesComparisonNavigationPane extends NavigationPane {
                 
         public SpeciesComparisonNavigationPane() {
@@ -89,10 +140,6 @@ public class SpeciesComparisonDataController extends DataController {
         protected Label getDataLabel() {
 			return dataLabel;
         	
-        }
-        
-        public void setDataModel(ReactomeExpressionValue dataModel) {
-        	SpeciesComparisonDataController.this.setSpecies();
         }
     }
 }

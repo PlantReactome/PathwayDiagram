@@ -10,13 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.analysis.factory.AnalysisModelException;
+import org.reactome.analysis.factory.AnalysisModelFactory;
+import org.reactome.analysis.model.PathwayIdentifiers;
+import org.reactome.diagram.Controller;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.model.AnalysisType;
-import org.reactome.diagram.expression.model.DataType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
-import org.reactome.diagram.expression.model.PathwayExpressionValue;
+import org.reactome.diagram.expression.model.PathwayOverlay;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.ComplexNode;
@@ -38,6 +41,10 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.xml.client.impl.DOMParseException;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -96,13 +103,6 @@ public class ExpressionCanvas extends DiagramCanvas {
 		this.dataController = dataController;
 	}
 
-	public DataType getDataType() {
-		if (dataController == null || dataController.getDataModel() == null) 
-			return null;
-		
-		return DataType.getDataType(dataController.getDataModel().getDataType());
-	}
-	
 	public List<GraphObject> getObjectsForRendering() {
     	if (pathway == null)
     		return null;
@@ -145,7 +145,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     				readyToDrawOverlayChecker.cancel();
     		
     			expressionPathway = new ExpressionPathway(pathway, getDataPointIndexFromDataController());
-    			for (GraphObject entity : getObjectsForRendering()) {    		
+    			for (GraphObject entity : getObjectsForRendering()) {
     				if (entity.getType() == GraphObjectType.ProcessNode) {
     					diagramPane.getController().getReferenceEntity(entity.getReactomeId(), getEntityInfoForProcessNodeAndColor(expressionPathway, entity));
     				}
@@ -336,8 +336,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 					return;
 				}
 								
-				final DataType dataType = DataType.getDataType(dataController.getDataModel().getDataType());				
-				colorProcessNode(expressionPathway, entity, getRefIdsForDataType(response.getText(), dataType));
+				colorProcessNode(expressionPathway, entity, getRefIds(response.getText()));
 			}
 			
 			public void onError(Request request, Throwable exception) {
@@ -349,14 +348,13 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return getGenesForProcessNodeAndColor;
 	}
 	
-	private List<Long> getRefIdsForDataType(String referenceEntityJSON, DataType dataType) {
-		if (dataType == DataType.Protein) {
-			return getRefIdsForPathwayGenes(referenceEntityJSON);
-		} else if (dataType == DataType.SmallCompound) {
-			return getRefIdsForPathwaySmallMolecules(referenceEntityJSON);
-		} else {
-			return new ArrayList<Long>();
-		}
+	private List<Long> getRefIds(String referenceEntityJSON) {
+		List<Long> refIds = new ArrayList<Long>();
+		refIds.addAll(getRefIdsForPathwayGenes(referenceEntityJSON));
+		refIds.addAll(getRefIdsForPathwaySmallMolecules(referenceEntityJSON));
+		
+		return refIds;
+		
 	}
 	
 	private List<Long> getRefIdsForPathwayGenes(String referenceEntityJSON) {
@@ -395,31 +393,78 @@ public class ExpressionCanvas extends DiagramCanvas {
 		return refIds;
 	}
 				
-	private void colorProcessNode(ExpressionPathway expressionPathway, GraphObject entity, List<Long> refIdsForPathwayEntities) {
-		Map<Long, ExpressionInfo> pathwayExpressionComponents = new HashMap<Long, ExpressionInfo>();
+	private void colorProcessNode(final ExpressionPathway expressionPathway, final GraphObject entity, final List<Long> refIdsForPathwayEntities) {
+		final Map<Long, ExpressionInfo> pathwayExpressionComponents = new HashMap<Long, ExpressionInfo>();
 		
-		PathwayExpressionValue pathwayExpression = dataController.getDataModel().getPathwayExpressionValue(entity.getReactomeId());
-			
-		if (pathwayExpression != null) { 
-			Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdsToExpressionIds();
-			Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValueForDataPoint(expressionPathway.getDataPointIndex());
-			Map<Long, String> expressionColors = dataController.convertValueToColor(expressionLevels);
+		Controller analysisController = new Controller();
+		analysisController.retrievePathwaySummary(dataController.getAnalysisResult().getSummary().getToken(),
+												  entity.getReactomeId(),
+												  new RequestCallback() {
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() != Response.SC_OK) {
+					AlertPopup.alert("Unable to retrieve pathway summary for " + entity.getDisplayName());
+					return;
+				}
+				
+				final PathwayIdentifiers pathwayIdentifiers;
+				try {
+					pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
+				} catch (AnalysisModelException ex) {
+					AlertPopup.alert("Unable to retrieve pathway identifiers for " + entity.getDisplayName() + ": " + ex);
+					return;
+				}
+				
+				PathwayDiagramController diagramController = new PathwayDiagramController();
+				
+				diagramController.getCanvasPathwayXML(entity.getReactomeId(), new RequestCallback() {
+				
+					public void onResponseReceived(Request request, Response response) {
+						Document pathwayDom;
+						try {
+							pathwayDom = XMLParser.parse(response.getText());
+						} catch (DOMParseException e) {
+							AlertPopup.alert("Unable to parse pathway XML for " + entity.getReactomeId() + ": " + e);
+							return;
+						}
+						
+						Element pathwayElement = pathwayDom.getDocumentElement();
+						XMLParser.removeWhitespace(pathwayElement);
+						CanvasPathway pathway = CanvasPathway.createPathway(pathwayElement);
+						pathway.buildPathway(pathwayElement);
+						
+						PathwayOverlay pathwayExpression = new PathwayOverlay(pathway, pathwayIdentifiers);
+				
+						Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdToExpressionId();
+						Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValuesForDataPoint(expressionPathway.getDataPointIndex());
+						Map<Long, String> expressionColors = dataController.convertValueToColor(expressionLevels);
 		
-			for (Long pathwayComponentId : expressionIds.keySet()) 
-				pathwayExpressionComponents.put(pathwayComponentId,	
-						expressionCanvasModel.new ExpressionInfo(expressionIds.get(pathwayComponentId),
-																 expressionLevels.get(pathwayComponentId),
-																 expressionColors.get(pathwayComponentId)
-																)
-				);			
+						for (Long pathwayComponentId : expressionIds.keySet()) 
+							pathwayExpressionComponents.put(pathwayComponentId,	
+									expressionCanvasModel.new ExpressionInfo(expressionIds.get(pathwayComponentId),
+																	expressionLevels.get(pathwayComponentId),
+																	expressionColors.get(pathwayComponentId)
+																	)
+									);			
 					
-			expressionPathway.addProcessNodeColorList(
-				entity,
-				expressionCanvasModel.getColorList(refIdsForPathwayEntities, pathwayExpressionComponents)
-			);
-		}
-		
-		expressionPathway.decrementCallbacksInProgress();
+						expressionPathway.addProcessNodeColorList(
+						entity,
+							expressionCanvasModel.getColorList(refIdsForPathwayEntities, pathwayExpressionComponents)
+								);
+				
+						expressionPathway.decrementCallbacksInProgress();
+					}
+					
+					public void onError(Request request, Throwable exception) {
+						
+					}
+				});
+			}
+			
+			public void onError(Request request, Throwable exception) {
+				AlertPopup.alert("Unable to retrieve pathway summary for" + entity.getDisplayName());
+				expressionPathway.decrementCallbacksInProgress();
+			}
+		});
 	}
 	
 	private Integer getDataPointIndexFromDataController() {
