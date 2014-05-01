@@ -15,6 +15,11 @@
   <!-- Other module inherits                                      -->
     <inherits name="com.mogaleaf.SimpleColorPicker"/>
     <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+
+    <!-- Scripts needed to the genomespace integration -->
+    <script src="https://gsui.genomespace.org/jsui/js/jquery-1.7.2.min.js"/>
+    <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js"/>
 
     <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
@@ -26,8 +31,4 @@
   <source path='expression' />
   <source path='expression/event' />
   <source path='expression/model' />
-
-  <!-- Scripts needed to the genomespace integration -->
-  <script src="https://gsui.genomespace.org/jsui/js/jquery-1.7.2.min.js"/>
-  <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js"/>
 </module>
