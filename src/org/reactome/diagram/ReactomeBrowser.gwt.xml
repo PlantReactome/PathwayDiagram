@@ -15,6 +15,8 @@
     <inherits name ="com.google.gwt.xml.XML"/>
     <inherits name ="com.google.gwt.logging.Logging" />
 	<inherits name ="com.mogaleaf.SimpleColorPicker"/>
+    <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="com.google.web.bindery.autobean.AutoBean"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.reactome.diagram.client.ReactomeBrowser'/>
