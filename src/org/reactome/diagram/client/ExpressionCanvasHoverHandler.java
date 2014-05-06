@@ -99,7 +99,12 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     }
     
     private List<ReferenceEntity> getReferenceEntitiesForHoveredObject() {
-    	return expressionCanvas.getPathway().getDbIdToRefEntity().get(hoveredObject.getReactomeId());
+    	List<ReferenceEntity> refEntities = expressionCanvas.getPathway().getDbIdToRefEntity().get(hoveredObject.getReactomeId());
+    	
+    	if (refEntities == null)
+    		return new ArrayList<ReferenceEntity>();
+		
+    	return refEntities;
     }
 
     private Map<Long, ExpressionInfo> getEntityToExpressionInfoMap() {

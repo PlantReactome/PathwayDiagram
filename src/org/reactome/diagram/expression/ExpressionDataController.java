@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.analysis.model.ExpressionSummary;
+import org.reactome.diagram.analysis.model.AnalysisResult;
+import org.reactome.diagram.analysis.model.ExpressionSummary;
 import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.core.client.GWT;
@@ -64,8 +65,9 @@ public class ExpressionDataController extends DataController implements ResizeHa
         ImageResource colorSpectrum();
     }
     
-    public ExpressionDataController() {
-        initNavigationPane();
+    public ExpressionDataController(AnalysisResult analysisResult) {
+        super(analysisResult);
+    	initNavigationPane();
         initColorPane();
     }
     

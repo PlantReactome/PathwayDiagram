@@ -2,9 +2,8 @@
  * Created on Feb 7, 2013
  *
  */
-package org.reactome.diagram;
+package org.reactome.diagram.client;
 
-import org.reactome.diagram.client.AlertPopup;
 
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -15,10 +14,10 @@ import com.google.gwt.http.client.RequestException;
  * @author weiserj
  *
  */
-public class Controller {
+public class AnalysisController {
 	private static final String BASE_URL = "/AnalysisService/";
 	
-    public Controller() {
+    public AnalysisController() {
     }
     
     public void retrieveAnalysisResult(String token, RequestCallback callback) {

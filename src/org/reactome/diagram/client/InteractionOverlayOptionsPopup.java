@@ -140,7 +140,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				CanvasPathway pathway = diagramPane.getPathway();
 				
 				if (pathway != null) {
-					diagramPane.getController().openInteractionExportPage(pathway.getReactomeId());
+					PathwayDiagramController.getInstance().openInteractionExportPage(pathway.getReactomeId(), 
+													 interactorCanvasModel.getInteractorDatabase());
 				}
 			}			
 		});

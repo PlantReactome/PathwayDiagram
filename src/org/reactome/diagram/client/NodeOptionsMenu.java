@@ -169,7 +169,7 @@ public abstract class NodeOptionsMenu {
     				toggleInteractors.setLabel(toggleInteractorsLabel(pSelected.isDisplayingInteractors()));
     			} else {	
     				diagramPane.getController().getInteractors(pSelected, 
-    														   setInteractors(pSelected, toggleInteractors)
+    														   setInteractors(pSelected, toggleInteractors), diagramPane
     														  );
     			}   			
     		
@@ -180,7 +180,8 @@ public abstract class NodeOptionsMenu {
     	addItem("Export Interactors", new Command() { 
     		@Override
     		public void execute() {
-    			diagramPane.getController().openInteractionExportPage(pSelected.getReactomeId());
+    			diagramPane.getController().openInteractionExportPage(pSelected.getReactomeId(), 
+    					diagramPane.getInteractorCanvasModel().getInteractorDatabase());
     			hide();
     		}
     	});    	
@@ -326,7 +327,7 @@ public abstract class NodeOptionsMenu {
    							if (pathway.hasDiagram())
     							diagramPane.setPathway(pathway.getReactomeId());
    							else
-   								diagramPane.getController().getDiagramPathwayId(pathway.getReactomeId());
+   								diagramPane.getController().getDiagramPathwayId(pathway.getReactomeId(), diagramPane);
    							
    							hideParentMenu(pathwaySubMenuItem);
    							hideIfWithinPopupPanel();

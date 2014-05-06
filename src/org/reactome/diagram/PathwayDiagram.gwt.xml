@@ -22,6 +22,8 @@
     <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js"/>
 
     <!-- Specify the paths for translatable code                    -->
+  <source path='analysis/factory'/>
+  <source path='analysis/model'/>
   <source path='client'/>
   <source path='shared'/>
   <source path='test'/>

@@ -7,6 +7,7 @@ package org.reactome.diagram.expression;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.reactome.diagram.analysis.model.AnalysisResult;
 import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.user.client.ui.Label;
@@ -19,7 +20,8 @@ import com.google.gwt.user.client.ui.Label;
  */
 public class OverrepresentationDataController extends DataController {
 	
-    public OverrepresentationDataController() {
+    public OverrepresentationDataController(AnalysisResult analysisResult) {
+    	super(analysisResult);
     	navigationPane = new OverrepresentationNavigationPane();
     }
 

@@ -19,6 +19,11 @@
 package org.reactome.diagram.client;
 
 // Required Imports
+import org.reactome.diagram.event.PathwayChangeEvent;
+import org.reactome.diagram.event.PathwayChangeEventHandler;
+import org.reactome.diagram.event.SubpathwaySelectionEvent;
+import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -52,7 +57,29 @@ public class ReactomeBrowser implements EntryPoint {
 	            //          diagramPane.update();
 	        }
 	    });
+	    addTestHandlers();
 	    RootPanel.get(holderId).add(diagramPane);
+	}
+	
+	private void addTestHandlers() {
+		diagramPane.addPathwayChangeEventHandler(new PathwayChangeEventHandler() {
+
+			@Override
+			public void onPathwayChange(PathwayChangeEvent event) {
+				System.out.println("Current Pathway - " + event.getCurrentPathwayDBId());
+			}			
+		});
+		
+		diagramPane.addSubpathwaySelectionEventHandler(new SubpathwaySelectionEventHandler() {
+
+			@Override
+			public void onSubpathwaySelection(SubpathwaySelectionEvent event) {
+				System.out.println("Sub-pathway Id - " + event.getSubpathwayId());
+				System.out.println("Diagram Id - " + event.getDiagramPathwayId());
+			}			
+		}); 
+			
+		
 	}
 	
 }

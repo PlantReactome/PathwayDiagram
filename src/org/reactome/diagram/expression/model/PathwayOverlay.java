@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.analysis.model.IdentifierMap;
-import org.reactome.analysis.model.PathwayIdentifier;
-import org.reactome.analysis.model.PathwayIdentifiers;
+import org.reactome.diagram.analysis.model.IdentifierMap;
+import org.reactome.diagram.analysis.model.PathwayIdentifier;
+import org.reactome.diagram.analysis.model.PathwayIdentifiers;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 
@@ -26,8 +26,14 @@ public class PathwayOverlay {
 	
     public PathwayOverlay(CanvasPathway pathway, PathwayIdentifiers pathwayIdentifiers) {
     	this.pathway = pathway;
-    	setExpressionIdToValue(pathwayIdentifiers);
-    	setReferenceIdToExpressionIds(pathwayIdentifiers);
+    	this.expressionIdToValue = new HashMap<String, List<Double>>();
+    	this.componentReferenceIdToExpressionId = new HashMap<String, List<String>>();
+    	
+    	if (pathwayIdentifiers != null) {
+    		setExpressionIdToValue(pathwayIdentifiers);
+    		setReferenceIdToExpressionIds(pathwayIdentifiers);
+    	}
+    	
     }
 
     public CanvasPathway getPathway() {
@@ -55,7 +61,7 @@ public class PathwayOverlay {
 
     	for (Long dbId : getPathway().getDbIdToRefEntity().keySet()) {
     		ReferenceEntity refEntity = getReferenceEntity(dbId);
-    		if (refEntity == null)
+    		if (refEntity == null || componentReferenceIdToExpressionId.get(refEntity.getReferenceIdentifier()) == null)
     			continue;
     			
     		PathwayComponentExpressionValue component = new PathwayComponentExpressionValue();
@@ -80,17 +86,15 @@ public class PathwayOverlay {
     }
     
     private void setExpressionIdToValue(PathwayIdentifiers pathwayIdentifiers) {
-    	Map<String, List<Double>> expressionValueMap = new HashMap<String, List<Double>>();
+    	expressionIdToValue.clear();
     	
     	for (PathwayIdentifier pathwayIdentifier : pathwayIdentifiers.getIdentifiers()) {
-    		expressionValueMap.put(pathwayIdentifier.getIdentifier(), pathwayIdentifier.getExp());
+    		expressionIdToValue.put(pathwayIdentifier.getIdentifier(), pathwayIdentifier.getExp());
     	}
-    	
-    	this.expressionIdToValue = expressionValueMap;
     }
        
-    private Map<String, List<String>> setReferenceIdToExpressionIds(PathwayIdentifiers pathwayIdentifiers) {
-    	Map<String, List<String>> expressionIdMap = new HashMap<String, List<String>>();
+    private void setReferenceIdToExpressionIds(PathwayIdentifiers pathwayIdentifiers) {
+    	componentReferenceIdToExpressionId.clear();
     	
     	for (PathwayIdentifier pathwayIdentifier : pathwayIdentifiers.getIdentifiers()) {
     		String expressionId = pathwayIdentifier.getIdentifier();
@@ -99,15 +103,13 @@ public class PathwayOverlay {
     			for (String referenceId : identifierMap.getIds()) {
     				String id = resource + ":" + referenceId;
     				
-    				if (expressionIdMap.get(id) == null ) {
-    					expressionIdMap.put(id, new ArrayList<String>());
+    				if (componentReferenceIdToExpressionId.get(id) == null ) {
+    					componentReferenceIdToExpressionId.put(id, new ArrayList<String>());
     				}
     				
-    				expressionIdMap.get(id).add(expressionId);
+    				componentReferenceIdToExpressionId.get(id).add(expressionId);
     			}
     		}
     	}
-    	
-    	return expressionIdMap;
     }
 }

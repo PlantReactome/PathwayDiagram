@@ -1,4 +1,4 @@
-package org.reactome.analysis.model;
+package org.reactome.diagram.analysis.model;
 
 import java.util.List;
 

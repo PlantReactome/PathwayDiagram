@@ -497,7 +497,7 @@ public class InteractorCanvas extends DiagramCanvas {
 		
 		// Re-obtain proteins for the new interactor database
 		for (Integer i = 0; i < proteinList.size(); i++) {
-			this.diagramPanel.getController().getInteractors(proteinList.get(i), setInteractors(proteinList.get(i)));
+			PathwayDiagramController.getInstance().getInteractors(proteinList.get(i), setInteractors(proteinList.get(i)), diagramPanel);
 		}
 	}
 	

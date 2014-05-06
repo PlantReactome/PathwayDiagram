@@ -35,29 +35,32 @@ import com.google.gwt.xml.client.XMLParser;
 import com.google.gwt.xml.client.impl.DOMParseException;
 
 /**
- * This class is related to communicating activites between the front end and the RESTful APIs.
+ * This singleton class is related to communicating activites between the front end and the RESTful APIs.
  * @author gwu
  *
  */
 public class PathwayDiagramController {
-    // The root RESTful URL
+    private static PathwayDiagramController pathwayDiagramController;
+	
+	// The root RESTful URL
     private String hostUrl = null;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final String RESTFUL_URL = "RESTfulWS/";
+    
+    private PathwayDiagramController() {
+       
+    }
 
-    private PathwayDiagramPanel diagramPane;
-
-    public PathwayDiagramController() {
+    public static PathwayDiagramController getInstance() {
+    	if (pathwayDiagramController == null)
+    		pathwayDiagramController = new PathwayDiagramController();
     	
+    	return pathwayDiagramController;
     }
     
-    public PathwayDiagramController(PathwayDiagramPanel pane) {
-        this.diagramPane = pane;
-    }
-
     @SuppressWarnings("UnusedDeclaration")
-    public void listPathways() {
+    public void listPathways(final PathwayDiagramPanel diagramPane) {
         String url = GWT.getHostPageBaseURL() + "ListOfPathways.txt";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
         try {
@@ -65,7 +68,7 @@ public class PathwayDiagramController {
 
                 @Override
                 public void onResponseReceived(Request request, Response response) {
-                    showListOfPathways(response.getText());
+                    showListOfPathways(response.getText(), diagramPane);
                 }
 
                 @Override
@@ -79,7 +82,7 @@ public class PathwayDiagramController {
         }
     }
 
-    private void showListOfPathways(String text) {
+    private void showListOfPathways(String text, final PathwayDiagramPanel diagramPane) {
         VerticalPanel vPane = new VerticalPanel();
         String[] lines = text.split("\n");
         final ScrollPanel sp = new ScrollPanel(vPane);
@@ -98,7 +101,7 @@ public class PathwayDiagramController {
                     int index1 = text.indexOf("[");
                     int index2 = text.lastIndexOf("]");
                     String dbId = text.substring(index1 + 1, index2);
-                    loadDiagramForDBId(new Long(dbId));
+                    loadDiagramForDBId(new Long(dbId), diagramPane);
                     diagramPane.contentPane.remove(sp);
                 }
             });
@@ -211,7 +214,7 @@ public class PathwayDiagramController {
     }
     
     
-    public void getInteractors(final ProteinNode selected, RequestCallback callback) {
+    public void getInteractors(final ProteinNode selected, RequestCallback callback, PathwayDiagramPanel diagramPane) {
         Long dbId = selected.getReactomeId();
         
         diagramPane.initInteractorCanvas(); // Does nothing if the canvas already exists
@@ -244,10 +247,8 @@ public class PathwayDiagramController {
     	}
     }
     
-    public void openInteractionExportPage(Long dbId) {
+    public void openInteractionExportPage(Long dbId, String serviceName) {
     	String hostUrl = getHostUrl();
-    	
-    	String serviceName = diagramPane.getInteractorCanvasModel().getInteractorDatabase();
     	
     	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
     	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "exportPsiquicInteractions/" + dbId + "/" + serviceName;
@@ -340,7 +341,7 @@ public class PathwayDiagramController {
      * Load a pathway diagram for a specified Pathway DB_ID.
      * @param dbId db_id for a pathway.
      */
-    public void loadDiagramForDBId(final Long dbId) {
+    public void loadDiagramForDBId(final Long dbId, final PathwayDiagramPanel diagramPane) {
         RequestBuilder requestBuilder = getPathwayDiagramRequestBuilder(dbId, "xml");
 
         try {
@@ -349,7 +350,7 @@ public class PathwayDiagramController {
                     requestFailed(exception);
                 }
                 public void onResponseReceived(Request request, Response response) {
-                    renderXML(response.getText(), dbId);
+                    renderXML(response.getText(), dbId, diagramPane);
                 }
             });
         } catch (RequestException ex) {
@@ -363,8 +364,8 @@ public class PathwayDiagramController {
      * @param xml the XML data for a pathway
      * @param dbId the pathway dbId associated with this XML.
      */
-    public void loadDiagramForXML(String xml, Long dbId){
-        renderXML(xml, dbId);
+    public void loadDiagramForXML(String xml, Long dbId, PathwayDiagramPanel diagramPane){
+        renderXML(xml, dbId, diagramPane);
     }
     
     private RequestBuilder getPathwayDiagramRequestBuilder(Long dbId, String format) {
@@ -392,15 +393,16 @@ public class PathwayDiagramController {
     /**
      * Parses the XML Text and Builds a HashMap of the nodes and the edges. Renders the Canvas Visualization.
      * @param xmlText The XML Text to be parsed
+     * @param diagramPane 
      */
-    private void renderXML(String xmlText, Long dbId) {
+    private void renderXML(String xmlText, Long dbId, PathwayDiagramPanel diagramPane) {
         //System.out.println(xmlText);
         //Image loadingIcon = diagramPane.getLoadingIcon();
         //loadingIcon.setVisible(true);
 
         Document pathwayDom; 
         try {
-        	pathwayDom = XMLParser.parse(xmlText);            
+        	pathwayDom = XMLParser.parse(xmlText);
         } catch (DOMParseException e) {
         	requestFailed(e);
         	e.printStackTrace();
@@ -423,13 +425,13 @@ public class PathwayDiagramController {
 //            colorScheme.applyScheme(pathway);
             
         pathway.setReactomeId(dbId);
-        getPhysicalToReferenceEntityMap(pathway, setCanvasPathway(pathway));
+        getPhysicalToReferenceEntityMap(pathway, setCanvasPathway(pathway, diagramPane));
         diagramPane.setCursor(Cursor.DEFAULT);
         
         //loadingIcon.setVisible(false);
     }
 
-    private RequestCallback setCanvasPathway(final CanvasPathway pathway) {
+    private RequestCallback setCanvasPathway(final CanvasPathway pathway, final PathwayDiagramPanel diagramPane) {
     	RequestCallback setCanvasPathway = new RequestCallback() {
 
     		public void onResponseReceived(Request request, Response response) {
@@ -449,7 +451,7 @@ public class PathwayDiagramController {
     	return setCanvasPathway;
     }
     
-    public void getDiagramPathwayId(final Long dbId) {
+    public void getDiagramPathwayId(final Long dbId, final PathwayDiagramPanel diagramPane) {
     	String url = getHostUrl() + "queryEventAncestors/" + dbId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/xml");

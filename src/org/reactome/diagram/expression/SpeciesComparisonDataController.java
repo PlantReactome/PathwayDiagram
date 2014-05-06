@@ -7,9 +7,10 @@ package org.reactome.diagram.expression;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.reactome.analysis.factory.AnalysisModelException;
-import org.reactome.analysis.factory.AnalysisModelFactory;
-import org.reactome.analysis.model.SpeciesSummary;
+import org.reactome.diagram.analysis.factory.AnalysisModelException;
+import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
+import org.reactome.diagram.analysis.model.AnalysisResult;
+import org.reactome.diagram.analysis.model.SpeciesSummary;
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.PathwayDiagramController;
 import org.reactome.diagram.model.CanvasPathway;
@@ -31,7 +32,8 @@ public class SpeciesComparisonDataController extends DataController {
 	private static Map<Long, String> speciesList = new HashMap<Long, String>();
 	private String species;
 	
-    public SpeciesComparisonDataController() {
+    public SpeciesComparisonDataController(AnalysisResult analysisResult) {
+    	super(analysisResult);
     	navigationPane = new SpeciesComparisonNavigationPane();
     }
     
@@ -72,8 +74,7 @@ public class SpeciesComparisonDataController extends DataController {
     	if (! getSpeciesList().isEmpty()) {
     		setSpecies(speciesDbId);
     	} else {
-    	
-    		final PathwayDiagramController diagramController = new PathwayDiagramController();
+    		final PathwayDiagramController diagramController = PathwayDiagramController.getInstance();
     		diagramController.getSpeciesList(new RequestCallback() {
 
     			@Override

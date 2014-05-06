@@ -1,4 +1,4 @@
-package org.reactome.analysis.factory;
+package org.reactome.diagram.analysis.factory;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
@@ -7,7 +7,8 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
-import org.reactome.analysis.model.*;
+
+import org.reactome.diagram.analysis.model.*;
 
 import java.util.LinkedList;
 import java.util.List;

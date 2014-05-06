@@ -1,4 +1,4 @@
-package org.reactome.analysis.model;
+package org.reactome.diagram.analysis.model;
 
 /**
  * @author Antonio Fabregat <fabregat@ebi.ac.uk>

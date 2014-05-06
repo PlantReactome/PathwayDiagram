@@ -8,7 +8,6 @@ import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 
 /**
  * A Renderer for drawing RNA entities. This class is ported from DefaultRNARenderer in the

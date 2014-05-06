@@ -173,7 +173,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     /**
      * In the overview, the view can be translated only. It cannot be scaled.
      * @param translateX
-     * @param transalteY
+     * @param translateY
      */
     private void fireViewChangeEvent(double translateX, double translateY) {
         setIsFromOverview(true);

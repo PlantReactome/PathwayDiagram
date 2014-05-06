@@ -142,12 +142,14 @@ public class ExpressionCanvasModel {
 		}
 		
 		public int compareTo(ExpressionInfo expressionInfoObject) {
-			if (level < expressionInfoObject.getLevel())
+			if (level == expressionInfoObject.getLevel())
+				return 0;
+			if (expressionInfoObject.getLevel() != null &&
+				(level == null || level < expressionInfoObject.getLevel()))
 				return -1;
-			else if (level > expressionInfoObject.getLevel())
-				return 1;
 			else
-				return 0;			
+				return 1;
+						
 		}
 	}
 }

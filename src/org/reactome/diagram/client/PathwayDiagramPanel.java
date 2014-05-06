@@ -10,10 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.analysis.factory.AnalysisModelException;
-import org.reactome.analysis.factory.AnalysisModelFactory;
-import org.reactome.analysis.model.AnalysisResult;
-import org.reactome.diagram.Controller;
+import org.reactome.diagram.analysis.factory.AnalysisModelException;
+import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
+import org.reactome.diagram.analysis.model.AnalysisResult;
 import org.reactome.diagram.event.HoverEvent;
 import org.reactome.diagram.event.HoverEventHandler;
 import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
@@ -122,7 +121,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         style = resources.pathwayDiagramStyle();
         style.ensureInjected();
                 
-        controller = new PathwayDiagramController(this);
+        controller = PathwayDiagramController.getInstance();
         
         // Use an AbsolutePanel so that controls can be placed onto on a canvas
         contentPane = new AbsolutePanel();
@@ -196,16 +195,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             @Override
             public void onClick(ClickEvent event) {
                 //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
+
             	String token = "MDQzMDE0MTc0OV80";
             	String resourceName = "TOTAL";
             	
             	showAnalysisData(token, resourceName);
-            	
-            	//String analysisId = "1055761580";
-            	//showAnalysisData("expression_analysis." + analysisId);
-                //showAnalysisData(GWT.getHostPageBaseURL() + "dataset.json");
-            	//showAnalysisData(GWT.getHostPageBaseURL() + "SpeciesComparison.json");
-            	//showAnalysisData(GWT.getHostPageBaseURL() + "ProteinIds.json");
             }
         });
     }
@@ -389,7 +383,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @param dbId
      */
     public void setPathway(Long dbId) {
-    	controller.loadDiagramForDBId(dbId);
+    	controller.loadDiagramForDBId(dbId, this);
     }
     
     /**
@@ -404,7 +398,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @param xml
      */
     public void setPathway(String xml, Long dbId){
-    	controller.loadDiagramForXML(xml, dbId);
+    	controller.loadDiagramForXML(xml, dbId, this);
     }
     
     /**
@@ -679,7 +673,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	initExpressionCanvas();
 	    complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	
-    	Controller analysisController = new Controller();
+    	AnalysisController analysisController = new AnalysisController();
     	analysisController.retrieveAnalysisResult(token, new RequestCallback() {
                 public void onError(Request request, Throwable exception) {
                     AlertPopup.alert("Error in retrieving expression results: " + exception);
@@ -705,7 +699,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		return;
     	}
             
-    	DataController dataController = getDataController(analysisResult.getSummary().getType());
+    	DataController dataController = getDataController(analysisResult);
             
         if (dataController == null) {
             AlertPopup.alert(analysisResult.getSummary().getType() + " is an unknown analysis type");
@@ -714,7 +708,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                       
         expressionCanvas.setAnalysisType(analysisResult.getSummary().getType());
         expressionCanvas.setDataController(dataController);
-        dataController.setAnalysisResult(analysisResult);
             
         if (dataController instanceof SpeciesComparisonDataController)
             ((SpeciesComparisonDataController) dataController).setSpecies(analysisResultText);
@@ -722,15 +715,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         setDataController(dataController);
     }
     
-    private DataController getDataController(String analysisTypeString) {
-    		final AnalysisType analysisType = AnalysisType.getAnalysisType(analysisTypeString);
+    private DataController getDataController(AnalysisResult analysisResult) {
+    		final AnalysisType analysisType = AnalysisType.getAnalysisType(analysisResult.getSummary().getType());
     		
     		if (analysisType == AnalysisType.Expression) {
-    			return new ExpressionDataController();
+    			return new ExpressionDataController(analysisResult);
     		} else if (analysisType == AnalysisType.SpeciesComparison) {
-    			return new SpeciesComparisonDataController();
+    			return new SpeciesComparisonDataController(analysisResult);
     		} else if (analysisType == AnalysisType.Overrepresentation) {
-    			return new OverrepresentationDataController();
+    			return new OverrepresentationDataController(analysisResult);
     		}
     		
     		return null;

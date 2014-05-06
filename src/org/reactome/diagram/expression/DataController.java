@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.analysis.factory.AnalysisModelException;
-import org.reactome.analysis.factory.AnalysisModelFactory;
-import org.reactome.analysis.model.AnalysisResult;
-import org.reactome.analysis.model.PathwayIdentifiers;
-import org.reactome.diagram.Controller;
+import org.reactome.diagram.analysis.factory.AnalysisModelException;
+import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
+import org.reactome.diagram.analysis.model.AnalysisResult;
+import org.reactome.diagram.analysis.model.PathwayIdentifiers;
 import org.reactome.diagram.client.AlertPopup;
+import org.reactome.diagram.client.AnalysisController;
 import org.reactome.diagram.client.PathwayDiagramController;
 import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
@@ -80,8 +80,9 @@ public abstract class DataController implements ResizeHandler {
         ImageResource close();
     }
     
-    public DataController() {
+    public DataController(AnalysisResult analysisResult) {
         pathwayOverlayMap = new HashMap<Long,PathwayOverlay>();
+        setAnalysisResult(analysisResult);
     }
     
     static Resources getDataControllerResources() {
@@ -109,7 +110,7 @@ public abstract class DataController implements ResizeHandler {
     }
     
     public void setPathwaySummary(final String token, final CanvasPathway pathway) {
-    	Controller analysisController = new Controller();  
+    	AnalysisController analysisController = new AnalysisController();  
       
     	final Long pathwayId = pathway.getReactomeId();
     	analysisController.retrievePathwaySummary(token, pathwayId, new RequestCallback() {
@@ -132,8 +133,7 @@ public abstract class DataController implements ResizeHandler {
     				}
                    	
     				if (pathway.getDbIdToRefEntity() == null || pathway.getDbIdToRefEntity().isEmpty()) {
-                   		PathwayDiagramController diagramController = new PathwayDiagramController();
-                   		diagramController.getPhysicalToReferenceEntityMap(pathway, new RequestCallback() {
+                   		PathwayDiagramController.getInstance().getPhysicalToReferenceEntityMap(pathway, new RequestCallback() {
 
 								@Override
 								public void onResponseReceived(Request request,	Response response) {
@@ -142,14 +142,13 @@ public abstract class DataController implements ResizeHandler {
 									}
 									
 								}
-
-								@Override
-								public void onError(Request request,Throwable exception) {
-									
-								}
-                   				
-                   			});
-                   		}
+							@Override
+							public void onError(Request request,Throwable exception) {
+								
+							}
+                   			
+                   		});
+                   	}
                    			
                    		//onDataPointChange(0)
     			}
