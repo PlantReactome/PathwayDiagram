@@ -12,6 +12,7 @@ import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.HTML;
@@ -50,6 +51,9 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     }
 
     protected void showTooltip() {
+    	if (showTooltipForHoveredObjectType() == false)
+    		return;
+    	
     	String text = "Expression Identifiers: " + getExpressionIdForHoveredObject();
     	
     	if (expressionCanvas.getAnalysisType() == AnalysisType.Expression)
@@ -60,6 +64,13 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     	super.showTooltip();
     }
 
+    private boolean showTooltipForHoveredObjectType() {
+    	return hoveredObject.getType() == GraphObjectType.RenderableGene ||
+    			hoveredObject.getType() == GraphObjectType.RenderableRNA ||
+    			hoveredObject.getType() == GraphObjectType.RenderableProtein ||
+    			hoveredObject.getType() == GraphObjectType.RenderableChemical;
+    }
+    
     private String getExpressionIdForHoveredObject() {
     	final ExpressionInfo expressionInfo = getExpressionInfoForHoveredObject();
     	
