@@ -103,6 +103,7 @@ public abstract class DataController implements ResizeHandler {
         
     private void setPathwayOverlay(PathwayOverlay pathwayOverlay) { 
         this.pathwayOverlay = pathwayOverlay;
+        onDataPointChange(getCurrentDataPoint());
     }
     
     public PathwayOverlay getPathwayOverlay() {
@@ -119,41 +120,52 @@ public abstract class DataController implements ResizeHandler {
     		}
                 
     		public void onResponseReceived(Request request, Response response) {
-    			if (response.getStatusCode() == Response.SC_OK) {
-    				try {
-                   		PathwayIdentifiers pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
-                   		PathwayOverlay pathwayOverlay = new PathwayOverlay(pathway, pathwayIdentifiers);
-                   		
-                   		setPathwayOverlay(pathwayOverlay);
-                   		pathwayOverlayMap.put(pathwayId, pathwayOverlay);
-    				} catch (AnalysisModelException e) {
+    			if (response.getStatusCode() != Response.SC_OK) {
+    				AlertPopup.alert("Error in retrieving pathway summary results. Response code: " + response.getStatusCode());
+    				return;
+    			}
+    			
+    			PathwayIdentifiers pathwayIdentifiers;
+    			try {
+    				pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
+    			} catch (AnalysisModelException e) {
     					e.printStackTrace();
     					AlertPopup.alert("Could not get pathway identifiers for token " + token);
     					return;
-    				}
-                   	
-    				if (pathway.getDbIdToRefEntity() == null || pathway.getDbIdToRefEntity().isEmpty()) {
-                   		PathwayDiagramController.getInstance().getPhysicalToReferenceEntityMap(pathway, new RequestCallback() {
-
-								@Override
-								public void onResponseReceived(Request request,	Response response) {
-									if (response.getStatusCode() == Response.SC_OK) {
-										pathway.setDbIdToRefEntity(response.getText());
-									}
-									
-								}
-							@Override
-							public void onError(Request request,Throwable exception) {
-								
-							}
-                   			
-                   		});
-                   	}
-                   			
-                   		//onDataPointChange(0)
     			}
+    			
+    			PathwayOverlay pathwayOverlay = new PathwayOverlay(pathway, pathwayIdentifiers);
+    			setPathwayOverlay(pathwayOverlay);
+    			pathwayOverlayMap.put(pathwayId, pathwayOverlay);
+    			
+    			addDbIdToRefEntityMapToPathway(pathway);
     		}
     	});
+    }
+    	
+    private void addDbIdToRefEntityMapToPathway(final CanvasPathway pathway) {
+    	if (pathway.getDbIdToRefEntity() == null || pathway.getDbIdToRefEntity().isEmpty()) {
+    		PathwayDiagramController.getInstance().getPhysicalToReferenceEntityMap(pathway, new RequestCallback() {
+    			private final String ERROR = "Error in retrieving db id to reference entity map. ";
+    			
+    			@Override
+    			public void onResponseReceived(Request request,	Response response) {
+                   	if (response.getStatusCode() != Response.SC_OK) {
+                   		AlertPopup.alert(ERROR + 
+                   				"Pathway id: " + pathway.getReactomeId() + " " +
+                   				"Response code: " + response.getStatusCode());
+                   		return;
+                   	}
+                   	
+                   	pathway.setDbIdToRefEntity(response.getText());
+				}
+							
+				@Override
+				public void onError(Request request,Throwable exception) {
+					AlertPopup.alert(ERROR + exception);
+				}
+			});
+    	}
     } 
     
     
@@ -245,6 +257,9 @@ public abstract class DataController implements ResizeHandler {
         fireDataPointChangeEvent(event);
     }
     
+    public Integer getCurrentDataPoint() {
+    	return 0;
+    }
 
     public abstract Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue);
     
