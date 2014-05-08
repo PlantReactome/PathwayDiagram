@@ -7,11 +7,8 @@ package org.reactome.diagram.expression;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.reactome.diagram.analysis.factory.AnalysisModelException;
-import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
+
 import org.reactome.diagram.analysis.model.AnalysisResult;
-import org.reactome.diagram.analysis.model.SpeciesSummary;
-import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.PathwayDiagramController;
 import org.reactome.diagram.model.CanvasPathway;
 
@@ -25,12 +22,13 @@ import com.google.gwt.user.client.ui.Label;
 
 /**
  * This customized GUI is used to control species comparison overlay. 
- * @author 
+ * @author weiserj 
  *
  */
 public class SpeciesComparisonDataController extends DataController {
 	private static Map<Long, String> speciesList = new HashMap<Long, String>();
-	private String species;
+	private String speciesName;
+	private Long speciesDbId;
 	
     public SpeciesComparisonDataController(AnalysisResult analysisResult) {
     	super(analysisResult);
@@ -61,18 +59,10 @@ public class SpeciesComparisonDataController extends DataController {
     	return compIdToColor;    	
     }
     
-    public void setSpecies(String analysisResultText) {
-    	final Long speciesDbId;
-    	try {
-    		SpeciesSummary speciesSummary = AnalysisModelFactory.getModelObject(SpeciesSummary.class, analysisResultText);
-    		speciesDbId = speciesSummary.getDbId();
-    	} catch (AnalysisModelException e) {
-    		AlertPopup.alert("Unable to obtain species summary: " + e);
-    		return;
-    	}
-    	
+    public void setSpecies() {
     	if (! getSpeciesList().isEmpty()) {
-    		setSpecies(speciesDbId);
+    		setSpeciesDbId(getAnalysisResult().getSummary().getSpecies());
+    		setSpeciesName();
     	} else {
     		final PathwayDiagramController diagramController = PathwayDiagramController.getInstance();
     		diagramController.getSpeciesList(new RequestCallback() {
@@ -83,8 +73,10 @@ public class SpeciesComparisonDataController extends DataController {
     					diagramController.requestFailed("Unable to retrieve species list: " + response.getStatusText());
     					return;
     				}
+    				
     				setSpeciesList(response.getText());
-    				setSpecies(speciesDbId);
+    				setSpeciesDbId(getAnalysisResult().getSummary().getSpecies());
+    				setSpeciesName();
     			}
 
     			@Override
@@ -94,16 +86,24 @@ public class SpeciesComparisonDataController extends DataController {
     		});
     	}
     }
-    	
-    private void setSpecies(Long speciesDbId) {    
-    	String species = getSpeciesList().get(speciesDbId);
-    			
-    	((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(species);
-    	this.species = species;
+    
+    private void setSpeciesDbId(Long speciesDbId) {
+    	this.speciesDbId = speciesDbId;
     }
     
-    public String getSpecies() {
-		return species;    	
+    private Long getSpeciesDbId() {
+    	return speciesDbId;
+    }
+    
+    private void setSpeciesName() {    
+    	String species = getSpeciesList().get(getSpeciesDbId());
+    	
+    	((SpeciesComparisonNavigationPane) navigationPane).getDataLabel().setText(species);
+    	this.speciesName = species;
+    }
+    
+    public String getSpeciesName() {
+		return speciesName;
     }
     
     private void setSpeciesList(String speciesJSON) {
@@ -113,7 +113,7 @@ public class SpeciesComparisonDataController extends DataController {
     	for (int index = 0; index < speciesArray.size(); index++) {
     		JSONObject speciesObject = speciesArray.get(index).isObject();
     		
-    		Long dbId = Long.parseLong(speciesObject.get("dbId").isString().stringValue()); 
+    		Long dbId = Long.parseLong(speciesObject.get("dbId").isNumber().toString()); 
     		String speciesName = speciesObject.get("displayName").isString().stringValue();
     		
     		speciesList.put(dbId, speciesName);

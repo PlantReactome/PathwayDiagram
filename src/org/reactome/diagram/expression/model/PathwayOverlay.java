@@ -70,10 +70,17 @@ public class PathwayOverlay {
     		}
     		
     		
-    		dbIdToExpressionValue.put(refEntity.getDbId(), component.getValues().get(dataIndex));
+    		dbIdToExpressionValue.put(refEntity.getDbId(), getExpressionValueAtDataPoint(component, dataIndex));
     	}
     	
     	return dbIdToExpressionValue;
+    }
+    
+    private Double getExpressionValueAtDataPoint(PathwayComponentExpressionValue component, int dataIndex) {
+    	if (component.getValues().size() <= dataIndex)
+    		return null;
+    	
+    	return component.getValues().get(dataIndex);
     }
     
     private ReferenceEntity getReferenceEntity(Long dbId) {

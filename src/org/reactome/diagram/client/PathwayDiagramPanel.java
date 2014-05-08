@@ -194,9 +194,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onClick(ClickEvent event) {
-                //System.out.println("URL: " + GWT.getHostPageBaseURL() + "expression_analysis.123456");
-
-            	String token = "MDQzMDE0MTc0OV80";
+                //String token = "MDQzMDE0MTc0OV80"; // Example expression data
+            	//String token = "MDUwODEwMzAwNF8xMA%3D%3D"; // Species comparison
+            	String token = "MDUwODA3NTgyOF80"; // Example UniProt over representation
             	String resourceName = "TOTAL";
             	
             	showAnalysisData(token, resourceName);
@@ -710,7 +710,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         expressionCanvas.setDataController(dataController);
             
         if (dataController instanceof SpeciesComparisonDataController)
-            ((SpeciesComparisonDataController) dataController).setSpecies(analysisResultText);
+            ((SpeciesComparisonDataController) dataController).setSpecies();
             
         setDataController(dataController);
     }
