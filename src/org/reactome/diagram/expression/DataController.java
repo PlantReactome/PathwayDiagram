@@ -196,11 +196,17 @@ public abstract class DataController implements ResizeHandler {
                                navPaneHeight + "px");
         int x = (width - navPaneWidth) / 2;
         int y = height - navPaneHeight;
-        container.add(navigationPane, x, y);
-      
+        
+        if (container.getWidgetIndex(navigationPane) == -1)
+        	container.add(navigationPane, x, y);
+        else
+        	container.setWidgetPosition(navigationPane, x, y);
+        
         offsetWidth = container.getOffsetWidth() - width;
         offsetHeight = container.getOffsetHeight() - height;
-        handlerRegistration = this.container.addHandler(this, ResizeEvent.getType());
+        
+        if (handlerRegistration == null)
+        	handlerRegistration = this.container.addHandler(this, ResizeEvent.getType());
     }
     
     @Override

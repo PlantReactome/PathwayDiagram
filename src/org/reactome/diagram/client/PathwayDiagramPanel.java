@@ -178,7 +178,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         //popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        //addTestCode();
+        addTestCode();
     }
     
     public List<DiagramCanvas> getCanvasList() {
@@ -361,6 +361,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         clearInteractorOverlay();
         	
         if (overlayDataController != null && pathway != null) {
+        	overlayDataController.display(contentPane,
+        									expressionCanvas.getCoordinateSpaceWidth(),
+        									expressionCanvas.getCoordinateSpaceWidth());
         	overlayDataController.setPathway(pathway);
         }
         
