@@ -40,32 +40,33 @@ public class PathwayOverlay {
     	return pathway;
     }
     
-    public Map<Long, List<String>> getDbIdToExpressionId() {
+    public Map<Long, List<String>> getDbIdToExpressionId(String resourceName) {
     	Map<Long, List<String>> dbIdToExpressionId = new HashMap<Long, List<String>>();
     	
     	for (Long dbId : getPathway().getDbIdToRefEntity().keySet()) {
     		
     		ReferenceEntity refEntity = getReferenceEntity(dbId);
-    		if (refEntity == null)
+    		if (refEntity == null || selectedResourceExcludesReferenceEntity(resourceName, refEntity))
     			continue;
     		
-    		List<String> expressionIds = componentReferenceIdToExpressionId.get(refEntity.getReferenceIdentifier());
-    		dbIdToExpressionId.put(refEntity.getDbId(), expressionIds);
+    		dbIdToExpressionId.put(refEntity.getDbId(), getExpressionIds(refEntity));
     	}
     	
     	return dbIdToExpressionId;
     }
     
-    public Map<Long, Double> getExpressionValuesForDataPoint(int dataIndex) {
+    public Map<Long, Double> getExpressionValuesForDataPoint(int dataIndex, String resourceName) {
     	Map<Long, Double> dbIdToExpressionValue = new HashMap<Long, Double>();
 
     	for (Long dbId : getPathway().getDbIdToRefEntity().keySet()) {
     		ReferenceEntity refEntity = getReferenceEntity(dbId);
-    		if (refEntity == null || componentReferenceIdToExpressionId.get(refEntity.getReferenceIdentifier()) == null)
+    		if (refEntity == null || 
+    			selectedResourceExcludesReferenceEntity(resourceName, refEntity) || 
+    			getExpressionIds(refEntity) == null)
     			continue;
     			
     		PathwayComponentExpressionValue component = new PathwayComponentExpressionValue();
-    		for (String expressionId : componentReferenceIdToExpressionId.get(refEntity.getReferenceIdentifier())) {
+    		for (String expressionId : getExpressionIds(refEntity)) {
     			component.addExpressionValues(expressionId, expressionIdToValue.get(expressionId));
     		}
     		
@@ -74,6 +75,17 @@ public class PathwayOverlay {
     	}
     	
     	return dbIdToExpressionValue;
+    }
+    
+    private boolean selectedResourceExcludesReferenceEntity(String resourceName, ReferenceEntity refEntity) {
+    	if (resourceName.equalsIgnoreCase("TOTAL"))
+    		return false;
+    	
+    	return !resourceName.equals(refEntity.getResource());
+    }
+    
+    private List<String> getExpressionIds(ReferenceEntity refEntity) {
+		return componentReferenceIdToExpressionId.get(refEntity.getReferenceIdentifier());
     }
     
     private Double getExpressionValueAtDataPoint(PathwayComponentExpressionValue component, int dataIndex) {

@@ -66,9 +66,11 @@ public abstract class DataController implements ResizeHandler {
     // For fetching icons
     private static Resources resources;
     // Data models handled by this controller
+    
     protected Map<Long, PathwayOverlay> pathwayOverlayMap;
     protected PathwayOverlay pathwayOverlay; // Displayed pathway
     private AnalysisResult analysisResult;
+    private String resourceName;
     
     /**
      * Some icons
@@ -91,10 +93,19 @@ public abstract class DataController implements ResizeHandler {
         return resources;
     }
 
-    public void setPathway(String token, CanvasPathway pathway) {
+    public void setResourceName(String resourceName) {
+    	this.resourceName = resourceName;
+    	onDataPointChange(getCurrentDataPoint());
+    }
+    
+    public String getResourceName() {
+    	return resourceName;
+    }
+    
+    public void setPathway(CanvasPathway pathway) {
         PathwayOverlay selectedPathwayOverlay = this.pathwayOverlayMap.get(pathway.getReactomeId());
     	if (selectedPathwayOverlay == null) {
-        	setPathwaySummary(token, pathway);
+        	setPathwaySummary(pathway);
         } else {
         	setPathwayOverlay(selectedPathwayOverlay);
         }
@@ -110,17 +121,17 @@ public abstract class DataController implements ResizeHandler {
         return this.pathwayOverlay;
     }
     
-    public void setPathwaySummary(final String token, final CanvasPathway pathway) {
+    public void setPathwaySummary(final CanvasPathway pathway) {
     	AnalysisController analysisController = new AnalysisController();  
       
     	final Long pathwayId = pathway.getReactomeId();
-    	analysisController.retrievePathwaySummary(token, pathwayId, new RequestCallback() {
+    	analysisController.retrievePathwaySummary(getToken(), pathwayId, new RequestCallback() {
     		public void onError(Request request, Throwable exception) {
                 AlertPopup.alert("Error in retrieving pathway summary results: " + exception);
     		}
                 
     		public void onResponseReceived(Request request, Response response) {
-    			if (response.getStatusCode() != Response.SC_OK) {
+    			if (response.getStatusCode() != Response.SC_OK && response.getStatusCode() != Response.SC_NOT_FOUND) {
     				AlertPopup.alert("Error in retrieving pathway summary results. Response code: " + response.getStatusCode());
     				return;
     			}
@@ -130,20 +141,16 @@ public abstract class DataController implements ResizeHandler {
     				pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
     			} catch (AnalysisModelException e) {
     					e.printStackTrace();
-    					AlertPopup.alert("Could not get pathway identifiers for token " + token);
+    					AlertPopup.alert("Could not get pathway identifiers for token " + getToken());
     					return;
     			}
-    			
     			PathwayOverlay pathwayOverlay = new PathwayOverlay(pathway, pathwayIdentifiers);
-    			setPathwayOverlay(pathwayOverlay);
-    			pathwayOverlayMap.put(pathwayId, pathwayOverlay);
-    			
-    			addDbIdToRefEntityMapToPathway(pathway);
+    			addDbIdToRefEntityMapToPathway(pathway, pathwayOverlay);
     		}
     	});
     }
     	
-    private void addDbIdToRefEntityMapToPathway(final CanvasPathway pathway) {
+    private void addDbIdToRefEntityMapToPathway(final CanvasPathway pathway, final PathwayOverlay pathwayOverlay) {
     	if (pathway.getDbIdToRefEntity() == null || pathway.getDbIdToRefEntity().isEmpty()) {
     		PathwayDiagramController.getInstance().getPhysicalToReferenceEntityMap(pathway, new RequestCallback() {
     			private final String ERROR = "Error in retrieving db id to reference entity map. ";
@@ -158,6 +165,8 @@ public abstract class DataController implements ResizeHandler {
                    	}
                    	
                    	pathway.setDbIdToRefEntity(response.getText());
+                   	pathwayOverlayMap.put(pathway.getReactomeId(), pathwayOverlay);
+                   	setPathwayOverlay(pathwayOverlay);
 				}
 							
 				@Override
@@ -165,10 +174,14 @@ public abstract class DataController implements ResizeHandler {
 					AlertPopup.alert(ERROR + exception);
 				}
 			});
+    	} else {
+    		setPathwayOverlay(pathwayOverlay);
     	}
     } 
     
-    
+    public String getToken() {
+    	return analysisResult.getSummary().getToken();
+    }
     
     /**
      * Display this component in the specified composite.
@@ -235,7 +248,8 @@ public abstract class DataController implements ResizeHandler {
     
     protected void onDataPointChange(Integer dataIndex) {
         PathwayOverlay currentPathwayOverlay = getPathwayOverlay();
-    	if (currentPathwayOverlay == null)
+        
+    	if (currentPathwayOverlay == null || resourceName == null)
             return; // Nothing to do. No pathway has been displayed.
         
         Map<Long, Double> compIdToValue = null;
@@ -243,9 +257,9 @@ public abstract class DataController implements ResizeHandler {
         Map<Long, List<String>> compIdToExpressionId = null;
         
        // if (pathwayIdentifiersMap.get(pathwayId) != null) {
-        	compIdToValue = currentPathwayOverlay.getExpressionValuesForDataPoint(dataIndex);
+        	compIdToValue = currentPathwayOverlay.getExpressionValuesForDataPoint(dataIndex, resourceName);
         	compIdToColor = convertValueToColor(compIdToValue);
-        	compIdToExpressionId = currentPathwayOverlay.getDbIdToExpressionId();
+        	compIdToExpressionId = currentPathwayOverlay.getDbIdToExpressionId(resourceName);
         //}        
         
         DataPointChangeEvent event = new DataPointChangeEvent();

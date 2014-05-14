@@ -36,8 +36,8 @@ public class SpeciesComparisonDataController extends DataController {
     }
     
     @Override
-    public void setPathway(String token, CanvasPathway pathway) {
-   		super.setPathway(token, pathway);
+    public void setPathway(CanvasPathway pathway) {
+   		super.setPathway(pathway);
         
    		if (pathway != null) {
         	onDataPointChange(0);

@@ -72,8 +72,6 @@ import com.google.gwt.user.client.ui.RequiresResize;
 public class PathwayDiagramPanel extends Composite implements ContextMenuHandler, RequiresResize {    // Use an AbsolutePanel so that controls can be placed onto on a canvas
     protected AbsolutePanel contentPane;
     
-    private AnalysisResult analysisResult;
-    
     private List<DiagramCanvas> canvasList;
     // Pathway diagram should be drawn here
     private PathwayCanvas pathwayCanvas;
@@ -180,7 +178,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         //popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        addTestCode();
+        //addTestCode();
     }
     
     public List<DiagramCanvas> getCanvasList() {
@@ -194,9 +192,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             
             @Override
             public void onClick(ClickEvent event) {
-                //String token = "MDQzMDE0MTc0OV80"; // Example expression data
+                String token = "MDQzMDE0MTc0OV80"; // Example expression data
             	//String token = "MDUwODEwMzAwNF8xMA%3D%3D"; // Species comparison
-            	String token = "MDUwODA3NTgyOF80"; // Example UniProt over representation
+            	//String token = "MDUwODA3NTgyOF80"; // Example UniProt over representation
             	String resourceName = "TOTAL";
             	
             	showAnalysisData(token, resourceName);
@@ -360,13 +358,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         pathwayCanvas.setPathway(pathway);    
         pathwayCanvas.update();        
  
-        if (interactorCanvas != null)
-        	interactorCanvas.removeAllProteins();
+        clearInteractorOverlay();
         	
-        if (overlayDataController != null) {
-        	overlayDataController.setPathway(analysisResult.getSummary().getToken(),
-        										pathway);
-        	//expressionCanvas.setPathway(pathway);
+        if (overlayDataController != null && pathway != null) {
+        	overlayDataController.setPathway(pathway);
         }
         
        	PathwayChangeEvent event = new PathwayChangeEvent();
@@ -390,7 +385,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * Call this method to remove all displayed objects in this component.
      */
     public void removeAll() {
-        setCanvasPathway(null);
+    	overview.setPathway(null);
+        pathwayCanvas.setPathway(null);
+        pathwayCanvas.update();
+        clearOverlays();
     }
     
     /**
@@ -645,10 +643,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void clearOverlays() {    	
     	clearInteractorOverlay();
-    	
-    	if (overlayDataController != null)
-    		overlayDataController.dispose();
-    		
     	clearExpressionOverlay();
     }
     
@@ -669,7 +663,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return this.style;
     }
     
-    public void showAnalysisData(String token, String resourceName) {
+    public void showAnalysisData(String token, final String resourceName) {
+    	if (sameAsCurrentToken(token)) {
+    		setResource(resourceName);
+    		return;
+    	}
+    	
     	initExpressionCanvas();
 	    complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	
@@ -685,12 +684,29 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                     	return;
                     }
                     
+                    clearExpressionOverlay();
                     createDataController(response.getText());
+                    setResource(resourceName);
                 }
         });
     }
 
+    public void setResource(String resourceName) {
+    	if (overlayDataController == null)
+    		return;
+    	
+    	overlayDataController.setResourceName(resourceName);
+    }
+    
+    private boolean sameAsCurrentToken(String newToken) {
+    	if (overlayDataController == null)
+    		return false;
+    	
+    	return overlayDataController.getToken().equals(newToken);
+    }
+    
     private void createDataController(String analysisResultText) {
+    	AnalysisResult analysisResult;
     	try {
     		analysisResult = AnalysisModelFactory.getModelObject(AnalysisResult.class, analysisResultText);
     	} catch (AnalysisModelException e) {
@@ -759,8 +775,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 			}
     		
     	};
-    	
-    	//overlayDataController.setPathwayId(getPathway().getReactomeId());    	
+       	
     	overlayDataController.addDataPointChangeEventHandler(dpChangeHandler);
     	overlayDataController.addExpressionOverlayStopEventHandler(exprOverlayStopHandler);    	
     	overlayDataController.setNavigationPaneStyle(style.dataPointControl());
@@ -772,10 +787,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     			expressionCanvas.getCoordinateSpaceWidth(), 
     			expressionCanvas.getCoordinateSpaceHeight());
     	
-    	
-    	overlayDataController.setPathway(analysisResult.getSummary().getToken(),
-    			getPathway());
-    	//expressionCanvas.setPathway(getPathway());
+    	if (getPathway() != null)
+    		overlayDataController.setPathway(getPathway());
     }
     
     private void clearInteractorOverlay() {
@@ -784,8 +797,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     private void clearExpressionOverlay() {
-    	overlayDataController = null;
-    	complexComponentPopup = null;
+    	if (overlayDataController != null) {
+    		overlayDataController.dispose();
+    		overlayDataController = null;
+    	}
+    	
     	if (expressionCanvas != null )	
     		expressionCanvas.setPathway(null);
     }

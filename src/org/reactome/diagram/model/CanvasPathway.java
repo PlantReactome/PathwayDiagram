@@ -16,6 +16,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -637,11 +638,22 @@ public class CanvasPathway extends Node {
     		return schemaClass;
     	}
     	
+    	public String getResource() {
+    		if (getReferenceIdentifier() == null)
+    			return null;
+    		
+    		return getReferenceIdentifier().split(":")[0];
+    	}
+    	
     	public String getReferenceIdentifier() {
     		if (getName() == null)
     			return null;
     		
-    		return getName().split(" ")[0].toUpperCase();
+    		RegExp referenceIdentifierPattern = RegExp.compile("\\w+:\\w+");
+    		
+    		return referenceIdentifierPattern.test(getName()) ?
+    				referenceIdentifierPattern.exec(getName()).getGroup(0).toUpperCase() :
+    				null;
     	}
     	
     	public String toString() {

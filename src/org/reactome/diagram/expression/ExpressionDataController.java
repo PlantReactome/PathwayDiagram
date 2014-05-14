@@ -78,8 +78,8 @@ public class ExpressionDataController extends DataController implements ResizeHa
     }
     
     @Override
-    public void setPathway(String token, CanvasPathway pathway) {
-        super.setPathway(token, pathway);
+    public void setPathway(CanvasPathway pathway) {
+        super.setPathway(pathway);
         onDataPointChange(((NavigationPane) navigationPane).getValue());
     }
     

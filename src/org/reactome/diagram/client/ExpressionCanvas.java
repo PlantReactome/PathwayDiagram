@@ -349,16 +349,30 @@ public class ExpressionCanvas extends DiagramCanvas {
 	
 	private List<Long> getRefIds(String referenceEntityJSON) {
 		List<Long> refIds = new ArrayList<Long>();
-		refIds.addAll(getRefIdsForPathwayGenes(referenceEntityJSON));
-		refIds.addAll(getRefIdsForPathwaySmallMolecules(referenceEntityJSON));
+		refIds.addAll(getRefIdsForPathwayProteins(referenceEntityJSON));
+		
+		if (getAnalysisType() != AnalysisType.SpeciesComparison) {
+			refIds.addAll(getRefIdsForPathwayRNAs(referenceEntityJSON));
+			refIds.addAll(getRefIdsForPathwayGenes(referenceEntityJSON));
+			refIds.addAll(getRefIdsForPathwaySmallMolecules(referenceEntityJSON));
+		}
 		
 		return refIds;
 		
 	}
 	
-	private List<Long> getRefIdsForPathwayGenes(String referenceEntityJSON) {
+	private List<Long> getRefIdsForPathwayProteins(String referenceEntityJSON) {
 		return getRefIdsForPathwayForSchemaClass(referenceEntityJSON, Arrays.asList("ReferenceGeneProduct", "ReferenceIsoform"));
 	}
+	
+	private List<Long> getRefIdsForPathwayRNAs(String referenceEntityJSON) {
+		return getRefIdsForPathwayForSchemaClass(referenceEntityJSON, Arrays.asList("ReferenceRNASequence"));
+	}
+	
+	private List<Long> getRefIdsForPathwayGenes(String referenceEntityJSON) {
+		return getRefIdsForPathwayForSchemaClass(referenceEntityJSON, Arrays.asList("ReferenceDNASequence"));
+	}
+	
 	
 	private List<Long> getRefIdsForPathwaySmallMolecules(String referenceEntityJSON) {
 		return getRefIdsForPathwayForSchemaClass(referenceEntityJSON, Arrays.asList("ReferenceMolecule"));
@@ -416,7 +430,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 												  pathwayEntity.getReactomeId(),
 												  new RequestCallback() {
 			public void onResponseReceived(Request request, Response response) {
-				if (response.getStatusCode() != Response.SC_OK) {
+				if (response.getStatusCode() != Response.SC_OK && response.getStatusCode() != Response.SC_NOT_FOUND) {
 					abortCallback("Unable to retrieve pathway summary for " + pathwayEntity.getDisplayName());
 					return;
 				}
@@ -602,7 +616,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     		HashMap<Long, ExpressionInfo> pathwayExpressionComponents = new HashMap<Long, ExpressionInfo>();
     		
     		PathwayOverlay pathwayExpression = new PathwayOverlay(getPathway(),getPathwayIdentifiers());
-    		for (Long pathwayComponentId : pathwayExpression.getDbIdToExpressionId().keySet())
+    		for (Long pathwayComponentId : pathwayExpression.getDbIdToExpressionId(dataController.getResourceName()).keySet())
     			pathwayExpressionComponents.put(pathwayComponentId, 
     					getExpressionInfo(pathwayComponentId, pathwayExpression, dataPointIndex));
     		
@@ -610,8 +624,8 @@ public class ExpressionCanvas extends DiagramCanvas {
     	}
     	
     	private ExpressionInfo getExpressionInfo(Long pathwayComponentId, PathwayOverlay pathwayExpression, int dataPointIndex) {
-    		Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdToExpressionId();
-    		Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValuesForDataPoint(dataPointIndex);
+    		Map<Long, List<String>> expressionIds = pathwayExpression.getDbIdToExpressionId(dataController.getResourceName());
+    		Map<Long, Double> expressionLevels = pathwayExpression.getExpressionValuesForDataPoint(dataPointIndex, dataController.getResourceName());
     		Map<Long, String> expressionColors = dataController.convertValueToColor(expressionLevels);
     		
     		return expressionCanvasModel.new ExpressionInfo(expressionIds.get(pathwayComponentId),
