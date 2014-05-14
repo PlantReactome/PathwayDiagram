@@ -141,7 +141,7 @@ public abstract class DataController implements ResizeHandler {
     				pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
     			} catch (AnalysisModelException e) {
     					e.printStackTrace();
-    					AlertPopup.alert("Could not get pathway identifiers for token " + getToken());
+    					//AlertPopup.alert("Could not get pathway identifiers for token " + getToken());
     					return;
     			}
     			PathwayOverlay pathwayOverlay = new PathwayOverlay(pathway, pathwayIdentifiers);

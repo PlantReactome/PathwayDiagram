@@ -431,7 +431,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 												  new RequestCallback() {
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() != Response.SC_OK && response.getStatusCode() != Response.SC_NOT_FOUND) {
-					abortCallback("Unable to retrieve pathway summary for " + pathwayEntity.getDisplayName());
+					expressionPathway.decrementCallbacksInProgress();
+					//abortCallback("Unable to retrieve pathway summary for " + pathwayEntity.getDisplayName());
 					return;
 				}
 				
@@ -439,7 +440,8 @@ public class ExpressionCanvas extends DiagramCanvas {
 				try {
 					pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
 				} catch (AnalysisModelException ex) {
-					abortCallback("Unable to retrieve pathway identifiers for " + pathwayEntity.getDisplayName() + ": " + ex);
+					expressionPathway.decrementCallbacksInProgress();					
+					//abortCallback("Unable to retrieve pathway identifiers for " + pathwayEntity.getDisplayName() + ": " + ex);
 					return;
 				}
 				
