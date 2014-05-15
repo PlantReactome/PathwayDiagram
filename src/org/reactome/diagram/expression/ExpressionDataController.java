@@ -43,11 +43,7 @@ public class ExpressionDataController extends DataController implements ResizeHa
     private ColorSpectrumPane colorPane;
     private int colorPaneWidth = 36;
     private int colorPaneHeight = 325;
-    // Container holding the above two controls
-    private AbsolutePanel container;
-    // Offset between container and the actual size
-    private int offsetWidth;
-    private int offsetHeight;
+
     // For fetching icons
     private static Resources resources;
     
@@ -90,24 +86,19 @@ public class ExpressionDataController extends DataController implements ResizeHa
     public void display(AbsolutePanel container,
                         int width,
                         int height) {
-        this.container = container;
-        // Set up position for the navigation pane
-        navigationPane.setSize(navPaneWidth + "px",
-                               navPaneHeight + "px");
-        int x = (width - navPaneWidth) / 2;
-        int y = height - navPaneHeight;
-        container.add(navigationPane, x, y);
+    	super.display(container, width, height);
+   
         
         // Set up position for the color panel
         colorPane.setSize(colorPaneWidth + "px",
                           colorPaneHeight + "px");
-        x = (width - colorPaneWidth - 10); // Some extra space
-        y = 50; 
-        container.add(colorPane, x, y);
+        int x = (width - colorPaneWidth - 10); // Some extra space
+        int y = 50;
         
-        offsetWidth = container.getOffsetWidth() - width;
-        offsetHeight = container.getOffsetHeight() - height;
-        handlerRegistration = this.container.addHandler(this, ResizeEvent.getType());
+        if (container.getWidgetIndex(colorPane) == -1)
+        	container.add(colorPane, x, y);
+        else
+        	container.setWidgetPosition(colorPane, x, y);
     }
     
     @Override
@@ -167,10 +158,6 @@ public class ExpressionDataController extends DataController implements ResizeHa
     
     public Integer getCurrentDataPoint() {
     	return ((NavigationPane) navigationPane).getValue();
-    }
-    
-    public void setNavigationPaneStyle(String style) {
-        navigationPane.setStyleName(style);
     }
     
     public void setColorPaneStyle(String style) {
