@@ -235,8 +235,9 @@ public class PathwayTreeBrowser {
             else if (name.equals("displayName"))
                 re.name = node.getFirstChild().getNodeValue();
         }
-        TreeItem treeItem = new TreeItem(re.name);
-        treeItem.addItem(""); // Add a place holder so that this item can be opened.
+        TreeItem treeItem = new TreeItem();
+        treeItem.setText(re.name);
+        treeItem.addTextItem(""); // Add a place holder so that this item can be opened.
         treeItem.setUserObject(re);
         return treeItem;
     }
