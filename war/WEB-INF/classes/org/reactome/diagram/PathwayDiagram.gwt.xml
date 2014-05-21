@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='reactomebrowser'>
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+    <inherits name ="com.google.gwt.xml.XML"/>
+
+  <!-- Inherit the default GWT style sheet.  You can change       -->
+  <!-- the theme of your GWT application by uncommenting          -->
+  <!-- any one of the following lines.                            -->
+  <inherits name='com.google.gwt.user.theme.clean.Clean'/>
+  <!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+  <!-- Other module inherits                                      -->
+    <inherits name="com.mogaleaf.SimpleColorPicker"/>
+    <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+
+    <!-- Scripts needed to the genomespace integration -->
+    <script src="https://gsui.genomespace.org/jsui/js/jquery-1.7.2.min.js"/>
+    <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js"/>
+
+    <!-- Specify the paths for translatable code                    -->
+  <source path='analysis/factory'/>
+  <source path='analysis/model'/>
+  <source path='client'/>
+  <source path='shared'/>
+  <source path='test'/>
+  <source path='model' />
+  <source path='view' />
+  <source path='event' />
+  <source path='expression' />
+  <source path='expression/event' />
+  <source path='expression/model' />
+</module>

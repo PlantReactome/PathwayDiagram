@@ -1,0 +1,67 @@
+/**
+ * CSS used by PathwayDiagram related widgets.
+ */
+ 
+.mainCanvas{
+  border: 1px solid #000;
+  position:absolute;
+  z-index:1;
+}
+
+.greyOutCanvas {  	
+  background-color: rgba(136,136,136,0.2);
+}
+
+.controlPane {   
+ }
+
+.overViewCanvas{
+  border: 1px solid #CCC;
+  background-color:#FFF;
+  position: absolute; 
+/*   z-index: 2;  */
+/*   box-shadow:rgba(0,0,0,0.5) 0px 0px 24px;  */
+/*   border-radius:12px;  */
+}
+
+.canvasPopup {
+	border: 1px solid #000;
+	background-color: #FFF;
+	position: absolute;
+	z-index: 2;
+}
+
+.subMenu {
+	border: 1px solid #000;
+	position: absolute; 
+	background-color: #FFF;
+	z-index: 2;
+	left: -1px;
+	top: -1px;
+	white-space: nowrap;	
+}
+
+.searchPopup {
+	background-color:rgba(255, 255, 255, 1);
+	z-index: 2;
+}
+
+.tooltip {
+	background-color:rgba(220,220,220,1);
+}
+
+.dataPointControl {
+	/* Orange */
+	background-color: rgba(255, 127, 0, 1);
+/* 	background-color: #806389; */
+}
+
+.colorBar {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.expressionComplexPopup {
+	border: 2px solid #000;
+	background-color: rgba(230, 230, 250, 1);
+	z-index: 2;
+}

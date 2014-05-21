@@ -1,0 +1,7 @@
+/**
+ * CSS used by PathwayDiagram Dialog Boxes.
+ */
+ 
+.gwt-DialogBox {
+  cursor: pointer;  
+}
