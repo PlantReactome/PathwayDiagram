@@ -130,7 +130,7 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 
 			setWidget(infoIconContainer);
 			
-			WidgetStyle.bringToFront(this);
+			WidgetStyle.setZIndex(this, 2);
 			WidgetStyle.removeBorder(this);
 			WidgetStyle.setTransparentBackground(this);
 			

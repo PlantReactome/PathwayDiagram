@@ -16,9 +16,12 @@ import com.google.gwt.user.client.ui.Widget;
  *
  */
 public class WidgetStyle {
-    
-    public static void bringToFront(Widget widget) {
-    	getStyle(widget).setZIndex(2);
+	public static int getZIndex(Widget widget) {
+		 return Integer.parseInt(getStyle(widget).getZIndex());
+	}
+	
+	public static void setZIndex(Widget widget, int zIndex) {
+    	getStyle(widget).setZIndex(zIndex);
     }
     
     public static void removeBorder(Widget widget) {

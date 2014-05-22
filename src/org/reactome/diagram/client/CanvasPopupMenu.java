@@ -41,7 +41,7 @@ public class CanvasPopupMenu extends PopupPanel {
     }
     
     private void init() {
-        menuBar = new NodeOptionsMenuBar(diagramPane);    
+        menuBar = new NodeOptionsMenuBar(diagramPane);
         setWidget(menuBar.getMenuBar());
     }
     
@@ -77,7 +77,7 @@ public class CanvasPopupMenu extends PopupPanel {
         
         menuBar.createMenu(entity);
                 
-        WidgetStyle.bringToFront(this);
+        WidgetStyle.setZIndex(this, 2);
         
         Timer showMenuWhenReady = new Timer() {
         	@Override

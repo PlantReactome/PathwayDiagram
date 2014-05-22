@@ -92,7 +92,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		setText("Interaction Overlay Options");
 		initPanelWidgets();
 		setWidget(optionsPanel());
-		bringToFront(this);
+		WidgetStyle.setZIndex(this, 2);
 	}
 	
 	private void initPanelWidgets() {
@@ -120,10 +120,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		return container;
 	}
 		
-	private void bringToFront(Widget widget) {
-		widget.getElement().getStyle().setZIndex(20);
-	}
-		
+	
 	private Button getClosePopupButton() {
 		Button closeButton = new Button("Close", new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -331,7 +328,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 					form.setWidget(uploadFileTableLayout);
 				
 					uploadFileDialogBox.setWidget(form);
-					uploadFileDialogBox.getElement().getStyle().setZIndex(2);
+					WidgetStyle.setZIndex(uploadFileDialogBox, WidgetStyle.getZIndex(InteractionOverlayOptionsPopup.this) + 1);
 					uploadFileDialogBox.center();
 				}
 				
@@ -377,6 +374,8 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				
 					return errors;					
 				}				
+			
+				
 			});					
 		}
 
@@ -551,7 +550,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 				public void onClick(ClickEvent event) {
 					SimpleColorPicker palette = new SimpleColorPicker();
 					palette.addListner(colorHandler);					
-					bringToFront(palette);
+					WidgetStyle.setZIndex(palette, WidgetStyle.getZIndex(InteractionOverlayOptionsPopup.this) + 1);
 					setPopupPositionAndShow(paletteColor, palette);
 					setCursor(Style.Cursor.DEFAULT);
 				}				
