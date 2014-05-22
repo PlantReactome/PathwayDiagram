@@ -146,7 +146,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			expressionPathway = new ExpressionPathway(pathway, getDataPointIndexFromDataController());
     			for (GraphObject entity : getObjectsForRendering()) {
     				if (entity.getType() == GraphObjectType.ProcessNode) {
-    					diagramPane.getController().getReferenceEntity(entity.getReactomeId(), getEntityInfoForProcessNodeAndColor(entity));
+    					PathwayDiagramController.getInstance().getReferenceEntity(entity.getReactomeId(), getEntityInfoForProcessNodeAndColor(entity));
     				}
     			}
     	}
@@ -155,7 +155,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     private void getComplexNodeComponentDataBeforeRendering() {
     	for (GraphObject entity : getObjectsForRendering()) {
     		if (isComplexWithoutComponentData(entity)) {
-    			diagramPane.getController().getParticipatingMolecules(entity.getReactomeId(), 
+    			PathwayDiagramController.getInstance().getParticipatingMolecules(entity.getReactomeId(), 
     																  ((ComplexNode) entity).setParticipatingMolecules());
     		}
     	}

@@ -99,8 +99,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		interactionDBOptions = new InteractionDBOptions();
 		interactorColorOptions = new InteractorColorOptions();
 		pathwayInteractorsPanel = new PathwayInteractorsPanel(interactorCanvasModel.getInteractorDatabase(),
-															  diagramPane.getPathway(),
-															  diagramPane.getController());
+															  diagramPane.getPathway());
 	}
 	
 	private VerticalPanel optionsPanel() {		
@@ -253,7 +252,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 					FlexTable uploadFileTableLayout = new FlexTable();
 				
 					form = new FormPanel();
-					form.setAction(diagramPane.getController().getHostUrl() + "uploadInteractionFile");
+					form.setAction(PathwayDiagramController.getInstance().getHostUrl() + "uploadInteractionFile");
 					form.setEncoding(FormPanel.ENCODING_MULTIPART);
 					form.setMethod(FormPanel.METHOD_POST);
 				
@@ -636,12 +635,11 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		private PathwayInteractorsTable pathwayInteractorsTable;
 		private PathwayInteractorsTableToggle toggleTableButton;
 		
-		public PathwayInteractorsPanel(String interactorDatabase, CanvasPathway pathway, PathwayDiagramController controller) {			
+		public PathwayInteractorsPanel(String interactorDatabase, CanvasPathway pathway) {			
 			final Integer VISIBLE_ROWS = 7;
 			
 			this.pathwayInteractorsTable = new PathwayInteractorsTable(interactorDatabase, 
 																	   pathway,
-																	   controller,
 																	   VISIBLE_ROWS);
 			this.toggleTableButton = new PathwayInteractorsTableToggle(pathwayInteractorsTable);
 			
@@ -658,7 +656,6 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 		private class PathwayInteractorsTable extends ScrollPanel {
 			private String interactorDatabase;
 			private CanvasPathway pathway;
-			private PathwayDiagramController controller;
 			
 			private FlexTable table;
 			private Boolean tableDisplaying;
@@ -667,12 +664,10 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			
 			public PathwayInteractorsTable(String interactorDatabase,
 										   CanvasPathway pathway,
-										   PathwayDiagramController controller,
 										   Integer visibleRows) {
 				this.interactorDatabase = interactorDatabase;
 				this.pathway = pathway;
-				this.controller = controller;
-								
+				
 				table = new FlexTable();
 				
 				rowsInView = visibleRows;
@@ -701,7 +696,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 			}
 		
 			public void createTable() {
-				controller.getPhysicalToReferenceEntityMap(pathway, setIdMapAndGetPathwayInteractors(interactorDatabase));
+				PathwayDiagramController.getInstance().getPhysicalToReferenceEntityMap(pathway, setIdMapAndGetPathwayInteractors(interactorDatabase));
 			}
 			
 			private RequestCallback setIdMapAndGetPathwayInteractors(final String interactorDatabase) {
@@ -714,12 +709,12 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 						if (pathway.getDbIdToRefEntity() == null) 	
 							pathway.setDbIdToRefEntity(response.getText());
 					
-						controller.getPathwayInteractors(pathway, interactorDatabase, populateTable());
+						PathwayDiagramController.getInstance().getPathwayInteractors(pathway, interactorDatabase, populateTable());
 					}
 
 					@Override
 					public void onError(Request request, Throwable exception) {
-						controller.requestFailed(exception);
+						AlertPopup.alert(exception.getMessage());
 						setCursor(Cursor.DEFAULT);
 					}
 				
@@ -747,7 +742,7 @@ public class InteractionOverlayOptionsPopup extends DialogBox {
 
 					@Override
 					public void onError(Request request, Throwable exception) {
-						controller.requestFailed(exception);
+						AlertPopup.alert(exception.getMessage());
 						setCursor(Cursor.DEFAULT);
 					}		
 				};

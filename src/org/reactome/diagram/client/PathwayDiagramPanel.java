@@ -286,10 +286,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         addPathwayChangeEventHandler(pathwayHandler);
     }
     
-    public PathwayDiagramController getController() {
-        return this.controller;
-    }
-    
     public InteractorCanvasModel getInteractorCanvasModel() {
 		return interactorCanvasModel;
 	}

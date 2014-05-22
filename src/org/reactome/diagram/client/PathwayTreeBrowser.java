@@ -118,12 +118,12 @@ public class PathwayTreeBrowser {
                 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    diagramPane.getController().requestFailed(exception);
+                    PathwayDiagramController.getInstance().requestFailed(exception);
                 }
             });
         }
         catch(RequestException ex) {
-            diagramPane.getController().requestFailed(ex);
+           PathwayDiagramController.getInstance().requestFailed(ex);
         }
     }
     
@@ -145,8 +145,7 @@ public class PathwayTreeBrowser {
     }
     
     private String getRESTfulURL() {
-        PathwayDiagramController controller = diagramPane.getController();
-        String hostUrl = controller.getHostUrl();
+        String hostUrl = PathwayDiagramController.getInstance().getHostUrl();
               //System.out.println("Host url: " + hostUrl);
         // Do some simple parsing
         int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
@@ -155,7 +154,7 @@ public class PathwayTreeBrowser {
     }
     
     public void initTree() {
-        final PathwayDiagramController controller = diagramPane.getController();
+        final PathwayDiagramController controller = PathwayDiagramController.getInstance();
         
 //        String url = getRESTfulURL() + "participatingMolecules/export/109581";
 //        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
@@ -199,8 +198,7 @@ public class PathwayTreeBrowser {
 //        Window.alert(text);
 //         System.out.println(text);
     	if (text == null || text.isEmpty()) {
-            PathwayDiagramController controller = diagramPane.getController();
-            controller.requestFailed("Null or empty hierarchy description string, this may be due to connection problems with the web services");
+            PathwayDiagramController.getInstance().requestFailed("Null or empty hierarchy description string, this may be due to connection problems with the web services");
     		return;
     	}
         Document dom = XMLParser.parse(text);

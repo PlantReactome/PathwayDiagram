@@ -161,7 +161,7 @@ public class InfoPopup extends PopupPanel {
     
     private void setExternalIdWidget() {
     	if (selectedObjectHasReferenceEntity())
-    		diagramPane.getController().getReferenceEntity(selectedObject.getReactomeId(), addIdWidgetToInformationPanel());
+    		PathwayDiagramController.getInstance().getReferenceEntity(selectedObject.getReactomeId(), addIdWidgetToInformationPanel());
     	else {
     		informationPanel.setWidget(1, 1, getExternalIdWidget(null));
     	}
@@ -176,14 +176,14 @@ public class InfoPopup extends PopupPanel {
 					Widget externalIdWidget = getExternalIdWidget(getIdentifier(response.getText()));				
 					informationPanel.setWidget(1, 1, externalIdWidget);
 				} else {
-					diagramPane.getController().requestFailed("Unable to retrieve reference entity");
+					AlertPopup.alert("Unable to retrieve reference entity");
 				}
 				setMenuBarAsFooter();
 			}
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				diagramPane.getController().requestFailed(exception);				
+				PathwayDiagramController.getInstance().requestFailed(exception);				
 				setMenuBarAsFooter();
 			}
     		

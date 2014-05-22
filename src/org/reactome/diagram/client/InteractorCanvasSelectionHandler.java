@@ -78,7 +78,7 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
 		} else if (selected instanceof InteractorEdge) {
 			ProteinNode protein = ((InteractorEdge) selected).getProtein();
 			
-			diagramPanel.getController().getReferenceEntity(protein.getReactomeId(), 
+			PathwayDiagramController.getInstance().getReferenceEntity(protein.getReactomeId(), 
 															openInteractionPage((InteractorEdge) selected));
 		}
 		
@@ -94,15 +94,15 @@ public class InteractorCanvasSelectionHandler extends SelectionHandler {
 					if (!selected.getUrl().isEmpty())	
 						Window.open(selected.getUrl(), null, null);
 				} else {
-					diagramPanel.getController().requestFailed("Could not open interaction page.  " +
-															   "Unable to retrieve reference entity for " +
-															   selected.getProtein().getDisplayName());
+					AlertPopup.alert("Could not open interaction page.  " +
+									"Unable to retrieve reference entity for " +
+									selected.getProtein().getDisplayName());
 				}
 			}
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				diagramPanel.getController().requestFailed(exception);
+				AlertPopup.alert(exception.getMessage());
 			}			
 		};
 		

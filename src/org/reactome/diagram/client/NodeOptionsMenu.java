@@ -59,6 +59,10 @@ public abstract class NodeOptionsMenu {
     	currentMenuItemId = 0;
     }
     
+    private PathwayDiagramController getController() {
+    	return PathwayDiagramController.getInstance();
+    }
+    
     // Pathway Node Menu
     private void createProcessNodeMenu() {
     	addItem("Go to Pathway", new Command() {
@@ -74,12 +78,10 @@ public abstract class NodeOptionsMenu {
     private void createComplexMenu(boolean expressionData) {
     	createPhysicalEntityMenu();
     	
-    	final PathwayDiagramController controller = diagramPane.getController();
-    	
     	if (((ComplexNode) selected).participatingMoleculesObtained()) {
     		setPMMenu(expressionData);
     	} else {
-    		controller.getParticipatingMolecules(selected.getReactomeId(), setParticipatingMolecules(expressionData));
+    		getController().getParticipatingMolecules(selected.getReactomeId(), setParticipatingMolecules(expressionData));
     	}
     }
     	
@@ -109,7 +111,7 @@ public abstract class NodeOptionsMenu {
    			addItem("Display Participating Molecules", new Command() {
 				@Override
 				public void execute() {
-					diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected, diagramPane.getController());
+					diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected);
 					hide();							
 				}    					
    			});   			
@@ -168,9 +170,9 @@ public abstract class NodeOptionsMenu {
     				diagramPane.getInteractorCanvas().removeProtein(pSelected);
     				toggleInteractors.setLabel(toggleInteractorsLabel(pSelected.isDisplayingInteractors()));
     			} else {	
-    				diagramPane.getController().getInteractors(pSelected, 
-    														   setInteractors(pSelected, toggleInteractors), diagramPane
-    														  );
+    				getController().getInteractors(pSelected, 
+    												setInteractors(pSelected, toggleInteractors), diagramPane
+    												);
     			}   			
     		
     			hide();
@@ -180,7 +182,7 @@ public abstract class NodeOptionsMenu {
     	addItem("Export Interactors", new Command() { 
     		@Override
     		public void execute() {
-    			diagramPane.getController().openInteractionExportPage(pSelected.getReactomeId(), 
+    			getController().openInteractionExportPage(pSelected.getReactomeId(), 
     					diagramPane.getInteractorCanvasModel().getInteractorDatabase());
     			hide();
     		}
@@ -222,7 +224,7 @@ public abstract class NodeOptionsMenu {
     private void createPhysicalEntityMenu() {
    		MenuOption pathwayMenuItem = addItem("Retrieving other Pathways...", nullCommand());
     	
-    	diagramPane.getController().getOtherPathways(selected.getReactomeId(), setPathwayMenu(pathwayMenuItem));
+    	getController().getOtherPathways(selected.getReactomeId(), setPathwayMenu(pathwayMenuItem));
     }
         
     private RequestCallback setPathwayMenu(final MenuOption pathwayMenuItem) {
@@ -243,14 +245,14 @@ public abstract class NodeOptionsMenu {
     				
     				styleSubMenu(pathwaySubMenu);
     			} else {
-    				diagramPane.getController().requestFailed("Could not retrieve other pathways");
+    				getController().requestFailed("Could not retrieve other pathways");
     			}
     			
     			menuItemsBeingCreated -= 1;
     		}
     		
     		public void onError(Request request, Throwable exception) {
-    			diagramPane.getController().requestFailed(exception);
+    			getController().requestFailed(exception);
     			menuItemsBeingCreated -= 1;
     		}
     	};
@@ -327,7 +329,7 @@ public abstract class NodeOptionsMenu {
    							if (pathway.hasDiagram())
     							diagramPane.setPathway(pathway.getReactomeId());
    							else
-   								diagramPane.getController().getDiagramPathwayId(pathway.getReactomeId(), diagramPane);
+   								getController().getDiagramPathwayId(pathway.getReactomeId(), diagramPane);
    							
    							hideParentMenu(pathwaySubMenuItem);
    							hideIfWithinPopupPanel();

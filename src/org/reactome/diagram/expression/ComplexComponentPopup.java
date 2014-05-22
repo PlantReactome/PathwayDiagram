@@ -72,7 +72,7 @@ public class ComplexComponentPopup extends DialogBox {
      * Show popup menu
      * @param panel
      */
-    public void showPopup(ComplexNode selectedComplex, PathwayDiagramController controller) {
+    public void showPopup(ComplexNode selectedComplex) {
         this.complexNode = selectedComplex;
     	
     	hide();
@@ -80,7 +80,7 @@ public class ComplexComponentPopup extends DialogBox {
         String componentsWithoutDisplayNames = getRefIdsForComponentsWithNoDisplayName();
         
         if (!componentsWithoutDisplayNames.isEmpty()) {
-        	controller.queryByIds(componentsWithoutDisplayNames, "ReferenceEntity", setDisplayNamesAndMakePopup());
+        	PathwayDiagramController.getInstance().queryByIds(componentsWithoutDisplayNames, "ReferenceEntity", setDisplayNamesAndMakePopup());
         } else {
         	makePopup();
         }
