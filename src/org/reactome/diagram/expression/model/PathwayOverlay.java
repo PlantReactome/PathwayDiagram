@@ -44,12 +44,12 @@ public class PathwayOverlay {
     	Map<Long, List<String>> dbIdToExpressionId = new HashMap<Long, List<String>>();
     	
     	for (Long dbId : getPathway().getDbIdToRefEntity().keySet()) {
+    		for (ReferenceEntity refEntity : getReferenceEntities(dbId)) {
+    			if (selectedResourceExcludesReferenceEntity(resourceName, refEntity))
+    				continue;
     		
-    		ReferenceEntity refEntity = getReferenceEntity(dbId);
-    		if (refEntity == null || selectedResourceExcludesReferenceEntity(resourceName, refEntity))
-    			continue;
-    		
-    		dbIdToExpressionId.put(refEntity.getDbId(), getExpressionIds(refEntity));
+    			dbIdToExpressionId.put(refEntity.getDbId(), getExpressionIds(refEntity));
+    		}
     	}
     	
     	return dbIdToExpressionId;
@@ -59,19 +59,18 @@ public class PathwayOverlay {
     	Map<Long, Double> dbIdToExpressionValue = new HashMap<Long, Double>();
 
     	for (Long dbId : getPathway().getDbIdToRefEntity().keySet()) {
-    		ReferenceEntity refEntity = getReferenceEntity(dbId);
-    		if (refEntity == null || 
-    			selectedResourceExcludesReferenceEntity(resourceName, refEntity) || 
-    			getExpressionIds(refEntity) == null)
-    			continue;
-    			
-    		PathwayComponentExpressionValue component = new PathwayComponentExpressionValue();
-    		for (String expressionId : getExpressionIds(refEntity)) {
-    			component.addExpressionValues(expressionId, expressionIdToValue.get(expressionId));
+    		for (ReferenceEntity refEntity : getReferenceEntities(dbId)) {
+    			if (selectedResourceExcludesReferenceEntity(resourceName, refEntity) || 
+    				getExpressionIds(refEntity) == null)
+    				continue;
+    	
+    			PathwayComponentExpressionValue component = new PathwayComponentExpressionValue();
+    			for (String expressionId : getExpressionIds(refEntity)) {
+    				component.addExpressionValues(expressionId, expressionIdToValue.get(expressionId));
+    			}
+    		
+    			dbIdToExpressionValue.put(refEntity.getDbId(), getExpressionValueAtDataPoint(component, dataIndex));
     		}
-    		
-    		
-    		dbIdToExpressionValue.put(refEntity.getDbId(), getExpressionValueAtDataPoint(component, dataIndex));
     	}
     	
     	return dbIdToExpressionValue;
@@ -95,13 +94,13 @@ public class PathwayOverlay {
     	return component.getValues().get(dataIndex);
     }
     
-    private ReferenceEntity getReferenceEntity(Long dbId) {
+    private List<ReferenceEntity> getReferenceEntities(Long dbId) {
     	List<ReferenceEntity> refEntities = getPathway().getDbIdToRefEntity().get(dbId);
     	
-    	if (refEntities == null || refEntities.size() != 1)
-    		return null;
+    	if (refEntities == null)
+    		return new ArrayList<ReferenceEntity>();
     	
-    	return refEntities.get(0);
+    	return refEntities;
     }
     
     private void setExpressionIdToValue(PathwayIdentifiers pathwayIdentifiers) {

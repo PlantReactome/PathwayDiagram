@@ -35,6 +35,7 @@ public class CanvasPathway extends Node {
     private Map<Long, List<ReferenceEntity>> dbIdToRefEntity;
     
     public CanvasPathway() {
+    	dbIdToRefEntity = new HashMap<Long, List<ReferenceEntity>>();
     }
     
     /**
@@ -68,6 +69,20 @@ public class CanvasPathway extends Node {
 		return dbIdToRefEntity;
 	}
 
+    public Map<Long, Map<Long, ReferenceEntity>> getDbIdToRefEntityWithRefIdMapping() {
+    	Map<Long, Map<Long, ReferenceEntity>> dbIdToRefEntityWithMapping = new HashMap<Long, Map<Long, ReferenceEntity>>();
+
+    	for (Long dbId : dbIdToRefEntity.keySet()) {
+    		Map<Long, ReferenceEntity> refEntityMapping = new HashMap<Long, ReferenceEntity>();
+    		for (ReferenceEntity refEntity : dbIdToRefEntity.get(dbId)) {
+    			refEntityMapping.put(refEntity.getDbId(), refEntity);
+    		}
+    		dbIdToRefEntityWithMapping.put(dbId, refEntityMapping);
+    	}
+    	
+    	return dbIdToRefEntityWithMapping;
+    }
+    
 	public void setDbIdToRefEntity(String json) {
 		clearDbIdToRefEntity();
 		
@@ -79,10 +94,7 @@ public class CanvasPathway extends Node {
 	}
 	
 	private void clearDbIdToRefEntity() {
-		if (dbIdToRefEntity == null)
-			dbIdToRefEntity = new HashMap<Long, List<ReferenceEntity>>();
-		else
-			dbIdToRefEntity.clear();
+		dbIdToRefEntity.clear();
 	}
 
 	private Long getPhysicalEntityId(JSONObject entityMap) {
@@ -171,7 +183,7 @@ public class CanvasPathway extends Node {
     }
     
     public List<ProteinNode> getProteinNodesByRefId(Long refId) {
-    	if (dbIdToRefEntity == null || refId == null)
+    	if (refId == null)
     		return null;
     	
     	List<ProteinNode> proteinNodesForRefId = new ArrayList<ProteinNode>();
@@ -193,7 +205,6 @@ public class CanvasPathway extends Node {
     }	
     	
     public Long getReferenceIdForProtein(Long dbId){
-    	if (dbIdToRefEntity == null) return null;
     	if (getProteinNodeByDBId(dbId) == null) return null;
     	if (dbIdToRefEntity.get(dbId) == null || dbIdToRefEntity.get(dbId).isEmpty()) return null;
     	
