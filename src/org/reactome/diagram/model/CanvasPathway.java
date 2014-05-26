@@ -629,6 +629,7 @@ public class CanvasPathway extends Node {
     public class ReferenceEntity {
     	private Long dbId;
     	private String name;
+    	private String referenceIdentifier;
     	private String schemaClass;
     	
     	public ReferenceEntity(Long dbId, String name, String schemaClass) {
@@ -660,11 +661,17 @@ public class CanvasPathway extends Node {
     		if (getName() == null)
     			return null;
     		
-    		RegExp referenceIdentifierPattern = RegExp.compile("\\w+:\\w+");
+    		if (referenceIdentifier != null)
+    			return referenceIdentifier;
     		
-    		return referenceIdentifierPattern.test(getName()) ?
+    		RegExp referenceIdentifierPattern = RegExp.compile("\\w+:\\w+");
+    		System.out.println(getDisplayName() + ": " + getName());
+    		
+    		referenceIdentifier = referenceIdentifierPattern.test(getName()) ?
     				referenceIdentifierPattern.exec(getName()).getGroup(0).toUpperCase() :
     				null;
+    				
+    		return referenceIdentifier;
     	}
     	
     	public String toString() {
