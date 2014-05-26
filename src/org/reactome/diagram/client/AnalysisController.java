@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 
+import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
@@ -33,16 +34,17 @@ public class AnalysisController {
     	}
     }
     
-    public void retrievePathwaySummary(String token, Long pathwayId, RequestCallback callback) {
+    public Request retrievePathwaySummary(String token, Long pathwayId, RequestCallback callback) {
     	final String url = BASE_URL + "token/" + token + "/summary/" + pathwayId;
 	    
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
         try {
-            requestBuilder.sendRequest(null, callback);
+            return requestBuilder.sendRequest(null, callback);
         } 
         catch (RequestException ex) {
             AlertPopup.alert("Error in retrieving : " + ex);
+            return null;
         } 	 
     }
     

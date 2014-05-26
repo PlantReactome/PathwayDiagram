@@ -201,15 +201,16 @@ public class PathwayDiagramController {
     	}
     }
 
-    public void getReferenceEntity(Long dbId, RequestCallback callback) {
+    public Request getReferenceEntity(Long dbId, RequestCallback callback) {
         String url = this.getHostUrl() + "referenceEntity/" + dbId;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/json");
 
         try {
-            requestBuilder.sendRequest(null, callback);
+            return requestBuilder.sendRequest(null, callback);
         } catch (RequestException ex) 	{
             requestFailed(ex);
+            return null;
         }
     }
     
@@ -268,19 +269,20 @@ public class PathwayDiagramController {
         }
     }
 
-    public void getPhysicalToReferenceEntityMap(CanvasPathway pathway, RequestCallback callback) {
-    	getPhysicalToReferenceEntityMap(pathway.getReactomeId(), callback);
+    public Request getPhysicalToReferenceEntityMap(CanvasPathway pathway, RequestCallback callback) {
+    	return getPhysicalToReferenceEntityMap(pathway.getReactomeId(), callback);
     }
     
-    public void getPhysicalToReferenceEntityMap(Long pathwayId, RequestCallback callback) {
+    public Request getPhysicalToReferenceEntityMap(Long pathwayId, RequestCallback callback) {
     	String url = this.getHostUrl() + "getPhysicalToReferenceEntityMaps/" + pathwayId;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     	requestBuilder.setHeader("Accept", "application/json");
     	
     	try {
-    		requestBuilder.sendRequest(null, callback);
+    		return requestBuilder.sendRequest(null, callback);
     	} catch (RequestException ex) {
     		requestFailed(ex);
+    		return null;
     	}
     }
     
@@ -329,12 +331,12 @@ public class PathwayDiagramController {
     	getPathwayDiagramData(dbId, callback, "png");    	
     }
     
-    public void getCanvasPathwayXML(Long dbId, RequestCallback callback) {
-    	getPathwayDiagramData(dbId, callback, "xml");
+    public Request getCanvasPathwayXML(Long dbId, RequestCallback callback) {
+    	return getPathwayDiagramData(dbId, callback, "xml");
     }
     
-    private void getPathwayDiagramData(Long dbId, RequestCallback callback, String format) {
-    	sendRequest(getPathwayDiagramRequestBuilder(dbId, format), callback);
+    private Request getPathwayDiagramData(Long dbId, RequestCallback callback, String format) {
+    	return sendRequest(getPathwayDiagramRequestBuilder(dbId, format), callback);
     }
     
     /**
@@ -544,11 +546,12 @@ public class PathwayDiagramController {
         return this.hostUrl;
     }
     
-    private void sendRequest(RequestBuilder requestBuilder, RequestCallback callback) {
+    private Request sendRequest(RequestBuilder requestBuilder, RequestCallback callback) {
     	try {
-    		requestBuilder.sendRequest(null, callback);
+    		return requestBuilder.sendRequest(null, callback);
     	} catch (RequestException ex) {
     		requestFailed(ex);
+    		return null;
     	}
     }
 
