@@ -665,7 +665,6 @@ public class CanvasPathway extends Node {
     			return referenceIdentifier;
     		
     		RegExp referenceIdentifierPattern = RegExp.compile("\\w+:\\w+");
-    		System.out.println(getDisplayName() + ": " + getName());
     		
     		referenceIdentifier = referenceIdentifierPattern.test(getName()) ?
     				referenceIdentifierPattern.exec(getName()).getGroup(0).toUpperCase() :
