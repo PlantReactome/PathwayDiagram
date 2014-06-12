@@ -219,7 +219,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private boolean isComplexWithoutComponentData(GraphObject entity) {
-    	return (entity.getType() == GraphObjectType.RenderableComplex && !((ComplexNode) entity).participatingMoleculesObtained());
+    	return (isSetOrComplex(entity) && !((ComplexNode) entity).participatingMoleculesObtained());
     }
     
     private void drawExpressionOverlay(Context2d c2d) { 	
@@ -236,7 +236,7 @@ public class ExpressionCanvas extends DiagramCanvas {
            		GraphObjectExpressionRendererFactory factory = GraphObjectExpressionRendererFactory.getFactory();
            		NodeRenderer renderer = factory.getNodeRenderer((Node) entity);
            		
-           		if (entity.getType() == GraphObjectType.RenderableComplex) {
+           		if (isSetOrComplex(entity)) {
            			addExpressionInfoToComplexComponents((ComplexNode) entity);
            		} 
            		else if (entity.getType() == GraphObjectType.ProcessNode) {
@@ -260,6 +260,11 @@ public class ExpressionCanvas extends DiagramCanvas {
         }                
     }
 
+    private boolean isSetOrComplex(GraphObject entity) {
+    	return entity.getType() == GraphObjectType.RenderableComplex ||
+    			entity.getType() == GraphObjectType.RenderableEntitySet;
+    }
+    
 	private Long getReferenceEntityId(List<ReferenceEntity> referenceEntities) {
 		if (referenceEntities != null && referenceEntities.size() > 0) {
 		     return referenceEntities.get(0).getDbId();

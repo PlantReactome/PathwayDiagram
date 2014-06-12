@@ -382,7 +382,8 @@ public abstract class NodeOptionsMenu {
         if (type == GraphObjectType.ProcessNode) {
             //numberOfMenuItems = 1;
         	createProcessNodeMenu();            
-        } else if (type == GraphObjectType.RenderableComplex) {
+        } else if (type == GraphObjectType.RenderableComplex ||
+        		   type == GraphObjectType.RenderableEntitySet) {
             boolean expressionData = !(
                     diagramPane.getExpressionCanvas() == null ||
                     diagramPane.getExpressionCanvas().getPathway() == null
@@ -395,8 +396,7 @@ public abstract class NodeOptionsMenu {
         } else if (type == GraphObjectType.RenderableChemical) {
         	//numberOfMenuItems = 1;
         	createSmallMoleculeMenu();
-        } else if (type == GraphObjectType.RenderableEntitySet ||
-        		   type == GraphObjectType.RenderableEntity ||
+        } else if (type == GraphObjectType.RenderableEntity ||
         		   type == GraphObjectType.RenderableGene ||
         		   type == GraphObjectType.RenderableRNA) {
         	//numberOfMenuItems = 1;
