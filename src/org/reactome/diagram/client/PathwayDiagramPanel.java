@@ -1,5 +1,6 @@
 /* 
 
+
  * Created on Sep 23, 2011
  *
  */
@@ -190,15 +191,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         final PushButton testBtn = new PushButton("Show Data Point");
         contentPane.add(testBtn, 700, 4);
         testBtn.addClickHandler(new ClickHandler() {
-            
+            private int clicks = 0;
+        	
             @Override
             public void onClick(ClickEvent event) {
-                String token = "MDYxMDIzMTI1Ml81"; // Example expression data
-            	//String token = "MDUwODEwMzAwNF8xMA%3D%3D"; // Species comparison
-            	//String token = "MDUwODA3NTgyOF80"; // Example UniProt over representation
+                String token = clicks % 2 == 0 ? "MDYxMzExMjUzM18y" : "MDYxMzExMjQ1NV8x"; 
             	String resourceName = "TOTAL";
             	
             	showAnalysisData(token, resourceName);
+            	clicks++;
             }
         });
     }
@@ -802,8 +803,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		overlayDataController = null;
     	}
     	
-    	if (expressionCanvas != null )	
+    	if (expressionCanvas != null )	{
     		expressionCanvas.setPathway(null);
+    	}
     }
     
     /**

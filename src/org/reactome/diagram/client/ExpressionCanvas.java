@@ -102,6 +102,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 	
 	public void setDataController(DataController dataController) {
 		this.dataController = dataController;
+		clearCache();
 	}
 
 	public List<GraphObject> getObjectsForRendering() {
@@ -121,6 +122,17 @@ public class ExpressionCanvas extends DiagramCanvas {
     	
     	drawCanvasLayer(c2d);
     }	
+
+    public void clearCache() {
+    	pathwayExpressionMap.clear();
+    	
+    	if (currentPathwayExpressionForDataPoint != null)
+    		currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
+    	currentPathwayExpressionForDataPoint = null;
+    	
+    	if (readyToDrawOverlayChecker != null)
+    		readyToDrawOverlayChecker.cancel();
+    }
     
     public void drawCanvasLayer(Context2d c2d) {
     	PathwayExpressionForDataPoint oldExpressionPathwayForDataPoint = currentPathwayExpressionForDataPoint;
@@ -147,7 +159,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     			
     			if (readyToDrawOverlayChecker != null) {
     				readyToDrawOverlayChecker.cancel();
-    				currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
+    				
+    				if (currentPathwayExpressionForDataPoint != null)
+    					currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
     			}
     		
     			currentPathwayExpressionForDataPoint = getPathwayExpressionForDataPoint(pathway, getDataPointIndexFromDataController());
