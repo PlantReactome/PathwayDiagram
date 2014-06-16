@@ -68,10 +68,19 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
         Double segmentWidth = ((double) bounds.getWidth() / getComponentColors().size());
         segmentHeight = (double) (bounds.getHeight() - (2 * getRadius()));
         
-        for (Integer i = 0; i < getComponentColors().size(); i++) {
-        	drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), getComponentColors().get(i), context);
+        System.out.println(node.getDisplayName() + ": " + segmentWidth);
+
+        if (segmentWidth < 10) {
+        		currentY -= getRadius();
+        		for (Integer i = 0; i < getComponentColors().size(); i++) {
+        			context.setFillStyle(getComponentColors().get(i));
+        			drawRectangleSegment(segmentWidth, (double) bounds.getHeight(), context);
+        		}
+        } else {
+        	for (Integer i = 0; i < getComponentColors().size(); i++) {
+        		drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), getComponentColors().get(i), context);
+        	}
         }
-        
         //createPath(bounds, context);
         //context.stroke();
     }

@@ -4,8 +4,7 @@
  */
 package org.reactome.diagram.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.ArrayList;import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -94,11 +93,11 @@ public class DiseaseCanvasPathway extends CanvasPathway {
     		return getNormalObjects();
     	} else {
     		Set<GraphObject> objectsForRendering = new LinkedHashSet<GraphObject>();
-    		objectsForRendering.addAll(getDiseaseObjects());
-    		objectsForRendering.addAll(getOverlaidObjects());
-    		objectsForRendering.addAll(getCrossedObjects());
-    		objectsForRendering.addAll(getLofObjects());
     		objectsForRendering.addAll(getNormalObjects());
+    		objectsForRendering.addAll(getLofObjects());
+    		objectsForRendering.addAll(getCrossedObjects());
+    		objectsForRendering.addAll(getOverlaidObjects());
+    		objectsForRendering.addAll(getDiseaseObjects());
     		
     		return new ArrayList<GraphObject>(objectsForRendering);
     	}
