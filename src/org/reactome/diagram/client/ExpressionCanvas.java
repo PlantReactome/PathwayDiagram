@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.diagram.analysis.factory.AnalysisModelException;
 import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
 import org.reactome.diagram.analysis.model.PathwayIdentifiers;
 import org.reactome.diagram.expression.DataController;
@@ -482,7 +481,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 				final PathwayIdentifiers pathwayIdentifiers;
 				try {
 					pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
-				} catch (AnalysisModelException ex) {
+				} catch (Exception ex) {
 					currentPathwayExpressionForDataPoint.removeRequestInProgress(request);					
 					//abortCallback("Unable to retrieve pathway identifiers for " + pathwayEntity.getDisplayName() + ": " + ex);
 					return;

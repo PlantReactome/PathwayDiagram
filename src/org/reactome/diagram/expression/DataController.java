@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.reactome.diagram.analysis.factory.AnalysisModelException;
 import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
 import org.reactome.diagram.analysis.model.AnalysisResult;
 import org.reactome.diagram.analysis.model.PathwayIdentifiers;
@@ -69,6 +68,8 @@ public abstract class DataController implements ResizeHandler {
     
     protected Map<Long, PathwayOverlay> pathwayOverlayMap;
     protected PathwayOverlay pathwayOverlay; // Displayed pathway
+    private CanvasPathway pathway;
+    
     private AnalysisResult analysisResult;
     private String resourceName;
     
@@ -103,6 +104,8 @@ public abstract class DataController implements ResizeHandler {
     }
     
     public void setPathway(CanvasPathway pathway) {
+    	this.pathway = pathway;
+    	
         PathwayOverlay selectedPathwayOverlay = this.pathwayOverlayMap.get(pathway.getReactomeId());
     	if (selectedPathwayOverlay == null) {
         	setPathwaySummary(pathway);
@@ -139,8 +142,9 @@ public abstract class DataController implements ResizeHandler {
     			PathwayIdentifiers pathwayIdentifiers;
     			try {
     				pathwayIdentifiers = AnalysisModelFactory.getModelObject(PathwayIdentifiers.class, response.getText());
-    			} catch (AnalysisModelException e) {
+    			} catch (Exception e) {
     					e.printStackTrace();
+    					setPathwayOverlay(null);
     					//AlertPopup.alert("Could not get pathway identifiers for token " + getToken());
     					return;
     			}
@@ -255,21 +259,21 @@ public abstract class DataController implements ResizeHandler {
     protected void onDataPointChange(Integer dataIndex) {
         PathwayOverlay currentPathwayOverlay = getPathwayOverlay();
         
-    	if (currentPathwayOverlay == null || resourceName == null)
+    	if (pathway == null)
             return; // Nothing to do. No pathway has been displayed.
         
         Map<Long, Double> compIdToValue = null;
         Map<Long, String> compIdToColor = null;
         Map<Long, List<String>> compIdToExpressionId = null;
         
-       // if (pathwayIdentifiersMap.get(pathwayId) != null) {
+        if (currentPathwayOverlay != null && resourceName != null) {
         	compIdToValue = currentPathwayOverlay.getExpressionValuesForDataPoint(dataIndex, resourceName);
         	compIdToColor = convertValueToColor(compIdToValue);
         	compIdToExpressionId = currentPathwayOverlay.getDbIdToExpressionId(resourceName);
-        //}        
+        }        
         
         DataPointChangeEvent event = new DataPointChangeEvent();
-        event.setPathwayId(currentPathwayOverlay.getPathway().getReactomeId());
+        event.setPathwayId(pathway.getReactomeId());
         event.setPathwayComponentIdToColor(compIdToColor);
         event.setPathwayComponentIdToExpressionLevel(compIdToValue);
         event.setPathwayComponentIdToExpressionId(compIdToExpressionId);
