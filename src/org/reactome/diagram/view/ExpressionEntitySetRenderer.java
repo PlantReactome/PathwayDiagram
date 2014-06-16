@@ -68,8 +68,6 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
         Double segmentWidth = ((double) bounds.getWidth() / getComponentColors().size());
         segmentHeight = (double) (bounds.getHeight() - (2 * getRadius()));
         
-        System.out.println(node.getDisplayName() + ": " + segmentWidth);
-
         if (segmentWidth < 10) {
         		currentY -= getRadius();
         		for (Integer i = 0; i < getComponentColors().size(); i++) {
