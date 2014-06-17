@@ -25,6 +25,7 @@ public class GeneRenderer extends NodeRenderer {
     private static final int GENE_SYMBOL_PAD = 4;
     private static final int GENE_SYMBOL_WIDTH = 50;
     
+    
     /**
      * Default constructor.
      */
@@ -34,29 +35,34 @@ public class GeneRenderer extends NodeRenderer {
 
     @Override
     protected void drawRectangle(Bounds bounds, Context2d context, Node node) {
-        int y = bounds.getY() + GENE_SYMBOL_WIDTH / 2;
         // Draw bounds when selected
         if (node.isSelected()) {
-            Bounds textBounds = new Bounds(bounds);
-            textBounds.setY(y);
-            
-            List<String> textLines = splitName(node.getDisplayName(),
-                                               context,
-                                               bounds.getWidth());
-            textBounds.setHeight(textLines.size() * Parameters.LINE_HEIGHT + 4); // A little extra should be nicer
-            drawRectangle(textBounds, context, false, true);
+            drawRectangle(getTextBounds(bounds, context, node), context, false, true);
         }
         drawGeneSymbol(context, 
                        bounds,
-                       y,
                        node);
     }
 
-    @Override
+    private int getTextPositionY(Bounds bounds) {
+		return getTextPositionY(bounds, 0) - 2;
+	}
+
+	@Override
     protected int getTextPositionY(Bounds bounds, int totalHeight) {
         return bounds.getY() + GENE_SYMBOL_WIDTH / 2 + 2;
     }
-    
+
+	protected Bounds getTextBounds(Bounds bounds, Context2d context, Node node) {
+		Bounds textBounds = new Bounds(bounds);
+		textBounds.setY(getTextPositionY(bounds));
+		
+		List<String> textLines = splitName(node.getDisplayName(), context, bounds.getWidth());
+		textBounds.setHeight(textLines.size() * Parameters.LINE_HEIGHT + 6);
+		
+		return textBounds;
+	}
+	
     /**
      * Draw a gene symbol just above the gene's name.
      * @param context
@@ -64,13 +70,12 @@ public class GeneRenderer extends NodeRenderer {
      */
     private void drawGeneSymbol(Context2d context,
                                 Bounds bounds,
-                                int y,
                                 Node node) {
         // Draw the horizontal line
         int x1 = bounds.getX();
-        int y1 = y;
+        int y1 = getTextPositionY(bounds);
         int x2 = bounds.getX() + bounds.getWidth();
-        int y2 = y;
+        int y2 = getTextPositionY(bounds);
         // Draw a line
         context.beginPath();
         context.moveTo(x1, y1);

@@ -35,6 +35,8 @@ public class GraphObjectExpressionRendererFactory extends GraphObjectRendererFac
                            new ExpressionProcessNodeRenderer());
         typeToExpressionRenderer.put(GraphObjectType.RenderableEntitySet,
                            new ExpressionEntitySetRenderer());
+        typeToExpressionRenderer.put(GraphObjectType.RenderableGene,
+                           new ExpressionGeneRenderer());
     }
     
     public static GraphObjectExpressionRendererFactory getFactory() {
