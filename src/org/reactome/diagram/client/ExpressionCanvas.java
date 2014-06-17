@@ -31,6 +31,7 @@ import org.reactome.diagram.view.ExpressionProcessNodeRenderer;
 import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -144,6 +145,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			
     		return;
     	} else {
+    		WidgetStyle.setCursor(this, Cursor.WAIT);
     		getPathwayNodeDataBeforeRendering(oldExpressionPathwayForDataPoint);
     		getComplexNodeComponentDataBeforeRendering();
     		drawExpressionOverlayWhenReady(c2d);
@@ -270,7 +272,8 @@ public class ExpressionCanvas extends DiagramCanvas {
            		((Node) entity).setBgColor(oldBgColor);
            		((Node) entity).setFgColor(oldFgColor);
            	}
-        }                
+        }
+        WidgetStyle.setCursor(this, Cursor.DEFAULT);
     }
 
     private boolean isSetOrComplex(GraphObject entity) {
