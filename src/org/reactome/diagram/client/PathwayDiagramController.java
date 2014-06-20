@@ -257,15 +257,16 @@ public class PathwayDiagramController {
     	Window.open(url, null, null);
     }
 
-    public void getParticipatingMolecules(Long dbId, RequestCallback callback) {
+    public Request getParticipatingMolecules(Long dbId, RequestCallback callback) {
         String url = this.getHostUrl() + "complexSubunits/" + dbId;
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
         requestBuilder.setHeader("Accept", "application/xml");
 
         try {
-            requestBuilder.sendRequest(null, callback);
+            return requestBuilder.sendRequest(null, callback);
         } catch (RequestException ex) {
             requestFailed(ex);
+            return null;
         }
     }
 
