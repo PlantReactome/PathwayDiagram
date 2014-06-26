@@ -179,8 +179,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         //popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
         
-        if (!GWT.isScript())
-        	addTestCode();
+        //addTestCode();
     }
     
     public List<DiagramCanvas> getCanvasList() {
@@ -686,8 +685,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
                     }
                     
                     clearExpressionOverlay();
-                    createDataController(response.getText());
-                    setResource(resourceName);
+                    setDataController(createDataController(response.getText(), resourceName));
                 }
         });
     }
@@ -706,30 +704,31 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	return overlayDataController.getToken().equals(newToken);
     }
     
-    private void createDataController(String analysisResultText) {
+    private DataController createDataController(String analysisResultText, String resourceName) {
     	AnalysisResult analysisResult;
     	try {
     		analysisResult = AnalysisModelFactory.getModelObject(AnalysisResult.class, analysisResultText);
     	} catch (AnalysisModelException e) {
     		e.printStackTrace();
     		AlertPopup.alert("Unable to parse analysis results: " + e);
-    		return;
+    		return null;
     	}
             
     	DataController dataController = getDataController(analysisResult);
             
         if (dataController == null) {
             AlertPopup.alert(analysisResult.getSummary().getType() + " is an unknown analysis type");
-            return;
+            return null;
         }
-                      
+        dataController.setResourceName(resourceName);
+        
         expressionCanvas.setAnalysisType(analysisResult.getSummary().getType());
         expressionCanvas.setDataController(dataController);
             
         if (dataController instanceof SpeciesComparisonDataController)
             ((SpeciesComparisonDataController) dataController).setSpecies();
-            
-        setDataController(dataController);
+		
+        return dataController;
     }
     
     private DataController getDataController(AnalysisResult analysisResult) {

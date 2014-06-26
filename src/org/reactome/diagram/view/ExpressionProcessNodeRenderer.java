@@ -4,9 +4,7 @@
  */
 package org.reactome.diagram.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.reactome.diagram.client.ExpressionCanvas.ProcessNodeExpression;
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.Node;
 
@@ -17,12 +15,14 @@ import com.google.gwt.canvas.dom.client.Context2d;
  *
  */
 public class ExpressionProcessNodeRenderer extends NodeRenderer {
-    private Double currentX;
-    private Double currentY;
-	private List<String> colorList;
-	
+	private ProcessNodeExpression processNodeExpression;
+    
     public ExpressionProcessNodeRenderer() {
         super();
+    }
+    
+    public void setProcessNodeExpression(ProcessNodeExpression processNodeExpression) {
+    	this.processNodeExpression = processNodeExpression;
     }
 
     @Override
@@ -30,30 +30,20 @@ public class ExpressionProcessNodeRenderer extends NodeRenderer {
     							 Context2d context,
                                  Node node) {    	
     	
-    	if (colorList == null || colorList.isEmpty()) {
-    		colorList = new ArrayList<String>();
-    		colorList.add(node.getBgColor());
-    	}
+    	drawSegment(bounds, Parameters.defaultExpressionColor.value(), context);
+		if (processNodeExpression != null && processNodeExpression.getColor() != null) {
+            Bounds segmentBounds = new Bounds(bounds);
+            segmentBounds.setWidth((int) (bounds.getWidth() * ((double) processNodeExpression.getFound() / processNodeExpression.getTotal())));
+    		drawSegment(segmentBounds, processNodeExpression.getColor(), context);
     	
-        currentX = (double) bounds.getX();
-        currentY = (double) bounds.getY();                
-        Double segmentWidth = ((double) bounds.getWidth() / colorList.size());
-        Integer nodeHeight = bounds.getHeight();
-        
-        for (Integer i = 0; i < colorList.size(); i++) {
-        	drawSegment(segmentWidth, nodeHeight, colorList.get(i), context);        
-        	currentX += segmentWidth;
         }
         
         context.strokeRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
     }
     
-    private void drawSegment(Double width, Integer height, String color, Context2d context) {
+    private void drawSegment(Bounds bounds, String color, Context2d context) {
     	context.setFillStyle(color);
-    	context.fillRect(currentX, currentY, width, height);
+    	context.fillRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
     }
     
-    public void setColorList(List<String> colorList) {
-    	this.colorList = colorList;
-    }
 }

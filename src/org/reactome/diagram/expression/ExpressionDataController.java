@@ -73,12 +73,6 @@ public class ExpressionDataController extends DataController implements ResizeHa
         return resources;
     }
     
-    @Override
-    public void setPathway(CanvasPathway pathway) {
-        super.setPathway(pathway);
-        onDataPointChange(((NavigationPane) navigationPane).getValue());
-    }
-    
     /**
      * Display this component in the specified composite.
      * @param composite

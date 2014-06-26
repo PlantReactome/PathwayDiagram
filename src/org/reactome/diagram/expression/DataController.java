@@ -66,8 +66,7 @@ public abstract class DataController implements ResizeHandler {
     private static Resources resources;
     // Data models handled by this controller
     
-    protected Map<Long, PathwayOverlay> pathwayOverlayMap;
-    protected PathwayOverlay pathwayOverlay; // Displayed pathway
+    protected Map<String, Map<Long, PathwayOverlay>> pathwayOverlayMap;
     private CanvasPathway pathway;
     
     private AnalysisResult analysisResult;
@@ -84,7 +83,7 @@ public abstract class DataController implements ResizeHandler {
     }
     
     public DataController(AnalysisResult analysisResult) {
-        pathwayOverlayMap = new HashMap<Long,PathwayOverlay>();
+        pathwayOverlayMap = new HashMap<String, Map<Long,PathwayOverlay>>();
         setAnalysisResult(analysisResult);
     }
     
@@ -96,7 +95,10 @@ public abstract class DataController implements ResizeHandler {
 
     public void setResourceName(String resourceName) {
     	this.resourceName = resourceName;
-    	onDataPointChange(getCurrentDataPoint());
+    	if (pathwayOverlayMap.get(getResourceName()) == null)
+    		pathwayOverlayMap.put(getResourceName(), new HashMap<Long, PathwayOverlay>());
+    	
+    	setPathway(pathway);
     }
     
     public String getResourceName() {
@@ -106,7 +108,10 @@ public abstract class DataController implements ResizeHandler {
     public void setPathway(CanvasPathway pathway) {
     	this.pathway = pathway;
     	
-        PathwayOverlay selectedPathwayOverlay = this.pathwayOverlayMap.get(pathway.getReactomeId());
+    	if (pathway == null)
+    		return;
+    	
+        PathwayOverlay selectedPathwayOverlay = this.pathwayOverlayMap.get(getResourceName()).get(pathway.getReactomeId());
     	if (selectedPathwayOverlay == null) {
         	setPathwaySummary(pathway);
         } else {
@@ -116,19 +121,19 @@ public abstract class DataController implements ResizeHandler {
     
         
     private void setPathwayOverlay(PathwayOverlay pathwayOverlay) { 
-        this.pathwayOverlay = pathwayOverlay;
+        this.pathwayOverlayMap.get(getResourceName()).put(pathway.getReactomeId(), pathwayOverlay);
         onDataPointChange(getCurrentDataPoint());
     }
     
-    public PathwayOverlay getPathwayOverlay() {
-        return this.pathwayOverlay;
+    private PathwayOverlay getPathwayOverlay() {
+        return this.pathwayOverlayMap.get(getResourceName()).get(pathway.getReactomeId());
     }
     
-    public void setPathwaySummary(final CanvasPathway pathway) {
+    private void setPathwaySummary(final CanvasPathway pathway) {
     	AnalysisController analysisController = new AnalysisController();  
       
     	final Long pathwayId = pathway.getReactomeId();
-    	analysisController.retrievePathwaySummary(getToken(), pathwayId, new RequestCallback() {
+    	analysisController.retrievePathwaySummary(getToken(), pathwayId, getResourceName(), new RequestCallback() {
     		public void onError(Request request, Throwable exception) {
                 AlertPopup.alert("Error in retrieving pathway summary results: " + exception);
     		}
@@ -145,7 +150,6 @@ public abstract class DataController implements ResizeHandler {
     			} catch (Exception e) {
     					e.printStackTrace();
     					setPathwayOverlay(null);
-    					//AlertPopup.alert("Could not get pathway identifiers for token " + getToken());
     					return;
     			}
     			PathwayOverlay pathwayOverlay = new PathwayOverlay(pathway, pathwayIdentifiers);
@@ -169,7 +173,6 @@ public abstract class DataController implements ResizeHandler {
                    	}
                    	
                    	pathway.setDbIdToRefEntity(response.getText());
-                   	pathwayOverlayMap.put(pathway.getReactomeId(), pathwayOverlay);
                    	setPathwayOverlay(pathwayOverlay);
 				}
 							
@@ -285,6 +288,18 @@ public abstract class DataController implements ResizeHandler {
     	return 0;
     }
 
+    public String convertValueToColor(Double value) {
+    	final Long dummyId = 0L;
+    	
+    	Map<Long, Double> idToValue = new HashMap<Long, Double>();
+    	idToValue.put(dummyId, value);
+    			
+    	Map<Long, String> idToColor = convertValueToColor(idToValue);
+    	if (idToColor == null)
+    		return null;
+    	return idToColor.get(dummyId);
+    }
+    
     public abstract Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue);
     
     private void fireExpressionOverlayStopEvent() {
