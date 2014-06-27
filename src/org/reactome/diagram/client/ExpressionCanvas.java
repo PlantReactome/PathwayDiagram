@@ -5,21 +5,18 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.reactome.diagram.analysis.factory.AnalysisModelException;
 import org.reactome.diagram.analysis.factory.AnalysisModelFactory;
-import org.reactome.diagram.analysis.model.PathwayIdentifiers;
 import org.reactome.diagram.analysis.model.PathwaySummary;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
-import org.reactome.diagram.expression.model.PathwayOverlay;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.ComplexNode;
@@ -37,14 +34,6 @@ import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.XMLParser;
-import com.google.gwt.xml.client.impl.DOMParseException;
 
 /**
  * A specialized PlugInSupportCanvas that is used to overlay expression data on to a pathway.
@@ -123,8 +112,6 @@ public class ExpressionCanvas extends DiagramCanvas {
      */
     public void update() { 
     	c2d = getContext2d();
-    	   	    	
-    	clean(c2d);
     	
     	drawCanvasLayer(c2d);
     }	
@@ -145,7 +132,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
     			currentPathwayExpressionForDataPoint = null;
     		}
-    			
+    		clean(c2d);	
     		return;
     	}
     	
@@ -158,7 +145,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     
     private void getPathwayNodeDataBeforeRendering(PathwayExpressionForDataPoint oldExpressionPathwayForDataPoint) {
     	if (oldExpressionPathwayForDataPoint == null || 
-    		oldExpressionPathwayForDataPoint.getPathway() != pathway ||
+    		oldExpressionPathwayForDataPoint.getPathway().getReactomeId() != pathway.getReactomeId() ||
     		oldExpressionPathwayForDataPoint.getDataPointIndex() != getDataPointIndexFromDataController() ||
     		!currentResource.equals(dataController.getResourceName())
     			) {
@@ -172,7 +159,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     			
     			Map<Long, GraphObject> pathways = new HashMap<Long, GraphObject>();
     			for (GraphObject entity : getObjectsForRendering()) {
-    				if (entity.getType() == GraphObjectType.ProcessNode &&	needToCreateColorForProcessNode(entity)) {
+    				if (entity.getType() == GraphObjectType.ProcessNode &&	needToCreateColorForProcessNode(entity.getReactomeId())) {
     					pathways.put(entity.getReactomeId(), entity);
     				}
     			}
@@ -196,8 +183,8 @@ public class ExpressionCanvas extends DiagramCanvas {
     	return resourceToPathwayExpressionMap.get(currentResource).get(pathway.getReactomeId()).getPathwayExpressionForDataPoint(dataPointIndex);
     }
     
-    private boolean needToCreateColorForProcessNode(GraphObject entity) {
-    	ProcessNodeExpression processNodeExpression = currentPathwayExpressionForDataPoint.getProcessNodeExpressionObject(entity);
+    private boolean needToCreateColorForProcessNode(Long processNodeId) {
+    	ProcessNodeExpression processNodeExpression = currentPathwayExpressionForDataPoint.getProcessNodeExpressionObject(processNodeId);
     	
     	if (processNodeExpression == null)
     		return true;
@@ -206,6 +193,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private void getPathwayResults(final Map<Long, GraphObject> pathways) {
+    	if (pathways.isEmpty())
+    		return;
+    	
     	AnalysisController analysisController = new AnalysisController();
     	
     	Request request = analysisController.retrievePathwayResults(dataController.getToken(),
@@ -232,13 +222,21 @@ public class ExpressionCanvas extends DiagramCanvas {
 				
 				for (PathwaySummary pathwayResult : pathwayResults) {
 					GraphObject pathway = pathways.get(pathwayResult.getDbId());
-					double expValue = 0;
-					if (pathwayResult.getEntities().getExp() != null && currentPathwayExpressionForDataPoint.getDataPointIndex() < pathwayResult.getEntities().getExp().size())
-						expValue = pathwayResult.getEntities().getExp().get(currentPathwayExpressionForDataPoint.getDataPointIndex());
-				
-					currentPathwayExpressionForDataPoint.addProcessNodeExpressionObject(pathway, new ProcessNodeExpression(expValue, 
-																														   pathwayResult.getEntities().getFound(),
-																														   pathwayResult.getEntities().getTotal()));
+					Integer entitiesFound = pathwayResult.getEntities().getFound();
+					Integer entitiesTotal = pathwayResult.getEntities().getTotal();
+					
+					List<Double> expValues = pathwayResult.getEntities().getExp();
+					if (expValues == null || expValues.isEmpty()) {
+						currentPathwayExpressionForDataPoint.addProcessNodeExpressionObject(pathway.getReactomeId(), new ProcessNodeExpression(null, 
+																														   entitiesFound,
+																														   entitiesTotal));
+					} else {
+						for (Integer index = 0; index < expValues.size(); index++) {
+							getPathwayExpressionForDataPoint(ExpressionCanvas.this.pathway, index)
+								.addProcessNodeExpressionObject(pathway.getReactomeId(), new ProcessNodeExpression(expValues.get(index), entitiesFound, entitiesTotal));
+						}
+					}
+						
 				}
 				removePathwayNodeRequest(request);
 			}
@@ -303,6 +301,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private void drawExpressionOverlay(Context2d c2d) {
+    	clean(c2d);
     	drawn = true;
         Map<Long, List<ReferenceEntity>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntity();
         	
@@ -321,7 +320,7 @@ public class ExpressionCanvas extends DiagramCanvas {
            			addExpressionInfoToComplexComponents((ComplexNode) entity);
            		} 
            		else if (entity.getType() == GraphObjectType.ProcessNode) {
-           			((ExpressionProcessNodeRenderer) renderer).setProcessNodeExpression(currentPathwayExpressionForDataPoint.getProcessNodeExpressionObject(entity));
+           			((ExpressionProcessNodeRenderer) renderer).setProcessNodeExpression(currentPathwayExpressionForDataPoint.getProcessNodeExpressionObject(entity.getReactomeId()));
            		}	
            		else {
            			Long refEntityId = getReferenceEntityId((physicalToReferenceEntityMap.get(entity.getReactomeId())));
@@ -509,13 +508,13 @@ public class ExpressionCanvas extends DiagramCanvas {
     	private List<Request> requestsInProgress;
     	private boolean allRequestsAdded;
     	private Integer dataPointIndex;
-    	private Map<GraphObject, ProcessNodeExpression> processNodeToExpression;
+    	private Map<Long, ProcessNodeExpression> processNodeToExpression;
     	
     	public PathwayExpressionForDataPoint(CanvasPathway pathway, Integer dataPointIndex) {
     		this.pathway = pathway;
     		this.requestsInProgress = new ArrayList<Request>();
     		this.dataPointIndex = dataPointIndex;
-    		this.processNodeToExpression = new HashMap<GraphObject, ProcessNodeExpression>();
+    		this.processNodeToExpression = new HashMap<Long, ProcessNodeExpression>();
     	}
 
 		public CanvasPathway getPathway() {
@@ -555,11 +554,11 @@ public class ExpressionCanvas extends DiagramCanvas {
     		return dataPointIndex;
     	}
     	
-    	public ProcessNodeExpression getProcessNodeExpressionObject(GraphObject pathwayEntity) {
-    		return processNodeToExpression.get(pathwayEntity);
+    	public ProcessNodeExpression getProcessNodeExpressionObject(Long pathway) {
+    		return processNodeToExpression.get(pathway);
     	}
     	
-    	public void addProcessNodeExpressionObject(GraphObject processNode, ProcessNodeExpression processNodeExpression) {
+    	public void addProcessNodeExpressionObject(Long processNode, ProcessNodeExpression processNodeExpression) {
     		processNodeToExpression.put(processNode, processNodeExpression);
     	}
     }

@@ -344,7 +344,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
     protected void setCanvasPathway(CanvasPathway pathway) {
         reset(); // Resets scale and translation of all canvases
-    	
+    	clearExpressionCanvas();
+    	clearInteractorOverlay();
+        
     	// Get the old displayed pathway
     	CanvasPathway old = pathwayCanvas.getPathway();
     	//        System.out.println("Set pathway: " + pathway.getReactomeId());
@@ -352,11 +354,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	// Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
 
-        pathwayCanvas.setPathway(pathway);    
-        pathwayCanvas.update();        
- 
-        clearInteractorOverlay();
-        	
+        pathwayCanvas.setPathway(pathway);
+        pathwayCanvas.update();
+
         if (overlayDataController != null && pathway != null) {
         	overlayDataController.display(contentPane,
         									expressionCanvas.getCoordinateSpaceWidth(),
@@ -796,12 +796,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		interactorCanvas.removeAllProteins();
     }
     
+    
     private void clearExpressionOverlay() {
+    	clearDataController();
+    	clearExpressionCanvas();
+    }
+    private void clearDataController() {
     	if (overlayDataController != null) {
     		overlayDataController.dispose();
     		overlayDataController = null;
     	}
-    	
+    }
+    
+    private void clearExpressionCanvas() {
     	if (expressionCanvas != null )	{
     		expressionCanvas.setPathway(null);
     	}
