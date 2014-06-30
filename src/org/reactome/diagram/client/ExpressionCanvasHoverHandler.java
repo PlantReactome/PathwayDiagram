@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.reactome.diagram.client.ExpressionCanvas.ProcessNodeExpression;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
@@ -33,16 +34,16 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     public GraphObject hover(Point hoverPoint) {
         this.hoverPoint = hoverPoint;
         
-    	if (expressionCanvas.getObjectsForRendering() == null || expressionCanvas.getAnalysisType() == AnalysisType.SpeciesComparison)
+    	if (expressionCanvas.getObjectsForRendering() == null)
             return null;
     	
         List<GraphObject> objects = expressionCanvas.getObjectsForRendering();
         super.hover(objects);
                 
         if (hoveredObject != null) {
-        	if (!(isOverSameObject && timeElapsed)) {
+        	//if (!(isOverSameObject && timeElapsed)) {
         		showTooltip();
-        	}
+        	//}
         	
         	return hoveredObject;
         } else {
@@ -54,21 +55,55 @@ public class ExpressionCanvasHoverHandler extends HoverHandler {
     	if (showTooltipForHoveredObjectType() == false)
     		return;
     	
+    	tooltip.setWidget(new HTML(getTooltipText()));
+    	super.showTooltip();
+    }
+    
+    private String getTooltipText() {
+    	if (hoveredObjectIsProcessNode())
+    		return getTextForProcessNode();
+    	else if (hoveredObjectIsSingleEntity())
+    		return getTextForSingleEntity();
+		return null;
+    }
+    
+    private String getTextForProcessNode() {
+    	ProcessNodeExpression processNodeExpression = expressionCanvas
+    			.getCurrentPathwayExpressionForDataPoint()
+    			.getProcessNodeExpressionObject(hoveredObject.getReactomeId());
+    	
+    	if (processNodeExpression == null)
+    		return "No entities found";
+    	
+    	String text = "";
+    	if (expressionCanvas.getAnalysisType() == AnalysisType.Expression)
+    		text += "Average expression: " + processNodeExpression.getExpValue() + "<br />";
+    	
+    	return text += "Entities found: " + processNodeExpression.getFound() + "/" + processNodeExpression.getTotal();
+    }
+    
+    private String getTextForSingleEntity() {
     	String text = "Expression Identifiers: " + getExpressionIdForHoveredObject();
     	
     	if (expressionCanvas.getAnalysisType() == AnalysisType.Expression)
     		text += "<br /> Median Expression Level: " + getExpressionLevelForHoveredObject();
-   
-    	tooltip.setWidget(new HTML(text));
-    
-    	super.showTooltip();
+		
+    	return text;
     }
 
     private boolean showTooltipForHoveredObjectType() {
-    	return hoveredObject.getType() == GraphObjectType.RenderableGene ||
+		return hoveredObjectIsProcessNode() || hoveredObjectIsSingleEntity();
+	}
+
+	private boolean hoveredObjectIsSingleEntity() {
+    	return 	hoveredObject.getType() == GraphObjectType.RenderableGene ||
     			hoveredObject.getType() == GraphObjectType.RenderableRNA ||
     			hoveredObject.getType() == GraphObjectType.RenderableProtein ||
     			hoveredObject.getType() == GraphObjectType.RenderableChemical;
+    }
+    
+    private boolean hoveredObjectIsProcessNode() {
+    	return hoveredObject.getType() == GraphObjectType.ProcessNode;
     }
     
     private String getExpressionIdForHoveredObject() {

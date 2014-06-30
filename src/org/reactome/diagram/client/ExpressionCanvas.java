@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.client;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +102,10 @@ public class ExpressionCanvas extends DiagramCanvas {
 		clearCache();
 	}
 
+	public PathwayExpressionForDataPoint getCurrentPathwayExpressionForDataPoint() {
+		return currentPathwayExpressionForDataPoint;
+	}
+
 	public List<GraphObject> getObjectsForRendering() {
     	if (pathway == null)
     		return null;
@@ -116,7 +122,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	drawCanvasLayer(c2d);
     }	
 
-    public void clearCache() {
+	public void clearCache() {
     	resourceToPathwayExpressionMap.clear();
     	
     	if (currentPathwayExpressionForDataPoint != null)
@@ -503,7 +509,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 		}
     }
     
-    private class PathwayExpressionForDataPoint {
+    public class PathwayExpressionForDataPoint {
     	private CanvasPathway pathway;
     	private List<Request> requestsInProgress;
     	private boolean allRequestsAdded;
@@ -584,7 +590,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	}
     	
     	public Double getExpValue() {
-			return expValue;
+			return new BigDecimal(expValue).setScale(2, RoundingMode.HALF_UP).doubleValue();
     	}
     	
     	public int getFound() {
