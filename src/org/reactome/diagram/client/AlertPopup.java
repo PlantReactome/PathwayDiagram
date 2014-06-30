@@ -4,6 +4,9 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -19,6 +22,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  *
  */
 public class AlertPopup {
+    private static Map<String, DialogBox> existingAlerts = new HashMap<String, DialogBox>();
     
     public static DialogBox alert(String alertText) {
     	DialogBox popUp = init(alertText);
@@ -26,8 +30,11 @@ public class AlertPopup {
     	return popUp;
     }
     
-    private static DialogBox init(String labelText) { 
-        final DialogBox popUp = new DialogBox(false, false);
+    private static DialogBox init(final String labelText) { 
+        if (existingAlerts.containsKey(labelText))
+        	return existingAlerts.get(labelText);
+    	
+    	final DialogBox popUp = new DialogBox(false, false);
     	VerticalPanel vPane = new VerticalPanel();
         HTML alertLabel = new HTML(labelText);        
         Button button = new Button("Ok", new ClickHandler() {
@@ -35,6 +42,7 @@ public class AlertPopup {
 			@Override
 			public void onClick(ClickEvent event) {
 				popUp.hide();
+				existingAlerts.remove(labelText);
 			}
         	
         });
@@ -47,6 +55,7 @@ public class AlertPopup {
         popUp.setWidget(vPane);
         popUp.setText("Alert!");
         
+        existingAlerts.put(labelText, popUp);
         return popUp;
     }
 
