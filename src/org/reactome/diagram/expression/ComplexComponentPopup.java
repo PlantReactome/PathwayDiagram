@@ -6,7 +6,6 @@
 package org.reactome.diagram.expression;
 
 import java.util.List;
-
 import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramController;
@@ -15,16 +14,21 @@ import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.ComplexNode.Component;
 import org.reactome.diagram.model.ReactomeXMLParser;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 
@@ -36,12 +40,14 @@ import com.google.gwt.xml.client.NodeList;
 public class ComplexComponentPopup extends DialogBox {
     private ComplexNode complexNode;
 	private ExpressionCanvas expressionCanvas;
+	private VerticalPanel verticalPanel;
 	private ScrollPanel scrollPanel;
 	private FlexTable componentTable;
+	private Button closeButton;
 
 	
     public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
-        super(true);
+        super(false);
         this.expressionCanvas = expressionCanvas;
         addCloseHandler(new CloseHandler<PopupPanel>() {
 				@Override
@@ -53,11 +59,26 @@ public class ComplexComponentPopup extends DialogBox {
     }
     
     private void init() {
+    	this.verticalPanel = new VerticalPanel();
+    	
     	this.scrollPanel = new ScrollPanel();
     	this.componentTable = new FlexTable();
-    	
     	this.scrollPanel.add(this.componentTable);
-        setWidget(this.scrollPanel);
+    	
+    	this.closeButton = new Button("Close");
+    	this.closeButton.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();				
+			}
+    		
+    	});
+    	
+    	this.verticalPanel.add(scrollPanel);
+    	this.verticalPanel.add(closeButton);
+    	this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        setWidget(this.verticalPanel);
     }
    
     /**
@@ -74,8 +95,6 @@ public class ComplexComponentPopup extends DialogBox {
      */
     public void showPopup(ComplexNode selectedComplex) {
         this.complexNode = selectedComplex;
-    	
-    	hide();
         
         String componentsWithoutDisplayNames = getRefIdsForComponentsWithNoDisplayName();
         
@@ -164,7 +183,8 @@ public class ComplexComponentPopup extends DialogBox {
         
     	expressionCanvas.setGreyOutCanvas(true);
     	bringToFront();
-    	center();
+    	if (isShowing() == false)
+    		center();
     	setScrollPanelSize();    		     	
     }
         
