@@ -362,6 +362,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         									expressionCanvas.getCoordinateSpaceWidth(),
         									expressionCanvas.getCoordinateSpaceHeight());
         	overlayDataController.setPathway(pathway);
+        	complexComponentPopup.hide();        	
         }
         
        	PathwayChangeEvent event = new PathwayChangeEvent();
@@ -763,6 +764,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 				expressionCanvasModel.setEntityExpressionInfoMap(id, level,	color);
 				
 				expressionCanvas.setPathway(getPathway()); // Updates the view after setting/re-setting the pathway				
+			
+				if (complexComponentPopup.isShowing()) {
+					complexComponentPopup.makeTable();
+				}
 			}    		
     	};
     	
