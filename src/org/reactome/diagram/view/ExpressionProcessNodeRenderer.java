@@ -32,11 +32,13 @@ public class ExpressionProcessNodeRenderer extends NodeRenderer {
     	
     	drawSegment(bounds, Parameters.defaultExpressionColor.value(), context);
 		if (processNodeExpression != null && processNodeExpression.getColor() != null) {
-            Bounds segmentBounds = new Bounds(bounds);
-            segmentBounds.setWidth((int) (bounds.getWidth() * ((double) processNodeExpression.getFound() / processNodeExpression.getTotal())));
-    		drawSegment(segmentBounds, processNodeExpression.getColor(), context);
-    	
-        }
+            Double segmentWidth = (bounds.getWidth() * ((double) processNodeExpression.getFound() / processNodeExpression.getTotal()));
+    		segmentWidth = SegmentWidthAdjuster.getInstance().getVisibleWidth(bounds.getWidth(), segmentWidth, 1);
+            
+    		Bounds segmentBounds = new Bounds(bounds);
+    		segmentBounds.setWidth(segmentWidth.intValue());
+            drawSegment(segmentBounds, processNodeExpression.getColor(), context);
+    	}
         
         context.strokeRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
     }
@@ -46,4 +48,8 @@ public class ExpressionProcessNodeRenderer extends NodeRenderer {
     	context.fillRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
     }
     
+    @Override
+    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0, int y0) {
+    	new ExpressionSegmentRendererHelper().drawLineWithBubbleLetters(lineBreak, context2d, dashLastPhrase, x0, y0);
+    }
 }

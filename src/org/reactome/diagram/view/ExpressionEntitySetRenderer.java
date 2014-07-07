@@ -4,16 +4,12 @@
  */
 package org.reactome.diagram.view;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -26,8 +22,8 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
 	private Double innerRectStartX;
 	private Double innerRectEndX;
 	private Double segmentHeight;
+	private ExpressionSegmentRendererHelper segmentRendererHelper;
 	private QuadraticBezierCurve curve;
-	private List<String> componentColors;
 	
     public ExpressionEntitySetRenderer() {
         super();
@@ -44,12 +40,13 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
+    	segmentRendererHelper = new ExpressionSegmentRendererHelper();
     	final ComplexNode currentComplex = (ComplexNode) node;
     	
-    	componentColors = currentComplex.getComponentColors();
+    	segmentRendererHelper.setComponentColors(currentComplex.getComponentColors());
     	
-    	if (getUniqueComponentColors().size() == 1) {
-    		final String bgColor = getComponentColors().get(0); 
+    	if (segmentRendererHelper.getUniqueComponentColors().size() == 1) {
+    		final String bgColor = segmentRendererHelper.getComponentColors().get(0); 
     		
     		currentComplex.setBgColor(bgColor);
     		currentComplex.setFgColor(currentComplex.getVisibleFgColor(bgColor));
@@ -59,24 +56,28 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
     		return;
     	}
     	
+    	context.setFillStyle(Parameters.defaultExpressionColor.value());
+    	super.drawRectangle(bounds, context, node);
+    	
     	setStroke(context, node);
         currentX = (double) bounds.getX();
         currentY = (double) bounds.getY() + getRadius();
         innerRectStartX = currentX + getRadius();
         innerRectEndX = currentX + bounds.getWidth() - getRadius();
         
-        Double segmentWidth = ((double) bounds.getWidth() / getComponentColors().size());
+        Double segmentWidth = ((double) bounds.getWidth() / segmentRendererHelper.getComponentColors().size());
+        segmentWidth = SegmentWidthAdjuster.getInstance().getVisibleWidth(bounds.getWidth(), segmentWidth, segmentRendererHelper.getNonWhiteComponentColors().size());
         segmentHeight = (double) (bounds.getHeight() - (2 * getRadius()));
         
         if (segmentWidth < 10) {
         		currentY -= getRadius();
-        		for (Integer i = 0; i < getComponentColors().size(); i++) {
-        			context.setFillStyle(getComponentColors().get(i));
+        		for (Integer i = 0; i < segmentRendererHelper.getNonWhiteComponentColors().size(); i++) {
+        			context.setFillStyle(segmentRendererHelper.getNonWhiteComponentColors().get(i));
         			drawRectangleSegment(segmentWidth, (double) bounds.getHeight(), context);
         		}
         } else {
-        	for (Integer i = 0; i < getComponentColors().size(); i++) {
-        		drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), getComponentColors().get(i), context);
+        	for (Integer i = 0; i < segmentRendererHelper.getNonWhiteComponentColors().size(); i++) {
+        		drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), segmentRendererHelper.getNonWhiteComponentColors().get(i), context);
         	}
         }
         //createPath(bounds, context);
@@ -85,29 +86,13 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
     
     protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {
     	// When complex has white background, draw line as a generic node does
-    	if (getUniqueComponentColors().size() == 1 && getComponentColors().get(0).equals("rgb(255,255,255)")) {
+    	if (segmentRendererHelper.getUniqueComponentColors().size() == 1 && 
+    		segmentRendererHelper.getComponentColors().get(0).equals("rgb(255,255,255)")) {
     		super.drawLine(lineBreak, context2d, dashLastPhrase, x0, y0);
     		return;
     	}
     	
-    	double wordX = x0;
-    	double wordY = y0 + lineBreak * Parameters.LINE_HEIGHT;
-    	double measure = context2d.measureText(dashLastPhrase).getWidth();
-    	
-    	final FillStrokeStyle oldFillStyle = context2d.getFillStyle();
-    	final FillStrokeStyle oldStrokeStyle = context2d.getStrokeStyle();
-    	final double lineWidth = context2d.getLineWidth();
-    	
-    	context2d.setFillStyle("rgb(255,255,255)"); // White fill 
-    	context2d.setStrokeStyle("rgb(0, 0, 0)"); // Black stroke
-    	context2d.setLineWidth(2.5);
-    	
-    	context2d.strokeText(dashLastPhrase, wordX, wordY, measure);
-    	context2d.fillText(dashLastPhrase, wordX, wordY, measure);
-     	
-    	context2d.setFillStyle(oldFillStyle);
-    	context2d.setStrokeStyle(oldStrokeStyle);
-    	context2d.setLineWidth(lineWidth);
+    	segmentRendererHelper.drawLineWithBubbleLetters(lineBreak, context2d, dashLastPhrase, x0, y0);
     }
     
     private void drawSegment(Double width, Double height, Integer maxSegmentHeight, String color, Context2d context) {
@@ -225,14 +210,6 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
     private void drawRectangleSegment(Double width, Double height, Context2d context) {
     	context.fillRect(currentX, currentY, width, height);
     	currentX += width;
-    }
-    
-    private List<String> getComponentColors() {
-    	return componentColors;
-    }
-    
-    private Set<String> getUniqueComponentColors() {
-    	return new HashSet<String>(getComponentColors());
     }
     
     private class QuadraticBezierCurve {
