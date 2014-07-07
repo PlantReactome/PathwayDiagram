@@ -291,10 +291,10 @@ public class ComplexNode extends Node {
 					} else if (c.getExpressionColor() == null || c.getExpressionColor().equals(Parameters.defaultExpressionColor.value())) {
 						return 1;
 					} else {
-						return 0;
+						return compareToAlphabetically(c);
 					}
 				}
-				return 0;
+				return compareToAlphabetically(c);
 			} else if (expressionLevel == null)
 				return -1;
 			else if (c.getExpressionLevel() == null)
@@ -304,8 +304,15 @@ public class ComplexNode extends Node {
 			else if (expressionLevel < c.getExpressionLevel())
 				return -1;
 						
-			return 0;
+			return compareToAlphabetically(c);
 		}		
+		
+		private int compareToAlphabetically(Component c) {
+			if (getDisplayName() == null)
+				return -1;
+			
+			return getDisplayName().compareToIgnoreCase(c.getDisplayName());
+		}
 		
 		public boolean equals(Object obj) {
 			if (obj instanceof Component && reactomeIdsEqual(((Component) obj).getReactomeId()))

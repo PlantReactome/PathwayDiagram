@@ -362,7 +362,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         									expressionCanvas.getCoordinateSpaceWidth(),
         									expressionCanvas.getCoordinateSpaceHeight());
         	overlayDataController.setPathway(pathway);
-        	complexComponentPopup.hide();        	
+        	hideComplexComponentPopup();
         }
         
        	PathwayChangeEvent event = new PathwayChangeEvent();
@@ -671,7 +671,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     	
     	initExpressionCanvas();
-	    complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
+    	if (complexComponentPopup == null)
+    		complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	
     	AnalysisController analysisController = new AnalysisController();
     	analysisController.retrieveAnalysisResult(token, new RequestCallback() {
@@ -766,7 +767,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 				expressionCanvas.setPathway(getPathway()); // Updates the view after setting/re-setting the pathway				
 			
 				if (complexComponentPopup.isShowing()) {
-					complexComponentPopup.makeTable();
+					complexComponentPopup.createTable();
 				}
 			}    		
     	};
@@ -805,7 +806,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private void clearExpressionOverlay() {
     	clearDataController();
     	clearExpressionCanvas();
+    	hideComplexComponentPopup();
     }
+    
     private void clearDataController() {
     	if (overlayDataController != null) {
     		overlayDataController.dispose();
@@ -817,6 +820,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	if (expressionCanvas != null )	{
     		expressionCanvas.setPathway(null);
     	}
+    }
+    
+    private void hideComplexComponentPopup() {
+    	if (complexComponentPopup != null)
+    		complexComponentPopup.hide();
     }
     
     /**

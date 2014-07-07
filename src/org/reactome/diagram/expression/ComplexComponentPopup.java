@@ -47,7 +47,7 @@ public class ComplexComponentPopup extends DialogBox {
 
 	
     public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
-        super(false);
+        super(false, false);
         this.expressionCanvas = expressionCanvas;
         addCloseHandler(new CloseHandler<PopupPanel>() {
 				@Override
@@ -194,7 +194,7 @@ public class ComplexComponentPopup extends DialogBox {
     	return numberOfComponents == 0;
 	}
 
-	private void createTable() {
+	public void createTable() {
     	this.componentTable.removeAllRows();
     	this.componentTable.setBorderWidth(1);
     	
