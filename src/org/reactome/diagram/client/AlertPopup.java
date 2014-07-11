@@ -4,9 +4,6 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -22,7 +19,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  *
  */
 public class AlertPopup {
-    private static Map<String, DialogBox> existingAlerts = new HashMap<String, DialogBox>();
+	private static DialogBox existingAlert;
+    private static HTML existingLabel;
     
     public static DialogBox alert(String alertText) {
     	DialogBox popUp = init(alertText);
@@ -30,33 +28,38 @@ public class AlertPopup {
     	return popUp;
     }
     
-    private static DialogBox init(final String labelText) { 
-        if (existingAlerts.containsKey(labelText))
-        	return existingAlerts.get(labelText);
+    private static DialogBox init(final String labelText) {
+    	if (existingAlert == null)  
+    		existingAlert = new DialogBox(false, false);
     	
-    	final DialogBox popUp = new DialogBox(false, false);
-    	VerticalPanel vPane = new VerticalPanel();
-        HTML alertLabel = new HTML(labelText);        
+        if (existingLabel == null) 
+        	existingLabel = new HTML(labelText);
+    	else {
+    		if (!existingLabel.getHTML().contains(labelText))
+    			existingLabel.setHTML(existingLabel.getHTML() + "<br />" + labelText);
+    	}
+    
         Button button = new Button("Ok", new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				popUp.hide();
-				existingAlerts.remove(labelText);
+				existingAlert.hide();
+				existingAlert = null;
+				existingLabel = null;
 			}
         	
         });
         
+        VerticalPanel vPane = new VerticalPanel();
         vPane.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        vPane.add(alertLabel);
+        vPane.add(existingLabel);
         vPane.add(button);
         
-        setStyle(popUp);
-        popUp.setWidget(vPane);
-        popUp.setText("Alert!");
+        setStyle(existingAlert);
+        existingAlert.setWidget(vPane);
+        existingAlert.setText("Alert!");
         
-        existingAlerts.put(labelText, popUp);
-        return popUp;
+        return existingAlert;
     }
 
 	private static void setStyle(DialogBox popUp) {
