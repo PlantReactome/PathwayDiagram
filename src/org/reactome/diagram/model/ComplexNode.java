@@ -163,7 +163,7 @@ public class ComplexNode extends Node {
 
     public RequestCallback setParticipatingMolecules() {
     	RequestCallback setParticipatingMolecules = new RequestCallback() {
-    		private final String ERROR_MSG = "Unable to get participating molecules. "; 
+    		private final String ERROR_MSG = "Unable to get participating molecules for " + getDisplayName(); 
     		
 			@Override
 			public void onResponseReceived(Request request, Response response) {
