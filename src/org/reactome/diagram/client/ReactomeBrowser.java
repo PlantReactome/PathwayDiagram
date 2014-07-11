@@ -43,7 +43,7 @@ public class ReactomeBrowser implements EntryPoint {
 	
 	public void onModuleLoad() {
 	    
-	    diagramPane = new PathwayDiagramPanel();
+	    diagramPane = new PathwayDiagramPanel(true);
 	    diagramPane.setRestServiceURL("/ReactomeRESTfulAPI/RESTfulWS/");
 //	    System.out.println("Size: " + Window.getClientWidth() + ", " + Window.getClientHeight());
 	    diagramPane.setSize(Window.getClientWidth(),

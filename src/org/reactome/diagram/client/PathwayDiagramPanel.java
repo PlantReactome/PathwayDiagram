@@ -111,7 +111,13 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     public static final ImageResources IMAGES = GWT.create(ImageResources.class);
     
     public PathwayDiagramPanel() {
-        init();
+        this(false);
+    }
+    
+    public PathwayDiagramPanel(boolean testMode) {
+    	init();
+    	if (testMode)
+    		addTestCode();
     }
     
     private void init() {
@@ -178,8 +184,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         popupMenu = new CanvasPopupMenu(this);
         //popupMenu.setStyleName(style.canvasPopup());
         addDomHandler(this, ContextMenuEvent.getType());
-        
-        //addTestCode();
     }
     
     public List<DiagramCanvas> getCanvasList() {
