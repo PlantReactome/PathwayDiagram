@@ -35,15 +35,6 @@ public class SpeciesComparisonDataController extends DataController {
     	navigationPane = new SpeciesComparisonNavigationPane();
     }
     
-    @Override
-    public void setPathway(CanvasPathway pathway) {
-   		super.setPathway(pathway);
-        
-   		if (pathway != null) {
-        	onDataPointChange(0);
-        }
-    }
-    
     public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {    	
     	final String YELLOW = "rgb(255, 255, 102)";
     	//final String BLUE = "rgb(0, 0, 255)";

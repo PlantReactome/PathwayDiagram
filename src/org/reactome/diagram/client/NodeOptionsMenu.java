@@ -75,23 +75,23 @@ public abstract class NodeOptionsMenu {
     }   
     
     // Complex Entity Menu
-    private void createComplexMenu(boolean expressionData) {
+    private void createComplexMenu() {
     	createPhysicalEntityMenu();
     	
     	if (((ComplexNode) selected).participatingMoleculesObtained()) {
-    		setPMMenu(expressionData);
+    		setPMMenu();
     	} else {
-    		getController().getParticipatingMolecules(selected.getReactomeId(), setParticipatingMolecules(expressionData));
+    		getController().getParticipatingMolecules(selected.getReactomeId(), setParticipatingMolecules());
     	}
     }
     	
-    private RequestCallback setParticipatingMolecules(final boolean expressionData) {
+    private RequestCallback setParticipatingMolecules() {
     	RequestCallback setParticipatingMolecules = new RequestCallback() {
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
 				((ComplexNode) selected).setParticipatingMolecules().onResponseReceived(request, response);
-				setPMMenu(expressionData);
+				setPMMenu();
 			}
 
 			@Override
@@ -105,13 +105,13 @@ public abstract class NodeOptionsMenu {
     }
     
     // Set participating molecules menu
-    private void setPMMenu(boolean expressionData) {    	
+    private void setPMMenu() {
     	menuItemsBeingCreated += 1;
-    	if (expressionData) {
+    	if (diagramPane.getOverlayDataController() != null) {
    			addItem("Display Participating Molecules", new Command() {
 				@Override
 				public void execute() {
-					diagramPane.getComplexComponentPopup().showPopup((ComplexNode) selected);
+					diagramPane.getOverlayDataController().showPopup((ComplexNode) selected);
 					hide();							
 				}    					
    			});   			
@@ -384,12 +384,8 @@ public abstract class NodeOptionsMenu {
         	createProcessNodeMenu();            
         } else if (type == GraphObjectType.RenderableComplex ||
         		   type == GraphObjectType.RenderableEntitySet) {
-            boolean expressionData = !(
-                    diagramPane.getExpressionCanvas() == null ||
-                    diagramPane.getExpressionCanvas().getPathway() == null
-            );
             //numberOfMenuItems = 2;
-        	createComplexMenu(expressionData);
+        	createComplexMenu();
         } else if (type == GraphObjectType.RenderableProtein) {
         	//numberOfMenuItems = 3;
         	createGEEMenu();

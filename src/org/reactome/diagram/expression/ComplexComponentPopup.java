@@ -7,8 +7,8 @@ package org.reactome.diagram.expression;
 
 import java.util.List;
 import org.reactome.diagram.client.AlertPopup;
-import org.reactome.diagram.client.ExpressionCanvas;
 import org.reactome.diagram.client.PathwayDiagramController;
+import org.reactome.diagram.client.WidgetStyle;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.model.ComplexNode;
 import org.reactome.diagram.model.ComplexNode.Component;
@@ -16,8 +16,6 @@ import org.reactome.diagram.model.ReactomeXMLParser;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -26,7 +24,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Element;
@@ -39,22 +36,16 @@ import com.google.gwt.xml.client.NodeList;
  */
 public class ComplexComponentPopup extends DialogBox {
     private ComplexNode complexNode;
-	private ExpressionCanvas expressionCanvas;
+    private AnalysisType analysisType;
 	private VerticalPanel verticalPanel;
 	private ScrollPanel scrollPanel;
 	private FlexTable componentTable;
 	private Button closeButton;
 
-	
-    public ComplexComponentPopup(ExpressionCanvas expressionCanvas) {
+    public ComplexComponentPopup(ComplexNode complexNode, AnalysisType analysisType) {
         super(false, false);
-        this.expressionCanvas = expressionCanvas;
-        addCloseHandler(new CloseHandler<PopupPanel>() {
-				@Override
-				public void onClose(CloseEvent<PopupPanel> event) {
-					ComplexComponentPopup.this.expressionCanvas.setGreyOutCanvas(false);
-				}       	
-        });
+        this.complexNode = complexNode;
+        this.analysisType = analysisType;
         init();
     }
     
@@ -79,6 +70,8 @@ public class ComplexComponentPopup extends DialogBox {
     	this.verticalPanel.add(closeButton);
     	this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
         setWidget(this.verticalPanel);
+        
+        WidgetStyle.setZIndex(this, 2);
     }
    
     /**
@@ -93,9 +86,7 @@ public class ComplexComponentPopup extends DialogBox {
      * Show popup menu
      * @param panel
      */
-    public void showPopup(ComplexNode selectedComplex) {
-        this.complexNode = selectedComplex;
-        
+    public void showPopup() {
         String componentsWithoutDisplayNames = getRefIdsForComponentsWithNoDisplayName();
         
         if (!componentsWithoutDisplayNames.isEmpty()) {
@@ -181,8 +172,6 @@ public class ComplexComponentPopup extends DialogBox {
         
     	setText("Components for " + complexNode.getDisplayName() + ": ");
         
-    	expressionCanvas.setGreyOutCanvas(true);
-    	bringToFront();
     	if (isShowing() == false)
     		center();
     	setScrollPanelSize();    		     	
@@ -201,8 +190,7 @@ public class ComplexComponentPopup extends DialogBox {
     	addHeader();
     	
     	for (Component component : complexNode.getComponents()) {
-    		//if (component.getRefEntityId() != null)
-    			addRow(component);
+    		addRow(component);
     	}
     }	
     		
@@ -232,10 +220,10 @@ public class ComplexComponentPopup extends DialogBox {
     		addLabel(getText(component.getExpressionLevel()), rowIndex, 2, bgColor);
     	}		
     }
-       
-    private Boolean isExpressionAnalysis() {
-    	return expressionCanvas.getAnalysisType() == AnalysisType.Expression;
-    }
+	
+	private boolean isExpressionAnalysis() {
+		return analysisType == AnalysisType.Expression;
+	}
 	
 	private String getText(Object object) {
 		return ((object != null) ? object.toString() : "N/A");
@@ -254,10 +242,6 @@ public class ComplexComponentPopup extends DialogBox {
     	this.componentTable.setWidget(row, column, label);
     	
     	return label;
-    }
-    
-    private void bringToFront() {
-    	getElement().getStyle().setZIndex(2);
     }
     
     private void setScrollPanelSize() {

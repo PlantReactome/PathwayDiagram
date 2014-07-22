@@ -30,6 +30,7 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.GraphObjectExpressionRendererFactory;
 import org.reactome.diagram.view.ExpressionProcessNodeRenderer;
 import org.reactome.diagram.view.NodeRenderer;
+import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -157,7 +158,6 @@ public class ExpressionCanvas extends DiagramCanvas {
     			) {
     			
     			if (currentPathwayExpressionForDataPoint != null) {
-    				currentPathwayExpressionForDataPoint.setAllRequestsAdded(false);
     				currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
     			}
     				
@@ -257,6 +257,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private void getComplexNodeComponentDataBeforeRendering() {
+    	complexComponentRequests.cancelAllRequestsInProgress();
     	complexComponentRequests.setAllRequestsAdded(false);
     	for (GraphObject entity : getObjectsForRendering()) {
     		if (isComplexWithoutComponentData(entity)) {
@@ -398,7 +399,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 			defaultColor = expressionCanvasModel.getDefaultColor(); // White by default
 			
 			if (analysisType == AnalysisType.SpeciesComparison && entityType == GraphObjectType.RenderableProtein) {
-				defaultColor =  "rgb(0, 0, 255)"; // Blue for protein in species comparison with no inference
+				defaultColor =  Parameters.defaultSpeciesComparisonProteinColor.value(); // Blue for protein in species comparison with no inference
 			}
 		} else {
 			AlertPopup.alert(analysisType.name() + " is an unknown analysis type");
@@ -432,9 +433,12 @@ public class ExpressionCanvas extends DiagramCanvas {
 	}
 	
 	private GraphObjectType getEntityType(String schemaClass) {
-		if (schemaClass.equalsIgnoreCase("ReferenceGeneProduct") || schemaClass.equalsIgnoreCase("ReferenceIsoform")) {
+		if (schemaClass.equalsIgnoreCase("ReferenceGeneProduct") || 
+			schemaClass.equalsIgnoreCase("ReferenceIsoform") ||
+			schemaClass.equalsIgnoreCase("EntityWithAccessionedSequence")) {
 			return GraphObjectType.RenderableProtein;
-		} else if (schemaClass.equalsIgnoreCase("ReferenceMolecule")) {
+		} else if (schemaClass.equalsIgnoreCase("ReferenceMolecule") ||
+				   schemaClass.equalsIgnoreCase("SimpleEntity")) {
 			return GraphObjectType.RenderableChemical;
 		} else {
 			return null;
@@ -484,6 +488,15 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 		public boolean allComplexNodesReady() {
 			return allRequestsAdded() && requests.isEmpty();
+		}
+		
+		public void cancelAllRequestsInProgress() {
+			for (Request request : requests)
+				request.cancel();
+			
+			setAllRequestsAdded(false);
+			
+			requests.clear();
 		}
     }
     
@@ -552,6 +565,8 @@ public class ExpressionCanvas extends DiagramCanvas {
     	public void cancelAllRequestsInProgress() {
     		for (Request request : requestsInProgress)
     			request.cancel();
+    		
+    		setAllRequestsAdded(false);
     		
     		requestsInProgress.clear();
     	}

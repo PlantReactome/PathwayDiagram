@@ -25,7 +25,6 @@ import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
 import org.reactome.diagram.expression.DataController;
-import org.reactome.diagram.expression.ComplexComponentPopup;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.OverrepresentationDataController;
 import org.reactome.diagram.expression.SpeciesComparisonDataController;
@@ -79,7 +78,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     // Expression and species comparison overlay shown here
     private ExpressionCanvas expressionCanvas;
     // Popup for showing complex component expression or species comparison data
-    private ComplexComponentPopup complexComponentPopup;
+    //private ComplexComponentPopup complexComponentPopup;
     // GUI component for expression or species comparison data
     private DataController overlayDataController;
     // Interactors shown here
@@ -198,7 +197,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	
             @Override
             public void onClick(ClickEvent event) {
-                String token = clicks % 2 == 0 ? "MDYxMzExMjUzM18y" : "MDYxMzExMjQ1NV8x"; 
+                String token = clicks % 2 == 0 ? "MjAxNDA3MTYxNzUyMDNfMw%253D%253D" : "MDYxMzExMjQ1NV8x"; 
             	String resourceName = "TOTAL";
             	
             	showAnalysisData(token, resourceName);
@@ -366,7 +365,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         									expressionCanvas.getCoordinateSpaceWidth(),
         									expressionCanvas.getCoordinateSpaceHeight());
         	overlayDataController.setPathway(pathway);
-        	hideComplexComponentPopup();
         }
         
        	PathwayChangeEvent event = new PathwayChangeEvent();
@@ -675,8 +673,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     	
     	initExpressionCanvas();
-    	if (complexComponentPopup == null)
-    		complexComponentPopup = new ComplexComponentPopup(expressionCanvas);
     	
     	AnalysisController analysisController = new AnalysisController();
     	analysisController.retrieveAnalysisResult(token, new RequestCallback() {
@@ -768,11 +764,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 				
 				expressionCanvasModel.setEntityExpressionInfoMap(id, level,	color);
 				
-				expressionCanvas.setPathway(getPathway()); // Updates the view after setting/re-setting the pathway				
-			
-				if (complexComponentPopup.isShowing()) {
-					complexComponentPopup.createTable();
-				}
+				expressionCanvas.setPathway(getPathway()); // Updates the view after setting/re-setting the pathway
 			}    		
     	};
     	
@@ -810,7 +802,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     private void clearExpressionOverlay() {
     	clearDataController();
     	clearExpressionCanvas();
-    	hideComplexComponentPopup();
     }
     
     private void clearDataController() {
@@ -824,11 +815,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	if (expressionCanvas != null )	{
     		expressionCanvas.setPathway(null);
     	}
-    }
-    
-    private void hideComplexComponentPopup() {
-    	if (complexComponentPopup != null)
-    		complexComponentPopup.hide();
     }
     
     /**
@@ -884,10 +870,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	
 	public ExpressionCanvas getExpressionCanvas() {
 		return expressionCanvas;
-	}
-	
-	public ComplexComponentPopup getComplexComponentPopup() {
-		return complexComponentPopup;
 	}
 	
 	private class LocalResizeEvent extends ResizeEvent {
@@ -971,6 +953,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 		}
 		
 		return existingHoverHandlers;
+	}
+
+	public DataController getOverlayDataController() {
+		return overlayDataController;
 	}
 	
 }

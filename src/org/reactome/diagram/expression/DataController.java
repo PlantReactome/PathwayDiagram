@@ -19,8 +19,10 @@ import org.reactome.diagram.expression.event.DataPointChangeEvent;
 import org.reactome.diagram.expression.event.DataPointChangeEventHandler;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
+import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.PathwayOverlay;
 import org.reactome.diagram.model.CanvasPathway;
+import org.reactome.diagram.model.ComplexNode;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -72,6 +74,8 @@ public abstract class DataController implements ResizeHandler {
     private AnalysisResult analysisResult;
     private String resourceName;
     
+    private ComplexComponentPopupManager complexComponentPopupManager;
+    
     /**
      * Some icons
      * @author gwu
@@ -85,6 +89,11 @@ public abstract class DataController implements ResizeHandler {
     public DataController(AnalysisResult analysisResult) {
         pathwayOverlayMap = new HashMap<String, Map<Long,PathwayOverlay>>();
         setAnalysisResult(analysisResult);
+        complexComponentPopupManager = new ComplexComponentPopupManager(getAnalysisType(analysisResult));
+    }
+    
+    private AnalysisType getAnalysisType(AnalysisResult analysisResult) {
+    	return AnalysisType.getAnalysisType(analysisResult.getSummary().getType());
     }
     
     static Resources getDataControllerResources() {
@@ -107,6 +116,7 @@ public abstract class DataController implements ResizeHandler {
     
     public void setPathway(CanvasPathway pathway) {
     	this.pathway = pathway;
+    	complexComponentPopupManager.removePopups();
     	
     	if (pathway == null)
     		return;
@@ -121,8 +131,10 @@ public abstract class DataController implements ResizeHandler {
     
         
     private void setPathwayOverlay(PathwayOverlay pathwayOverlay) { 
-        this.pathwayOverlayMap.get(getResourceName()).put(pathway.getReactomeId(), pathwayOverlay);
-        onDataPointChange(getCurrentDataPoint());
+        if (pathwayOverlay.getPathway().equals(pathway)) {
+    		this.pathwayOverlayMap.get(getResourceName()).put(pathway.getReactomeId(), pathwayOverlay);
+        	onDataPointChange(getCurrentDataPoint());
+        }
     }
     
     private PathwayOverlay getPathwayOverlay() {
@@ -240,6 +252,7 @@ public abstract class DataController implements ResizeHandler {
             handlerRegistration.removeHandler();
             handlerRegistration = null;
         }
+        complexComponentPopupManager.removePopups();
         container = null; // Null it so that it can be displayed again.
     }
     
@@ -316,6 +329,7 @@ public abstract class DataController implements ResizeHandler {
             return;
         for (DataPointChangeEventHandler handler : dataPointChangeEventHandlers)
             handler.onDataPointChanged(event);
+        complexComponentPopupManager.updatePopups();
     }
     
     public void setNavigationPaneStyle(String style) {
@@ -379,4 +393,8 @@ public abstract class DataController implements ResizeHandler {
             });
         } 
     }
+
+	public void showPopup(ComplexNode selected) {
+		complexComponentPopupManager.showPopup(selected);
+	}
 }
