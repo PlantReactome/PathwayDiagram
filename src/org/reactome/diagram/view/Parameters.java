@@ -43,6 +43,7 @@ public class Parameters {
 	public static final int IMAGE_WIDTH = 80;
 
 	public static final CssColor defaultExpressionColor = CssColor.make(255, 255, 255);
+	public static final CssColor defaultSpeciesComparisonProteinColor = CssColor.make(0, 0, 255);
 	
 	public static final int UpHeight = 0;
 	public static final int refreshRate = 1500;

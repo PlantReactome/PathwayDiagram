@@ -290,6 +290,10 @@ public class ComplexNode extends Node {
 						return -1;
 					} else if (c.getExpressionColor() == null || c.getExpressionColor().equals(Parameters.defaultExpressionColor.value())) {
 						return 1;
+					} else if (expressionColor.equals(Parameters.defaultSpeciesComparisonProteinColor.value())) { 
+						return -1;
+					} else if (c.getExpressionColor().equals(Parameters.defaultSpeciesComparisonProteinColor.value())) {
+						return 1;
 					} else {
 						return compareToAlphabetically(c);
 					}

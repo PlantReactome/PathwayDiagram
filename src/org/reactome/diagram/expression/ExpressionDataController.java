@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.reactome.diagram.analysis.model.AnalysisResult;
 import org.reactome.diagram.analysis.model.ExpressionSummary;
-import org.reactome.diagram.model.CanvasPathway;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -116,13 +115,8 @@ public class ExpressionDataController extends DataController implements ResizeHa
     public void dispose() {
         if (container == null)
             return; // It has not been displayed
-        container.remove(navigationPane);
         container.remove(colorPane);
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-            handlerRegistration = null;
-        }
-        container = null; // Null it so that it can be displayed again.
+        super.dispose();
     }
     
     public Map<Long, String> convertValueToColor(Map<Long, Double> compIdToValue) {
