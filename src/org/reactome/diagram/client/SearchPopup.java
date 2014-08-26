@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.ComplexNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
@@ -156,7 +158,8 @@ public class SearchPopup extends HorizontalPanel {
 				if (pathwayObject.getDisplayName() == null || pathwayObject.getType() == GraphObjectType.RenderableCompartment)
 					continue;
 				
-				if (pathwayObject.getDisplayName().toLowerCase().contains(query.toLowerCase()))
+				if (nameMatchesQuery(pathwayObject.getDisplayName(), query) ||
+					hasParticipatingMoleculeThatMatchesQuery(pathwayObject, query))
 					matchingObjects.add(pathwayObject);
 			}						
 		}
@@ -164,26 +167,51 @@ public class SearchPopup extends HorizontalPanel {
 		return matchingObjects;			
 	}
 
-	private void doSearch(String query) {		
-		matchingEntityIds = searchDiagram(query);
+	private boolean nameMatchesQuery(String name, String query) {
+		return name.toLowerCase().contains(query.toLowerCase());
+	}
+	
+	private boolean hasParticipatingMoleculeThatMatchesQuery(GraphObject pathwayObject, String query) {
+		if (!(pathwayObject instanceof ComplexNode))
+			return false;
 		
-		if (matchingEntityIds.isEmpty()) {
-			enableButtons(Boolean.FALSE);
-			
-			String labelText = null;				
-			if (!query.isEmpty())
-				labelText = "No matches found for " + query;
-			resultsLabel.setText(labelText);
-			
-			highlightEntities(matchingEntityIds);
-			
-			return;
-		} else {
-			enableButtons(Boolean.TRUE);
+		List<Component> participatingMolecules = ((ComplexNode) pathwayObject).getComponents();
+		for (Component component : participatingMolecules) {
+			if (nameMatchesQuery(component.getDisplayName(), query))
+				return true;
 		}
+		return false;
+	}
+	
+	private void doSearch(final String query) {		
+		ComplexComponentFetcher complexComponentFetcher = new ComplexComponentFetcher() {
 		
-		selectEntity(0);
-		focus();
+			public void performActionAfterComponentsObtained() {
+			
+				matchingEntityIds = searchDiagram(query);
+			
+				if (matchingEntityIds.isEmpty()) {
+					enableButtons(Boolean.FALSE);
+			
+					String labelText = null;
+			
+					if (!query.isEmpty())
+						labelText = "No matches found for " + query;
+					resultsLabel.setText(labelText);
+			
+					highlightEntities(matchingEntityIds);
+			
+					return;
+				} else {
+					enableButtons(Boolean.TRUE);
+				}
+		
+				selectEntity(0);
+				focus();
+			}
+		};
+		
+		complexComponentFetcher.getComplexNodeComponentData(diagramPane.getPathway());
 	}
 		
 	private void selectEntity(Integer index) {
