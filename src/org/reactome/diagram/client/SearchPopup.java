@@ -278,18 +278,26 @@ public class SearchPopup extends HorizontalPanel {
 	}
 	
 	public void updatePosition() {
-		AbsolutePanel container = (AbsolutePanel) getParent();
+		final AbsolutePanel container = (AbsolutePanel) getParent();
 		
 		// Search box is placed next to the pathway canvas controls
-		PathwayCanvasControls controls = diagramPane.getControls();
-		Integer controlsLeft = container.getWidgetLeft(controls);
-		Integer controlsWidth = controls.getOffsetWidth();
+		// after a delay to ensure the controls are loaded
+		Timer timer = new Timer() {
 		
-		Integer buffer = 4;
+			public void run() {
+				PathwayCanvasControls controls = diagramPane.getControls();
+				Integer controlsLeft = container.getWidgetLeft(controls);
+				Integer controlsWidth = controls.getOffsetWidth();
 		
-		Integer top = buffer;
-		Integer left = controlsLeft + controlsWidth + buffer;
-		container.setWidgetPosition(this, left, top);
+				Integer buffer = 4;
+		
+				Integer top = buffer;
+				Integer left = controlsLeft + controlsWidth + buffer;
+		
+				container.setWidgetPosition(SearchPopup.this, left, top);
+			}
+		};
+		timer.schedule(60);
 	}
 
 	public void focus() {
