@@ -92,7 +92,7 @@ public class SearchPopup extends HorizontalPanel {
 		resultsLabel = new Label();
 		
 		navigationButtons = new HorizontalPanel();
-		Button previousButton = new Button("Previous", new ClickHandler() {
+		Button previousButton = new Button("\u25B2", new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
@@ -101,7 +101,7 @@ public class SearchPopup extends HorizontalPanel {
 				
 		});
 			
-		Button nextButton = new Button("Next", new ClickHandler() {
+		Button nextButton = new Button("\u25BC", new ClickHandler() {
 	
 			@Override
 			public void onClick(ClickEvent event) {
@@ -110,7 +110,7 @@ public class SearchPopup extends HorizontalPanel {
 				
 		});
 			
-		Button selectAllButton = new Button("Select All", new ClickHandler() {
+		Button selectAllButton = new Button("Highlight All", new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
@@ -128,22 +128,15 @@ public class SearchPopup extends HorizontalPanel {
 		
 		setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		
-		add(closeButton);
 		add(searchLabel);
-		add(searchBox);						
+		add(searchBox);
 		add(navigationButtons);
+		add(closeButton);
 		add(resultsLabel);
 			
 		enableButtons(Boolean.FALSE);
 		
 		this.setStyleName(diagramPane.getStyle().searchPopup());
-		
-		//Style style = this.getElement().getStyle();
-		//style.setPadding(1, Style.Unit.PX);
-		//style.setBorderColor("rgb(0, 0, 0)");
-		//style.setBorderWidth(1, Style.Unit.PX);	
-		//style.setOpacity(1);
-		//style.setZIndex(2);
 	}	
 		
 	// Returns a list of db ids for objects in the pathway diagram
@@ -268,6 +261,9 @@ public class SearchPopup extends HorizontalPanel {
 	}
 	
 	private List<GraphObject> getPathwayGraphObjects() {
+		if (diagramPane.getPathway() == null)
+			return new ArrayList<GraphObject>();
+		
 		return diagramPane.getPathway().getObjectsForRendering();
 	}
 	
@@ -284,14 +280,15 @@ public class SearchPopup extends HorizontalPanel {
 	public void updatePosition() {
 		AbsolutePanel container = (AbsolutePanel) getParent();
 		
-		// Search box is placed next to the overview canvas
-		OverviewCanvas overview = diagramPane.getOverview();
-		Integer overviewLeft = container.getWidgetLeft(overview);
-		Integer overviewWidth =  overview.getCoordinateSpaceWidth();
+		// Search box is placed next to the pathway canvas controls
+		PathwayCanvasControls controls = diagramPane.getControls();
+		Integer controlsLeft = container.getWidgetLeft(controls);
+		Integer controlsWidth = controls.getOffsetWidth();
+		
 		Integer buffer = 4;
 		
-		Integer top = container.getOffsetHeight() - getOffsetHeight() - buffer;
-		Integer left = overviewLeft + overviewWidth + buffer;
+		Integer top = buffer;
+		Integer left = controlsLeft + controlsWidth + buffer;
 		container.setWidgetPosition(this, left, top);
 	}
 

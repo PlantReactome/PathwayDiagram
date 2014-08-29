@@ -58,6 +58,7 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
@@ -164,7 +165,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         // Search Bar
         searchBar = new SearchPopup(this);
-        searchBar.setVisible(false);
+        //searchBar.setVisible(false);
         contentPane.add(searchBar);
         
         // Options Menu Icon
@@ -334,15 +335,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             overview.setVisible(true);
         overview.updatePosition();
                 
-        searchBar.updatePosition();
-
+        showSearchPopup();
+        
         optionsMenuIcon.setVisible(true);
         optionsMenuIcon.updatePosition(width, height);
         
         update();
                 
-        LocalResizeEvent event = new LocalResizeEvent(width, height);                
-        contentPane.fireEvent(event);       
+        LocalResizeEvent event = new LocalResizeEvent(width, height);
+        contentPane.fireEvent(event);
     }
 
     protected void setCanvasPathway(CanvasPathway pathway) {
@@ -913,9 +914,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	}
 	
 	public void showSearchPopup() {
-		searchBar.setVisible(Boolean.TRUE);
-		searchBar.updatePosition();
-		searchBar.focus();
+		// Delayed to ensure widgets which influence the search 
+		// position are loaded
+		Timer timer = new Timer() {
+
+			@Override
+			public void run() {
+				searchBar.setVisible(Boolean.TRUE);
+				searchBar.updatePosition();
+				searchBar.focus();
+			}
+		};
+		
+		timer.schedule(0);
 	}
 	
 	private List<DiagramCanvas> getExistingCanvases() {
