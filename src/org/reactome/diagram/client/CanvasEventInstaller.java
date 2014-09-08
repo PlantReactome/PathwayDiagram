@@ -211,7 +211,10 @@ public class CanvasEventInstaller {
     }
     
     private int[] getPositionInTouch(TouchEvent<? extends EventHandler> event) {
-        JsArray<Touch> touches = event.getTouches();
+        if (event instanceof TouchEndEvent) 
+        	return new int[]{previousX, previousY};
+    	
+    	JsArray<Touch> touches = event.getTouches();
         if (touches == null || touches.length() == 0)
             return null;
         // Get the first touch
