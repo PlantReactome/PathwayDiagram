@@ -616,11 +616,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	SelectionEvent event = new SelectionEvent();
         	event.setSelectedObjects(getSelectedObjects());
         	
-        	Boolean doCentring = Boolean.FALSE;
-        	if (!getSelectedObjects().isEmpty())
-        		doCentring = !pathwayCanvas.currentViewContainsAtLeastOneGraphObject(getSelectedObjects());
-        	event.setDoCentring(doCentring);
-        	
         	fireSelectionEvent(event);
         }
     }
