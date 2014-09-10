@@ -164,7 +164,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         // Search Bar
         searchBar = new SearchPopup(this);
-        searchBar.setVisible(false);
+        //searchBar.setVisible(false);
         contentPane.add(searchBar);
         
         // Options Menu Icon
@@ -335,14 +335,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.updatePosition();
                 
         searchBar.updatePosition();
-
+        
         optionsMenuIcon.setVisible(true);
         optionsMenuIcon.updatePosition(width, height);
         
         update();
                 
-        LocalResizeEvent event = new LocalResizeEvent(width, height);                
-        contentPane.fireEvent(event);       
+        LocalResizeEvent event = new LocalResizeEvent(width, height);
+        contentPane.fireEvent(event);
     }
 
     protected void setCanvasPathway(CanvasPathway pathway) {
@@ -615,11 +615,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         if (getSelectedObjects() != null) {
         	SelectionEvent event = new SelectionEvent();
         	event.setSelectedObjects(getSelectedObjects());
-        	
-        	Boolean doCentring = Boolean.FALSE;
-        	if (!getSelectedObjects().isEmpty())
-        		doCentring = !pathwayCanvas.currentViewContainsAtLeastOneGraphObject(getSelectedObjects());
-        	event.setDoCentring(doCentring);
         	
         	fireSelectionEvent(event);
         }
