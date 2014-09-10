@@ -23,6 +23,8 @@ import org.reactome.diagram.view.NodeRenderer;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -31,6 +33,12 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.event.dom.client.TouchMoveEvent;
+import com.google.gwt.event.dom.client.TouchMoveHandler;
+import com.google.gwt.event.dom.client.TouchStartEvent;
+import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
 /**
@@ -39,7 +47,6 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
  *
  */
 public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHandler {
-    private PathwayDiagramPanel diagramPane;
 	private Bounds viewRect;
 	// A flag to block an event bouncing back
     private boolean isFromOverview;
@@ -50,7 +57,6 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     public OverviewCanvas(PathwayDiagramPanel diagramPanel) {
         super(diagramPanel, false);
     	
-    	diagramPane = diagramPanel;
     	viewRect = new Bounds();
     	canvasTransformation = new OverviewCanvasTransformation();
         
@@ -225,66 +231,32 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
                 
                 @Override
                 public void onMouseDown(MouseDownEvent event) {
-                    isMouseDown = true;
-                    
-                    if(viewRect.contains(event.getX(), event.getY())) 
-                    	isInViewRect = true;
-                    	
-                    prevX = event.getX();
-                    prevY = event.getY();
-                    x0 = viewRect.getX();
-                    y0 = viewRect.getY();
-                    
+                    pressDown(event.getX(), event.getY());
                 }
             });
             OverviewCanvas.this.addMouseOutHandler(new MouseOutHandler() {
                 
                 @Override
                 public void onMouseOut(MouseOutEvent event) {
-                    isMouseDown = false;
-                    isInViewRect = false;
-                	if (isDragging) {
-                		stopDragging();
-                    }	
+                	outOfBounds(event.getX(), event.getY());
                 }
             });
+            
             OverviewCanvas.this.addMouseMoveHandler(new MouseMoveHandler() {
                 
                 @Override
                 public void onMouseMove(MouseMoveEvent event) {
                     if (isMouseDown && isInViewRect) {
-                    	// Do dragging
-                        isDragging = true;
-                    	double dx = event.getX() - prevX;
-                        double dy = event.getY() - prevY;
-                        viewRect.translate(dx, dy);
-                        update();
-                        fireViewChangeEvent(viewRect.getX() - x0, viewRect.getY() - y0);
-                        
-                        prevX = event.getX();
-                        prevY = event.getY();
-                        x0 = viewRect.getX();
-                        y0 = viewRect.getY();
+                    	move(event.getX(), event.getY());
                     }
                 }
             });
+            
             OverviewCanvas.this.addMouseUpHandler(new MouseUpHandler() {
                 
                 @Override
                 public void onMouseUp(MouseUpEvent event) {
-                    isMouseDown = false;
-                    isInViewRect = false;
-
-                    if (isDragging) {
-                      	stopDragging();
-                    } else {
-                    	double dx = event.getX() - x0;
-                    	double dy = event.getY() - y0;
-                    	viewRect.translate(dx, dy);
-                    	viewRect.translate(-viewRect.getWidth() / 2.0, -viewRect.getHeight() / 2.0);
-                    	update();
-                    	fireViewChangeEvent(viewRect.getX() - x0, viewRect.getY() - y0);
-                    }
+                    onRelease(event.getX(), event.getY());
                 }
             });
         }
@@ -298,9 +270,104 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         
         //TODO: To implement this soon!
         private void addTouchEventHandlers() {
-            
+        	OverviewCanvas.this.addTouchStartHandler(new TouchStartHandler() {
+
+				@Override
+				public void onTouchStart(TouchStartEvent event) {
+					JsArray<Touch> touches = event.getTouches();
+					
+					if (touches == null || touches.length() == 0)
+						return;
+					
+					Touch touch = touches.get(0);
+					
+					pressDown(touch.getRelativeX(OverviewCanvas.this.getElement()),
+							  touch.getRelativeY(OverviewCanvas.this.getElement()));
+				}
+        		
+        	});
+        	
+        	OverviewCanvas.this.addTouchMoveHandler(new TouchMoveHandler() {
+
+				@Override
+				public void onTouchMove(TouchMoveEvent event) {
+					JsArray<Touch> touches = event.getTouches();
+					
+					if (touches == null || touches.length() == 0)
+						return;
+						
+					Touch touch = touches.get(0);
+					
+					move(touch.getRelativeX(OverviewCanvas.this.getElement()),
+						 touch.getRelativeY(OverviewCanvas.this.getElement()));
+				}
+        		
+        	});
+        	
+        	OverviewCanvas.this.addTouchEndHandler(new TouchEndHandler() {
+
+				@Override
+				public void onTouchEnd(TouchEndEvent event) {
+					onRelease(prevX, prevY);
+				}
+        		
+        	});
+        	
         }
         
+        private void pressDown(int x, int y) {
+            isMouseDown = true;
+        
+            if(viewRect.contains(x, y)) 
+            	isInViewRect = true;
+                    	
+            prevX = x;
+            prevY = y;
+            x0 = viewRect.getX();
+            y0 = viewRect.getY();     
+        }
+        
+        private void outOfBounds(int x, int y) {    
+        	isMouseDown = false;
+            isInViewRect = false;
+            
+            if (isDragging) {
+            	stopDragging();
+            }	
+        }
+        
+        private void move(int x, int y) {
+        	if (isMouseDown && isInViewRect) {
+        		// Do dragging
+                isDragging = true;
+                double dx = x - prevX;
+                double dy = y - prevY;
+                viewRect.translate(dx, dy);
+                update();
+                fireViewChangeEvent(viewRect.getX() - x0, viewRect.getY() - y0);
+                        
+                prevX = x;
+                prevY = y;
+                x0 = viewRect.getX();
+                y0 = viewRect.getY();
+            }
+        }
+        
+        private void onRelease(double x, double y) {
+        	isMouseDown = false;
+            isInViewRect = false;
+
+            if (isDragging) {
+               stopDragging();
+            } else {
+               double dx = x - x0;
+               double dy = y - y0;
+               viewRect.translate(dx, dy);
+               viewRect.translate(-viewRect.getWidth() / 2.0, -viewRect.getHeight() / 2.0);
+               update();
+               fireViewChangeEvent(viewRect.getX() - x0, viewRect.getY() - y0);
+            }
+        }
     }
     
     private class OverviewCanvasTransformation extends CanvasTransformation {
