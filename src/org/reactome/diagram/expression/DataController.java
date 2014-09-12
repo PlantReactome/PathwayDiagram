@@ -131,10 +131,10 @@ public abstract class DataController implements ResizeHandler {
     
         
     private void setPathwayOverlay(PathwayOverlay pathwayOverlay) { 
-        if (pathwayOverlay.getPathway().equals(pathway)) {
+        if (pathwayOverlay != null && pathwayOverlay.getPathway().equals(pathway)) {
     		this.pathwayOverlayMap.get(getResourceName()).put(pathway.getReactomeId(), pathwayOverlay);
-        	onDataPointChange(getCurrentDataPoint());
         }
+        onDataPointChange(getCurrentDataPoint());
     }
     
     private PathwayOverlay getPathwayOverlay() {
