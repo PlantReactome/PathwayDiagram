@@ -5,7 +5,7 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
-import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.CompositionalNode;
 import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
@@ -31,7 +31,7 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
                                  Context2d context,
                                  Node node) {
     	segmentRendererHelper = new ExpressionSegmentRendererHelper();
-    	final ComplexNode currentComplex = (ComplexNode) node;
+    	final CompositionalNode currentComplex = (CompositionalNode) node;
     	
     	segmentRendererHelper.setComponentColors(currentComplex.getComponentColors());
     	if (segmentRendererHelper.getUniqueComponentColors().size() == 1) {

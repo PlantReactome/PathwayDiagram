@@ -21,8 +21,8 @@ import org.reactome.diagram.expression.model.ExpressionCanvasModel;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel.ExpressionInfo;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
-import org.reactome.diagram.model.ComplexNode;
-import org.reactome.diagram.model.ComplexNode.Component;
+import org.reactome.diagram.model.CompositionalNode;
+import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
@@ -262,14 +262,14 @@ public class ExpressionCanvas extends DiagramCanvas {
     	for (GraphObject entity : getObjectsForRendering()) {
     		if (isComplexWithoutComponentData(entity)) {
     			Request request = PathwayDiagramController.getInstance().getParticipatingMolecules(entity.getReactomeId(), 
-    																 setParticipatingMolecules((ComplexNode) entity));
+    																 setParticipatingMolecules((CompositionalNode) entity));
     			complexComponentRequests.add(request);
     		}
     	}
     	complexComponentRequests.setAllRequestsAdded(true);
     }
     
-    private RequestCallback setParticipatingMolecules(final ComplexNode complex) {
+    private RequestCallback setParticipatingMolecules(final CompositionalNode complex) {
     	return new RequestCallback() {
 
 			@Override
@@ -298,7 +298,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private boolean isComplexWithoutComponentData(GraphObject entity) {
-    	return (isSetOrComplex(entity) && !((ComplexNode) entity).participatingMoleculesObtained());
+    	return (entity.isSetOrComplex() && !((CompositionalNode) entity).participatingMoleculesObtained());
     }
     
     private void drawExpressionOverlayIfReady(Context2d c2d) {
@@ -323,8 +323,8 @@ public class ExpressionCanvas extends DiagramCanvas {
            		GraphObjectExpressionRendererFactory factory = GraphObjectExpressionRendererFactory.getFactory();
            		NodeRenderer renderer = factory.getNodeRenderer((Node) entity);
            		
-           		if (isSetOrComplex(entity)) {
-           			addExpressionInfoToComplexComponents((ComplexNode) entity);
+           		if (entity.isSetOrComplex()) {
+           			addExpressionInfoToComplexComponents((CompositionalNode) entity);
            		} 
            		else if (entity.getType() == GraphObjectType.ProcessNode) {
            			((ExpressionProcessNodeRenderer) renderer).setProcessNodeExpression(currentPathwayExpressionForDataPoint.getProcessNodeExpressionObject(entity.getReactomeId()));
@@ -344,11 +344,6 @@ public class ExpressionCanvas extends DiagramCanvas {
            	}
         }
         WidgetStyle.setCursor(this, Cursor.DEFAULT);
-    }
-
-    private boolean isSetOrComplex(GraphObject entity) {
-    	return entity.getType() == GraphObjectType.RenderableComplex ||
-    			entity.getType() == GraphObjectType.RenderableEntitySet;
     }
     
 	private Long getReferenceEntityId(List<ReferenceEntity> referenceEntities) {
@@ -409,7 +404,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 		
 	}
 		
-	private void addExpressionInfoToComplexComponents(ComplexNode complex) {
+	private void addExpressionInfoToComplexComponents(CompositionalNode complex) {
 		if (complex == null)
 			return;
 		

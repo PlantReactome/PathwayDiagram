@@ -8,9 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.model.CanvasPathway;
-import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.CompositionalNode;
 import org.reactome.diagram.model.GraphObject;
-import org.reactome.diagram.model.GraphObjectType;
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -34,15 +33,15 @@ public abstract class ComplexComponentFetcher {
     		return;
     	}
     		
-    	List<ComplexNode> complexes = new ArrayList<ComplexNode>();
+    	List<CompositionalNode> complexes = new ArrayList<CompositionalNode>();
     	for (GraphObject entity : pathway.getGraphObjects()) {
     		if (isComplexWithoutComponentData(entity))
-    			complexes.add((ComplexNode) entity);
+    			complexes.add((CompositionalNode) entity);
     	}
     	getComplexNodeComponentData(complexes);
     }
     
-    public void getComplexNodeComponentData(List<ComplexNode> complexes) {
+    public void getComplexNodeComponentData(List<CompositionalNode> complexes) {
     	complexComponentRequests.cancelAllRequestsInProgress();
     	
     	if (complexes == null || complexes.isEmpty()) {
@@ -51,7 +50,7 @@ public abstract class ComplexComponentFetcher {
     	}
     	
     	complexComponentRequests.setAllRequestsAdded(false);
-    	for (ComplexNode complex : complexes) {
+    	for (CompositionalNode complex : complexes) {
     		if (!complex.participatingMoleculesObtained()) {
     			Request request = PathwayDiagramController.getInstance().getParticipatingMolecules(complex.getReactomeId(), 
     																 setParticipatingMolecules(complex));
@@ -62,7 +61,7 @@ public abstract class ComplexComponentFetcher {
     	performActionIfReady();
     }
     
-    private RequestCallback setParticipatingMolecules(final ComplexNode complex) {
+    private RequestCallback setParticipatingMolecules(final CompositionalNode complex) {
     	return new RequestCallback() {
 
 			@Override
@@ -93,13 +92,7 @@ public abstract class ComplexComponentFetcher {
     protected abstract void performActionAfterComponentsObtained();
 
 	private boolean isComplexWithoutComponentData(GraphObject entity) {
-    	return (isSetOrComplex(entity) && !((ComplexNode) entity).participatingMoleculesObtained());
-    }
-    
-    
-    private boolean isSetOrComplex(GraphObject entity) {
-    	return entity.getType() == GraphObjectType.RenderableComplex ||
-    			entity.getType() == GraphObjectType.RenderableEntitySet;
+    	return (entity.isSetOrComplex() && !((CompositionalNode) entity).participatingMoleculesObtained());
     }
     
     private class ComplexComponentRequests {

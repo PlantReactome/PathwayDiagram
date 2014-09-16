@@ -321,7 +321,7 @@ public class CanvasPathway extends Node {
         	parseGraphObjectProperties(nodeElm, node);
         } else if (node.getType() == GraphObjectType.RenderableComplex ||
         		   node.getType() == GraphObjectType.RenderableEntitySet) {
-        	node = new ComplexNode();
+        	node = new CompositionalNode();
         	parseGraphObjectProperties(nodeElm, node);
         }
         

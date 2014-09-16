@@ -11,8 +11,8 @@ import java.util.Set;
 
 import org.reactome.diagram.event.ParticipatingMoleculeSelectionEvent;
 import org.reactome.diagram.model.CanvasPathway;
-import org.reactome.diagram.model.ComplexNode;
-import org.reactome.diagram.model.ComplexNode.Component;
+import org.reactome.diagram.model.CompositionalNode;
+import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.ProteinNode;
@@ -78,7 +78,7 @@ public abstract class NodeOptionsMenu {
     private void createComplexMenu() {
     	createPhysicalEntityMenu();
     	
-    	if (((ComplexNode) selected).participatingMoleculesObtained()) {
+    	if (((CompositionalNode) selected).participatingMoleculesObtained()) {
     		setPMMenu();
     	} else {
     		getController().getParticipatingMolecules(selected.getReactomeId(), setParticipatingMolecules());
@@ -90,13 +90,13 @@ public abstract class NodeOptionsMenu {
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
-				((ComplexNode) selected).setParticipatingMolecules().onResponseReceived(request, response);
+				((CompositionalNode) selected).setParticipatingMolecules().onResponseReceived(request, response);
 				setPMMenu();
 			}
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				((ComplexNode) selected).setParticipatingMolecules().onError(request, exception);
+				((CompositionalNode) selected).setParticipatingMolecules().onError(request, exception);
 			}
     		
     	};
@@ -111,7 +111,7 @@ public abstract class NodeOptionsMenu {
    			addItem("Display Participating Molecules", new Command() {
 				@Override
 				public void execute() {
-					diagramPane.getOverlayDataController().showPopup((ComplexNode) selected);
+					diagramPane.getOverlayDataController().showPopup((CompositionalNode) selected);
 					hide();							
 				}    					
    			});   			
@@ -132,7 +132,7 @@ public abstract class NodeOptionsMenu {
     private List<MenuItem> getParticipatingMoleculesMenuItems() {
    		List<MenuItem> pmMenuItems = new ArrayList<MenuItem>();
    		
-   		for (final Component component : ((ComplexNode) selected).getComponents()) {			
+   		for (final Component component : ((CompositionalNode) selected).getComponents()) {			
    			final MenuItem pmMenuItem = new MenuItem(component.getDisplayName(), nullCommand());
    			
    			pmMenuItem.setScheduledCommand(new Command() {

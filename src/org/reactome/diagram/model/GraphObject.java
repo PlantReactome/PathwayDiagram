@@ -114,5 +114,10 @@ public abstract class GraphObject extends ReactomeObject {
 	public boolean isHovered() {
 		return isHovered;
 	}
+
+	public boolean isSetOrComplex() {
+		return getType() == GraphObjectType.RenderableComplex ||
+				getType() == GraphObjectType.RenderableEntitySet;
+	}
     
 }

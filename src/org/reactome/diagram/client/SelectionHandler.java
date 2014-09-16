@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.reactome.diagram.event.SelectionEvent;
+import org.reactome.diagram.model.CompositionalNode;
+import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 
@@ -48,15 +50,10 @@ public abstract class SelectionHandler {
     	return getSelectedObjects().get(0);
     }
     
-    public void addSelection(Long dbId) {
-    }
-    
-    public void addSelection(GraphObject obj) {
+    private void addSelection(GraphObject obj) {
         if (!selectedObjects.contains(obj)) {
             selectedObjects.add(obj);
             obj.setIsSelected(true);
-            diagramPanel.update();
-            fireSelectionEvent();
         }
     }
     
@@ -132,24 +129,48 @@ public abstract class SelectionHandler {
      * Set selections using a list of DB_IDs from Reactome.
      * @param dbIds
      */
-    public void setSelectionIds(List<Long> dbIds) {
+    public void setSelectionIds(final List<Long> dbIds) {
         selectedObjects.clear();
+        
+        final List<CompositionalNode> canvasSetsAndComplexes = new ArrayList<CompositionalNode>();
         for (GraphObject obj : canvasObjects) {
             Long dbId = obj.getReactomeId();
             if (dbId == null)
                 continue;
             if (dbIds.contains(dbId)) {
-                selectedObjects.add(obj);
-                obj.setIsSelected(true);
+                addSelection(obj);
             }
             else
                 obj.setIsSelected(false);
+            
+            if (obj.isSetOrComplex())
+            	canvasSetsAndComplexes.add((CompositionalNode) obj);
         }
-        //DO NOT FIRE EVENT HERE, just update the diagram
-        OverviewCanvas overview = diagramPanel.getOverview();
-        overview.setSelectedObjects(selectedObjects);
-        overview.update();
-        diagramPanel.getPathwayCanvas().update();
+        
+        // also select complexes and sets which contain entities matching
+        // the given database identifiers
+        ComplexComponentFetcher componentFetcher = new ComplexComponentFetcher() {
+        
+        	@Override
+        	public void performActionAfterComponentsObtained() {
+        		
+        		for (CompositionalNode composedNode : canvasSetsAndComplexes) {
+        			for (Component component : composedNode.getComponents()) {
+        				if (dbIds.contains(component.getReactomeId())) {
+        					addSelection(composedNode);
+        					break;
+        				}
+        			}
+        		}
+        		
+        		//DO NOT FIRE EVENT HERE, just update the diagram
+        		OverviewCanvas overview = diagramPanel.getOverview();
+        		overview.setSelectedObjects(selectedObjects);
+        		overview.update();
+        		diagramPanel.getPathwayCanvas().update();
+        	}
+        };
+        componentFetcher.getComplexNodeComponentData(canvasSetsAndComplexes);
     }
     
     /**

@@ -22,7 +22,7 @@ import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.PathwayOverlay;
 import org.reactome.diagram.model.CanvasPathway;
-import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.CompositionalNode;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -394,7 +394,7 @@ public abstract class DataController implements ResizeHandler {
         } 
     }
 
-	public void showPopup(ComplexNode selected) {
+	public void showPopup(CompositionalNode selected) {
 		complexComponentPopupManager.showPopup(selected);
 	}
 }

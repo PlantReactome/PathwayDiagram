@@ -10,8 +10,8 @@ import org.reactome.diagram.client.AlertPopup;
 import org.reactome.diagram.client.PathwayDiagramController;
 import org.reactome.diagram.client.WidgetStyle;
 import org.reactome.diagram.expression.model.AnalysisType;
-import org.reactome.diagram.model.ComplexNode;
-import org.reactome.diagram.model.ComplexNode.Component;
+import org.reactome.diagram.model.CompositionalNode;
+import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.ReactomeXMLParser;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -35,14 +35,14 @@ import com.google.gwt.xml.client.NodeList;
  *
  */
 public class ComplexComponentPopup extends DialogBox {
-    private ComplexNode complexNode;
+    private CompositionalNode complexNode;
     private AnalysisType analysisType;
 	private VerticalPanel verticalPanel;
 	private ScrollPanel scrollPanel;
 	private FlexTable componentTable;
 	private Button closeButton;
 
-    public ComplexComponentPopup(ComplexNode complexNode, AnalysisType analysisType) {
+    public ComplexComponentPopup(CompositionalNode complexNode, AnalysisType analysisType) {
         super(false, false);
         this.complexNode = complexNode;
         this.analysisType = analysisType;

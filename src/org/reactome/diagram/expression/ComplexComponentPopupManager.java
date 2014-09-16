@@ -8,7 +8,7 @@ import java.util.HashMap;import java.util.Map;
 
 import org.reactome.diagram.client.WidgetStyle;
 import org.reactome.diagram.expression.model.AnalysisType;
-import org.reactome.diagram.model.ComplexNode;
+import org.reactome.diagram.model.CompositionalNode;
 
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
@@ -19,16 +19,16 @@ import com.google.gwt.event.dom.client.MouseDownHandler;
  *
  */
 public class ComplexComponentPopupManager {  
-    private Map<ComplexNode, ComplexComponentPopup> complexComponentPopupMap;
+    private Map<CompositionalNode, ComplexComponentPopup> complexComponentPopupMap;
     private ComplexComponentPopup activePopup; 
     private AnalysisType analysisType;
 
     public ComplexComponentPopupManager(AnalysisType analysisType) {
-    	complexComponentPopupMap = new HashMap<ComplexNode, ComplexComponentPopup>();
+    	complexComponentPopupMap = new HashMap<CompositionalNode, ComplexComponentPopup>();
     	this.analysisType = analysisType;
     }
     
-    public void showPopup(ComplexNode complex) {
+    public void showPopup(CompositionalNode complex) {
     	if (complexComponentPopupMap.get(complex) == null) {
     		complexComponentPopupMap.put(complex, new ComplexComponentPopup(complex, analysisType));
     		addMouseDownHandler(complexComponentPopupMap.get(complex));
@@ -44,7 +44,7 @@ public class ComplexComponentPopupManager {
     }
     
     public void removePopups() {
-    	for (ComplexNode complex : complexComponentPopupMap.keySet()) {
+    	for (CompositionalNode complex : complexComponentPopupMap.keySet()) {
     		complexComponentPopupMap.get(complex).hide();
     	}
     	complexComponentPopupMap.clear();

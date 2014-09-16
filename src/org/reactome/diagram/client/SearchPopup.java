@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.reactome.diagram.model.ComplexNode;
-import org.reactome.diagram.model.ComplexNode.Component;
+import org.reactome.diagram.model.CompositionalNode;
+import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
@@ -165,10 +165,10 @@ public class SearchPopup extends HorizontalPanel {
 	}
 	
 	private boolean hasParticipatingMoleculeThatMatchesQuery(GraphObject pathwayObject, String query) {
-		if (!(pathwayObject instanceof ComplexNode))
+		if (!(pathwayObject instanceof CompositionalNode))
 			return false;
 		
-		List<Component> participatingMolecules = ((ComplexNode) pathwayObject).getComponents();
+		List<Component> participatingMolecules = ((CompositionalNode) pathwayObject).getComponents();
 		for (Component component : participatingMolecules) {
 			if (nameMatchesQuery(component.getDisplayName(), query))
 				return true;
