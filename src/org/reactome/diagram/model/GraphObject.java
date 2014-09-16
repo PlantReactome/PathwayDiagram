@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.model;
 
+import java.util.Comparator;
+
 import com.google.gwt.touch.client.Point;
 
 /**
@@ -119,5 +121,62 @@ public abstract class GraphObject extends ReactomeObject {
 		return getType() == GraphObjectType.RenderableComplex ||
 				getType() == GraphObjectType.RenderableEntitySet;
 	}
+	
+	public static Comparator<GraphObject> getXCoordinateComparator() {
+		return new Comparator<GraphObject>() {
+
+			@Override
+			public int compare(GraphObject o1, GraphObject o2) {
+				if (o1 == o2)
+					return 0;
+				if (o1 == null)
+					return -1;
+				if (o2 == null)
+					return 1;
+				
+				double diff = getX(o1) - getX(o2);
+				if (diff < 0)
+					return -1;
+				else if (diff > 0)
+					return 1;
+				return 0;
+			}
+			
+			private double getX(GraphObject obj) {
+				if (obj instanceof Node)
+					return ((Node) obj).getBounds().getX();
+				
+				return obj.getPosition().getX();
+			}
+		};
+	}
     
+	public static Comparator<GraphObject> getYCoordinateComparator() {
+		return new Comparator<GraphObject>() {
+
+			@Override
+			public int compare(GraphObject o1, GraphObject o2) {
+				if (o1 == o2)
+					return 0;
+				if (o1 == null)
+					return -1;
+				if (o2 == null)
+					return 1;
+				
+				double diff = getY(o1) - getY(o2);
+				if (diff < 0)
+					return -1;
+				else if (diff > 0)
+					return 1;
+				return 0;
+			}
+			
+			private double getY(GraphObject obj) {
+				if (obj instanceof Node)
+					return ((Node) obj).getBounds().getY();
+				
+				return obj.getPosition().getY();
+			}
+		};
+	}
 }
