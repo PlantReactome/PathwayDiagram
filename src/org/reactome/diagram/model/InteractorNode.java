@@ -26,12 +26,13 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 	private Image image;
 	private boolean isDragging;
 	private String defaultColour;
+	private boolean isVisible;
 	
 	/**
 	 * Default constructor.
 	 */
 	public InteractorNode() {
-		count = 1;
+		setCount(0);
 		edges = new ArrayList<InteractorEdge>();
 		setType(GraphObjectType.RenderableInteractor); 
 		setFont(Parameters.MONOSPACED_FONT);
@@ -49,6 +50,8 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 
 	public void setCount(int count) {
 		this.count = count;
+		
+		setVisible(count > 0);
 	}
 
 	public InteractorType getRefType() {
@@ -160,6 +163,14 @@ public class InteractorNode extends Node implements Comparable<InteractorNode> {
 		return defaultColour;
 	}
 	
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	private void setVisible(boolean isVisible) {
+		this.isVisible = isVisible;
+	}
+
 	public boolean equals(Object obj) {
 		if (obj instanceof InteractorNode && sameInteractorRefType((InteractorNode) obj)) { 
 			if (proteinWithSameNameAndId((InteractorNode) obj) || chemicalWithSameNameAndId((InteractorNode) obj))

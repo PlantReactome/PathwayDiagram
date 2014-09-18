@@ -94,10 +94,16 @@ public class InteractorCanvas extends DiagramCanvas {
     }
     
     public void removeAllProteins() {
+    	removeAllProteins(true);
+    }
+    
+    public void removeAllProteins(boolean clearInteractors) {
     	for (ProteinNode protein : getProteins()) {
     		removeProtein(protein);
-    		protein.setDisplayingInteractors(false);
-    	} 	
+    	}
+    	
+    	if (clearInteractors)
+    		uniqueInteractors.clear();
     }
     
     private void addOrRemoveInteractors(ProteinNode protein, String action) {    	    	
@@ -108,43 +114,33 @@ public class InteractorCanvas extends DiagramCanvas {
     	
     	// Process each interactor for the protein
     	for (InteractorNode interactor : protein.getInteractors()) {
-			// If the interactor is already known by the canvas
-    		// increase/decrease count for that interactor
-    		if (uniqueInteractors.contains(interactor)) {
-    			InteractorNode seenInteractor = uniqueInteractors.get(uniqueInteractors.indexOf(interactor));
-    			if (action.equals("add")) {
-    				if (interactorsAdded < Parameters.TOTAL_INTERACTOR_NUM) {
-    					seenInteractor.setCount(interactor.getCount() + 1);
-    					proteinsToInteractors.get(protein).add(seenInteractor); // Add interactor to protein's list
-    					interactorsAdded++;
-    				} else {	
-    					break;
-    				}	
-    			} else if (action.equals("remove")) {
-    				if (seenInteractor.getCount() > 1) {
-    					seenInteractor.setCount(seenInteractor.getCount() - 1);
-    					
-    					ListIterator<InteractorEdge> edges = seenInteractor.getEdges().listIterator();
-    					while (edges.hasNext()) {
-    						InteractorEdge edge = edges.next();
-    						
-    						if (edge.getProtein() == protein) {
-    							edges.remove();
-    						}	
-    					}
-    				} else {
-    					uniqueInteractors.remove(seenInteractor); // Removed if count is zero
-    				}
-    			}
-    		} else {
-    			// Add interactor to protein and canvas lists 
-    			if (action.equals("add")) {
-    				if (interactorsAdded < Parameters.TOTAL_INTERACTOR_NUM) {
-    					proteinsToInteractors.get(protein).add(interactor);
-    					interactorsAdded++;
-    					uniqueInteractors.add(interactor);
-    				}	
+			
+    		if (!getUniqueInteractors().contains(interactor)) {
+    			uniqueInteractors.add(interactor);
+    		}
+    		
+    		InteractorNode seenInteractor = getUniqueInteractors().get(getUniqueInteractors().indexOf(interactor));
+    		if (action.equals("add")) {
+    			if (interactorsAdded < Parameters.TOTAL_INTERACTOR_NUM) {
+    				seenInteractor.setCount(seenInteractor.getCount() + 1);
+    				proteinsToInteractors.get(protein).add(seenInteractor); // Add interactor to protein's list
+    				interactorsAdded++;
+    			} else {	
+    				break;
     			}	
+    		} else if (action.equals("remove")) {
+    			if (seenInteractor.getCount() > 0) {
+    				seenInteractor.setCount(seenInteractor.getCount() - 1);
+    				
+    				ListIterator<InteractorEdge> edges = seenInteractor.getEdges().listIterator();
+    				while (edges.hasNext()) {
+    					InteractorEdge edge = edges.next();
+    					
+    					if (edge.getProtein() == protein) {
+    						edges.remove();
+    					}	
+    				}
+    			} 
     		}
     	}
     }
@@ -156,7 +152,7 @@ public class InteractorCanvas extends DiagramCanvas {
         
         clean(c2d); // Clear canvas
     	
-        setGreyOutCanvas(!uniqueInteractors.isEmpty()); // Grey out if there are unique interactors to display
+        setGreyOutCanvas(!getVisibleInteractors().isEmpty()); // Grey out if there are unique interactors to display
         
         drawCanvasLayer(c2d);
         //drawInteractors(diagramPanel.getOverview().getContext2d());
@@ -442,20 +438,30 @@ public class InteractorCanvas extends DiagramCanvas {
     public InteractorNode getDraggableNode(Point point) {
     	point = getCorrectedCoordinates(point);
     	
-    	for (InteractorNode interactor : getUniqueInteractors()) {
+    	for (InteractorNode interactor : getVisibleInteractors()) {
     		if (interactor.isPicked(point))
     			return interactor;
     	}
     	return null;    		
     }
     
-    public List<InteractorNode> getUniqueInteractors() {
-    	return uniqueInteractors;
+    private List<InteractorNode> getUniqueInteractors() {
+		return uniqueInteractors;
+    }
+    
+    public List<InteractorNode> getVisibleInteractors() {
+    	List<InteractorNode> visibleInteractors = new ArrayList<InteractorNode>();
+    	for (InteractorNode interactor : getUniqueInteractors()) {
+    		if (interactor.isVisible())
+    			visibleInteractors.add(interactor);
+    	}
+    	
+    	return visibleInteractors;
     }
 
     private List<InteractorEdge> getInteractorEdges() {
     	List<InteractorEdge> edges = new ArrayList<InteractorEdge>();
-    	for (InteractorNode i : getUniqueInteractors()) {
+    	for (InteractorNode i : getVisibleInteractors()) {
     		for (InteractorEdge edge : i.getEdges()) 
     			edges.add(edge);
     	}
@@ -475,7 +481,7 @@ public class InteractorCanvas extends DiagramCanvas {
     
     public List<GraphObject> getObjectsForRendering() {
     	List<GraphObject> objects = new ArrayList<GraphObject>();
-    	objects.addAll(getUniqueInteractors());
+    	objects.addAll(getVisibleInteractors());
     	objects.addAll(getProteinInteractorCountNodes());
     	objects.addAll(getInteractorEdges());
     	
