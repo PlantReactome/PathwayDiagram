@@ -4,7 +4,13 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.GraphObject;
+import org.reactome.diagram.model.InteractorNode;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.dom.client.Style;
@@ -138,7 +144,7 @@ public class OptionsMenu extends PopupPanel {
 					return;
 				}
 				
-				Canvas downloadCanvas = createDownloadCanvas(diagramPane.getPathway().getPreferredSize());
+				Canvas downloadCanvas = createDownloadCanvas();
 				
 				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
 					canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
@@ -168,7 +174,7 @@ public class OptionsMenu extends PopupPanel {
 					return;
 				}
 				
-				Canvas downloadCanvas = createDownloadCanvas(diagramPane.getPathway().getPreferredSize());
+				Canvas downloadCanvas = createDownloadCanvas();
 				
 				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
 					canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
@@ -252,15 +258,49 @@ public class OptionsMenu extends PopupPanel {
     }
 	*/
 
-    private Canvas createDownloadCanvas(Bounds pathwayBounds) {
+    private Canvas createDownloadCanvas() {
     	Canvas downloadCanvas = Canvas.createIfSupported();
     	
-    	downloadCanvas.setWidth(pathwayBounds.getWidth() + "px");
-    	downloadCanvas.setHeight(pathwayBounds.getHeight() + "px");
-    	downloadCanvas.setCoordinateSpaceWidth(pathwayBounds.getWidth());
-    	downloadCanvas.setCoordinateSpaceHeight(pathwayBounds.getHeight());
+    	List<InteractorNode> visibleInteractors = diagramPane.getInteractorCanvas() != null ?
+    			diagramPane.getInteractorCanvas().getVisibleInteractors() :
+    			new ArrayList<InteractorNode>();
+    				
+    	Bounds bounds = visibleInteractors.isEmpty() ?
+    			diagramPane.getPathway().getPreferredSize() :
+    			getBoundsEncompassingInteractors(visibleInteractors);
+    	
+    	downloadCanvas.setWidth(bounds.getWidth()+ "px");
+    	downloadCanvas.setHeight(bounds.getHeight() + "px");
+    	downloadCanvas.setCoordinateSpaceWidth(bounds.getWidth());
+    	downloadCanvas.setCoordinateSpaceHeight(bounds.getHeight());
+    	
+    	downloadCanvas.getContext2d().translate(-Math.min(bounds.getX(), 0), 
+    											-Math.min(bounds.getY(), 0));
     	
     	return downloadCanvas;
+    }
+    
+    private Bounds getBoundsEncompassingInteractors(List<InteractorNode> interactors) {
+		Collections.sort(interactors, GraphObject.getXCoordinateComparator());
+    	int minX = interactors.get(0).getBounds().getX();
+    	int maxX = interactors.get(interactors.size() - 1).getBounds().getX() +
+    			   interactors.get(interactors.size() - 1).getBounds().getWidth();
+    	
+    	Collections.sort(interactors, GraphObject.getYCoordinateComparator());
+    	int minY = interactors.get(0).getBounds().getY();
+    	int maxY = interactors.get(interactors.size() - 1).getBounds().getY() +
+    			   interactors.get(interactors.size() - 1).getBounds().getHeight();
+    	
+    	Bounds pathwayBounds = diagramPane.getPathway().getPreferredSize();
+    	int width = Math.max(pathwayBounds.getX() + pathwayBounds.getWidth(), maxX) -
+    				Math.min(pathwayBounds.getX(), minX);
+    	int height = Math.max(pathwayBounds.getY() + pathwayBounds.getHeight(), maxY) -
+    				Math.min(pathwayBounds.getY(), minY);
+    	
+    	return new Bounds(minX,
+    					  minY,
+    					  width,
+    					  height);
     }
     
     private void showDiagramImage(Canvas downloadDiagramCanvas) {
