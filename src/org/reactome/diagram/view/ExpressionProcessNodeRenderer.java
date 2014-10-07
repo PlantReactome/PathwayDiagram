@@ -49,7 +49,7 @@ public class ExpressionProcessNodeRenderer extends NodeRenderer {
     }
     
     @Override
-    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0, int y0) {
+    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, double x0, double y0) {
     	new ExpressionSegmentRendererHelper().drawLineWithBubbleLetters(lineBreak, context2d, dashLastPhrase, x0, y0);
     }
 }

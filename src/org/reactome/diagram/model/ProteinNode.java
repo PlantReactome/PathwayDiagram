@@ -276,22 +276,21 @@ public class ProteinNode extends Node {
 		}
 		
 		private int getX() {
-			final Integer proteinX = ProteinNode.this.getBounds().getX();
-			final Integer proteinWidth = ProteinNode.this.getBounds().getWidth();
+			final double proteinX = ProteinNode.this.getBounds().getX();
+			final double proteinWidth = ProteinNode.this.getBounds().getWidth();
 			
 			return (int) (proteinX + proteinWidth - (0.5 * getWidth()));
 		}
 		
 		private int getY() {
-			final Integer proteinY = ProteinNode.this.getBounds().getY();
+			final double proteinY = ProteinNode.this.getBounds().getY();
 			
 			return (int) (proteinY - (0.5 * getHeight()));
 		}
 		
 		private int getWidth() {
 			return Parameters.INTERACTOR_CHAR_WIDTH * getDisplayName().length();
-		}
-		
+		}		
 		private int getHeight() {
 			return Parameters.INTERACTOR_CHAR_WIDTH * 2;
 		}

@@ -95,7 +95,7 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
     	segmentRendererHelper.drawLineWithBubbleLetters(lineBreak, context2d, dashLastPhrase, x0, y0);
     }
     
-    private void drawSegment(Double width, Double height, Integer maxSegmentHeight, String color, Context2d context) {
+    private void drawSegment(Double width, Double height, Double maxSegmentHeight, String color, Context2d context) {
     	context.setFillStyle(color);
     	
     	Double segmentStart = currentX;

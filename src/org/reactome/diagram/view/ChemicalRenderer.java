@@ -27,14 +27,14 @@ public class ChemicalRenderer extends NodeRenderer {
     protected void drawRectangle(Bounds bounds, 
                                  Context2d context,
                                  Node node) {
-        int x = bounds.getX();
-        int y = bounds.getY();
-        int w = bounds.getWidth();
-        int h = bounds.getHeight();
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         // Draw an ellipse
         context.beginPath();
-        int x1 = x;
-        int y1 = y + h / 2;
+        double x1 = x;
+        double y1 = y + h / 2;
         context.moveTo(x1, y1);
         x1 = x + w;
         context.bezierCurveTo(x, y,

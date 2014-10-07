@@ -85,8 +85,8 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
         Bounds size = pathway.getPreferredSize();
         // The following statements are based on the original JavaScript implementation
         // based on images
-        int larger = Math.max(size.getWidth(), size.getHeight());
-        double scale = org.reactome.diagram.view.Parameters.OVERVIEW_SIZE / (double) larger;
+        double larger = Math.max(size.getWidth(), size.getHeight());
+        double scale = org.reactome.diagram.view.Parameters.OVERVIEW_SIZE / larger;
         setCoordinateSpaceWidth((int)(size.getWidth() * scale));
         setCoordinateSpaceHeight((int)(size.getHeight() * scale));
         

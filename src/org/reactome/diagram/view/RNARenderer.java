@@ -26,13 +26,13 @@ public class RNARenderer extends NodeRenderer {
 
     @Override
     protected void drawRectangle(Bounds bounds, Context2d context, Node node) {
-        int x0 = bounds.getX();
-        int y0 = bounds.getY();
-        int x01 = bounds.getX() + bounds.getWidth();
-        int y01 = bounds.getY() + bounds.getHeight();
+        double x0 = bounds.getX();
+        double y0 = bounds.getY();
+        double x01 = bounds.getX() + bounds.getWidth();
+        double y01 = bounds.getY() + bounds.getHeight();
         context.beginPath();
-        int x = x0 + LOOP_WIDTH;
-        int y = y0 + LOOP_WIDTH / 2;
+        double x = x0 + LOOP_WIDTH;
+        double y = y0 + LOOP_WIDTH / 2;
         context.moveTo(x, y);
         x = x01 - LOOP_WIDTH;
         context.lineTo(x, y);

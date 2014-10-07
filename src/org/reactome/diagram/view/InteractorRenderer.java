@@ -54,13 +54,13 @@ public class InteractorRenderer extends NodeRenderer {
                                  Context2d context,
                                  Node node) {
         setStroke(context, node);
-        int x = bounds.getX();
-        int y = bounds.getY();
-        int w = bounds.getWidth();
-        int h = bounds.getHeight();
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         context.beginPath();
-        int x1 = x;
-        int y1 = y;
+        double x1 = x;
+        double y1 = y;
         context.moveTo(x1, y1);
         x1 = x + w;
         context.lineTo(x1, y1);

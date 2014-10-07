@@ -218,4 +218,5 @@ public class Node extends GraphObject {
  	private String [] splitRGBString(String bgColorString) {
  		return bgColorString.substring(4, bgColorString.length() - 1).split(",");
  	}
+ 	
 }

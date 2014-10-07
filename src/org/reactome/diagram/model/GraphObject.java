@@ -53,7 +53,7 @@ public abstract class GraphObject extends ReactomeObject {
     
     
     
-    public void setPosition(int x, int y) {
+    public void setPosition(double x, double y) {
         position = new Point(x, y);
     }
     

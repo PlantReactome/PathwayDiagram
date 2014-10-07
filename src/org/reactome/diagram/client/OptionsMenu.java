@@ -271,8 +271,8 @@ public class OptionsMenu extends PopupPanel {
     	
     	downloadCanvas.setWidth(bounds.getWidth()+ "px");
     	downloadCanvas.setHeight(bounds.getHeight() + "px");
-    	downloadCanvas.setCoordinateSpaceWidth(bounds.getWidth());
-    	downloadCanvas.setCoordinateSpaceHeight(bounds.getHeight());
+    	downloadCanvas.setCoordinateSpaceWidth((int) bounds.getWidth());
+    	downloadCanvas.setCoordinateSpaceHeight((int) bounds.getHeight());
     	
     	downloadCanvas.getContext2d().translate(-Math.min(bounds.getX(), 0), 
     											-Math.min(bounds.getY(), 0));
@@ -282,19 +282,19 @@ public class OptionsMenu extends PopupPanel {
     
     private Bounds getBoundsEncompassingInteractors(List<InteractorNode> interactors) {
 		Collections.sort(interactors, GraphObject.getXCoordinateComparator());
-    	int minX = interactors.get(0).getBounds().getX();
-    	int maxX = interactors.get(interactors.size() - 1).getBounds().getX() +
+    	double minX = interactors.get(0).getBounds().getX();
+    	double maxX = interactors.get(interactors.size() - 1).getBounds().getX() +
     			   interactors.get(interactors.size() - 1).getBounds().getWidth();
     	
     	Collections.sort(interactors, GraphObject.getYCoordinateComparator());
-    	int minY = interactors.get(0).getBounds().getY();
-    	int maxY = interactors.get(interactors.size() - 1).getBounds().getY() +
+    	double minY = interactors.get(0).getBounds().getY();
+    	double maxY = interactors.get(interactors.size() - 1).getBounds().getY() +
     			   interactors.get(interactors.size() - 1).getBounds().getHeight();
     	
     	Bounds pathwayBounds = diagramPane.getPathway().getPreferredSize();
-    	int width = Math.max(pathwayBounds.getX() + pathwayBounds.getWidth(), maxX) -
+    	double width = Math.max(pathwayBounds.getX() + pathwayBounds.getWidth(), maxX) -
     				Math.min(pathwayBounds.getX(), minX);
-    	int height = Math.max(pathwayBounds.getY() + pathwayBounds.getHeight(), maxY) -
+    	double height = Math.max(pathwayBounds.getY() + pathwayBounds.getHeight(), maxY) -
     				Math.min(pathwayBounds.getY(), minY);
     	
     	return new Bounds(minX,

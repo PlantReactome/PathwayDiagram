@@ -40,11 +40,11 @@ public class ProteinRenderer extends NodeRenderer {
     private void drawDashedRectangle(Bounds bounds,
                                      Context2d context,
                                      boolean needFill) {
-        int x0 = bounds.getX();
-        int y0 = bounds.getY();
+        double x0 = bounds.getX();
+        double y0 = bounds.getY();
         int r = getRadius();
-        int w = bounds.getWidth();
-        int h = bounds.getHeight();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         context.setLineWidth(Parameters.dashedLineWidth);
         // Draw four dashed lines
         Point p1 = new Point(x0 + r, y0);

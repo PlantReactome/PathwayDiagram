@@ -44,12 +44,12 @@ public class GeneRenderer extends NodeRenderer {
                        node);
     }
 
-    private int getTextPositionY(Bounds bounds) {
+    private double getTextPositionY(Bounds bounds) {
 		return getTextPositionY(bounds, 0) - 2;
 	}
 
 	@Override
-    protected int getTextPositionY(Bounds bounds, int totalHeight) {
+    protected double getTextPositionY(Bounds bounds, int totalHeight) {
         return bounds.getY() + GENE_SYMBOL_WIDTH / 2 + 2;
     }
 
@@ -57,7 +57,7 @@ public class GeneRenderer extends NodeRenderer {
 		Bounds textBounds = new Bounds(bounds);
 		textBounds.setY(getTextPositionY(bounds));
 		
-		List<String> textLines = splitName(node.getDisplayName(), context, bounds.getWidth());
+		List<String> textLines = splitName(node.getDisplayName(), context, (int) bounds.getWidth());
 		textBounds.setHeight(textLines.size() * Parameters.LINE_HEIGHT + 6);
 		
 		return textBounds;
@@ -72,10 +72,10 @@ public class GeneRenderer extends NodeRenderer {
                                 Bounds bounds,
                                 Node node) {
         // Draw the horizontal line
-        int x1 = bounds.getX();
-        int y1 = getTextPositionY(bounds);
-        int x2 = bounds.getX() + bounds.getWidth();
-        int y2 = getTextPositionY(bounds);
+        double x1 = bounds.getX();
+        double y1 = getTextPositionY(bounds);
+        double x2 = bounds.getX() + bounds.getWidth();
+        double y2 = getTextPositionY(bounds);
         // Draw a line
         context.beginPath();
         context.moveTo(x1, y1);

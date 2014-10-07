@@ -32,14 +32,14 @@ public class ComplexRenderer extends NodeRenderer {
     }
     
     protected void createPath(Bounds bounds, Context2d context) {
-        int x = bounds.getX();
-        int y = bounds.getY();
-        int w = bounds.getWidth();
-        int h = bounds.getHeight();
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         
         context.beginPath();
-        int x1 = x + COMPLEX_RECT_ARC_WIDTH;
-        int y1 = y;
+        double x1 = x + COMPLEX_RECT_ARC_WIDTH;
+        double y1 = y;
         context.moveTo(x1, y1);
         x1 += (w - 2 * COMPLEX_RECT_ARC_WIDTH);
         context.lineTo(x1 , y1);

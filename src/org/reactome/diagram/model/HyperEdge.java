@@ -223,5 +223,4 @@ public class HyperEdge extends GraphObject {
             return true;
         return false;
     }
-
 }

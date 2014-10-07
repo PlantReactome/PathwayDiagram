@@ -125,10 +125,10 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
-        int x = bounds.getX();
-        int y = bounds.getY();
-        int w = bounds.getWidth();
-        int h = bounds.getHeight();
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         drawRectangle(context, x, y, w, h);
 //        if (node.isNeedDashedBorder())
 //            drawDashedRectangle(bounds, context, true);
@@ -142,11 +142,11 @@ public class NodeRenderer extends AbstractRenderer<Node> {
                                  Context2d context,
                                  boolean needFill,
                                  boolean needStroke) {
-        int coX = bounds.getX();
-        int coY = bounds.getY();
+        double coX = bounds.getX();
+        double coY = bounds.getY();
         int radius = getRadius();
-        int nodeWidth = bounds.getWidth();
-        int nodeHeight = bounds.getHeight();
+        double nodeWidth = bounds.getWidth();
+        double nodeHeight = bounds.getHeight();
         context.beginPath();
         context.moveTo(coX+radius, coY);
         context.lineTo(coX+nodeWidth-radius, coY);
@@ -181,7 +181,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      */
     public List<String> splitName(String name,
                                    Context2d c2d,
-                                   int width) {
+                                   double width) {
         List<String> rtn = new ArrayList<String>();
         String[] tokens = name.split(" "); // Use these delimits
         StringBuilder line = new StringBuilder();
@@ -207,7 +207,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     
     private void splitWord(StringBuilder line,
                            int start,
-                           int width,
+                           double width,
                            Context2d c2d,
                            List<String> lines) {
         boolean isSplit = false;
@@ -236,7 +236,7 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     private void _splitWord(StringBuilder line, 
                             int start, 
                             List<String> lines,
-                            int width,
+                            double width,
                             Context2d c2d) {
         if (start == 0)
             return; // This should be listed as a whole word, cannot split any more (e.g. a very long word)
@@ -282,13 +282,13 @@ public class NodeRenderer extends AbstractRenderer<Node> {
        	context.setFont(font);
         context.setTextAlign(TextAlign.CENTER);
         context.setTextBaseline(TextBaseline.TOP);
-        int width = bounds.getWidth() - 2 * node.getBounsBuffer();
+        double width = bounds.getWidth() - 2 * node.getBounsBuffer();
         List<String> lines = splitName(node.getDisplayName(), 
                                        context, 
                                        width);
         int totalHeight = lines.size() * Parameters.LINE_HEIGHT;
-        int x0 = bounds.getX() + bounds.getWidth() / 2;
-        int y0 = getTextPositionY(bounds, totalHeight);
+        double x0 = bounds.getX() + bounds.getWidth() / 2;
+        double y0 = getTextPositionY(bounds, totalHeight);
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             drawLine(i, 
@@ -307,8 +307,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * @param totalHeight
      * @return
      */
-    protected int getTextPositionY(Bounds bounds, int totalHeight) {
-        int y0 = (bounds.getHeight() - totalHeight) / 2 + bounds.getY();
+    protected double getTextPositionY(Bounds bounds, int totalHeight) {
+        double y0 = (bounds.getHeight() - totalHeight) / 2 + bounds.getY();
         return y0;
     }
     
@@ -321,8 +321,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     protected void drawLine(int linebreak, 
                           Context2d context,
                           String dashLastPhrase,
-                          int x0,
-                          int y0) {
+                          double x0,
+                          double y0) {
         double wordX = x0;
         double wordY = y0 + linebreak * Parameters.LINE_HEIGHT;
         double measure = context.measureText(dashLastPhrase).getWidth(); 
@@ -337,8 +337,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * @param w
      * @param h
      */
-    protected void drawRectangle(Context2d context, int x, int y,
-                                 int w, int h) {
+    protected void drawRectangle(Context2d context, double x, double y,
+                                 double w, double h) {
         context.beginPath();
         context.moveTo(x, y);
         context.lineTo(x + w, y);

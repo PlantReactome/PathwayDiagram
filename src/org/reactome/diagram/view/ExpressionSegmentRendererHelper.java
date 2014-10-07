@@ -22,7 +22,7 @@ public class ExpressionSegmentRendererHelper {
     public ExpressionSegmentRendererHelper() {
     }
     
-    public void drawLineWithBubbleLetters(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {
+    public void drawLineWithBubbleLetters(int lineBreak, Context2d context2d, String dashLastPhrase, double x0 , double y0) {
     	double wordX = x0;
     	double wordY = y0 + lineBreak * Parameters.LINE_HEIGHT;
     	double measure = context2d.measureText(dashLastPhrase).getWidth();

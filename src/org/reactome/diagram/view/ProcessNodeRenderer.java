@@ -26,10 +26,10 @@ public class ProcessNodeRenderer extends NodeRenderer {
     protected void drawRectangle(Bounds bounds, 
                                  Context2d context,
                                  Node node) {
-        int x = bounds.getX();
-        int y = bounds.getY();
-        int w = bounds.getWidth();
-        int h = bounds.getHeight();
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         drawRectangle(context, x, y, w, h);
         // Get the color
         FillStrokeStyle fillStyle = context.getFillStyle();

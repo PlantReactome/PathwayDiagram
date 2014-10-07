@@ -12,10 +12,10 @@ import com.google.gwt.touch.client.Point;
  *
  */
 public class Bounds {
-    int x;
-    int y;
-    int width;
-    int height;
+    double x;
+    double y;
+    double width;
+    double height;
     
     public Bounds() {
     }
@@ -32,54 +32,62 @@ public class Bounds {
         height = Integer.parseInt(tokens[3]);
     }
     
-    public Bounds(int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    public Bounds(double left, double top, double adjustedWidth, double adjustedHeight) {
+        this.x = left;
+        this.y = top;
+        this.width = adjustedWidth;
+        this.height = adjustedHeight;
     }
     
     public Bounds(Bounds bounds) {
         this(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(double y) {
         this.y = y;
     }
 
     public Point getCentre() {
-    	int x = this.x + (this.width / 2);
-    	int y = this.y + (this.height / 2);
+    	double x = this.x + (this.width / 2);
+    	double y = this.y + (this.height / 2);
     	
     	return new Point(x, y);
     }
     
-    public int getWidth() {
+    public double getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(double width) {
         this.width = width;
     }
 
-    public int getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(double height) {
         this.height = height;
+    }
+    
+    public double getRight() {
+		return getX() + getWidth();
+    }
+    
+    public double getBottom() {
+		return getY() + getHeight();
     }
     
     public void translate(double dx, double dy) {
@@ -101,15 +109,15 @@ public class Bounds {
     }
 
     public boolean isColliding(Bounds object) {
-    	int box1_x1 = this.x;
-    	int box1_x2 = this.x + this.width;
-    	int box1_y1 = this.y;
-    	int box1_y2 = this.y + this.height;
+    	double box1_x1 = this.x;
+    	double box1_x2 = this.x + this.width;
+    	double box1_y1 = this.y;
+    	double box1_y2 = this.y + this.height;
     	
-    	int box2_x1 = object.x;
-    	int box2_x2 = object.x + object.width;
-    	int box2_y1 = object.y;
-    	int box2_y2 = object.y + object.height; 
+    	double box2_x1 = object.x;
+    	double box2_x2 = object.x + object.width;
+    	double box2_y1 = object.y;
+    	double box2_y2 = object.y + object.height; 
     	
     	if (box1_x2 >= box2_x1 && box1_x1 <= box2_x2 && box1_y2 >= box2_y1 && box1_y1 <= box2_y2)
     		return true;

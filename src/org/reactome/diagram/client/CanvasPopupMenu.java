@@ -140,10 +140,10 @@ public class CanvasPopupMenu extends PopupPanel {
     }
     
     private Point getEntityBottomLeft(Node entity, PathwayCanvas pathwayCanvas) {
-    	final Integer entityLeft = entity.getBounds().getX();
-    	final Integer entityBottom = entity.getBounds().getY() + entity.getBounds().getHeight(); 
+    	final double entityLeft = entity.getBounds().getX();
+    	final double entityBottom = entity.getBounds().getY() + entity.getBounds().getHeight(); 
     	
-    	return pathwayCanvas.getAbsoluteCoordinates(entityLeft.doubleValue(), entityBottom.doubleValue());
+    	return pathwayCanvas.getAbsoluteCoordinates(entityLeft, entityBottom);
     }
     
     public class NodeOptionsMenuBar extends NodeOptionsMenu {

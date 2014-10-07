@@ -392,12 +392,12 @@ public class InteractorCanvas extends DiagramCanvas {
     }
     
     private Point getVertIntersection(Bounds rect, String side, double slope, double intercept) {
-    	int x = rect.getX();
+    	double x = rect.getX();
     	
     	if (side.equals("right")) 
     		x = x + rect.getWidth();	
     	
-    	int y = (int) (slope * x + intercept);
+    	double y = slope * x + intercept;
     
     	if (rect.getY() <= y && y <= rect.getY() + rect.getHeight()) {
     		return new Point(x,y); 
@@ -407,12 +407,12 @@ public class InteractorCanvas extends DiagramCanvas {
     }
     
     private Point getHorizIntersection(Bounds rect, String side, double slope, double intercept) {
-    	int y = rect.getY();
+    	double y = rect.getY();
     	
     	if (side.equals("bottom"))
     		y = y + rect.getHeight();
     	
-    	int x = (int) ((y - intercept) / slope);
+    	double x = (y - intercept) / slope;
     
     	if (rect.getX() <= x && x <= rect.getX() + rect.getWidth()) {
     		return new Point(x,y);
