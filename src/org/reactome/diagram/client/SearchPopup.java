@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.reactome.diagram.event.PathwayChangeEvent;
+import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.model.CompositionalNode;
 import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.GraphObject;
@@ -18,9 +20,10 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Timer;
@@ -29,9 +32,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
-
-import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * Designed to mimic the 'find' functionality found within applications and browsers for the pathway
@@ -39,11 +43,10 @@ import com.google.gwt.user.client.ui.TextBox;
  * @author weiserj
  *
  */
-public class SearchPopup extends HorizontalPanel {
+public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHandler {
 	private PathwayDiagramPanel diagramPane;
 	private List<GraphObject> matchingEntityIds;
-	private SearchTimer searchTimer;
-	private TextBox searchBox;
+	private SuggestBox searchBox;
 	private Label resultsLabel;
 	private HorizontalPanel navigationButtons;
 	private Integer selectedIndex;
@@ -68,23 +71,23 @@ public class SearchPopup extends HorizontalPanel {
 		
 		Label searchLabel = new Label("Find Reaction/Entity:");
 		
-		searchTimer = new SearchTimer();			
-		
-		searchBox = new TextBox();
-		searchBox.addKeyUpHandler(new KeyUpHandler() {
+		searchBox = new SuggestBox();
+		searchBox.addKeyDownHandler(new KeyDownHandler() {
 
 			@Override
-			public void onKeyUp(KeyUpEvent event) {					
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && searchTimer.isActive()) {
-					searchTimer.cancel();
-					doSearch(searchString);
-					return;
-				} 
-				
+			public void onKeyDown(KeyDownEvent event) {
+				enableButtons(false);
+			}
+			
+		});
+		searchBox.addSelectionHandler(new com.google.gwt.event.logical.shared.SelectionHandler<SuggestOracle.Suggestion>(){
+
+			@Override
+			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
 				String newSearchString = searchBox.getText();
 				if (!newSearchString.equalsIgnoreCase(searchString)) {
 					searchString = newSearchString;
-					searchTimer.schedule(1000);
+					doSearch(searchString);
 				}
 			}
 		});
@@ -136,9 +139,36 @@ public class SearchPopup extends HorizontalPanel {
 			
 		enableButtons(Boolean.FALSE);
 		
-		this.setStyleName(diagramPane.getStyle().searchPopup());
+		setStyleName(diagramPane.getStyle().searchPopup());
 	}	
+	
+	public void onPathwayChange(PathwayChangeEvent event) {
+		((MultiWordSuggestOracle) searchBox.getSuggestOracle()).clear();
+		searchBox.setText(null);
+		enableButtons(false);
 		
+		ComplexComponentFetcher complexComponentFetcher = new ComplexComponentFetcher() {
+
+			@Override
+			protected void performActionAfterComponentsObtained() {
+				MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) searchBox.getSuggestOracle();
+				for (GraphObject pathwayObject : getPathwayGraphObjects()) {
+					if (pathwayObject.getDisplayName() == null || pathwayObject.getType() == GraphObjectType.RenderableCompartment)
+						continue;
+					
+					suggestOracle.add(pathwayObject.getDisplayName());
+					if (pathwayObject instanceof CompositionalNode) {
+						for (Component component : ((CompositionalNode) pathwayObject).getComponents())
+							suggestOracle.add(component.getDisplayName());
+					}
+				}
+			}
+			
+		};
+		
+		complexComponentFetcher.getComplexNodeComponentData(diagramPane.getPathway());
+	}
+	
 	// Returns a list of db ids for objects in the pathway diagram
 	// which match the given query
 	private List<GraphObject> searchDiagram(String query) {
@@ -177,34 +207,25 @@ public class SearchPopup extends HorizontalPanel {
 	}
 	
 	private void doSearch(final String query) {		
-		ComplexComponentFetcher complexComponentFetcher = new ComplexComponentFetcher() {
+		matchingEntityIds = searchDiagram(query);
+			
+		if (matchingEntityIds.isEmpty()) {
+			enableButtons(Boolean.FALSE);
 		
-			public void performActionAfterComponentsObtained() {
+			String labelText = null;
 			
-				matchingEntityIds = searchDiagram(query);
+			if (!query.isEmpty())
+				labelText = "No matches found for " + query;
+			resultsLabel.setText(labelText);
 			
-				if (matchingEntityIds.isEmpty()) {
-					enableButtons(Boolean.FALSE);
-			
-					String labelText = null;
-			
-					if (!query.isEmpty())
-						labelText = "No matches found for " + query;
-					resultsLabel.setText(labelText);
-			
-					highlightEntities(matchingEntityIds);
-			
-					return;
-				} else {
-					enableButtons(Boolean.TRUE);
-				}
+			highlightEntities(matchingEntityIds);
+			return;
+		} else {
+			enableButtons(Boolean.TRUE);
+		}
 		
-				selectEntity(0);
-				focus();
-			}
-		};
-		
-		complexComponentFetcher.getComplexNodeComponentData(diagramPane.getPathway());
+		selectEntity(0);
+		focus();
 	}
 		
 	private void selectEntity(Integer index) {
@@ -308,31 +329,4 @@ public class SearchPopup extends HorizontalPanel {
 			}
 		});
 	}
-	
-	private class SearchTimer extends Timer {
-		private Boolean active;
-		
-		@Override
-		public void run() {
-			final String query = SearchPopup.this.searchString;
-			
-			doSearch(query);
-			active = false;						
-		}
-		
-		public void schedule(int milliSeconds) {
-			super.schedule(milliSeconds);
-			active = true;
-		}
-		
-		public void cancel() {
-			super.cancel();
-			active = false;
-		}		
-		
-		public Boolean isActive() {
-			return active;
-		}		
-	}
 }
-    
