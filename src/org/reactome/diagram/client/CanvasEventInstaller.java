@@ -22,6 +22,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Timer;
 
 /**
  * This helper class is used to set up event handler for the canvas used in PathwayDiagramPanel.
@@ -37,6 +38,7 @@ public class CanvasEventInstaller {
     protected int previousX;
     protected int previousY;
     protected Node draggableNode;
+    protected boolean ignoreMouseWheelEvent; 
     
     public CanvasEventInstaller(PathwayDiagramPanel diagramPanel, DiagramCanvas canvas) {
         this.diagramPane = diagramPanel;
@@ -396,17 +398,29 @@ public class CanvasEventInstaller {
     }
     
     private void mouseWheel(MouseWheelEvent event) {
-    	if (!diagramPane.getPopupMenu().isShowing()) {
-    		Point scrollPoint = new Point(event.getX(), event.getY());
-    		
-    		if (event.isNorth()) {
-    			diagramPane.zoomIn(scrollPoint);
-    		} else {
-    			diagramPane.zoomOut(scrollPoint);
-    		}
+    	if (diagramPane.getPopupMenu().isShowing() || ignoreMouseWheelEvent)
+    		return;
     	
-    		diagramPane.update();
-    	}	
+    	Timer stopIgnoringEventTimer = new Timer() {
+
+			@Override
+			public void run() {
+				ignoreMouseWheelEvent = false;
+			}
+    		
+    	};
+    	ignoreMouseWheelEvent = true;
+    	stopIgnoringEventTimer.schedule(250);
+    	
+    	Point scrollPoint = new Point(event.getX(), event.getY());
+    		
+    	if (event.isNorth()) {
+    		diagramPane.zoomIn(scrollPoint);
+    	} else {
+    		diagramPane.zoomOut(scrollPoint);
+    	}
+    	
+    	diagramPane.update();
     }
 
     private void doubleClick(DoubleClickEvent event) {
