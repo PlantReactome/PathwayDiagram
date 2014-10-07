@@ -32,9 +32,10 @@ public class Parameters {
     
 	public static final int MOVEX = 100;
 	public static final int MOVEY = 100;
-	public static final double ZOOMMAX = 5d;
-	public static final double ZOOMMIN = 0.20d;
 	public static final double ZOOMFACTOR = 1.20d;
+	public static final int ZOOMLEVELS = 7; 
+	public static final double ZOOMMAX = Math.pow(ZOOMFACTOR, ZOOMLEVELS);
+	public static final double ZOOMMIN = Math.pow(ZOOMFACTOR, -ZOOMLEVELS);
 
 	public static final int TOTAL_INTERACTOR_NUM = 10;
 	public static final int INTERACTOR_EDGE_LENGTH = 170;
