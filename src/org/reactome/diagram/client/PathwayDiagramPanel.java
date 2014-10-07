@@ -34,6 +34,7 @@ import org.reactome.diagram.expression.event.ExpressionOverlayStopEvent;
 import org.reactome.diagram.expression.event.ExpressionOverlayStopEventHandler;
 import org.reactome.diagram.expression.model.AnalysisType;
 import org.reactome.diagram.expression.model.ExpressionCanvasModel;
+import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.HyperEdge;
@@ -164,7 +165,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         // Search Bar
         searchBar = new SearchPopup(this);
-        //searchBar.setVisible(false);
+        addPathwayChangeEventHandler(searchBar);
         contentPane.add(searchBar);
         
         // Options Menu Icon
@@ -425,7 +426,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void scale(double scaleFactor) {
-        for (DiagramCanvas canvas : getExistingCanvases()) {        
+        for (DiagramCanvas canvas : getExistingCanvases()) {
         	canvas.scale(scaleFactor);
         }	
     }
@@ -460,11 +461,55 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.center(point, entityCoordinates);
     	}
-    }    
+    }
+    
+    private void moveToViewArea(Point topLeft, Point bottomRight, double buffer) {    	
+    	double left = topLeft.getX() - buffer;
+    	double right = bottomRight.getX() + buffer;
+    	double top = topLeft.getY() - buffer;
+    	double bottom = bottomRight.getY() + buffer;
+    	
+    	double width = right - left;
+    	double height = bottom - top;
+    	
+    	reset();
+    	Bounds pathwayBounds = getPathwayCanvas().getViewBounds();
+    	double adjustedWidth, adjustedHeight;
+    	if (width / height < pathwayBounds.getWidth() / pathwayBounds.getHeight()) {
+    		adjustedWidth = pathwayBounds.getWidth() / pathwayBounds.getHeight() * height;
+    		adjustedHeight = height;
+    	} else if (width / height > pathwayBounds.getWidth() / pathwayBounds.getHeight()) {
+    		adjustedWidth = width;
+    		adjustedHeight = pathwayBounds.getHeight() / pathwayBounds.getWidth() * width;
+    	} else {
+    		adjustedWidth = width;
+    		adjustedHeight = height;
+    	}
+    	
+    	if (adjustedWidth - width > 0) {
+    		double increase = adjustedWidth - width;
+    		left -= increase / 2.0;
+    		right += increase / 2.0;
+    	} else if (adjustedHeight - height > 0) {
+    		double increase = adjustedHeight - height;
+    		top -= increase / 2.0;
+    		bottom += increase/ 2.0;
+    	}
+    	
+    	Bounds selectionArea = new Bounds(left, top, adjustedWidth, adjustedHeight);
+    	scale(pathwayBounds.getWidth() / adjustedWidth);
+    	center(selectionArea.getCentre(), true);
+    }
     
     public void reset() {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.reset();
+    	}
+    }
+    
+    public void resetTranslate() {
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
+    		canvas.resetTranslate();
     	}
     }
     
@@ -612,9 +657,34 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
    			selectionHandler.setSelectionIds(dbIds);
         }
         
-        if (getSelectedObjects() != null) {
+        List<GraphObject> selectedObjects = getSelectedObjects();
+        if (selectedObjects != null) {
+        	if (selectedObjects.size() > 1) {
+        		Collections.sort(selectedObjects, GraphObject.getXCoordinateComparator());
+        		double left = selectedObjects.get(0) instanceof Node ?
+        					((Node) selectedObjects.get(0)).getBounds().getX() :
+        					selectedObjects.get(0).getPosition().getX(); 
+        		
+        		Collections.reverse(selectedObjects);
+        		double right = selectedObjects.get(0) instanceof Node ?
+        					((Node) selectedObjects.get(0)).getBounds().getRight() :
+        					selectedObjects.get(0).getPosition().getX();
+        		
+        		Collections.sort(selectedObjects, GraphObject.getYCoordinateComparator());
+        		double top = selectedObjects.get(0) instanceof Node ?
+        					((Node) selectedObjects.get(0)).getBounds().getY() :
+        					selectedObjects.get(0).getPosition().getY();
+        		
+        		Collections.reverse(selectedObjects);
+        		double bottom = selectedObjects.get(0) instanceof Node ?
+        					((Node) selectedObjects.get(0)).getBounds().getBottom() :
+        					selectedObjects.get(0).getPosition().getY();
+        					
+        		moveToViewArea(new Point(left, top), new Point(right, bottom), 50);
+        	}
+        	
         	SelectionEvent event = new SelectionEvent();
-        	event.setSelectedObjects(getSelectedObjects());
+        	event.setSelectedObjects(selectedObjects);
         	
         	fireSelectionEvent(event);
         }
