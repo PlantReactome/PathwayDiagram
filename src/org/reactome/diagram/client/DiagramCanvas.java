@@ -264,12 +264,13 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		}
 		
 		private Double applyScaleFactor(Double scaleFactor) {
-			final Double previousScale = getScale();
-			final Double newScale = previousScale * scaleFactor;
+			final Double newScale = getScale() * scaleFactor;
 			
-			if (newScale > Parameters.ZOOMMAX || newScale < Parameters.ZOOMMIN) {
-				return previousScale;
-			}
+			if (newScale > Parameters.ZOOMMAX)
+				return Parameters.ZOOMMAX;
+				
+			if (newScale < Parameters.ZOOMMIN)
+				return Parameters.ZOOMMIN;
 		
 			return newScale;
 		}
