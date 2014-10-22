@@ -266,13 +266,21 @@ public class HyperEdgeRenderer extends AbstractRenderer<HyperEdge> {
             context.stroke();
         }
         else if (role == ConnectRole.INHIBITOR) {
-            context.beginPath();
-            double x1 = anchor.getX() - EDGE_MODULATION_WIDGET_WIDTH / 2.0d;
-            double x2 = anchor.getX() + EDGE_MODULATION_WIDGET_WIDTH / 2.0d;
-            context.moveTo(x1, anchor.getY());
-            context.lineTo(x2, anchor.getY());
-            context.closePath();
-            context.stroke();
+        	Point controlPoint = branch.get(branch.size() - 1);
+        	double deltaY = anchor.getY() - controlPoint.getY();
+        	double deltaX = controlPoint.getX() - anchor.getX();
+        	
+        	double angle = deltaY == 0 ? Math.PI / 2 : Math.atan(-deltaX/deltaY);
+        	double x1 = anchor.getX() - (Math.cos(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+        	double x2 = anchor.getX() + (Math.cos(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+        	double y1 = anchor.getY() + (Math.sin(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+        	double y2 = anchor.getY() - (Math.sin(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+        	
+        	context.beginPath();
+        	context.moveTo(x1, y1);
+        	context.lineTo(x2, y2);
+        	context.closePath();
+        	context.stroke();
         }
         else if (role == ConnectRole.ACTIVATOR) { // Draw an open arrow
             Point controlPoint = branch.get(branch.size() - 1);
