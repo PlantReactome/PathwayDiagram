@@ -359,11 +359,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         overview.setPathway(pathway);
 
         pathwayCanvas.setPathway(pathway);
-        pathwayCanvas.update();
         
         Point topLeft = new Point(pathway.getPreferredSize().getX(), pathway.getPreferredSize().getY());
         Point bottomRight = new Point(pathway.getPreferredSize().getRight(), pathway.getPreferredSize().getBottom());
         moveToViewArea(topLeft, bottomRight, 0);
+
+        pathwayCanvas.update();
         
         if (overlayDataController != null && pathway != null) {
         	overlayDataController.display(contentPane,
