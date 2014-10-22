@@ -51,34 +51,21 @@ public class RenderableInteractionRenderer extends HyperEdgeRenderer {
     }
     
     private void drawInhibitor(Context2d context, Point position, HyperEdge edge) {
-        // Have to find which direction outputHub is
-        List<Node> outputs = edge.getOutputNodes();
-        if (outputs == null || outputs.size() == 0)
-            return;
-        Node node = outputs.get(0); // There should be only one
-        Bounds bounds = node.getBounds();
-        double y = position.getY();
-        if ((y < bounds.getY()) || 
-            (y > bounds.getY() + bounds.getHeight())) { // Should use a horizontal line
-            // use horizontal line
-            context.beginPath();
-            double x1 = position.getX() - EDGE_MODULATION_WIDGET_WIDTH / 2.0d;
-            double x2 = position.getX() + EDGE_MODULATION_WIDGET_WIDTH / 2.0d;
-            context.moveTo(x1, position.getY());
-            context.lineTo(x2, position.getY());
-            context.closePath();
-            context.stroke();
-        }
-        else {
-            // Draw vertical line
-            context.beginPath();
-            double y1 = position.getY() - EDGE_MODULATION_WIDGET_WIDTH / 2.0d;
-            double y2 = position.getY() + EDGE_MODULATION_WIDGET_WIDTH / 2.0d;
-            context.moveTo(position.getX(), y1);
-            context.lineTo(position.getX(), y2);
-            context.closePath();
-            context.stroke();
-        }
+    	List<Point> edgeBackbone = edge.getBackbone();
+    	double deltaY = edgeBackbone.get(1).getY() - edgeBackbone.get(0).getY();
+    	double deltaX = edgeBackbone.get(1).getX() - edgeBackbone.get(0).getX();
+    	
+    	double angle = deltaY == 0 ? Math.PI / 2 : Math.atan(-deltaX/deltaY);
+    	double x1 = position.getX() - (Math.cos(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+    	double x2 = position.getX() + (Math.cos(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+    	double y1 = position.getY() + (Math.sin(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+    	double y2 = position.getY() - (Math.sin(angle) * EDGE_MODULATION_WIDGET_WIDTH / 2.0d);
+    	
+    	context.beginPath();
+    	context.moveTo(x1, y1);
+    	context.lineTo(x2, y2);
+    	context.closePath();
+    	context.stroke();
     }
     
 }
