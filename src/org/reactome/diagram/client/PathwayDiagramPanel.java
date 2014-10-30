@@ -166,6 +166,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         // Search Bar
         searchBar = new SearchPopup(this);
         addPathwayChangeEventHandler(searchBar);
+        addSelectionEventHandler(searchBar);
         contentPane.add(searchBar);
         
         // Options Menu Icon
@@ -348,7 +349,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
     protected void setCanvasPathway(CanvasPathway pathway) {
         reset(); // Resets scale and translation of all canvases
-    	clearExpressionCanvas();
+    	clearSelection();
+        clearExpressionCanvas();
     	clearInteractorOverlay();
         
     	// Get the old displayed pathway
@@ -631,7 +633,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
      * @return
      */
     public List<GraphObject> getSelectedObjects() {
-        List<GraphObject> selectedObjects = null;
+        List<GraphObject> selectedObjects = new ArrayList<GraphObject>();
         
         for (SelectionHandler selectionHandler : getExistingSelectionHandlers()) {        	
         	selectedObjects = selectionHandler.getSelectedObjects();     

@@ -67,6 +67,9 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 			@Override
 			public void onClick(ClickEvent event) {
 				SearchPopup.this.setVisible(false);
+				clearQuery();
+				removeAllHighlighting();
+				diagramPane.setSelectionObjects(diagramPane.getSelectedObjects());
 			}
 		});
 		
@@ -181,7 +184,7 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 	
 	@Override
 	public void onSelectionChanged(org.reactome.diagram.event.SelectionEvent event) {
-		resultsLabel.setText(null);
+		resultsLabel.setText("");
 	}
 
 	// Returns a list of db ids for objects in the pathway diagram
@@ -297,8 +300,8 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 	}
 	
 	private void clearQuery() {
-		searchBox.setText(null);
-		resultsLabel.setText(null);
+		searchBox.setText("");
+		resultsLabel.setText("");
 		enableButtons(false);
 	}
 	

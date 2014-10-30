@@ -117,8 +117,11 @@ public abstract class SelectionHandler {
     }
 
     public void setSelectionObjects(List<GraphObject> objects) {        
-        selectedObjects.clear();
-        selectedObjects.addAll(objects);
+        if (selectedObjects != objects) {
+    		selectedObjects.clear();
+        	selectedObjects.addAll(objects);
+        }
+        	
         for (GraphObject obj : canvasObjects) {
             obj.setIsSelected(objects.contains(obj));
         }
