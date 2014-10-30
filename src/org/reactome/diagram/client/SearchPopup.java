@@ -4,12 +4,12 @@
  */
 package org.reactome.diagram.client;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.ArrayList;import java.util.Iterator;
 import java.util.List;
 
 import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
+import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.model.CompositionalNode;
 import org.reactome.diagram.model.CompositionalNode.Component;
 import org.reactome.diagram.model.GraphObject;
@@ -20,8 +20,9 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 
 
@@ -43,7 +44,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author weiserj
  *
  */
-public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHandler {
+public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHandler, SelectionEventHandler {
 	private PathwayDiagramPanel diagramPane;
 	private List<GraphObject> matchingEntityIds;
 	private SuggestBox searchBox;
@@ -72,14 +73,24 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 		Label searchLabel = new Label("Find Reaction/Entity:");
 		
 		searchBox = new SuggestBox();
-		searchBox.addKeyDownHandler(new KeyDownHandler() {
+
+		searchBox.addKeyUpHandler(new KeyUpHandler() {
 
 			@Override
-			public void onKeyDown(KeyDownEvent event) {
-				enableButtons(false);
+			public void onKeyUp(KeyUpEvent event) {					
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+					doSearch(searchString);
+					return;
+				} 
+				
+				String newSearchString = searchBox.getText();
+				if (!newSearchString.equalsIgnoreCase(searchString)) {
+					searchString = newSearchString;
+					doSearch(searchString);
+				}
 			}
-			
 		});
+	
 		searchBox.addSelectionHandler(new com.google.gwt.event.logical.shared.SelectionHandler<SuggestOracle.Suggestion>(){
 
 			@Override
@@ -144,8 +155,7 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 	
 	public void onPathwayChange(PathwayChangeEvent event) {
 		((MultiWordSuggestOracle) searchBox.getSuggestOracle()).clear();
-		searchBox.setText(null);
-		enableButtons(false);
+		clearQuery();
 		
 		ComplexComponentFetcher complexComponentFetcher = new ComplexComponentFetcher() {
 
@@ -169,6 +179,11 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 		complexComponentFetcher.getComplexNodeComponentData(diagramPane.getPathway());
 	}
 	
+	@Override
+	public void onSelectionChanged(org.reactome.diagram.event.SelectionEvent event) {
+		resultsLabel.setText(null);
+	}
+
 	// Returns a list of db ids for objects in the pathway diagram
 	// which match the given query
 	private List<GraphObject> searchDiagram(String query) {
@@ -279,6 +294,12 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 	private void removeAllSelections() {
 		for (GraphObject entity : getPathwayGraphObjects())
 			entity.setIsSelected(false);
+	}
+	
+	private void clearQuery() {
+		searchBox.setText(null);
+		resultsLabel.setText(null);
+		enableButtons(false);
 	}
 	
 	private List<GraphObject> getPathwayGraphObjects() {
