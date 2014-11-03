@@ -46,6 +46,11 @@
 	z-index: 2;
 }
 
+@external .gwt-SuggestBoxPopup;
+.gwt-SuggestBoxPopup {
+	z-index: 3;
+}
+
 .tooltip {
 	background-color:rgba(220,220,220,1);
 }
