@@ -5,6 +5,7 @@
 package org.reactome.diagram.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.reactome.diagram.model.CanvasPathway;
@@ -39,10 +40,10 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
     }
         
     public GraphObject select(GwtEvent<? extends EventHandler> event, Point point) {
-        if (pc.getPathway() == null || pc.getPathway().getObjectsForRendering() == null)
+        if (pc.getPathway() == null || getObjectsForRendering() == null)
         	return null;
         	
-    	canvasObjects = pc.getPathway().getObjectsForRendering();
+    	canvasObjects = getObjectsForRendering();
         gwtEvent = event;
         
         return super.select(event, point);
@@ -53,7 +54,7 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
         if (pathway == null)
             return;
         
-        canvasObjects = pathway.getObjectsForRendering();
+        canvasObjects = getObjectsForRendering();
         super.setSelectionObjects(objects);       
     }
     
@@ -66,12 +67,18 @@ public class PathwayCanvasSelectionHandler extends SelectionHandler {
         if (pathway == null)
             return;
         
-        canvasObjects = pathway.getObjectsForRendering();
+        canvasObjects = getObjectsForRendering();
         
         super.setSelectionIds(dbIds);
       
     }
-                
+    
+    private List<GraphObject> getObjectsForRendering() {
+    	List<GraphObject> objects = new ArrayList<GraphObject>(pc.getPathway().getObjectsForRendering());
+    	Collections.reverse(objects);
+		return objects;
+    }
+
     private boolean isPathwayDoubleClicked(GraphObject selected) {
     	return (gwtEvent instanceof DoubleClickEvent && selected.getType() == GraphObjectType.ProcessNode);
     }

@@ -4,6 +4,8 @@
  */
 package org.reactome.diagram.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.reactome.diagram.event.SelectionEvent;
@@ -54,7 +56,8 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
     	if (pc.getPathway() == null || pc.getPathway().getObjectsForRendering() == null)
             return null;
                 
-        List<GraphObject> objects = pc.getPathway().getObjectsForRendering();
+        List<GraphObject> objects = new ArrayList<GraphObject>(pc.getPathway().getObjectsForRendering());
+        Collections.reverse(objects); // objects drawn last (i.e. on top) checked first 
         super.hover(objects);        
         
         if (hoveredObject != null) {
