@@ -29,8 +29,13 @@ public class EntitySetRenderer extends ProteinRenderer {
     }
     
     protected void drawRectangle(Context2d context, Node node) {
-    	drawRectangle(getOuterBounds(node), context, true, true);
-    	drawRectangle(getInnerBounds(node), context, true, true);
+    	if (node.isNeedDashedBorder()) {
+    		drawDashedRectangle(getOuterBounds(node), context, true);
+    		drawDashedRectangle(getInnerBounds(node), context, true);
+    	} else {
+    		drawRectangle(getOuterBounds(node), context, true, true);
+    		drawRectangle(getInnerBounds(node), context, true, true);
+    	}
     }
     
     protected Bounds getInnerBounds(Node node) {

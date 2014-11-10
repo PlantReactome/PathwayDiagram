@@ -5,7 +5,6 @@
 package org.reactome.diagram.view;
 
 import org.reactome.diagram.model.Bounds;
-import org.reactome.diagram.model.Node;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
@@ -20,24 +19,28 @@ public class ProteinRenderer extends NodeRenderer {
     public ProteinRenderer() {
     }
     
-    /**
-     * This is a template that should be implemented by a sub-class.
-     * @param bounds
-     * @param context
-     * @param node
-     */
-    protected void drawRectangle(Bounds bounds,
-                                 Context2d context,
-                                 Node node) {
-        if (node.isNeedDashedBorder())
-            drawDashedRectangle(bounds, context, true);
-        else
-            drawRectangle(bounds, 
-                          context,
-                          true);
-    }
-    
-    private void drawDashedRectangle(Bounds bounds,
+    @Override
+	protected void drawRectangle(Context2d context, Bounds bounds) {
+    	double coX = bounds.getX();
+        double coY = bounds.getY();
+        int radius = getRadius();
+        double nodeWidth = bounds.getWidth();
+        double nodeHeight = bounds.getHeight();
+       
+        context.beginPath();
+        context.moveTo(coX+radius, coY);
+        context.lineTo(coX+nodeWidth-radius, coY);
+        context.quadraticCurveTo(coX+nodeWidth, coY, coX+nodeWidth, coY+radius);
+        context.lineTo(coX+nodeWidth, coY+nodeHeight-radius);
+        context.quadraticCurveTo(coX+nodeWidth, coY+nodeHeight, coX+nodeWidth-radius, coY+nodeHeight);
+        context.lineTo(coX+radius, coY+nodeHeight);
+        context.quadraticCurveTo(coX, coY+nodeHeight, coX, coY+nodeHeight-radius);
+        context.lineTo(coX, coY+radius);
+        context.quadraticCurveTo(coX, coY, coX+radius, coY);
+        context.closePath();
+	}
+
+	protected void drawDashedRectangle(Bounds bounds,
                                      Context2d context,
                                      boolean needFill) {
         double x0 = bounds.getX();
@@ -65,21 +68,25 @@ public class ProteinRenderer extends NodeRenderer {
         context.quadraticCurveTo(x0, y0, x0 + r, y0);
         context.closePath();
         context.stroke();
+        
         context.beginPath();
         context.moveTo(x0 + w - r, y0);
         context.quadraticCurveTo(x0 + w, y0, x0 + w, y0 + r);
         context.closePath();
         context.stroke();
+        
         context.beginPath();
         context.moveTo(x0 + w, y0 + h - r);
         context.quadraticCurveTo(x0 + w, y0 + h, x0 + w - r, y0 + h);
         context.closePath();
         context.stroke();
+        
         context.beginPath();
         context.moveTo(x0 + r, y0 + h);
         context.quadraticCurveTo(x0, y0 + h, x0, y0 + h - r);
         context.closePath();
         context.stroke();
+        
         if (needFill) {
             context.beginPath();
             context.moveTo(x0+r, y0);

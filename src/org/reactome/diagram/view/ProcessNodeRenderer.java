@@ -30,7 +30,8 @@ public class ProcessNodeRenderer extends NodeRenderer {
         double y = bounds.getY();
         double w = bounds.getWidth();
         double h = bounds.getHeight();
-        drawRectangle(context, x, y, w, h);
+        drawRectangle(context, bounds);
+        
         // Get the color
         FillStrokeStyle fillStyle = context.getFillStyle();
         if (fillStyle.getType() == FillStrokeStyle.TYPE_CSSCOLOR) {
@@ -41,11 +42,18 @@ public class ProcessNodeRenderer extends NodeRenderer {
             y += RECTANGLE_DIST;
             w -= 2 * RECTANGLE_DIST;
             h -= 2 * RECTANGLE_DIST;
-            drawRectangle(context, x, y, w, h);
+            drawRectangle(context, new Bounds(x, y, w, h));
         }
     }
 
-    /**
+    @Override
+	protected void drawRectangle(Context2d context, Bounds bounds) {
+		super.drawRectangle(context, bounds);
+		context.stroke();
+		context.fill();
+	}
+
+	/**
      * This method is copied from java.awt.Color.brighter() method.
      * @param color
      * @return

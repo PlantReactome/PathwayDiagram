@@ -32,8 +32,14 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
     @Override
     protected void drawRectangle(Context2d context, Node node) {
     	drawRectangle(getOuterBounds(node), context, node);
-    	drawRectangle(getOuterBounds(node), context, false, true);
-    	drawRectangle(getInnerBounds(node), context, false, true);
+    	
+    	if (node.isNeedDashedBorder()) {
+    		drawDashedRectangle(getOuterBounds(node), context, false);
+    		drawDashedRectangle(getInnerBounds(node), context, false);
+    	} else {
+    		drawRectangle(getOuterBounds(node), context, false, true);
+    		drawRectangle(getInnerBounds(node), context, false, true);
+    	}
     }
     
     @Override
@@ -80,8 +86,6 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
         		drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), segmentRendererHelper.getNonWhiteComponentColors().get(i), context);
         	}
         }
-        //createPath(bounds, context);
-        //context.stroke();
     }
     
     protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {

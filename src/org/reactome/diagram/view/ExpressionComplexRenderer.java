@@ -62,8 +62,8 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
         	drawSegment(segmentWidth, segmentHeight, bounds.getHeight(), segmentRendererHelper.getNonWhiteComponentColors().get(i), context);
         }
         
-        createPath(bounds, context);
-        context.stroke();
+        if (!node.isNeedDashedBorder())
+        	drawRectangle(bounds, context, false);
     }
     
     protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {

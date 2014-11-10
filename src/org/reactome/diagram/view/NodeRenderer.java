@@ -17,6 +17,7 @@ import com.google.gwt.canvas.dom.client.Context2d.TextBaseline;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.TextMetrics;
+import com.google.gwt.touch.client.Point;
 
 /**
  * This customized Renderer is used to render Protein. 
@@ -125,54 +126,61 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  Node node) {
+        if (node.isNeedDashedBorder())
+            drawDashedRectangle(bounds, context, true);
+        else
+            drawRectangle(bounds, 
+                          context,
+                          true);
+    }
+    
+    protected void drawDashedRectangle(Bounds bounds, 
+    								   Context2d context, 
+    								   boolean needFill) {
         double x = bounds.getX();
         double y = bounds.getY();
         double w = bounds.getWidth();
         double h = bounds.getHeight();
-        drawRectangle(context, x, y, w, h);
-//        if (node.isNeedDashedBorder())
-//            drawDashedRectangle(bounds, context, true);
-//        else
-//            drawRectangle(bounds, 
-//                          context,
-//                          true);
+    	
+    	context.setLineWidth(Parameters.dashedLineWidth);
+        // Draw four dashed lines
+        Point p1 = new Point(x, y);
+        Point p2 = new Point(x + w, y);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        p1 = new Point(x + w, y);
+        p2 = new Point(x + w, y + h);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        p1 = new Point(x + w, y + h);
+        p2 = new Point(x, y + h);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+        p1 = new Point(x, y + h);
+        p2 = new Point(x, y);
+        drawDashedLine(context, p1, p2, Parameters.dashedLinePattern);
+    	
+    	if (needFill)
+    		context.fill();
+	}
+
+	protected void drawRectangle(Bounds bounds,
+                                 Context2d context,
+                                 boolean needFill) {
+            drawRectangle(bounds, 
+                          context, 
+                          needFill, 
+                          true);
     }
     
     protected void drawRectangle(Bounds bounds,
                                  Context2d context,
                                  boolean needFill,
                                  boolean needStroke) {
-        double coX = bounds.getX();
-        double coY = bounds.getY();
-        int radius = getRadius();
-        double nodeWidth = bounds.getWidth();
-        double nodeHeight = bounds.getHeight();
-        context.beginPath();
-        context.moveTo(coX+radius, coY);
-        context.lineTo(coX+nodeWidth-radius, coY);
-        context.quadraticCurveTo(coX+nodeWidth, coY, coX+nodeWidth, coY+radius);
-        context.lineTo(coX+nodeWidth, coY+nodeHeight-radius);
-        context.quadraticCurveTo(coX+nodeWidth, coY+nodeHeight, coX+nodeWidth-radius, coY+nodeHeight);
-        context.lineTo(coX+radius, coY+nodeHeight);
-        context.quadraticCurveTo(coX, coY+nodeHeight, coX, coY+nodeHeight-radius);
-        context.lineTo(coX, coY+radius);
-        context.quadraticCurveTo(coX, coY, coX+radius, coY);
-        context.closePath();
+        drawRectangle(context, bounds);
+    	
         if (needFill)
             context.fill();
         if (needStroke)
             context.stroke();
     }
-    
-    protected void drawRectangle(Bounds bounds,
-                                 Context2d context,
-                                 boolean needFill) {
-        drawRectangle(bounds, 
-                      context, 
-                      needFill, 
-                      true);
-    }
-    
     
     /**
      * Use this method to split a display name into multiple lines.
@@ -332,22 +340,21 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     /**
      * A method to draw a rectangle without rounding angles.
      * @param context
-     * @param x
-     * @param y
-     * @param w
-     * @param h
+     * @param bounds
      */
-    protected void drawRectangle(Context2d context, double x, double y,
-                                 double w, double h) {
-        context.beginPath();
+    protected void drawRectangle(Context2d context, Bounds bounds) {
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
+    	
+    	context.beginPath();
         context.moveTo(x, y);
         context.lineTo(x + w, y);
         context.lineTo(x + w, y + h);
         context.lineTo(x, y + h);
         context.lineTo(x, y);
         context.closePath();
-        context.fill();
-        context.stroke();
     }
     
 }
