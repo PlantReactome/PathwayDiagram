@@ -66,7 +66,7 @@ public class ExpressionComplexRenderer extends ComplexRenderer {
         	drawRectangle(bounds, context, false);
     }
     
-    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {
+    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, double x0 , double y0) {	
     	// When complex has white background, draw line as a generic node does
     	if (segmentRendererHelper.getUniqueComponentColors().size() == 1 &&
     		segmentRendererHelper.getComponentColors().get(0).equals(Parameters.defaultExpressionColor.value())) {

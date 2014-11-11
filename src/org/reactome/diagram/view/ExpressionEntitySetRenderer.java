@@ -88,7 +88,7 @@ public class ExpressionEntitySetRenderer extends EntitySetRenderer {
         }
     }
     
-    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, int x0 , int y0) {
+    protected void drawLine(int lineBreak, Context2d context2d, String dashLastPhrase, double x0 , double y0) {
     	// When complex has white background, draw line as a generic node does
     	if (segmentRendererHelper.getUniqueComponentColors().size() == 1 && 
     		segmentRendererHelper.getComponentColors().get(0).equals("rgb(255,255,255)")) {
