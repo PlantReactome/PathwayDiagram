@@ -142,9 +142,10 @@ public abstract class SelectionHandler {
                 continue;
             if (dbIds.contains(dbId)) {
                 addSelection(obj);
-            }
-            else
+            } else {
                 obj.setIsSelected(false);
+                obj.setHighlighted(false);
+            }
             
             if (obj.isSetOrComplex())
             	canvasSetsAndComplexes.add((CompositionalNode) obj);
