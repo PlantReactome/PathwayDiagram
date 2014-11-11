@@ -341,6 +341,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         optionsMenuIcon.setVisible(true);
         optionsMenuIcon.updatePosition(width, height);
         
+        if (getPathway() != null)
+        	showDefaultView(getPathway());
+        
         update();
                 
         LocalResizeEvent event = new LocalResizeEvent(width, height);
@@ -362,9 +365,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
         pathwayCanvas.setPathway(pathway);
         
-        Point topLeft = new Point(pathway.getPreferredSize().getX(), pathway.getPreferredSize().getY());
-        Point bottomRight = new Point(pathway.getPreferredSize().getRight(), pathway.getPreferredSize().getBottom());
-        moveToViewArea(topLeft, bottomRight, 0);
+        showDefaultView(pathway);
 
         pathwayCanvas.update();
         
@@ -383,6 +384,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
         fireEvent(event);
     }
+
+	public void showDefaultView(CanvasPathway pathway) {
+		Point topLeft = new Point(pathway.getPreferredSize().getX(), pathway.getPreferredSize().getY());
+        Point bottomRight = new Point(pathway.getPreferredSize().getRight(), pathway.getPreferredSize().getBottom());
+        moveToViewArea(topLeft, bottomRight, 0);
+	}
     
     /**
      * Set the pathway to be displayed whose DB_ID is the same as the specified dbId parametmer.
