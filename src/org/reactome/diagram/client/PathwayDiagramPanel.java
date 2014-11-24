@@ -721,6 +721,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	for (SelectionHandler selectionHandler : getExistingSelectionHandlers()) {
    			selectionHandler.clearSelection();
     	}
+    	
+    	fireSelectionEvent(new SelectionEvent());
     }
     
     public void clearOverlays() {    	
