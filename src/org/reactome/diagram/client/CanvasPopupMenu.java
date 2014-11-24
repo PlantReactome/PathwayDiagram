@@ -13,8 +13,7 @@ import org.reactome.diagram.client.NodeOptionsMenu.SubMenuBar;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.Node;
 
-import com.google.gwt.event.dom.client.MouseEvent;
-import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.dom.client.HasNativeEvent;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
@@ -61,14 +60,11 @@ public class CanvasPopupMenu extends PopupPanel {
      * Show popup menu
      * @param event
      */
-    public void showPopupMenu(MouseEvent<? extends EventHandler> event) {
+    public void showPopupMenu(HasNativeEvent event) {
     	showPopupMenu(getSelectedObject(), event);
     }    
     
-    public void showPopupMenu(GraphObject entity, final MouseEvent<? extends EventHandler> event) {
-       	event.preventDefault();
-        event.stopPropagation();
-        
+    public void showPopupMenu(GraphObject entity, final HasNativeEvent event) {
         this.entity = entity;
 
         if(isVisible()){
@@ -96,7 +92,7 @@ public class CanvasPopupMenu extends PopupPanel {
     	return diagramPane.getSelectedObjects().get(0);
     }
     
-    private void showIfMenuHasItems(final MouseEvent<? extends EventHandler> event) {
+    private void showIfMenuHasItems(final HasNativeEvent event) {
     	if (menuBar.getItems() == null || menuBar.getItems().isEmpty())
     		return;
     	
@@ -116,7 +112,8 @@ public class CanvasPopupMenu extends PopupPanel {
 									 menuBounds.getTop());
 				} else {
 					final Integer OFFSET = 2;
-					setPopupPosition(event.getClientX() + OFFSET, event.getClientY() + OFFSET);
+					setPopupPosition(event.getNativeEvent().getClientX() + OFFSET,
+									 event.getNativeEvent().getClientY() + OFFSET);
 				}
 			}
     	});

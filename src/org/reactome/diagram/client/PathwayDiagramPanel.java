@@ -358,7 +358,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
     	// Get the old displayed pathway
     	CanvasPathway old = pathwayCanvas.getPathway();
-    	//        System.out.println("Set pathway: " + pathway.getReactomeId());
+    	//System.out.println("Set pathway: " + pathway.getReactomeId());
             	    	
     	// Set up the overview first so that it can draw correct rectangle.
         overview.setPathway(pathway);
@@ -721,8 +721,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	for (SelectionHandler selectionHandler : getExistingSelectionHandlers()) {
    			selectionHandler.clearSelection();
     	}
-    	
-    	fireSelectionEvent(new SelectionEvent());
     }
     
     public void clearOverlays() {    	
@@ -943,6 +941,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 		// Suppress browser context menu so canvas pop-up menu can be seen
 		event.preventDefault();
 		event.stopPropagation();
+		
+		if (getSelectedObjects() != null && !getSelectedObjects().isEmpty()) {
+			getPopupMenu().showPopupMenu(event);
+		} else {
+			OptionsMenu optionsMenu = new OptionsMenu(this); 
+			optionsMenu.showPopup(new Point(event.getNativeEvent().getClientX(),
+											event.getNativeEvent().getClientY()));
+		}
 	}
 
 	public InteractorCanvas getInteractorCanvas() {
