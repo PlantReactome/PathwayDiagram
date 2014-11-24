@@ -139,7 +139,9 @@ public class ExpressionCanvas extends DiagramCanvas {
     			currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
     			currentPathwayExpressionForDataPoint = null;
     		}
-    		clean(c2d);	
+    		if (isThisCanvasContext(c2d))
+    			clean(c2d);	
+    		
     		return;
     	}
     	
@@ -148,6 +150,10 @@ public class ExpressionCanvas extends DiagramCanvas {
     	getPathwayNodeDataBeforeRendering(oldExpressionPathwayForDataPoint);
     	getComplexNodeComponentDataBeforeRendering();
     	drawExpressionOverlayIfReady(c2d);
+    }
+    
+    private boolean isThisCanvasContext(Context2d context) {
+		return context == this.c2d;
     }
     
     private void getPathwayNodeDataBeforeRendering(PathwayExpressionForDataPoint oldExpressionPathwayForDataPoint) {
@@ -308,7 +314,8 @@ public class ExpressionCanvas extends DiagramCanvas {
     }
     
     private void drawExpressionOverlay(Context2d c2d) {
-    	clean(c2d);
+    	if (isThisCanvasContext(c2d))
+    		clean(c2d);
     	drawn = true;
         Map<Long, List<ReferenceEntity>> physicalToReferenceEntityMap = pathway.getDbIdToRefEntity();
         	
