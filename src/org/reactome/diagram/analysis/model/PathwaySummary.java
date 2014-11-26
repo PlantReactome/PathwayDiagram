@@ -6,7 +6,7 @@ package org.reactome.diagram.analysis.model;
  */
 public interface PathwaySummary {
 
-    Long getStId();
+    String getStId();
 
     Long getDbId();
 
