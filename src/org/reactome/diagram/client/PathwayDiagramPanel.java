@@ -341,9 +341,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         optionsMenuIcon.setVisible(true);
         optionsMenuIcon.updatePosition(width, height);
         
-        if (getPathway() != null)
-        	showDefaultView(getPathway());
-        
         update();
                 
         LocalResizeEvent event = new LocalResizeEvent(width, height);
@@ -386,9 +383,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
 	public void showDefaultView(CanvasPathway pathway) {
-		Point topLeft = new Point(pathway.getPreferredSize().getX(), pathway.getPreferredSize().getY());
-        Point bottomRight = new Point(pathway.getPreferredSize().getRight(), pathway.getPreferredSize().getBottom());
-        moveToViewArea(topLeft, bottomRight, 0);
+        moveToViewArea(pathway.getPreferredSize(), 0);
 	}
     
     /**
@@ -477,11 +472,11 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     }
     
-    private void moveToViewArea(Point topLeft, Point bottomRight, double buffer) {    	
-    	double left = topLeft.getX() - buffer;
-    	double right = bottomRight.getX() + buffer;
-    	double top = topLeft.getY() - buffer;
-    	double bottom = bottomRight.getY() + buffer;
+    private void moveToViewArea(Bounds viewArea, double buffer) {
+    	double left = viewArea.getX() - buffer;
+    	double right = viewArea.getRight() + buffer;
+    	double top = viewArea.getY() - buffer;
+    	double bottom = viewArea.getBottom() + buffer;
     	
     	double width = right - left;
     	double height = bottom - top;
@@ -672,37 +667,59 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         }
         
         List<GraphObject> selectedObjects = getSelectedObjects();
-        if (selectedObjects != null) {
-        	if (selectedObjects.size() > 1) {
-        		Collections.sort(selectedObjects, GraphObject.getXCoordinateComparator());
-        		double left = selectedObjects.get(0) instanceof Node ?
-        					((Node) selectedObjects.get(0)).getBounds().getX() :
-        					selectedObjects.get(0).getPosition().getX(); 
-        		
-        		Collections.reverse(selectedObjects);
-        		double right = selectedObjects.get(0) instanceof Node ?
-        					((Node) selectedObjects.get(0)).getBounds().getRight() :
-        					selectedObjects.get(0).getPosition().getX();
-        		
-        		Collections.sort(selectedObjects, GraphObject.getYCoordinateComparator());
-        		double top = selectedObjects.get(0) instanceof Node ?
-        					((Node) selectedObjects.get(0)).getBounds().getY() :
-        					selectedObjects.get(0).getPosition().getY();
-        		
-        		Collections.reverse(selectedObjects);
-        		double bottom = selectedObjects.get(0) instanceof Node ?
-        					((Node) selectedObjects.get(0)).getBounds().getBottom() :
-        					selectedObjects.get(0).getPosition().getY();
-        					
-        		moveToViewArea(new Point(left, top), new Point(right, bottom), 50);
-        	}
-        	
+        if (!selectedObjects.isEmpty()) {
         	SelectionEvent event = new SelectionEvent();
         	event.setSelectedObjects(selectedObjects);
+        	
+        	if (selectedObjects.size() > 1) {
+        		moveToViewArea(getEncompassingBounds(selectedObjects), 50);
+        	} else {
+        		GraphObject selectedObject = getSelectedObjects().get(0);
+        		List<GraphObject> objectAndConnections = new ArrayList<GraphObject>();
+        		if (selectedObject instanceof Node) {
+        			objectAndConnections.addAll(((Node) selectedObject).getConnectedReactions());
+        		} else if (selectedObject instanceof HyperEdge) {
+        			objectAndConnections.addAll(((HyperEdge) selectedObject).getConnectedNodes());
+        		}
+        		
+        		if (!objectAndConnections.isEmpty()) {
+        			objectAndConnections.add(selectedObject);
+        			moveToViewArea(getEncompassingBounds(objectAndConnections), 50);
+        		} else {
+        			boolean doCentring = !pathwayCanvas.currentViewContainsAtLeastOneGraphObject(selectedObjects);
+        			event.setDoCentring(doCentring);
+        		}
+        	}
         	
         	fireSelectionEvent(event);
         }
     }
+
+	private Bounds getEncompassingBounds(List<GraphObject> objects) {
+		List<GraphObject> objectList = new ArrayList<GraphObject>(objects);
+		
+		Collections.sort(objectList, GraphObject.getXCoordinateComparator());
+		double left = objectList.get(0) instanceof Node ?
+					((Node) objectList.get(0)).getBounds().getX() :
+					objectList.get(0).getPosition().getX(); 
+		
+		Collections.reverse(objectList);
+		double right = objectList.get(0) instanceof Node ?
+					((Node) objectList.get(0)).getBounds().getRight() :
+					objectList.get(0).getPosition().getX();
+		
+		Collections.sort(objectList, GraphObject.getYCoordinateComparator());
+		double top = objectList.get(0) instanceof Node ?
+					((Node) objectList.get(0)).getBounds().getY() :
+					objectList.get(0).getPosition().getY();
+		
+		Collections.reverse(objectList);
+		double bottom = objectList.get(0) instanceof Node ?
+					((Node) objectList.get(0)).getBounds().getBottom() :
+					objectList.get(0).getPosition().getY();
+					
+		return new Bounds(left, top, right - left, bottom - top);
+	}
     
     /**
      * Select a single Object based on its DB_ID
