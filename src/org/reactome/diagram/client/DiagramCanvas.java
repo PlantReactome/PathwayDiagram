@@ -62,6 +62,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	setSize(width + "px", height + "px");
     	setCoordinateSpaceWidth(width);
     	setCoordinateSpaceHeight(height);
+    	fireViewChangeEvent();
     }
     
     public CanvasTransformation getCanvasTransformation() {
