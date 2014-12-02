@@ -136,8 +136,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	
     	if (pathway == null) {
     		if (oldExpressionPathwayForDataPoint != null) {
-    			currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
-    			currentPathwayExpressionForDataPoint = null;
+    			oldExpressionPathwayForDataPoint.cancelAllRequestsInProgress();
     		}
     		if (isThisCanvasContext(c2d))
     			clean(c2d);	
@@ -158,13 +157,13 @@ public class ExpressionCanvas extends DiagramCanvas {
     
     private void getPathwayNodeDataBeforeRendering(PathwayExpressionForDataPoint oldExpressionPathwayForDataPoint) {
     	if (oldExpressionPathwayForDataPoint == null || 
-    		oldExpressionPathwayForDataPoint.getPathway().getReactomeId() != pathway.getReactomeId() ||
+    		oldExpressionPathwayForDataPoint.getPathway().getReactomeId().longValue() != pathway.getReactomeId().longValue() ||
     		oldExpressionPathwayForDataPoint.getDataPointIndex() != getDataPointIndexFromDataController() ||
     		!currentResource.equals(dataController.getResourceName())
     			) {
     			
-    			if (currentPathwayExpressionForDataPoint != null) {
-    				currentPathwayExpressionForDataPoint.cancelAllRequestsInProgress();
+    			if (oldExpressionPathwayForDataPoint != null) {
+    				oldExpressionPathwayForDataPoint.cancelAllRequestsInProgress();
     			}
     				
     			currentPathwayExpressionForDataPoint = getPathwayExpressionForDataPoint(pathway, getDataPointIndexFromDataController());
@@ -239,7 +238,7 @@ public class ExpressionCanvas extends DiagramCanvas {
 					
 					List<Double> expValues = pathwayResult.getEntities().getExp();
 					if (expValues == null || expValues.isEmpty()) {
-						currentPathwayExpressionForDataPoint.addProcessNodeExpressionObject(pathway.getReactomeId(), new ProcessNodeExpression(null, 
+						currentPathwayExpressionForDataPoint.addProcessNodeExpressionObject(pathway.getReactomeId(), new ProcessNodeExpression((Double) null, 
 																														   entitiesFound,
 																														   entitiesTotal));
 					} else {
@@ -528,7 +527,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     	private CanvasPathway pathway;
     	private List<Request> requestsInProgress;
     	private boolean allRequestsAdded;
-    	private Integer dataPointIndex;
+    	private int dataPointIndex;
     	private Map<Long, ProcessNodeExpression> processNodeToExpression;
     	
     	public PathwayExpressionForDataPoint(CanvasPathway pathway, Integer dataPointIndex) {
@@ -588,11 +587,11 @@ public class ExpressionCanvas extends DiagramCanvas {
     
     public class ProcessNodeExpression {
     	private CanvasPathway pathway;
-    	private Double expValue;
+    	private double expValue;
     	private int found;
     	private int total;
     	
-		public ProcessNodeExpression(Double expValue, int found, int total) {
+		public ProcessNodeExpression(double expValue, int found, int total) {
     		this.expValue = expValue;
     		this.found = found;
     		this.total = total;
@@ -606,7 +605,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     		return pathway;
     	}
     	
-    	public Double getExpValue() {
+    	public double getExpValue() {
 			return new BigDecimal(expValue).setScale(2, RoundingMode.HALF_UP).doubleValue();
     	}
     	
