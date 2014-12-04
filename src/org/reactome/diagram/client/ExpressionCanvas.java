@@ -233,14 +233,12 @@ public class ExpressionCanvas extends DiagramCanvas {
 				
 				for (PathwaySummary pathwayResult : pathwayResults) {
 					GraphObject pathway = pathways.get(pathwayResult.getDbId());
-					Integer entitiesFound = pathwayResult.getEntities().getFound();
-					Integer entitiesTotal = pathwayResult.getEntities().getTotal();
+					int entitiesFound = pathwayResult.getEntities().getFound();
+					int entitiesTotal = pathwayResult.getEntities().getTotal();
 					
 					List<Double> expValues = pathwayResult.getEntities().getExp();
 					if (expValues == null || expValues.isEmpty()) {
-						currentPathwayExpressionForDataPoint.addProcessNodeExpressionObject(pathway.getReactomeId(), new ProcessNodeExpression((Double) null, 
-																														   entitiesFound,
-																														   entitiesTotal));
+						currentPathwayExpressionForDataPoint.addProcessNodeExpressionObject(pathway.getReactomeId(), new ProcessNodeExpression(null, entitiesFound, entitiesTotal));
 					} else {
 						for (Integer index = 0; index < expValues.size(); index++) {
 							getPathwayExpressionForDataPoint(ExpressionCanvas.this.pathway, index)
@@ -587,11 +585,11 @@ public class ExpressionCanvas extends DiagramCanvas {
     
     public class ProcessNodeExpression {
     	private CanvasPathway pathway;
-    	private double expValue;
+    	private Double expValue;
     	private int found;
     	private int total;
     	
-		public ProcessNodeExpression(double expValue, int found, int total) {
+		public ProcessNodeExpression(Double expValue, int found, int total) {
     		this.expValue = expValue;
     		this.found = found;
     		this.total = total;
@@ -605,7 +603,7 @@ public class ExpressionCanvas extends DiagramCanvas {
     		return pathway;
     	}
     	
-    	public double getExpValue() {
+    	public Double getExpValue() {
 			return new BigDecimal(expValue).setScale(2, RoundingMode.HALF_UP).doubleValue();
     	}
     	
