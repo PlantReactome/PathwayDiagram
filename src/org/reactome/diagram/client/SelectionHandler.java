@@ -204,7 +204,7 @@ public abstract class SelectionHandler {
 	}
 
 	private void deSelectAllExcept(GraphObject selected) {
-    	for (GraphObject obj : selectedObjects) {
+    	for (GraphObject obj : canvasObjects) {
     		if (obj != selected) {
     			obj.setIsSelected(false);
     		}
