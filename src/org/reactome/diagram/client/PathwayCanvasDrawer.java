@@ -137,10 +137,14 @@ public class PathwayCanvasDrawer {
             // of the gray rectangle to offset the canvas zooming. Don't forget re-scale
             // back the translation origin.
             double scale = canvas.getScale();
-            c2d.fillRect(-canvas.getTranslateX() / scale,
-                         -canvas.getTranslateY() / scale,
-                         canvas.getOffsetWidth() / scale,
-                         canvas.getOffsetHeight() / scale);
+            
+            double left = Math.min(-canvas.getTranslateX() / scale, 0);
+            double top = Math.min(-canvas.getTranslateY() / scale, 0);
+            double right = Math.max((-canvas.getTranslateX() / scale) + (canvas.getOffsetWidth() / scale),
+            						 pathway.getPreferredSize().getWidth());
+            double bottom = Math.max((-canvas.getTranslateY() / scale) + (canvas.getOffsetHeight() / scale),
+									 pathway.getPreferredSize().getHeight());
+            c2d.fillRect(left, top, right - left, bottom - top);
 //            System.out.println("Size of canvas: " + canvas.getOffsetWidth() + ", " + canvas.getOffsetHeight());
             drawDiseaseObjects(c2d, diseasePathway);
             drawOverlaidObjects(c2d, diseasePathway);
