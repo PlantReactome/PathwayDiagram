@@ -4,8 +4,6 @@
  */
 package org.reactome.diagram.expression;
 
-import org.junit.Test;
-
 /**
  * This simple helper class is used to convert expression values into colors. The implementation
  * of this class is adapted from Java source code java.awt.MultipleGradientPaintContext by considering
@@ -147,7 +145,6 @@ public class ExpressionColorHelper {
         return "#" + rtn.toUpperCase(); // This should be a valid CSS color
     }
     
-    @Test
     public void testConvertValueToColor() {
         System.out.println("Yellow: " + 0xFFFF00);
         maxColor = 0xFFFF00;

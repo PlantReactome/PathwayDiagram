@@ -4,11 +4,10 @@
  */
 package org.reactome.diagram.model;
 
-import java.util.ArrayList;import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -55,18 +54,22 @@ public class DiseaseCanvasPathway extends CanvasPathway {
             com.google.gwt.xml.client.Node node = nodeList.item(i);
             String name = node.getNodeName();
             if (name.equals("normalComponents")) {
-                parseObjectIds(node,
-                               normalObjects,
-                               idToObject);
+                parseObjectIds(node, normalObjects, idToObject);
             }
             else if (name.equals("diseaseComponents")) {
                 parseObjectIds(node, diseaseObjects, idToObject);
             }
             else if (name.equals("crossedComponents")) {
                 parseObjectIds(node, crossedObjects, idToObject);
+                for (GraphObject obj : crossedObjects) {
+                	if (obj instanceof Node)
+                		((Node) obj).setNeedCross(true);
+                }	
             }
             else if (name.equals("overlaidComponents")) {
                 parseObjectIds(node, overlaidObjects, idToObject);
+                for (GraphObject obj : overlaidObjects)
+                	obj.setOverlay(true);
             }
             else if (name.equals("lofNodes")) {
                 parseObjectIds(node, lofObjects, idToObject);
@@ -92,14 +95,14 @@ public class DiseaseCanvasPathway extends CanvasPathway {
     	if (isForNormalDraw()) {
     		return getNormalObjects();
     	} else {
-    		Set<GraphObject> objectsForRendering = new LinkedHashSet<GraphObject>();
+    		List<GraphObject> objectsForRendering = new ArrayList<GraphObject>();
     		objectsForRendering.addAll(getNormalObjects());
-    		objectsForRendering.addAll(getLofObjects());
-    		objectsForRendering.addAll(getCrossedObjects());
-    		objectsForRendering.addAll(getOverlaidObjects());
+    		//objectsForRendering.addAll(getLofObjects());
     		objectsForRendering.addAll(getDiseaseObjects());
+    		objectsForRendering.addAll(getOverlaidObjects());
+    		//objectsForRendering.addAll(getCrossedObjects());
     		
-    		return new ArrayList<GraphObject>(objectsForRendering);
+    		return objectsForRendering;
     	}
     }
     

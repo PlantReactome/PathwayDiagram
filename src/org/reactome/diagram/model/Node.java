@@ -28,6 +28,7 @@ public class Node extends GraphObject {
     private Bounds bounds;
     private Bounds insets;
     private Point textPosition;
+    private Node parent;
     // If this node contains other node
     private List<Node> children;
     // For link information
@@ -43,6 +44,7 @@ public class Node extends GraphObject {
     private List<NodeAttachment> nodeAttachments;
     // A flag to indicate a dashed border should be used
     private boolean needDashedBorder;
+    private boolean needCross;
 		
 	/**
 	 * Default constructor.
@@ -99,6 +101,14 @@ public class Node extends GraphObject {
 	    this.bounds = new Bounds(bounds);
 	}
 	
+	public void addParent(Node parentNode) {
+		parent = parentNode;
+	}
+	
+	public Node getParent() {
+		return parent;
+	}
+
 	public void addChild(Node node) {
 	    if (children == null)
 	        children = new ArrayList<Node>();
@@ -184,7 +194,15 @@ public class Node extends GraphObject {
         this.fillColor = fillColor;
     }
     
- // Implemented based on answer from stackoverflow.com/questions/4726344
+    public boolean isNeedCross() {
+		return needCross;
+	}
+
+	public void setNeedCross(boolean needCross) {
+		this.needCross = needCross;
+	}
+
+	// Implemented based on answer from stackoverflow.com/questions/4726344
  	public String getVisibleFgColor(String bgColorString) {
  		final String BLACK = "rgb(0, 0, 0)";
  		final String WHITE = "rgb(255, 255, 255)";
@@ -218,5 +236,4 @@ public class Node extends GraphObject {
  	private String [] splitRGBString(String bgColorString) {
  		return bgColorString.substring(4, bgColorString.length() - 1).split(",");
  	}
- 	
 }

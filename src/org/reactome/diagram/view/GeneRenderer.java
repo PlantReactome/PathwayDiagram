@@ -44,7 +44,13 @@ public class GeneRenderer extends NodeRenderer {
                        node);
     }
 
-    private double getTextPositionY(Bounds bounds) {
+    @Override
+	protected void hideObject(Context2d c2d, Node node) {
+		super.hideObject(c2d, node);
+		hideArea(c2d, getTextBounds(node.getBounds(), c2d, node));
+	}
+
+	private double getTextPositionY(Bounds bounds) {
 		return getTextPositionY(bounds, 0) - 2;
 	}
 

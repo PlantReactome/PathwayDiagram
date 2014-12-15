@@ -307,8 +307,10 @@ public class CanvasPathway extends Node {
             Element elm = (Element) nodeList.item(i);
             String childId = elm.getAttribute("id");
             Node childNode = idToNode.get(childId);
-            if (childNode != null) // childNode == null actually should not occur!
+            if (childNode != null) { // childNode == null actually should not occur!
                 parentNode.addChild(childNode); 
+            	childNode.addParent(parentNode);
+            }
         }
     }
     

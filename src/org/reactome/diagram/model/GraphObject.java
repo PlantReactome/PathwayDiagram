@@ -27,6 +27,8 @@ public abstract class GraphObject extends ReactomeObject {
     private boolean isHovered;
     // A flag to indicate if this object should be highlighted
     private boolean isHighlighted;
+    // A flag to indicate if this object is a disease object overlaying a normal object
+    private boolean isOverlay;
     
     protected GraphObject() {
     }
@@ -106,7 +108,15 @@ public abstract class GraphObject extends ReactomeObject {
         this.lineWidth = lineWidth;
     }
     
-    /**
+	public boolean isOverlay() {
+		return isOverlay;
+	}
+
+	public void setOverlay(boolean isOverlay) {
+		this.isOverlay = isOverlay;
+	}
+
+	/**
      * Check if a GraphObject can be picked by a position.
      * @param point
      * @return

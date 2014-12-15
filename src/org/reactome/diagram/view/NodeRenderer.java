@@ -37,14 +37,49 @@ public class NodeRenderer extends AbstractRenderer<Node> {
      * @see org.reactome.diagram.view.GraphObjectRenderer#render(com.google.gwt.canvas.dom.client.Context2d)
      */
     @Override
-    public void render(Context2d c2d,
-                       Node node) {
-        setFillStyle(c2d, node);
+    public void render(Context2d c2d, Node node) {
+        if (node.isOverlay())
+        	hideObject(c2d, node);
+        	
+    	setFillStyle(c2d, node);
+        setStroke(c2d, node);
         
-        setStroke(c2d,
-                  node);
         drawNode(c2d, node);
+        
+        if (node.isNeedCross())
+        	drawCross(c2d, node);
     }
+    
+    protected void hideObject(Context2d c2d, Node node) {
+        hideArea(c2d, node.getBounds());
+    }
+    
+    protected void hideArea(Context2d c2d, Bounds bounds) { 
+        c2d.setFillStyle(Parameters.defaultCompartmentColor);
+        c2d.fillRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+        c2d.setFillStyle(Parameters.defaultShadeColor);
+        c2d.fillRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+    }
+    
+    protected void drawCross(Context2d c2d, Node node) {
+        c2d.setLineWidth(Parameters.defaultCrossWidth);
+        c2d.setStrokeStyle(Parameters.defaultCrossColor);
+        
+        Bounds bounds = node.getBounds();
+        // Draw the first line
+        c2d.beginPath();
+        c2d.moveTo(bounds.getX(), bounds.getY());
+        c2d.lineTo(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight());
+        c2d.closePath();
+        c2d.stroke();
+        // Draw the second line
+        c2d.beginPath();
+        c2d.moveTo(bounds.getX() + bounds.getWidth(), bounds.getY());
+        c2d.lineTo(bounds.getX(),  bounds.getHeight() + bounds.getY());
+        c2d.closePath();
+        c2d.stroke();
+    }
+    
 
     protected void setFillStyle(Context2d c2d, Node node) {
         String color = node.getBgColor();
@@ -356,5 +391,4 @@ public class NodeRenderer extends AbstractRenderer<Node> {
         context.lineTo(x, y);
         context.closePath();
     }
-    
 }
