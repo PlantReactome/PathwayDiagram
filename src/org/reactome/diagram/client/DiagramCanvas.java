@@ -270,8 +270,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 			if (newScale > Parameters.ZOOMMAX)
 				return Parameters.ZOOMMAX;
 				
-			if (newScale < Parameters.ZOOMMIN)
-				return Parameters.ZOOMMIN;
+			//if (newScale < Parameters.ZOOMMIN)
+				//return Parameters.ZOOMMIN;
 		
 			return newScale;
 		}

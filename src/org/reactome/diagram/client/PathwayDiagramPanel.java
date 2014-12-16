@@ -383,7 +383,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
 	public void showDefaultView(CanvasPathway pathway) {
-        moveToViewArea(pathway.getPreferredSize(), 0);
+        moveToViewArea(pathway.getPreferredSize(), 0, true);
 	}
     
     /**
@@ -472,7 +472,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     }
     
-    private void moveToViewArea(Bounds viewArea, double buffer) {
+    private void moveToViewArea(Bounds viewArea, double buffer, boolean changeScale) {
     	double left = viewArea.getX() - buffer;
     	double right = viewArea.getRight() + buffer;
     	double top = viewArea.getY() - buffer;
@@ -481,15 +481,18 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	double width = right - left;
     	double height = bottom - top;
     	
-    	reset();
-    	Bounds pathwayBounds = getPathwayCanvas().getViewBounds();
+    	if (changeScale)
+    		reset();
+    	
+    	double pathwayWidth = getPathwayCanvas().getCoordinateSpaceWidth();
+    	double pathwayHeight = getPathwayCanvas().getCoordinateSpaceHeight();
     	double adjustedWidth, adjustedHeight;
-    	if (width / height < pathwayBounds.getWidth() / pathwayBounds.getHeight()) {
-    		adjustedWidth = pathwayBounds.getWidth() / pathwayBounds.getHeight() * height;
+    	if (width / height < pathwayWidth / pathwayHeight) {
+    		adjustedWidth = pathwayWidth / pathwayHeight * height;
     		adjustedHeight = height;
-    	} else if (width / height > pathwayBounds.getWidth() / pathwayBounds.getHeight()) {
+    	} else if (width / height > pathwayWidth / pathwayHeight) {
     		adjustedWidth = width;
-    		adjustedHeight = pathwayBounds.getHeight() / pathwayBounds.getWidth() * width;
+    		adjustedHeight = pathwayHeight / pathwayWidth * width;
     	} else {
     		adjustedWidth = width;
     		adjustedHeight = height;
@@ -506,7 +509,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     	
     	Bounds selectionArea = new Bounds(left, top, adjustedWidth, adjustedHeight);
-    	scale(pathwayBounds.getWidth() / adjustedWidth);
+    	if (changeScale)	
+    		scale(pathwayWidth / adjustedWidth);
     	center(selectionArea.getCentre(), true);
     }
     
@@ -671,26 +675,16 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         	SelectionEvent event = new SelectionEvent();
         	event.setSelectedObjects(selectedObjects);
         	
-        	if (selectedObjects.size() > 1) {
-        		moveToViewArea(getEncompassingBounds(selectedObjects), 50);
-        	} else {
-        		GraphObject selectedObject = getSelectedObjects().get(0);
-        		List<GraphObject> objectAndConnections = new ArrayList<GraphObject>();
+        	List<GraphObject> objectsAndConnections = new ArrayList<GraphObject>();
+        	for (GraphObject selectedObject : selectedObjects) {
+        		objectsAndConnections.add(selectedObject);
         		if (selectedObject instanceof Node) {
-        			objectAndConnections.addAll(((Node) selectedObject).getConnectedReactions());
+        			objectsAndConnections.addAll(((Node) selectedObject).getConnectedReactions());
         		} else if (selectedObject instanceof HyperEdge) {
-        			objectAndConnections.addAll(((HyperEdge) selectedObject).getConnectedNodes());
-        		}
-        		
-        		if (!objectAndConnections.isEmpty()) {
-        			objectAndConnections.add(selectedObject);
-        			moveToViewArea(getEncompassingBounds(objectAndConnections), 50);
-        		} else {
-        			boolean doCentring = !pathwayCanvas.currentViewContainsAtLeastOneGraphObject(selectedObjects);
-        			event.setDoCentring(doCentring);
+        			objectsAndConnections.addAll(((HyperEdge) selectedObject).getConnectedNodes());
         		}
         	}
-        	
+    		moveToViewArea(getEncompassingBounds(objectsAndConnections), 50, false);
         	fireSelectionEvent(event);
         }
     }
