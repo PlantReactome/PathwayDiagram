@@ -472,7 +472,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     }
     
-    private void moveToViewArea(Bounds viewArea, double buffer, boolean changeScale) {
+    private void moveToViewArea(Bounds viewArea, double buffer, boolean allowZoomIn) {
     	double left = viewArea.getX() - buffer;
     	double right = viewArea.getRight() + buffer;
     	double top = viewArea.getY() - buffer;
@@ -481,8 +481,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	double width = right - left;
     	double height = bottom - top;
     	
-    	if (changeScale)
-    		reset();
     	
     	double pathwayWidth = getPathwayCanvas().getCoordinateSpaceWidth();
     	double pathwayHeight = getPathwayCanvas().getCoordinateSpaceHeight();
@@ -509,8 +507,10 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     	
     	Bounds selectionArea = new Bounds(left, top, adjustedWidth, adjustedHeight);
-    	if (changeScale)	
+    	if (allowZoomIn || pathwayWidth / adjustedWidth < getPathwayCanvas().getScale()) {
+    		reset();
     		scale(pathwayWidth / adjustedWidth);
+    	}
     	center(selectionArea.getCentre(), true);
     }
     
