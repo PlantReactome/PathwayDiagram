@@ -16,6 +16,7 @@ import org.reactome.diagram.model.Node;
 import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.*;
@@ -232,7 +233,8 @@ public class CanvasEventInstaller {
             @Override
             public void onMouseDown(MouseDownEvent event) {
                 event.stopPropagation();
-                mouseDown(event);
+                if (event.getNativeEvent().getButton() == NativeEvent.BUTTON_LEFT)
+                	mouseDown(event);
             }
         };
         MouseMoveHandler mouseMoveHandler = new MouseMoveHandler() {
@@ -246,20 +248,16 @@ public class CanvasEventInstaller {
             
             @Override
             public void onMouseUp(MouseUpEvent event) {
-                if (isMouseDown) {      
-                	event.stopPropagation();
-                    mouseUp(event);
-                }
+                event.stopPropagation();
+                mouseUp(event);
             }
         };
         MouseOutHandler mouseOutHandler = new MouseOutHandler() {
             
             @Override
             public void onMouseOut(MouseOutEvent event) {
-                if (isMouseDown) {
-                    event.stopPropagation();
-                    mouseOut(event);
-                }
+                event.stopPropagation();
+                mouseOut(event);
             }
         };
         
@@ -393,8 +391,10 @@ public class CanvasEventInstaller {
         if (isMouseDown) {
             isMouseDown = false;
         }
-        if (isDragging)
+        if (isDragging) {
             isDragging = false;
+            draggableNode = null;
+        }
     }
     
     private void mouseWheel(MouseWheelEvent event) {
