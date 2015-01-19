@@ -429,9 +429,12 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void translate(double dx, double dy) {
-        for (DiagramCanvas canvas : getExistingCanvases()) {
-        	canvas.translate(dx, dy);
-        }	
+    	translate(dx, dy, false);
+    }
+    
+    public void translate(double dx, double dy, boolean gradual) {
+        for (DiagramCanvas canvas : getExistingCanvases())
+        	canvas.translate(dx, dy, gradual);
     }
     
     public void scale(double scaleFactor) {
@@ -507,11 +510,14 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	}
     	
     	Bounds selectionArea = new Bounds(left, top, adjustedWidth, adjustedHeight);
+    	
     	if (allowZoomIn || pathwayWidth / adjustedWidth < getPathwayCanvas().getScale()) {
     		reset();
+    		center(selectionArea.getCentre(), true);
     		scale(pathwayWidth / adjustedWidth);
+    	} else {
+    		center(selectionArea.getCentre(), true);
     	}
-    	center(selectionArea.getCentre(), true);
     }
     
     public void reset() {
