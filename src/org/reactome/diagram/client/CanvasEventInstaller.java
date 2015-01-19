@@ -375,8 +375,6 @@ public class CanvasEventInstaller {
     	int y = coord[1];
         
     	isMouseDown = false;
-        
-    	System.out.println(isDragging);
     	
        	if (isDragging) {
        		isDragging = false;
