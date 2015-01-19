@@ -69,8 +69,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	return canvasTransformation;
     }
     
-    public void translate(double dx, double dy) {
-        canvasTransformation.translate(dx, dy);
+    public void translate(double dx, double dy, boolean gradual) {
+        canvasTransformation.translate(dx, dy, gradual);
     	
         fireViewChangeEvent();
     }
@@ -176,7 +176,16 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	
     }	
 
-    public Point getAbsoluteCoordinates(Double diagramXCoordinate, Double diagramYCoordinate) {
+    public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {
+		for (GraphObject object : objects) {
+			if (objectWithinDiagramBounds(object))
+				return true;
+		}
+		
+		return false;
+	}
+
+	public Point getAbsoluteCoordinates(Double diagramXCoordinate, Double diagramYCoordinate) {
     	final Double x = getAbsoluteXCoordinate(diagramXCoordinate);
     	final Double y = getAbsoluteYCoordinate(diagramYCoordinate);
     	
@@ -198,15 +207,6 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	//System.out.println("Clean - " + getClass() + " Scale " + getScale() + " TranslateX - " + getTranslateX() + " TranslateY - " + getTranslateY());
     }
 
-    public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {
-    	for (GraphObject object : objects) {
-    		if (objectWithinDiagramBounds(object))
-    			return true;
-    	}
-    	
-    	return false;
-    }
-    
     public Bounds getViewBounds() {
     	Integer x = (int) (-getTranslateX() / getScale());
     	Integer y = (int) (-getTranslateY() / getScale());
@@ -296,7 +296,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 							DiagramCanvas.this.getAbsoluteTop() - 
 							point.getY();
 						
-			translate(-deltaX, -deltaY);
+			translate(-deltaX, -deltaY, false);
 		}		
 		
 		public Double getTranslateX() {
@@ -307,26 +307,24 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 			return translateY;
 		}
 		
-		public void translate(Double deltaX, Double deltaY) {
+		public void translate(Double deltaX, Double deltaY, boolean gradual) {
 			translateX += deltaX;
 			translateY += deltaY;			
 		}
 		
 		public void center(Point point, Boolean entityCoordinates) {
 			if (entityCoordinates) {
-				final Double oldScale = getScale();
-
-				reset();
-				translate(-point.getX(), -point.getY());
-				translate(centerX(getScale()) - point.getX(), 
-						  centerY(getScale()) - point.getY());
-				scale(oldScale);				
+				Point currentCentre = getViewBounds().getCentre();
+				double deltaX = currentCentre.getX() - point.getX();
+				double deltaY = currentCentre.getY() - point.getY();
+				
+				translate(deltaX, deltaY, true);
 			} else {
 				Point correctedPoint = getCorrectedCoordinates(point);
 				Double deltaX = (centerX(getScale()) - correctedPoint.getX()) * getScale();
 				Double deltaY = (centerY(getScale()) - correctedPoint.getY()) * getScale();
 			
-				translate(deltaX, deltaY);
+				translate(deltaX, deltaY, true);
 			}
 		}
 		
