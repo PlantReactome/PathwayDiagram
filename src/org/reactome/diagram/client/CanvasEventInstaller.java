@@ -155,7 +155,7 @@ public class CanvasEventInstaller {
             
             diagramPane.reset();
             diagramPane.scale(scale);
-            diagramPane.translate(x, y);
+            diagramPane.translate(x, y, true);
             diagramPane.hideTooltip();
     }    
     	
@@ -367,14 +367,17 @@ public class CanvasEventInstaller {
     }
     
     private void mouseUp(GwtEvent<? extends EventHandler> event) {
-        int [] coord = getCoordinates(event);
+        if (!isMouseDown)
+        	return;
+    	
+    	int [] coord = getCoordinates(event);
     	int x = coord[0];
     	int y = coord[1];
         
-    	if (isMouseDown) {
-            isMouseDown = false;            
-    	}
-            
+    	isMouseDown = false;
+        
+    	System.out.println(isDragging);
+    	
        	if (isDragging) {
        		isDragging = false;
        		draggableNode = null;
@@ -388,11 +391,9 @@ public class CanvasEventInstaller {
     }
     
     private void mouseOut(GwtEvent<? extends EventHandler> event) {
-        if (isMouseDown) {
-            isMouseDown = false;
-        }
+        isMouseDown = false;
+        
         if (isDragging) {
-            isDragging = false;
             draggableNode = null;
         }
     }
@@ -424,6 +425,7 @@ public class CanvasEventInstaller {
     }
 
     private void doubleClick(DoubleClickEvent event) {
+    	isMouseDown = true;
     	mouseUp(event);
     }
     
