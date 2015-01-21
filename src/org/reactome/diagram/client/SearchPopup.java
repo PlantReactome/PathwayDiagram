@@ -73,8 +73,6 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 			}
 		});
 		
-		Label searchLabel = new Label("Find Reaction/Entity:");
-		
 		searchBox = new SuggestBox();
 
 		searchBox.addKeyUpHandler(new KeyUpHandler() {
@@ -145,7 +143,6 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 		
 		setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		
-		add(searchLabel);
 		add(searchBox);
 		add(navigationButtons);
 		add(closeButton);
