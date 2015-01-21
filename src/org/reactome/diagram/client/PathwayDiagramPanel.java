@@ -475,7 +475,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void center(Point point, Boolean entityCoordinates) {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
-    		canvas.center(point, entityCoordinates);
+    		canvas.center(point, 1, entityCoordinates, true);
     	}
     }
     
@@ -963,12 +963,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 		event.preventDefault();
 		event.stopPropagation();
 		
+		int x = event.getNativeEvent().getClientX();
+		int y = event.getNativeEvent().getClientY();
+		
+		select(event, x, y);
 		if (getSelectedObjects() != null && !getSelectedObjects().isEmpty()) {
 			getPopupMenu().showPopupMenu(event);
 		} else {
 			OptionsMenu optionsMenu = new OptionsMenu(this); 
-			optionsMenu.showPopup(new Point(event.getNativeEvent().getClientX(),
-											event.getNativeEvent().getClientY()));
+			optionsMenu.showPopup(new Point(x, y));
 		}
 	}
 
