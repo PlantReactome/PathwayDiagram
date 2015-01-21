@@ -45,6 +45,7 @@ import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
@@ -61,6 +62,8 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RequiresResize;
@@ -160,14 +163,17 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         
         // Controls
         controls = new PathwayCanvasControls(this);
-        controls.setStyleName(style.controlPane());
-        contentPane.add(controls, 4, 4);
         
-        // Search Bar
         searchBar = new SearchPopup(this);
+        searchBar.getElement().getStyle().setMarginLeft(6, Unit.PX);
         addPathwayChangeEventHandler(searchBar);
         addSelectionEventHandler(searchBar);
-        contentPane.add(searchBar);
+        
+        HorizontalPanel allControls = new HorizontalPanel();
+        allControls.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        allControls.add(controls);
+        allControls.add(searchBar);
+        contentPane.add(allControls, 4, 4);
         
         // Options Menu Icon
         optionsMenuIcon = new OptionsMenuIcon(this);
@@ -336,8 +342,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
             overview.setVisible(true);
         overview.updatePosition();
                 
-        searchBar.updatePosition();
-        
         optionsMenuIcon.setVisible(true);
         optionsMenuIcon.updatePosition(width, height);
         
@@ -1018,7 +1022,6 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 	
 	public void showSearchPopup() {
 		searchBar.setVisible(Boolean.TRUE);
-		searchBar.updatePosition();
 		searchBar.focus();
 	}
 	

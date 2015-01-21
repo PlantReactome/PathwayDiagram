@@ -27,8 +27,6 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 
 
 import com.google.gwt.touch.client.Point;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -317,29 +315,6 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 			button.setEnabled(enable);
 		}
 		
-	}
-	
-	public void updatePosition() {
-		final AbsolutePanel container = (AbsolutePanel) getParent();
-		
-		// Search box is placed next to the pathway canvas controls
-		// after a delay to ensure the controls are loaded
-		Timer timer = new Timer() {
-		
-			public void run() {
-				PathwayCanvasControls controls = diagramPane.getControls();
-				Integer controlsLeft = container.getWidgetLeft(controls);
-				Integer controlsWidth = controls.getOffsetWidth();
-		
-				Integer buffer = 4;
-		
-				Integer top = buffer;
-				Integer left = controlsLeft + controlsWidth + buffer;
-		
-				container.setWidgetPosition(SearchPopup.this, left, top);
-			}
-		};
-		timer.schedule(60);
 	}
 
 	public void focus() {
