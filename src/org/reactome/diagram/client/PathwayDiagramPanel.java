@@ -475,7 +475,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     
     public void center(Point point, Boolean entityCoordinates) {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
-    		canvas.center(point, 1, entityCoordinates, true);
+    		canvas.center(point, entityCoordinates);
     	}
     }
     
