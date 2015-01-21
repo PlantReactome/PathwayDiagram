@@ -315,8 +315,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		public void center(Point point, Boolean entityCoordinates) {
 			if (entityCoordinates) {
 				Point currentCentre = getViewBounds().getCentre();
-				double deltaX = currentCentre.getX() - point.getX();
-				double deltaY = currentCentre.getY() - point.getY();
+				double deltaX = (currentCentre.getX() - point.getX()) * getScale();
+				double deltaY = (currentCentre.getY() - point.getY()) * getScale();
 				
 				translate(deltaX, deltaY, true);
 			} else {
