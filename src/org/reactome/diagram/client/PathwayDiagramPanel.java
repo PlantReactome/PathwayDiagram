@@ -387,7 +387,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
 	public void showDefaultView(CanvasPathway pathway) {
-        moveToViewArea(pathway.getPreferredSize(), 0, true);
+        moveToViewArea(pathway.getPreferredSize(), 0, true, false);
 	}
     
     /**
@@ -473,13 +473,17 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	center(point, false);
     }
     
-    public void center(Point point, Boolean entityCoordinates) {
+    public void center(Point point, boolean entityCoordinates) {
+    	center(point, 1, entityCoordinates, true);
+    }
+    
+    public void center(Point point, double scale, boolean entityCoordinates, boolean gradual) {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
-    		canvas.center(point, entityCoordinates);
+    		canvas.center(point, scale, entityCoordinates, gradual);
     	}
     }
     
-    private void moveToViewArea(Bounds viewArea, double buffer, boolean allowZoomIn) {
+    private void moveToViewArea(Bounds viewArea, double buffer, boolean allowZoomIn, boolean gradual) {
     	double left = viewArea.getX() - buffer;
     	double right = viewArea.getRight() + buffer;
     	double top = viewArea.getY() - buffer;
@@ -517,10 +521,9 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	
     	if (allowZoomIn || pathwayWidth / adjustedWidth < getPathwayCanvas().getScale()) {
     		reset();
-    		center(selectionArea.getCentre(), true);
-    		scale(pathwayWidth / adjustedWidth);
+    		center(selectionArea.getCentre(), pathwayWidth / adjustedWidth, true, gradual);
     	} else {
-    		center(selectionArea.getCentre(), true);
+    		center(selectionArea.getCentre(), 1, true, gradual);
     	}
     }
     
@@ -694,7 +697,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         			objectsAndConnections.addAll(((HyperEdge) selectedObject).getConnectedNodes());
         		}
         	}
-    		moveToViewArea(getEncompassingBounds(objectsAndConnections), 50, false);
+    		moveToViewArea(getEncompassingBounds(objectsAndConnections), 50, false, true);
         	fireSelectionEvent(event);
         }
     }

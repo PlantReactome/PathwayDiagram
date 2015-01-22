@@ -15,6 +15,7 @@ import org.reactome.diagram.view.Parameters;
 
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.touch.client.Point;
+import com.google.gwt.user.client.Timer;
 
 /**
  * A specialized PlugInSupportCanvas that is used to draw CanvasPathway only.
@@ -51,12 +52,6 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         	eventInstaller.installEventHandlersForCanvas();
     	}
     }
-
-    public DiagramCanvas(PathwayDiagramPanel diagramPane, CanvasTransformation transformation) {
-    	this(diagramPane);
-    	
-    	canvasTransformation = transformation;
-    }
     
     public void resize(Integer width, Integer height) {
     	setSize(width + "px", height + "px");
@@ -70,9 +65,9 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
     
     public void translate(double dx, double dy, boolean gradual) {
+        if (!gradual)
+    		canvasTransformation.stopTranslateTimer();
         canvasTransformation.translate(dx, dy, gradual);
-    	
-        fireViewChangeEvent();
     }
         
     protected void fireViewChangeEvent() {
@@ -103,20 +98,14 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     
     public void scale(double scaleFactor) {
     	canvasTransformation.scale(scaleFactor);
-    
-    	fireViewChangeEvent();
     }
     
     public void scale(double scaleFactor, Point point) {
         canvasTransformation.scale(scaleFactor, point);
-    	    	
-        fireViewChangeEvent();
     }
         
-    public void center(Point point, Boolean entityCoordinates) {
-    	canvasTransformation.center(point, entityCoordinates);
-    	
-    	fireViewChangeEvent();
+    public void center(Point point, double scale, boolean entityCoordinates, boolean gradual) {
+    	canvasTransformation.center(point, scale, entityCoordinates, gradual);
     }
    
     public HoverHandler getHoverHandler() {
@@ -149,14 +138,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 
 	public void reset() {
         canvasTransformation.reset();
-		
-        fireViewChangeEvent();
     }
 
     public void resetTranslate() {
     	canvasTransformation.resetTranslate();
-
-    	fireViewChangeEvent();
     }
 
     public Point getCorrectedCoordinates(Point point) {
@@ -245,6 +230,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		protected Double scale;
 		protected Double translateX;
 		protected Double translateY;
+		private TranslateTimer translateTimer;
 		
 		public CanvasTransformation() {
 			this(1.0, 0.0, 0.0);
@@ -252,6 +238,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		
 		public CanvasTransformation(Double scale, Double translateX, Double translateY) {
 			init(scale, translateX, translateY);
+			translateTimer = new TranslateTimer();
 		}
 		
 		private void init(Double scale, Double translateX, Double translateY) {
@@ -282,6 +269,8 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		
 		public void scale(Double scaleFactor, Point point) {
 			zoomToPoint(scaleFactor, point);
+			//System.out.println(getViewBounds().getCentre());
+			fireViewChangeEvent();
 		}
 		
 		private void zoomToPoint(Double scaleFactor, Point point) {
@@ -307,25 +296,40 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 			return translateY;
 		}
 		
-		public void translate(Double deltaX, Double deltaY, boolean gradual) {
-			translateX += deltaX;
-			translateY += deltaY;			
+		public void translate(double deltaX, double deltaY, boolean gradual) {
+			if (!gradual) {
+				translateX += deltaX;
+				translateY += deltaY;
+				fireViewChangeEvent();
+				return;
+			}
+			
+			final int CYCLE_RATE = 2; // milliseconds
+			translateTimer.setMagnitude(deltaX, deltaY);
+			translateTimer.setAngle(deltaX, deltaY);
+			translateTimer.scheduleRepeating(CYCLE_RATE);
 		}
 		
-		public void center(Point point, Boolean entityCoordinates) {
+		public void center(Point point, double scale, boolean entityCoordinates, boolean gradual) {
+			double deltaX;
+			double deltaY;
 			if (entityCoordinates) {
 				Point currentCentre = getViewBounds().getCentre();
-				double deltaX = (currentCentre.getX() - point.getX()) * getScale();
-				double deltaY = (currentCentre.getY() - point.getY()) * getScale();
-				
-				translate(deltaX, deltaY, true);
+				deltaX = (currentCentre.getX() - point.getX()) * getScale();
+				deltaY = (currentCentre.getY() - point.getY()) * getScale();
 			} else {
 				Point correctedPoint = getCorrectedCoordinates(point);
-				Double deltaX = (centerX(getScale()) - correctedPoint.getX()) * getScale();
-				Double deltaY = (centerY(getScale()) - correctedPoint.getY()) * getScale();
-			
-				translate(deltaX, deltaY, true);
+				deltaX = (centerX(getScale()) - correctedPoint.getX()) * getScale();
+				deltaY = (centerY(getScale()) - correctedPoint.getY()) * getScale();
 			}
+			
+			translate(deltaX, deltaY, gradual);
+			if (translateTimer.isRunning())
+				translateTimer.setScale(scale);
+			else
+				scale(scale);
+				
+			fireViewChangeEvent();
 		}
 		
 		private Double centerX(Double scale) {
@@ -337,12 +341,72 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		}
 		
 		public void resetTranslate() {
+			translateTimer.cancel();
+			
 			translateX = 0.0;
 			translateY = 0.0;
+			
+			fireViewChangeEvent();
 		}
 		
 		public void reset() {
+			translateTimer.cancel();
+			
 			init(1.0, 0.0, 0.0);
-		}				
+			fireViewChangeEvent();
+		}	
+		
+		public void stopTranslateTimer() {
+			translateTimer.cancel();
+		}
+		
+		private class TranslateTimer extends Timer{
+			public final int MAX_CYCLE_DISTANCE = 5; // pixels
+			private double magnitude;
+			private double angle;
+			private double scale;
+			
+			public TranslateTimer() {
+				magnitude = 0; 
+				angle = 0;
+				scale = 1;
+			}
+
+			@Override
+			public void run() {
+				if (magnitude <= MAX_CYCLE_DISTANCE)
+					cancel();
+				
+				translateDistance(Math.min(magnitude, MAX_CYCLE_DISTANCE), angle);
+				fireViewChangeEvent();
+				update();
+			}
+			
+			public void setMagnitude(double deltaX, double deltaY) {
+				this.magnitude = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+			}
+			
+			public void setAngle(double deltaX, double deltaY) {
+				this.angle = Math.atan2(deltaY, deltaX);
+			}
+			
+			public void setScale(double scale) {
+				this.scale = scale;
+			}
+
+			private void translateDistance(double distance, double angle) {
+				double deltaX = Math.cos(angle) * distance;
+				double deltaY = Math.sin(angle) * distance;
+				translate(deltaX, deltaY, false);
+				magnitude -= distance;
+			}
+
+			@Override
+			public void cancel() {
+				super.cancel();
+				scale(scale);
+				update();
+			}
+		}
 	}	
 }

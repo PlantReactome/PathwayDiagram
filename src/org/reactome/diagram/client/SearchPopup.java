@@ -85,7 +85,6 @@ public class SearchPopup extends HorizontalPanel implements PathwayChangeEventHa
 				String newSearchString = searchBox.getText();
 				if (!newSearchString.equalsIgnoreCase(searchString)) {
 					searchString = newSearchString;
-					doSearch(searchString);
 				}
 			}
 		});
