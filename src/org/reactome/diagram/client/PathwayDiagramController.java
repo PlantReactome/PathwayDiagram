@@ -287,11 +287,13 @@ public class PathwayDiagramController {
     	}
     }
     
-    public void queryByIds(String dbIds, String className, RequestCallback callback) {
+    public void queryByIds(String dbIds, 
+    		String className, 
+    		RequestCallback callback) {
     	String hostUrl = getHostUrl();
     	
     	int lastIndex = hostUrl.lastIndexOf("/", hostUrl.length() - 2);
-    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "queryByIds";
+    	String url = hostUrl.substring(0, lastIndex + 1) + RESTFUL_URL + "queryByIds/" + className;
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
     	requestBuilder.setHeader("Accept", "application/xml");
     	

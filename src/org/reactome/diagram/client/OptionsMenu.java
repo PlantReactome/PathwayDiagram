@@ -9,14 +9,19 @@ import java.util.Collections;
 import java.util.List;
 
 import org.reactome.diagram.model.Bounds;
+import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.InteractorNode;
+import org.reactome.diagram.model.ReactomeXMLParser;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.dom.client.Style;
 
 import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 
 import com.google.gwt.touch.client.Point;
 import com.google.gwt.user.client.Command;
@@ -25,6 +30,8 @@ import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 
 /**
  * 
@@ -40,12 +47,12 @@ public class OptionsMenu extends PopupPanel {
     	this(diagramPane, true);
     }
     
-    public OptionsMenu(PathwayDiagramPanel diagramPane, Boolean includeDiagramTransformationOptions) {
+    public OptionsMenu(PathwayDiagramPanel diagramPane, boolean includeDiagramTransformationOptions) {
         super(true); // Hide when clicking outside pop-up
     	this.diagramPane = diagramPane;
     	init(includeDiagramTransformationOptions);
     }    
-    private void init(Boolean includeDiagramTransformationOptions) {
+    private void init(boolean includeDiagramTransformationOptions) {
     	setWidget(getOptionsMenu(includeDiagramTransformationOptions));
     	bringToFront(this);
     }
@@ -83,13 +90,15 @@ public class OptionsMenu extends PopupPanel {
     	super.hide();
     }
     
-    private MenuBar getOptionsMenu(Boolean includeDiagramTransformationOptions) {
+    private MenuBar getOptionsMenu(boolean includeDiagramTransformationOptions) {
     	MenuBar optionsMenu = new MenuBar(true);
+    	
+    	if (diagramPane.getPathway() instanceof DiseaseCanvasPathway) {
+    		getNormalPathwayMenuItem(optionsMenu);
+    	}
     	
     	optionsMenu.addItem(getSearchBarMenuItem());
     	optionsMenu.addSeparator();
-    	//optionsMenu.addItem(getSnapshotDiagramMenuItem());
-    	//optionsMenu.addSeparator();
     	optionsMenu.addItem(getDownloadDiagramMenuItem());
     	optionsMenu.addSeparator();
     	optionsMenu.addItem(getGenomeSpaceMenuItem());
@@ -133,23 +142,9 @@ public class OptionsMenu extends PopupPanel {
         MenuItem downloadDiagram = new MenuItem("Download Diagram (with data overlays)", new Command() {
 
 			@Override
-			public void execute() {							
-				if (!compatibleBrowser()) {
-					displayIncompatibleBrowserMessage();
-					return;
-				}
-				
-				if (diagramPane.getPathway() == null) {
-					alertUser("Please choose a pathway to download");
-					return;
-				}
-				
+			public void execute() {
 				Canvas downloadCanvas = createDownloadCanvas();
-				
-				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
-					canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
-				}
-					
+				drawDownloadCanvas(downloadCanvas);
 				showDiagramImage(downloadCanvas);
 								
 				hide();
@@ -163,25 +158,11 @@ public class OptionsMenu extends PopupPanel {
         MenuItem downloadDiagram = new MenuItem("Save Diagram to GenomeSpace", new Command() {
 
 			@Override
-			public void execute() {							
-				if (!compatibleBrowser()) {
-					displayIncompatibleBrowserMessage();
-					return;
-				}
-				
-				if (diagramPane.getPathway() == null) {
-					alertUser("Please choose a pathway to download");
-					return;
-				}
+			public void execute() {
+				long pathwayId = diagramPane.getPathway().getReactomeId();
 				
 				Canvas downloadCanvas = createDownloadCanvas();
-				
-				for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
-					canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
-				}
-				
-				
-				Long pathwayId = diagramPane.getPathway().getReactomeId();
+				drawDownloadCanvas(downloadCanvas);
 				
 				// Convert the Canvas image to a base64 string
 				String mimeString = "image/png";
@@ -213,50 +194,72 @@ public class OptionsMenu extends PopupPanel {
     	$wnd.gsUploadByPost(formData);
     }-*/;
     
+    private void drawDownloadCanvas(Canvas downloadCanvas) {
+		if (!compatibleBrowser()) {
+			displayIncompatibleBrowserMessage();
+			return;
+		}
+		
+		if (diagramPane.getPathway() == null) {
+			alertUser("Please choose a pathway to download");
+			return;
+		}
+		
+		for (DiagramCanvas canvasLayer : diagramPane.getCanvasList()) {
+			if (canvasLayer == diagramPane.getPathwayCanvas())
+				((PathwayCanvas) canvasLayer).drawCanvasLayer(downloadCanvas.getContext2d(), false);
+			else
+				canvasLayer.drawCanvasLayer(downloadCanvas.getContext2d());
+		}
+    }
     
-    
-    
-    /*
-    private MenuItem getDownloadDiagramMenuItem() {
-    	MenuItem downloadDiagram = new MenuItem("Download Diagram", new Command() {
-
-			@Override
-			public void execute() {
-				if (!compatibleBrowser()) {
-					displayIncompatibleBrowserMessage();
+    private void getNormalPathwayMenuItem(final MenuBar optionsMenu) {    	
+		final Long pathwayId = diagramPane.getPathway().getReactomeId();	
+		PathwayDiagramController.getInstance().queryByIds(pathwayId.toString(), "Pathway", new RequestCallback() {
+					
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() != 200) {
+					AlertPopup.alert("Unable to determine normal pathway - " + response.getStatusCode() + ": " + response.getStatusText());
 					return;
 				}
-				
-				final Long pathwayId = diagramPane.getPathway().getReactomeId();
-				
-				diagramPane.getController().getPathwayDiagram(pathwayId, new RequestCallback() {
+						
+				ReactomeXMLParser pathwayParser = new ReactomeXMLParser(response.getText());
+				Element pathwayElement = (Element) pathwayParser.getDocumentElement().getFirstChild();
+						
+				NodeList pathwayNodes = pathwayElement.getChildNodes();
+				for (int i = 0; i < pathwayNodes.getLength(); i++) {
+					Element pathwayNode = (Element) pathwayNodes.item(i);
+
+					if (pathwayNode.getNodeName().equals("normalPathway")) {
 					
-					public void onResponseReceived(Request request, Response response) {
-						if (response.getStatusCode() != 200) {
-							AlertPopup.alert("Unable to download diagram - " + response.getStatusCode() + ": " + response.getStatusText());
-							return;
-						}
-												
-						String pathwayDiagramData = "data:image/png;base64," + response.getText();
-						pathwayDiagramData = pathwayDiagramData.replaceAll("-", "+");
-						pathwayDiagramData = pathwayDiagramData.replaceAll("_", "/");
-																		
-						Window.open(pathwayDiagramData, null, null);
-					}
+						final long normalPathwayId = Long.parseLong(pathwayParser.getXMLNodeValue(pathwayNode, "dbId"));
+						String displayName = pathwayParser.getXMLNodeValue(pathwayNode, "displayName");
+						final String hasDiagram = pathwayParser.getXMLNodeValue(pathwayNode, "hasDiagram");
 					
-					public void onError(Request request, Throwable exception) {
-						AlertPopup.alert(exception.getMessage());
+						MenuItem normalPathway = new MenuItem("Go to " + displayName + " (normal pathway)", new Command() {
+					
+							public void execute() {
+								if (new Boolean(hasDiagram)) {
+									diagramPane.setPathway(normalPathwayId);
+								} else {
+									PathwayDiagramController.getInstance().getDiagramPathwayId(normalPathwayId, diagramPane);
+								}
+								hide();
+							}
+						});
+						optionsMenu.insertSeparator(0);
+						optionsMenu.insertItem(normalPathway, 0);
+						
+						break;
 					}
-				});
-				
-				hide();
+				}
 			}
-    		
-    	});
-    	
-    	return downloadDiagram;
+			
+			public void onError(Request request, Throwable exception) {
+				AlertPopup.alert(exception.getMessage());
+			}
+		});
     }
-	*/
 
     private Canvas createDownloadCanvas() {
     	Canvas downloadCanvas = Canvas.createIfSupported();
