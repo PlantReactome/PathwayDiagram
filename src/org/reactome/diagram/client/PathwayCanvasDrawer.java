@@ -30,7 +30,7 @@ public class PathwayCanvasDrawer {
     private PathwayDrawer diseaseDrawer;
     
     // Adjustment of selection/highlighted line thickness based on canvas scale
-    private Double lineWidthScale;
+    private double lineWidthScale;
     
     public PathwayCanvasDrawer() {
     	rendererFactory = GraphObjectRendererFactory.getFactory();
@@ -44,19 +44,20 @@ public class PathwayCanvasDrawer {
      */
     public void drawPathway(CanvasPathway pathway,
                             PathwayCanvas canvas,
-                            Context2d c2d) {
-    	setLineWidthScale(canvas.getScale());
+                            Context2d c2d,
+                            boolean scaleLineWidth) {
+    	setLineWidthScale(scaleLineWidth ? canvas.getScale() : 1);
         if (pathway instanceof DiseaseCanvasPathway)
             diseaseDrawer.drawPathway(pathway, canvas, c2d);
         else
             normalDrawer.drawPathway(pathway, canvas, c2d);
     }
     
-    private void setLineWidthScale(Double canvasScale) {
+    private void setLineWidthScale(double canvasScale) {
     	this.lineWidthScale = 1 / canvasScale;
     }
     
-    private Double getLineWidthScale() {
+    private double getLineWidthScale() {
     	return lineWidthScale;
     }
     

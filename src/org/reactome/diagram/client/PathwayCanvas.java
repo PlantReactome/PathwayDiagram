@@ -80,10 +80,14 @@ public class PathwayCanvas extends DiagramCanvas {
     }
 
     public void drawCanvasLayer(Context2d c2d) {
+    	drawCanvasLayer(c2d, true);
+    }
+    
+    public void drawCanvasLayer(Context2d c2d, boolean scaleLineWidth) {
     	if (pathway == null)
     		return;
     		
-    	drawer.drawPathway(pathway, this, c2d);
+    	drawer.drawPathway(pathway, this, c2d, scaleLineWidth);
     }
     
     /**
