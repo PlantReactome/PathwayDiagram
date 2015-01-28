@@ -963,15 +963,16 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 		event.preventDefault();
 		event.stopPropagation();
 		
-		int x = event.getNativeEvent().getClientX();
-		int y = event.getNativeEvent().getClientY();
-		
+		int x = event.getNativeEvent().getClientX() - pathwayCanvas.getAbsoluteLeft();
+		int y = event.getNativeEvent().getClientY() - pathwayCanvas.getAbsoluteTop();
 		select(event, x, y);
+		
 		if (getSelectedObjects() != null && !getSelectedObjects().isEmpty()) {
 			getPopupMenu().showPopupMenu(event);
 		} else {
 			OptionsMenu optionsMenu = new OptionsMenu(this); 
-			optionsMenu.showPopup(new Point(x, y));
+			optionsMenu.showPopup(new Point(event.getNativeEvent().getClientX(),
+					event.getNativeEvent().getClientY()));
 		}
 	}
 
