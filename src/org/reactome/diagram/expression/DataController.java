@@ -358,7 +358,8 @@ public abstract class DataController implements ResizeHandler {
         
         protected abstract void init();
                 	
-        protected void addDataLabel() {	
+        protected void addDataLabel() {
+        	dataLabel.getElement().getStyle().setColor("rgb(255, 255, 255)");
         	add(dataLabel);
             setCellVerticalAlignment(dataLabel,
                                      HasVerticalAlignment.ALIGN_MIDDLE);
