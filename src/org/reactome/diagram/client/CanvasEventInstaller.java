@@ -92,9 +92,9 @@ public class CanvasEventInstaller {
         ViewChangeEventHandler overviewEventHandler = new ViewChangeEventHandler() {
             @Override
             public void onViewChange(ViewChangeEvent event) {
-                double dx = event.getTranslateX();
-                double dy = event.getTranslateY();
-                double scale = event.getScale();
+                double dx = event.getTranslationEvent().getTranslateX();
+                double dy = event.getTranslationEvent().getTranslateY();
+                double scale = event.getZoomEvent().getScale();
                 double canvasScale = canvas.getScale();
 
                 //System.out.println("responding to overview click");

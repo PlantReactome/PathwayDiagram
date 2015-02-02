@@ -24,6 +24,8 @@ import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
+import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.OverrepresentationDataController;
@@ -332,6 +334,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	for (DiagramCanvas canvas : getExistingCanvases()) {
         	canvas.resize(width - BUFFER, height - BUFFER);
         }
+    	fireViewChangeEvent();
     }    
         
     private void onResize(Integer width, Integer height) {
@@ -388,6 +391,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public void showDefaultView(CanvasPathway pathway) {
         moveToViewArea(pathway.getPreferredSize(), 0, true);
+        ViewChangeEvent.ZoomEvent.setMinScale(pathwayCanvas.getScale());
 	}
     
     /**
@@ -437,20 +441,24 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void translate(double dx, double dy, boolean gradual) {
-        for (DiagramCanvas canvas : getExistingCanvases())
+        for (DiagramCanvas canvas : getExistingCanvases()) {
         	canvas.translate(dx, dy, gradual);
+        }
+        fireViewChangeEvent();
     }
     
     public void scale(double scaleFactor) {
         for (DiagramCanvas canvas : getExistingCanvases()) {
         	canvas.scale(scaleFactor);
-        }	
+        }
+        fireViewChangeEvent();
     }
     
     private void scale(double scaleFactor, Point point) {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.scale(scaleFactor, point);
     	}
+    	fireViewChangeEvent();
     }
 
     public void zoomIn() {
@@ -477,6 +485,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.center(point, entityCoordinates);
     	}
+    	fireViewChangeEvent();
     }
     
     private void moveToViewArea(Bounds viewArea, double buffer, boolean allowZoomIn) {
@@ -528,11 +537,19 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.reset();
     	}
+    	fireViewChangeEvent();
     }
     
     public void resetTranslate() {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.resetTranslate();
+    	}
+    	fireViewChangeEvent();
+    }
+    
+    public void fireViewChangeEvent() {
+    	for (DiagramCanvas canvas : getExistingCanvases()) {
+    		canvas.fireViewChangeEvent();
     	}
     }
     
@@ -612,23 +629,23 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
         
     public void addSelectionEventHandler(SelectionEventHandler handler) {
-        addHandler(handler, 
-                          SelectionEvent.TYPE);
+        addHandler(handler, SelectionEvent.TYPE);
     }
     
     public void addHoverEventHandler(HoverEventHandler handler) {
-    	addHandler(handler, 
-    					  HoverEvent.TYPE);
+    	addHandler(handler, HoverEvent.TYPE);
+    }
+    
+    public void addViewChangeEventHandler(ViewChangeEventHandler handler) {
+    	pathwayCanvas.addHandler(handler, ViewChangeEvent.TYPE);
     }
     
     public void addPathwayChangeEventHandler(PathwayChangeEventHandler handler) {
-        addHandler(handler,
-                   PathwayChangeEvent.TYPE);
+        addHandler(handler, PathwayChangeEvent.TYPE);
     }
     
     public void addParticipatingMoleculeSelectionEventHandler(ParticipatingMoleculeSelectionEventHandler handler) {
-    	addHandler(handler,
-    			  		ParticipatingMoleculeSelectionEvent.TYPE);
+    	addHandler(handler, ParticipatingMoleculeSelectionEvent.TYPE);
     }
     
     public void addSubpathwaySelectionEventHandler(SubpathwaySelectionEventHandler handler) {

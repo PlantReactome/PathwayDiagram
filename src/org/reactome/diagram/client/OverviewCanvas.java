@@ -4,13 +4,13 @@
  */
 package org.reactome.diagram.client;
 
-import java.security.Policy.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.ParagraphAction;
-
 import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.event.ViewChangeEvent.ResizeEvent;
+import org.reactome.diagram.event.ViewChangeEvent.TranslationEvent;
+import org.reactome.diagram.event.ViewChangeEvent.ZoomEvent;
 import org.reactome.diagram.event.ViewChangeEventHandler;
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.CanvasPathway;
@@ -162,11 +162,11 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
             return;
         }
         
-        double scale = event.getScale();
-        double x = -event.getTranslateX() / scale;
-        double y = -event.getTranslateY() / scale;
-        double width = event.getWidth() / scale;
-        double height = event.getHeight() / scale;
+        double scale = event.getZoomEvent().getScale();
+        double x = -event.getTranslationEvent().getTranslateX() / scale;
+        double y = -event.getTranslationEvent().getTranslateY() / scale;
+        double width = event.getResizeEvent().getWidth() / scale;
+        double height = event.getResizeEvent().getHeight() / scale;
         double currentScale = getScale();
         viewRect.setX((int)(x * currentScale));
         viewRect.setY((int)(y * currentScale));
@@ -183,12 +183,12 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
      */
     private void fireViewChangeEvent(double translateX, double translateY) {
         setIsFromOverview(true);
-    	if (viewEvent == null)
-            viewEvent = new ViewChangeEvent();
-        viewEvent.setTranslateX(translateX);
-        viewEvent.setTranslateY(translateY);
-        viewEvent.setScale(getScale());
-        
+        viewEvent = new ViewChangeEvent(
+        	new ZoomEvent(getScale()),
+        	new TranslationEvent(translateX, translateY),
+        	new ResizeEvent(getCoordinateSpaceWidth(), getCoordinateSpaceHeight())
+        );
+
         //isFromOverview = true;
         fireEvent(viewEvent);
     }
@@ -377,7 +377,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     	}
     	
     	@Override
-    	public void scale(Double scaleFactor) {
+    	public void scale(double scaleFactor) {
     		this.scale *= scaleFactor; 
     	}
     }

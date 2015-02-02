@@ -8,6 +8,9 @@ package org.reactome.diagram.client;
 import java.util.List;
 
 import org.reactome.diagram.event.ViewChangeEvent;
+import org.reactome.diagram.event.ViewChangeEvent.ResizeEvent;
+import org.reactome.diagram.event.ViewChangeEvent.TranslationEvent;
+import org.reactome.diagram.event.ViewChangeEvent.ZoomEvent;
 import org.reactome.diagram.model.Bounds;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.Node;
@@ -41,7 +44,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	this(diagramPane, true);
     }
     
-    public DiagramCanvas(PathwayDiagramPanel diagramPane, Boolean installEventHandlers) {
+    public DiagramCanvas(PathwayDiagramPanel diagramPane, boolean installEventHandlers) {
         this();
     	
     	this.diagramPane = diagramPane;
@@ -58,11 +61,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	canvasTransformation = transformation;
     }
     
-    public void resize(Integer width, Integer height) {
+    public void resize(int width, int height) {
     	setSize(width + "px", height + "px");
     	setCoordinateSpaceWidth(width);
     	setCoordinateSpaceHeight(height);
-    	fireViewChangeEvent();
     }
     
     public CanvasTransformation getCanvasTransformation() {
@@ -71,22 +73,15 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     
     public void translate(double dx, double dy, boolean gradual) {
         canvasTransformation.translate(dx, dy, gradual);
-    	
-        fireViewChangeEvent();
     }
         
     protected void fireViewChangeEvent() {
-        if (viewEvent == null)
-            viewEvent = new ViewChangeEvent();
-        
-        viewEvent.setScale(canvasTransformation.getScale());
-        viewEvent.setTranslateX(canvasTransformation.getTranslateX());
-        viewEvent.setTranslateY(canvasTransformation.getTranslateY());
-        viewEvent.setWidth(getCoordinateSpaceWidth());
-        viewEvent.setHeight(getCoordinateSpaceHeight());
-        super.fireEvent(viewEvent);
-        
-        //System.out.println(getClass() + " transformed");
+        viewEvent = new ViewChangeEvent(
+        	new ZoomEvent(getScale()),
+        	new TranslationEvent(getTranslateX(), getTranslateY()),
+        	new ResizeEvent(getCoordinateSpaceWidth(), getCoordinateSpaceHeight())
+        );
+        fireEvent(viewEvent);
     }
     
     public double getTranslateX() {
@@ -103,33 +98,26 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     
     public void scale(double scaleFactor) {
     	canvasTransformation.scale(scaleFactor);
-    
-    	fireViewChangeEvent();
     }
     
     public void scale(double scaleFactor, Point point) {
         canvasTransformation.scale(scaleFactor, point);
-    	    	
-        fireViewChangeEvent();
     }
         
-    public void center(Point point, Boolean entityCoordinates) {
+    public void center(Point point, boolean entityCoordinates) {
     	canvasTransformation.center(point, entityCoordinates);
-    	
-    	fireViewChangeEvent();
     }
    
     public HoverHandler getHoverHandler() {
-		return hoverHandler;    	
+		return hoverHandler;
     }
     
     public SelectionHandler getSelectionHandler() {
-		return selectionHandler;    	
+		return selectionHandler;
     }
     
     public CanvasEventInstaller getEventInstaller() {
 		return eventInstaller;
-    	
     }
     
     public boolean isGreyOutCanvas() {
@@ -149,14 +137,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 
 	public void reset() {
         canvasTransformation.reset();
-		
-        fireViewChangeEvent();
     }
 
     public void resetTranslate() {
     	canvasTransformation.resetTranslate();
-
-    	fireViewChangeEvent();
     }
 
     public Point getCorrectedCoordinates(Point point) {
@@ -176,7 +160,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	
     }	
 
-    public Boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {
+    public boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {
 		for (GraphObject object : objects) {
 			if (objectWithinDiagramBounds(object))
 				return true;
@@ -185,18 +169,18 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		return false;
 	}
 
-	public Point getAbsoluteCoordinates(Double diagramXCoordinate, Double diagramYCoordinate) {
-    	final Double x = getAbsoluteXCoordinate(diagramXCoordinate);
-    	final Double y = getAbsoluteYCoordinate(diagramYCoordinate);
+	public Point getAbsoluteCoordinates(double diagramXCoordinate, double diagramYCoordinate) {
+    	final double x = getAbsoluteXCoordinate(diagramXCoordinate);
+    	final double y = getAbsoluteYCoordinate(diagramYCoordinate);
     	
     	return new Point(x, y);
     }
     
-    public Double getAbsoluteXCoordinate(Double diagramCoordinate) {
+    public double getAbsoluteXCoordinate(double diagramCoordinate) {
     	return (diagramCoordinate * getScale()) + getTranslateX() + getAbsoluteLeft();
     }
     
-    public Double getAbsoluteYCoordinate(Double diagramCoordinate) {
+    public double getAbsoluteYCoordinate(double diagramCoordinate) {
     	return (diagramCoordinate * getScale()) + getTranslateY() + getAbsoluteTop();
     }
     
@@ -208,10 +192,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     }
 
     public Bounds getViewBounds() {
-    	Integer x = (int) (-getTranslateX() / getScale());
-    	Integer y = (int) (-getTranslateY() / getScale());
-    	Integer width = (int) (getCoordinateSpaceWidth() / getScale());
-    	Integer height = (int) (getCoordinateSpaceHeight() / getScale());
+    	int x = (int) (-getTranslateX() / getScale());
+    	int y = (int) (-getTranslateY() / getScale());
+    	int width = (int) (getCoordinateSpaceWidth() / getScale());
+    	int height = (int) (getCoordinateSpaceHeight() / getScale());
     	
     	return new Bounds(x, y, width, height);
     }
@@ -241,31 +225,31 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 
 	public abstract List<GraphObject> getObjectsForRendering();	
     
-	protected class CanvasTransformation {
-		protected Double scale;
-		protected Double translateX;
-		protected Double translateY;
+	public class CanvasTransformation {
+		protected double scale;
+		protected double translateX;
+		protected double translateY;
 		
 		public CanvasTransformation() {
 			this(1.0, 0.0, 0.0);
 		}
 		
-		public CanvasTransformation(Double scale, Double translateX, Double translateY) {
+		public CanvasTransformation(double scale, double translateX, double translateY) {
 			init(scale, translateX, translateY);
 		}
 		
-		private void init(Double scale, Double translateX, Double translateY) {
+		private void init(double scale, double translateX, double translateY) {
 			this.scale = scale;
 			this.translateX = translateX;
 			this.translateY = translateY;
 		}
 		
-		public Double getScale() {
+		public double getScale() {
 			return scale;
 		}
 		
-		private Double applyScaleFactor(Double scaleFactor) {
-			final Double newScale = getScale() * scaleFactor;
+		private double applyScaleFactor(double scaleFactor) {
+			final double newScale = getScale() * scaleFactor;
 			
 			if (newScale > Parameters.ZOOMMAX)
 				return Parameters.ZOOMMAX;
@@ -276,63 +260,62 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 			return newScale;
 		}
 			
-		public void scale(Double scaleFactor) {	
+		public void scale(double scaleFactor) {	
 			scale(scaleFactor, new Point(getCoordinateSpaceWidth() / 2, getCoordinateSpaceHeight() / 2));
 		}
 		
-		public void scale(Double scaleFactor, Point point) {
+		public void scale(double scaleFactor, Point point) {
 			zoomToPoint(scaleFactor, point);
 		}
 		
-		private void zoomToPoint(Double scaleFactor, Point point) {
+		private void zoomToPoint(double scaleFactor, Point point) {
 			Point zoomPoint = getCorrectedCoordinates(point.getX(), point.getY());
 
 			this.scale = applyScaleFactor(scaleFactor);
 
-			Double deltaX = getAbsoluteXCoordinate(zoomPoint.getX()) - 
+			double deltaX = getAbsoluteXCoordinate(zoomPoint.getX()) - 
 							DiagramCanvas.this.getAbsoluteLeft() - 
 							point.getX();
-			Double deltaY = getAbsoluteYCoordinate(zoomPoint.getY()) - 
+			double deltaY = getAbsoluteYCoordinate(zoomPoint.getY()) - 
 							DiagramCanvas.this.getAbsoluteTop() - 
 							point.getY();
 						
 			translate(-deltaX, -deltaY, false);
 		}		
 		
-		public Double getTranslateX() {
+		public double getTranslateX() {
 			return translateX;
 		}
 		
-		public Double getTranslateY() {
+		public double getTranslateY() {
 			return translateY;
 		}
 		
-		public void translate(Double deltaX, Double deltaY, boolean gradual) {
+		public void translate(double deltaX, double deltaY, boolean gradual) {
 			translateX += deltaX;
 			translateY += deltaY;			
 		}
 		
-		public void center(Point point, Boolean entityCoordinates) {
+		public void center(Point point, boolean entityCoordinates) {
+			double deltaX;
+			double deltaY;
 			if (entityCoordinates) {
 				Point currentCentre = getViewBounds().getCentre();
-				double deltaX = (currentCentre.getX() - point.getX()) * getScale();
-				double deltaY = (currentCentre.getY() - point.getY()) * getScale();
-				
-				translate(deltaX, deltaY, true);
+				deltaX = (currentCentre.getX() - point.getX()) * getScale();
+				deltaY = (currentCentre.getY() - point.getY()) * getScale();
 			} else {
 				Point correctedPoint = getCorrectedCoordinates(point);
-				Double deltaX = (centerX(getScale()) - correctedPoint.getX()) * getScale();
-				Double deltaY = (centerY(getScale()) - correctedPoint.getY()) * getScale();
-			
-				translate(deltaX, deltaY, true);
-			}
+				deltaX = (centerX(getScale()) - correctedPoint.getX()) * getScale();
+				deltaY = (centerY(getScale()) - correctedPoint.getY()) * getScale();
+			}	
+			translate(deltaX, deltaY, true);
 		}
 		
-		private Double centerX(Double scale) {
+		private double centerX(Double scale) {
 			return ((-getTranslateX() / scale) + (getCoordinateSpaceWidth() / scale / 2));
 		}
 	
-		private Double centerY(Double scale) {
+		private double centerY(Double scale) {
 			return ((-getTranslateY() / scale) + (getCoordinateSpaceHeight() / scale / 2));
 		}
 		

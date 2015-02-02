@@ -90,13 +90,12 @@ public class PathwayCanvasHoverHandler extends HoverHandler {
 			
     		@Override
 			public void setPosition(int offsetWidth, int offsetHeight) {
-				final Integer OFFSET = (int) (7 / pc.getScale());
-				
-				final Integer popupLeft = pc.getAbsoluteXCoordinate(
-											(double) (entity.getBounds().getX() + entity.getBounds().getWidth() - OFFSET)
-										  ).intValue();
-				final Integer popupTop = (int) (pc.getAbsoluteYCoordinate(
-											(double) (entity.getBounds().getY() + OFFSET)
+				final int OFFSET = (int) (7 / pc.getScale());
+				final int popupLeft = (int) pc.getAbsoluteXCoordinate(
+											entity.getBounds().getX() + entity.getBounds().getWidth()
+											- OFFSET);
+				final int popupTop = (int) (pc.getAbsoluteYCoordinate(
+											entity.getBounds().getY() + OFFSET
 										 ) - offsetHeight);
 				infoIcon.setPopupPosition(popupLeft, popupTop);
 			}    		
