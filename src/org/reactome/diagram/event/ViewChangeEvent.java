@@ -46,18 +46,15 @@ public class ViewChangeEvent extends GwtEvent<ViewChangeEventHandler> {
     }
     
     public static class ZoomEvent {
-    	private static double minScale = 0;
+    	private double minScale = 0;
     	private double scale;
     	
-		public ZoomEvent(double scale) {
+		public ZoomEvent(double minScale, double scale) {
+			this.minScale = minScale;
 			this.scale = scale;
 		}
 
-		public static void setMinScale(double minScale) {
-			ZoomEvent.minScale = minScale;
-		}
-		
-		public static double getMinScale() {
+		public double getMinScale() {
 			return minScale;
 		}
 

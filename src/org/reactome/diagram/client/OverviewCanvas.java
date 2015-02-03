@@ -184,7 +184,7 @@ public class OverviewCanvas extends PathwayCanvas implements ViewChangeEventHand
     private void fireViewChangeEvent(double translateX, double translateY) {
         setIsFromOverview(true);
         viewEvent = new ViewChangeEvent(
-        	new ZoomEvent(getScale()),
+        	new ZoomEvent(0, getScale()),
         	new TranslationEvent(translateX, translateY),
         	new ResizeEvent(getCoordinateSpaceWidth(), getCoordinateSpaceHeight())
         );

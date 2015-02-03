@@ -77,7 +77,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
         
     protected void fireViewChangeEvent() {
         viewEvent = new ViewChangeEvent(
-        	new ZoomEvent(getScale()),
+        	new ZoomEvent(canvasTransformation.getMinScale(), getScale()),
         	new TranslationEvent(getTranslateX(), getTranslateY()),
         	new ResizeEvent(getCoordinateSpaceWidth(), getCoordinateSpaceHeight())
         );
@@ -156,8 +156,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
     	double correctedY = y - getTranslateY();
     	correctedY /= scale;
     	
-    	return new Point(correctedX, correctedY); 
-    	
+    	return new Point(correctedX, correctedY);
     }	
 
     public boolean currentViewContainsAtLeastOneGraphObject(List<GraphObject> objects) {
@@ -226,6 +225,7 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 	public abstract List<GraphObject> getObjectsForRendering();	
     
 	public class CanvasTransformation {
+		private double minScale;
 		protected double scale;
 		protected double translateX;
 		protected double translateY;
@@ -244,6 +244,14 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 			this.translateY = translateY;
 		}
 		
+		protected double getMinScale() {
+			return minScale;
+		}
+
+		protected void setMinScale(double minScale) {
+			this.minScale = minScale;
+		}
+
 		public double getScale() {
 			return scale;
 		}

@@ -355,7 +355,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
     protected void setCanvasPathway(CanvasPathway pathway) {
-        reset(); // Resets scale and translation of all canvases
+        reset(true); // Resets scale and translation of all canvases
     	clearSelection();
         clearExpressionCanvas();
     	clearInteractorOverlay();
@@ -391,7 +391,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
 
 	public void showDefaultView(CanvasPathway pathway) {
         moveToViewArea(pathway.getPreferredSize(), 0, true);
-        ViewChangeEvent.ZoomEvent.setMinScale(pathwayCanvas.getScale());
+        pathwayCanvas.getCanvasTransformation().setMinScale(pathwayCanvas.getScale());
 	}
     
     /**
@@ -534,8 +534,15 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void reset() {
+    	reset(false);
+    }
+    
+    public void reset(boolean resetMinScale) {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.reset();
+    		
+    		if (resetMinScale)
+    			canvas.getCanvasTransformation().setMinScale(0);
     	}
     	fireViewChangeEvent();
     }

@@ -76,7 +76,7 @@ public class PathwayCanvasControls extends FlexTable {
         refresh.setTitle("reset");
         refresh.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                diagramPane.reset();
+                diagramPane.reset(true);
                 diagramPane.showDefaultView(diagramPane.getPathway());
                 diagramPane.update();
             }
