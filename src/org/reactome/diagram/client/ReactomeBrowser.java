@@ -23,8 +23,8 @@ import org.reactome.diagram.event.PathwayChangeEvent;
 import org.reactome.diagram.event.PathwayChangeEventHandler;
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
-import org.reactome.diagram.event.ViewChangeEvent;
-import org.reactome.diagram.event.ViewChangeEventHandler;
+import org.reactome.diagram.event.ZoomedOutEvent;
+import org.reactome.diagram.event.ZoomedOutEventHandler;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -81,11 +81,11 @@ public class ReactomeBrowser implements EntryPoint {
 			}			
 		}); 
 			
-		diagramPane.addViewChangeEventHandler(new ViewChangeEventHandler() {
+		diagramPane.addZoomedOutEventHandler(new ZoomedOutEventHandler() {
 
 			@Override
-			public void onViewChange(ViewChangeEvent event) {
-				System.out.println("Less than min scale - " + event.getZoomEvent().scaleLessThanMinimum());
+			public void onZoomedOut(ZoomedOutEvent event) {
+				System.out.println("Less than min scale - " + event.getPathwayId());
 			}
 		});
 	}

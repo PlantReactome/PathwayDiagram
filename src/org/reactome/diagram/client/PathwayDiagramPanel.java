@@ -24,8 +24,8 @@ import org.reactome.diagram.event.SelectionEvent;
 import org.reactome.diagram.event.SelectionEventHandler;
 import org.reactome.diagram.event.SubpathwaySelectionEvent;
 import org.reactome.diagram.event.SubpathwaySelectionEventHandler;
-import org.reactome.diagram.event.ViewChangeEvent;
-import org.reactome.diagram.event.ViewChangeEventHandler;
+import org.reactome.diagram.event.ZoomedOutEvent;
+import org.reactome.diagram.event.ZoomedOutEventHandler;
 import org.reactome.diagram.expression.DataController;
 import org.reactome.diagram.expression.ExpressionDataController;
 import org.reactome.diagram.expression.OverrepresentationDataController;
@@ -326,6 +326,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         int width = getOffsetWidth();
         int height = getOffsetHeight();
         onResize(width, height);
+        setMinScale();
     }
     
     private void resizeCanvases(int width, int height) {
@@ -390,8 +391,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
 	public void showDefaultView(CanvasPathway pathway) {
-        moveToViewArea(pathway.getPreferredSize(), 0, true);
-        pathwayCanvas.getCanvasTransformation().setMinScale(pathwayCanvas.getScale());
+        moveToViewArea(getProportionedViewArea(pathway.getPreferredSize(), 0), true);
+        setMinScale();
 	}
     
     /**
@@ -448,10 +449,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void scale(double scaleFactor) {
-        for (DiagramCanvas canvas : getExistingCanvases()) {
-        	canvas.scale(scaleFactor);
-        }
-        fireViewChangeEvent();
+        scale(scaleFactor, getCenterPoint());
     }
     
     private void scale(double scaleFactor, Point point) {
@@ -462,7 +460,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
 
     public void zoomIn() {
-    	scale(Parameters.ZOOMFACTOR);
+    	zoomIn(getCenterPoint());
     }
     
     public void zoomIn(Point point) {
@@ -470,29 +468,40 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     }
     
     public void zoomOut() {
-    	scale(1 / Parameters.ZOOMFACTOR);
+    	zoomOut(getCenterPoint());
     }
     
     public void zoomOut(Point point) {
     	scale(1 / Parameters.ZOOMFACTOR, point);
+    	
+    	if (pathwayCanvas.getCanvasTransformation().lessThanMinScale()) {
+    		fireEvent(new ZoomedOutEvent(getPathway().getReactomeId()));
+    	}
     }
     
     public void center(Point point) {
     	center(point, false);
     }
     
-    public void center(Point point, Boolean entityCoordinates) {
+    private Point getCenterPoint() {
+    	return new Point(
+    		pathwayCanvas.getCoordinateSpaceWidth() / 2,
+    		pathwayCanvas.getCoordinateSpaceHeight() / 2
+    	);
+    }
+    
+    public void center(Point point, boolean entityCoordinates) {
     	for (DiagramCanvas canvas : getExistingCanvases()) {
     		canvas.center(point, entityCoordinates);
     	}
     	fireViewChangeEvent();
     }
     
-    private void moveToViewArea(Bounds viewArea, double buffer, boolean allowZoomIn) {
-    	double left = viewArea.getX() - buffer;
-    	double right = viewArea.getRight() + buffer;
-    	double top = viewArea.getY() - buffer;
-    	double bottom = viewArea.getBottom() + buffer;
+    private Bounds getProportionedViewArea(Bounds area, double buffer) {
+    	double left = area.getX() - buffer;
+    	double right = area.getRight() + buffer;
+    	double top = area.getY() - buffer;
+    	double bottom = area.getBottom() + buffer;
     	
     	double width = right - left;
     	double height = bottom - top;
@@ -521,16 +530,28 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     		top -= increase / 2.0;
     		bottom += increase/ 2.0;
     	}
+    
+    	return new Bounds(left, top, adjustedWidth, adjustedHeight);
+    }
+    
+    private void moveToViewArea(Bounds viewArea, boolean allowZoomIn) {
+    	final double newScale = getPathwayCanvas().getCoordinateSpaceWidth() / viewArea.getWidth();
+    	final boolean zoomingOut = newScale < getPathwayCanvas().getScale();
     	
-    	Bounds selectionArea = new Bounds(left, top, adjustedWidth, adjustedHeight);
-    	
-    	if (allowZoomIn || pathwayWidth / adjustedWidth < getPathwayCanvas().getScale()) {
+    	if (allowZoomIn || zoomingOut) {
     		reset();
-    		center(selectionArea.getCentre(), true);
-    		scale(pathwayWidth / adjustedWidth);
+    		center(viewArea.getCentre(), true);
+    		scale(newScale);
     	} else {
-    		center(selectionArea.getCentre(), true);
+    		center(viewArea.getCentre(), true);
     	}
+    }
+    
+    private void setMinScale() {
+    	final double pathwayWidth = getPathwayCanvas().getCoordinateSpaceWidth();
+    	final double adjustedWidth = getProportionedViewArea(getPathway().getPreferredSize(), 0).getWidth();
+    	
+    	getPathwayCanvas().getCanvasTransformation().setMinScale(pathwayWidth / adjustedWidth);
     }
     
     public void reset() {
@@ -643,8 +664,8 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
     	addHandler(handler, HoverEvent.TYPE);
     }
     
-    public void addViewChangeEventHandler(ViewChangeEventHandler handler) {
-    	pathwayCanvas.addHandler(handler, ViewChangeEvent.TYPE);
+    public void addZoomedOutEventHandler(ZoomedOutEventHandler handler) {
+    	addHandler(handler, ZoomedOutEvent.TYPE);
     }
     
     public void addPathwayChangeEventHandler(PathwayChangeEventHandler handler) {
@@ -718,7 +739,7 @@ public class PathwayDiagramPanel extends Composite implements ContextMenuHandler
         			objectsAndConnections.addAll(((HyperEdge) selectedObject).getConnectedNodes());
         		}
         	}
-    		moveToViewArea(getEncompassingBounds(objectsAndConnections), 50, false);
+    		moveToViewArea(getProportionedViewArea(getEncompassingBounds(objectsAndConnections), 50), false);
         	fireSelectionEvent(event);
         }
     }

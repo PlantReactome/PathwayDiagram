@@ -251,6 +251,10 @@ public abstract class DiagramCanvas extends PlugInSupportCanvas {
 		protected void setMinScale(double minScale) {
 			this.minScale = minScale;
 		}
+		
+		public boolean lessThanMinScale() {
+			return getScale() < getMinScale();
+		}
 
 		public double getScale() {
 			return scale;
