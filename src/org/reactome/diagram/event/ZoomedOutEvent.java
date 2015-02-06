@@ -36,8 +36,11 @@ public class ZoomedOutEvent extends GwtEvent<ZoomedOutEventHandler> {
 	protected void dispatch(ZoomedOutEventHandler handler) {
 		handler.onZoomedOut(this);
 	}
-	
-	public String toString() {
-		return getClass().getSimpleName() + " for pathway " + getPathwayId();
-	}
+
+    @Override
+    public String toString() {
+        return "ZoomedOutEvent{" +
+                "pathwayId=" + pathwayId +
+                '}';
+    }
 }
