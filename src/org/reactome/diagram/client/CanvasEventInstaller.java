@@ -265,7 +265,7 @@ public class CanvasEventInstaller {
         	
         	@Override
         	public void onMouseWheel(MouseWheelEvent event) {
-        		event.stopPropagation();
+        		event.stopPropagation(); event.preventDefault();
         		mouseWheel(event);
         	}
 
@@ -413,7 +413,7 @@ public class CanvasEventInstaller {
     	
     	Point scrollPoint = new Point(event.getX(), event.getY());
     		
-    	if (event.isNorth()) {
+    	if (event.getDeltaY() < 0) {
     		diagramPane.zoomIn(scrollPoint);
     	} else {
     		diagramPane.zoomOut(scrollPoint);
