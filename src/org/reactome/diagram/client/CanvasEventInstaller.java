@@ -395,27 +395,27 @@ public class CanvasEventInstaller {
             draggableNode = null;
         }
     }
-    
+
     private void mouseWheel(MouseWheelEvent event) {
     	if (diagramPane.getPopupMenu().isShowing() || ignoreMouseWheelEvent)
     		return;
-    	
+
     	Timer stopIgnoringEventTimer = new Timer() {
 
 			@Override
 			public void run() {
 				ignoreMouseWheelEvent = false;
 			}
-    		
+
     	};
     	ignoreMouseWheelEvent = true;
     	stopIgnoringEventTimer.schedule(250);
     	
     	Point scrollPoint = new Point(event.getX(), event.getY());
-    		
+
     	if (event.getDeltaY() < 0) {
     		diagramPane.zoomIn(scrollPoint);
-    	} else {
+    	} else if(event.getDeltaY() > 0) {
     		diagramPane.zoomOut(scrollPoint);
     	}
     	
