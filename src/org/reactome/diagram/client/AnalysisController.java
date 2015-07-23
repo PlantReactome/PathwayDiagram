@@ -55,6 +55,7 @@ public class AnalysisController {
     	
     	RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
     	requestBuilder.setHeader("Accept", "application/json");
+    	requestBuilder.setHeader("Content-Type", "text/plain; charset=UTF-8");
     	try {
     		return requestBuilder.sendRequest(getCommaSeparatedList(pathwayIds), callback);
     	} catch (RequestException ex) {
