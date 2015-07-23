@@ -23,6 +23,7 @@ import org.reactome.diagram.model.CanvasPathway;
 import org.reactome.diagram.model.CanvasPathway.ReferenceEntity;
 import org.reactome.diagram.model.CompositionalNode;
 import org.reactome.diagram.model.CompositionalNode.Component;
+import org.reactome.diagram.model.DiseaseCanvasPathway;
 import org.reactome.diagram.model.GraphObject;
 import org.reactome.diagram.model.GraphObjectType;
 import org.reactome.diagram.model.Node;
@@ -110,6 +111,14 @@ public class ExpressionCanvas extends DiagramCanvas {
 	public List<GraphObject> getObjectsForRendering() {
     	if (pathway == null)
     		return null;
+    	
+    	if (pathway instanceof DiseaseCanvasPathway) {
+       		List<GraphObject> objectsForRendering = pathway.getObjectsForRendering();
+    		List<GraphObject> normalObjects = ((DiseaseCanvasPathway) pathway).getNormalObjects();
+    		objectsForRendering.removeAll(normalObjects);
+    		
+    		return objectsForRendering;
+    	}
     	
     	return pathway.getObjectsForRendering();
     }	
